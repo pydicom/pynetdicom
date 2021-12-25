@@ -298,6 +298,8 @@ class DIMSEServiceProvider:
                 LOGGER.error("Received an invalid DIMSE message")
                 LOGGER.exception(exc)
                 self.dul.event_queue.put("Evt19")
+                # Shouldn't need to reset `self.message` as Evt19 will end
+                #   the association
                 return
 
             # Keep C-CANCEL requests separate from other messages

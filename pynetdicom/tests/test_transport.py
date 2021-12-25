@@ -21,11 +21,13 @@ from pynetdicom import AE, evt, _config, debug_logger
 from pynetdicom.association import Association
 from pynetdicom.events import Event
 from pynetdicom._globals import MODE_REQUESTOR
+from pynetdicom.pdu_primitives import A_ASSOCIATE
 from pynetdicom import transport
 from pynetdicom.transport import (
     AssociationSocket,
     AssociationServer,
     ThreadedAssociationServer,
+    T_CONNECT,
 )
 from pynetdicom.sop_class import Verification, RTImageStorage
 from .encoded_pdu_items import p_data_tf_rq
@@ -52,6 +54,35 @@ DATASET = dcmread(os.path.join(DCM_DIR, "RTImageStorage.dcm"))
 
 
 # debug_logger()
+
+
+class TestTConnect:
+    """Tests for T_CONNECT."""
+
+    def test_bad_addr_raises(self):
+        """Test a bad init parameter raises exception"""
+        msg = (
+            r"'address' must be 'Tuple\[str, int\]' or "
+            r"'pynetdicom.pdu_primitives.A_ASSOCIATE', not 'NoneType'"
+        )
+        with pytest.raises(TypeError, match=msg):
+            T_CONNECT(None)
+
+    def test_address_tuple(self):
+        """Test init with a tuple"""
+        conn = T_CONNECT(("123", 12))
+        assert conn.address == ("123", 12)
+        assert conn.request is None
+        assert conn.result == ""
+
+    def test_address_request(self):
+        """Test init with an A-ASSOCIATE primitive"""
+        request = A_ASSOCIATE()
+        request.called_presentation_address = ("123", 12)
+        conn = T_CONNECT(request)
+        assert conn.address == ("123", 12)
+        assert conn.request is request
+        assert conn.result == ""
 
 
 class TestAssociationSocket:
@@ -128,7 +159,7 @@ class TestAssociationSocket:
         sock.close()
         assert sock.socket is None
         # Tries to connect, sets to None if fails
-        sock.connect(("", 11112))
+        sock.connect(T_CONNECT(("", 11112)))
         assert sock.event_queue.get() == "Evt17"
         assert sock.socket is None
 

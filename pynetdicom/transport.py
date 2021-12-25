@@ -37,14 +37,57 @@ from pynetdicom._handlers import (
     standard_pdu_recv_handler,
     standard_pdu_sent_handler,
 )
+from pynetdicom.pdu_primitives import A_ASSOCIATE
 from pynetdicom.presentation import PresentationContext
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.ae import ApplicationEntity
     from pynetdicom.association import Association
+    from pynetdicom.dul import _QueueType
 
 
 LOGGER = logging.getLogger("pynetdicom.transport")
+
+
+class T_CONNECT:
+    """A TRANSPORT CONNECTION primitive
+
+    .. versionadded:: 2.0
+    """
+
+    def __init__(self, address: Union[Tuple[str, int], "A_ASSOCIATE"]) -> None:
+        """Create a new TRANSPORT CONNECTION primitive.
+
+        Parameters
+        ----------
+        address : Union[Tuple[str, int], pynetdicom.pdu_primitives.A_ASSOCIATE]
+            The ``(str: IP address, int: port)`` or A-ASSOCIATE (request) primitive to
+            use when making a connection with a peer.
+        """
+        self._request = None
+        self.result = ""
+
+        if isinstance(address, tuple):
+            self._address = address
+        elif isinstance(address, A_ASSOCIATE):
+            self._address = cast(Tuple[str, int], address.called_presentation_address)
+            self._request = address
+        else:
+            raise TypeError(
+                f"'address' must be 'Tuple[str, int]' or "
+                "'pynetdicom.pdu_primitives.A_ASSOCIATE', not "
+                f"'{address.__class__.__name__}'"
+            )
+
+    @property
+    def address(self) -> Tuple[str, int]:
+        """Return the peer's ``(str: IP address, int: port)``."""
+        return self._address
+
+    @property
+    def request(self) -> Optional[A_ASSOCIATE]:
+        """Return the A-ASSOCIATE (request) primitive, or ``None`` if not available."""
+        return self._request
 
 
 class AssociationSocket:
@@ -147,18 +190,18 @@ class AssociationSocket:
         # Evt17: Transport connection closed
         self.event_queue.put("Evt17")
 
-    def connect(self, address: Tuple[str, int]) -> None:
+    def connect(self, primitive: T_CONNECT) -> None:
         """Try and connect to a remote at `address`.
 
-        **Events Emitted**
+        .. versionchanged:: 2.0
 
-        - Evt2: Transport connection confirmed
-        - Evt17: Transport connection closed
+            Changed to take a :class:`~pynetdicom.transport.T_CONNECT` primitive rather
+            than an address tuple.
 
         Parameters
         ----------
-        address : 2-tuple
-            The ``(host: str, port: int)`` IPv4 address to connect to.
+        primitive : pynetdicom.transport.T_CONNECT
+            The TRANSPORT CONNECT primitive to use when connecting to a peer.
         """
         if self.socket is None:
             self.socket = self._create_socket()
@@ -178,14 +221,15 @@ class AssociationSocket:
             self.socket.settimeout(self.assoc.connection_timeout)
             # Try and connect to remote at (address, port)
             #   raises socket.error if connection refused
-            self.socket.connect(address)
+            self.socket.connect(primitive.address)
             # Clear ae connection timeout
             self.socket.settimeout(None)
             # Trigger event - connection open
-            evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {"address": address})
+            evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {"address": primitive.address})
             self._is_connected = True
             # Evt2: Transport connection confirmation
-            self.event_queue.put("Evt2")
+            primitive.result = "Evt2"
+            self.provider_queue.put(primitive)
         except OSError as exc:
             # Log connection failure
             LOGGER.error("Association request failed: unable to connect to remote")
@@ -203,7 +247,9 @@ class AssociationSocket:
                     pass
                 self.socket.close()
                 self.socket = None
-            self.event_queue.put("Evt17")
+
+            primitive.result = "Evt17"
+            self.provider_queue.put(primitive)
         finally:
             self._ready.set()
 
@@ -255,7 +301,7 @@ class AssociationSocket:
 
     @property
     def event_queue(self) -> "queue.Queue[str]":
-        """Return the :class:`~pynetdicom.association.Association`'s event
+        """Return the :class:`~pynetdicom.association.Association`'s service event
         queue.
         """
         return self.assoc.dul.event_queue
@@ -279,6 +325,13 @@ class AssociationSocket:
                 addr = "127.0.0.1"
 
         return addr
+
+    @property
+    def provider_queue(self) -> "_QueueType":
+        """Return the :class:`~pynetdicom.association.Association`'s service provider
+        queue.
+        """
+        return self.assoc.dul.to_provider_queue
 
     @property
     def ready(self) -> bool:

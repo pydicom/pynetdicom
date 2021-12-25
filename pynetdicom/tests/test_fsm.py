@@ -24,7 +24,7 @@ from pynetdicom.pdu_primitives import (
     ImplementationClassUIDNotification,
 )
 from pynetdicom.sop_class import Verification
-from pynetdicom.transport import AssociationSocket
+from pynetdicom.transport import AssociationSocket, T_CONNECT
 from .encoded_pdu_items import (
     a_associate_ac,
     a_associate_rq,
@@ -401,14 +401,23 @@ class TestStateBase:
         fsm = self.monkey_patch(assoc.dul.state_machine)
         return assoc, fsm
 
-    def wait_on_state(self, fsm, state, timeout=5):
+    def wait_on_state(self, fsm, state, timeout=2):
         start = 0
-        while fsm.current_state != state and start < timeout:
-            time.sleep(0.05)
-            start += 0.05
+        while (
+            fsm.current_state != state
+            and fsm.current_state not in state
+            and start < timeout
+        ):
+            time.sleep(0.0001)
+            start += 0.0001
+
+        # if start >= timeout:
+        #     print(f"'wait_on_state' timed out for state {state}")
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
+IGNORE_FILTER = "ignore:.*:pytest.PytestUnhandledThreadExceptionWarning"
+
+
 class TestState01(TestStateBase):
     """Tests for State 01: Idle."""
 
@@ -443,6 +452,7 @@ class TestState01(TestStateBase):
         # Evt2: Receive TRANSPORT_OPEN from <transport service>
         pass
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt03(self):
         """Test Sta1 + Evt3."""
         # Sta1 + Evt3 -> <ignore> -> Sta1
@@ -456,6 +466,10 @@ class TestState01(TestStateBase):
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -463,6 +477,7 @@ class TestState01(TestStateBase):
         assert self.fsm._changes == []
         assert self.fsm._events[:1] == ["Evt3"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt04(self):
         """Test Sta1 + Evt4."""
         # Sta1 + Evt4 -> <ignore> -> Sta1
@@ -476,6 +491,10 @@ class TestState01(TestStateBase):
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -492,6 +511,7 @@ class TestState01(TestStateBase):
         #       Start ARTIM timer
         pass
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt06(self):
         """Test Sta1 + Evt6."""
         # Sta1 + Evt6 -> <ignore> -> Sta1
@@ -505,6 +525,10 @@ class TestState01(TestStateBase):
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -512,6 +536,7 @@ class TestState01(TestStateBase):
         assert self.fsm._changes == []
         assert self.fsm._events[:1] == ["Evt6"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta1 + Evt7."""
         # Sta1 + Evt7 -> <ignore> -> Sta1
@@ -519,9 +544,12 @@ class TestState01(TestStateBase):
         self.assoc._mode = "acceptor"
         self.assoc.start()
 
+        time.sleep(0.1)
+
         self.assoc.dul.send_pdu(self.get_associate("accept"))
 
-        time.sleep(0.5)
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         self.assoc.kill()
 
@@ -529,6 +557,7 @@ class TestState01(TestStateBase):
         assert self.fsm._changes == []
         assert self.fsm._events[0] == "Evt7"
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta1 + Evt8."""
         # Sta1 + Evt8 -> <ignore> -> Sta1
@@ -536,9 +565,12 @@ class TestState01(TestStateBase):
         self.assoc._mode = "acceptor"
         self.assoc.start()
 
+        time.sleep(0.1)
+
         self.assoc.dul.send_pdu(self.get_associate("reject"))
 
-        time.sleep(0.5)
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         self.assoc.kill()
 
@@ -547,6 +579,7 @@ class TestState01(TestStateBase):
         assert self.fsm._events[0] == "Evt8"
         assert self.fsm.current_state == "Sta1"
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt09(self):
         """Test Sta1 + Evt9."""
         # Sta1 + Evt9 -> <ignore> -> Sta1
@@ -554,9 +587,12 @@ class TestState01(TestStateBase):
         self.assoc._mode = "acceptor"
         self.assoc.start()
 
+        time.sleep(0.1)
+
         self.assoc.dul.send_pdu(self.get_pdata())
 
-        time.sleep(0.5)
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         self.assoc.kill()
 
@@ -565,6 +601,7 @@ class TestState01(TestStateBase):
         assert self.fsm._events[0] == "Evt9"
         assert self.fsm.current_state == "Sta1"
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt10(self):
         """Test Sta1 + Evt10."""
         # Sta1 + Evt10 -> <ignore> -> Sta1
@@ -578,6 +615,10 @@ class TestState01(TestStateBase):
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -585,6 +626,7 @@ class TestState01(TestStateBase):
         assert self.fsm._changes == []
         assert self.fsm._events[:1] == ["Evt10"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta1 + Evt11."""
         # Sta1 + Evt11 -> <ignore> -> Sta1
@@ -592,9 +634,12 @@ class TestState01(TestStateBase):
         self.assoc._mode = "acceptor"
         self.assoc.start()
 
+        time.sleep(0.1)
+
         self.assoc.dul.send_pdu(self.get_release(False))
 
-        time.sleep(0.5)
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         self.assoc.kill()
 
@@ -603,6 +648,7 @@ class TestState01(TestStateBase):
         assert self.fsm._events[0] == "Evt11"
         assert self.fsm.current_state == "Sta1"
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt12(self):
         """Test Sta1 + Evt12."""
         # Sta1 + Evt12 -> <ignore> -> Sta1
@@ -616,6 +662,10 @@ class TestState01(TestStateBase):
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -623,6 +673,7 @@ class TestState01(TestStateBase):
         assert self.fsm._changes == []
         assert self.fsm._events[:1] == ["Evt12"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt13(self):
         """Test Sta1 + Evt13."""
         # Sta1 + Evt13 -> <ignore> -> Sta1
@@ -636,6 +687,10 @@ class TestState01(TestStateBase):
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -643,6 +698,7 @@ class TestState01(TestStateBase):
         assert self.fsm._changes == []
         assert self.fsm._events[:1] == ["Evt13"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt14(self):
         """Test Sta1 + Evt14."""
         # Sta1 + Evt14 -> <ignore> -> Sta1
@@ -650,9 +706,12 @@ class TestState01(TestStateBase):
         self.assoc._mode = "acceptor"
         self.assoc.start()
 
+        time.sleep(0.1)
+
         self.assoc.dul.send_pdu(self.get_release(True))
 
-        time.sleep(0.5)
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         self.assoc.kill()
 
@@ -661,6 +720,7 @@ class TestState01(TestStateBase):
         assert self.fsm._events[0] == "Evt14"
         assert self.fsm.current_state == "Sta1"
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt15(self):
         """Test Sta1 + Evt15."""
         # Sta1 + Evt15 -> <ignore> -> Sta1
@@ -668,9 +728,12 @@ class TestState01(TestStateBase):
         self.assoc._mode = "acceptor"
         self.assoc.start()
 
+        time.sleep(0.1)
+
         self.assoc.dul.send_pdu(self.get_abort(False))
 
-        time.sleep(0.5)
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         self.assoc.kill()
 
@@ -679,6 +742,7 @@ class TestState01(TestStateBase):
         assert self.fsm._events[0] == "Evt15"
         assert self.fsm.current_state == "Sta1"
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt16(self):
         """Test Sta1 + Evt16."""
         # Sta1 + Evt16 -> <ignore> -> Sta1
@@ -692,6 +756,10 @@ class TestState01(TestStateBase):
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -699,6 +767,7 @@ class TestState01(TestStateBase):
         assert self.fsm._changes == []
         assert self.fsm._events[:1] == ["Evt16"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt17(self):
         """Test Sta1 + Evt17."""
         # Sta1 + Evt17 -> <ignore> -> Sta1
@@ -714,22 +783,28 @@ class TestState01(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        time.sleep(0.5)
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         assert self.fsm._transitions == []
         assert self.fsm._changes == []
         assert self.fsm._events[:1] == ["Evt17"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt18(self):
         """Test Sta1 + Evt18."""
         # Sta1 + Evt18 -> <ignore> -> Sta1
         # Evt18: ARTIM timer expired from <local service>
         self.assoc._mode = "acceptor"
         self.assoc.start()
+
+        time.sleep(0.1)
+
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
 
-        time.sleep(0.5)
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         self.assoc.kill()
 
@@ -740,6 +815,7 @@ class TestState01(TestStateBase):
         assert self.fsm._events[0] == "Evt18"
         assert self.fsm.current_state == "Sta1"
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt19(self):
         """Test Sta1 + Evt19."""
         # Sta1 + Evt19 -> <ignore> -> Sta1
@@ -753,6 +829,10 @@ class TestState01(TestStateBase):
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -761,7 +841,6 @@ class TestState01(TestStateBase):
         assert self.fsm._events[:1] == ["Evt19"]
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState02(TestStateBase):
     """Tests for State 02: Connection open, waiting for A-ASSOCIATE-RQ."""
 
@@ -769,6 +848,7 @@ class TestState02(TestStateBase):
         assoc.start()
         self.wait_on_state(assoc.dul.state_machine, "Sta2")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta2 + Evt1."""
         # Sta2 + Evt1 -> <ignore> -> Sta2
@@ -779,6 +859,9 @@ class TestState02(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_associate("request"))
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -881,6 +964,7 @@ class TestState02(TestStateBase):
         assert fsm._changes[:2] == [("Sta1", "Evt5", "AE-5"), ("Sta2", "Evt6", "AE-6")]
         assert fsm._events[:2] == ["Evt5", "Evt6"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta2 + Evt7."""
         # Sta2 + Evt7 -> <ignore> -> Sta2
@@ -892,6 +976,9 @@ class TestState02(TestStateBase):
         self.move_to_state(assoc, scp)
         assoc.dul.send_pdu(self.get_associate("accept"))
 
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -901,6 +988,7 @@ class TestState02(TestStateBase):
         ]
         assert fsm._events[:2] == ["Evt5", "Evt7"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta2 + Evt8."""
         # Sta2 + Evt8 -> <ignore> -> Sta2
@@ -912,6 +1000,9 @@ class TestState02(TestStateBase):
 
         assoc.dul.send_pdu(self.get_associate("reject"))
 
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -921,6 +1012,7 @@ class TestState02(TestStateBase):
         ]
         assert fsm._events[:2] == ["Evt5", "Evt8"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt09(self):
         """Test Sta2 + Evt9."""
         # Sta2 + Evt9 -> <ignore> -> Sta2
@@ -932,6 +1024,9 @@ class TestState02(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_pdata())
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -961,6 +1056,7 @@ class TestState02(TestStateBase):
         assert fsm._changes[:2] == [("Sta1", "Evt5", "AE-5"), ("Sta2", "Evt10", "AA-1")]
         assert fsm._events[:2] == ["Evt5", "Evt10"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta2 + Evt11."""
         # Sta2 + Evt11 -> <ignore> -> Sta2
@@ -972,6 +1068,9 @@ class TestState02(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_release(False))
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -1020,6 +1119,7 @@ class TestState02(TestStateBase):
         assert fsm._changes[:2] == [("Sta1", "Evt5", "AE-5"), ("Sta2", "Evt13", "AA-1")]
         assert fsm._events[:2] == ["Evt5", "Evt13"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt14(self):
         """Test Sta2 + Evt14."""
         # Sta2 + Evt14 -> <ignore> -> Sta2
@@ -1032,6 +1132,9 @@ class TestState02(TestStateBase):
 
         assoc.dul.send_pdu(self.get_release(True))
 
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1041,6 +1144,7 @@ class TestState02(TestStateBase):
         ]
         assert fsm._events[:2] == ["Evt5", "Evt14"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt15(self):
         """Test Sta2 + Evt15."""
         # Sta2 + Evt15 -> <ignore> -> Sta2
@@ -1052,6 +1156,9 @@ class TestState02(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_abort())
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -1140,7 +1247,6 @@ class TestState02(TestStateBase):
         assert fsm._events[:2] == ["Evt5", "Evt19"]
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState03(TestStateBase):
     """Tests for State 03: Awaiting A-ASSOCIATE (rsp) primitive."""
 
@@ -1149,6 +1255,7 @@ class TestState03(TestStateBase):
         scp.step()
         self.wait_on_state(assoc.dul.state_machine, "Sta3")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta3 + Evt1."""
         # Sta3 + Evt1 -> <ignore> -> Sta3
@@ -1166,6 +1273,9 @@ class TestState03(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_associate("request"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -1330,6 +1440,7 @@ class TestState03(TestStateBase):
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
+        self.wait_on_state(assoc.dul.state_machine, ["Sta13", "Sta1"])
 
         scp.step()
         scp.shutdown()
@@ -1342,6 +1453,7 @@ class TestState03(TestStateBase):
         ]
         assert fsm._events[:3] == ["Evt5", "Evt6", "Evt8"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt09(self):
         """Test Sta3 + Evt9."""
         # Sta3 + Evt9 -> <ignore> -> Sta3
@@ -1359,6 +1471,9 @@ class TestState03(TestStateBase):
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -1403,6 +1518,7 @@ class TestState03(TestStateBase):
         ]
         assert fsm._events[:3] == ["Evt5", "Evt6", "Evt10"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta3 + Evt11."""
         # Sta3 + Evt11 -> <ignore> -> Sta3
@@ -1420,6 +1536,9 @@ class TestState03(TestStateBase):
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -1497,6 +1616,7 @@ class TestState03(TestStateBase):
         ]
         assert fsm._events[:3] == ["Evt5", "Evt6", "Evt13"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt14(self):
         """Test Sta3 + Evt14."""
         # Sta3 + Evt14 -> <ignore> -> Sta3
@@ -1514,6 +1634,9 @@ class TestState03(TestStateBase):
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -1622,6 +1745,7 @@ class TestState03(TestStateBase):
         ]
         assert fsm._events[:3] == ["Evt5", "Evt6", "Evt17"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt18(self):
         """Test Sta3 + Evt18."""
         # Sta3 + Evt18 -> <ignore> -> Sta3
@@ -1644,6 +1768,9 @@ class TestState03(TestStateBase):
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.shutdown()
 
@@ -1692,12 +1819,12 @@ class TestState03(TestStateBase):
         assert fsm._events[:3] == ["Evt5", "Evt6", "Evt19"]
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState04(TestStateBase):
     """Tests for State 04: Awaiting TRANSPORT_OPEN from <transport service>."""
 
     def move_to_state(self, assoc, scp):
-        def connect(address):
+        def connect(primitive):
+            address = primitive.address
             """Override the socket's connect so no event gets added."""
             if assoc.dul.socket.socket is None:
                 assoc.dul.socket.socket = assoc.dul.socket._create_socket()
@@ -1713,6 +1840,7 @@ class TestState04(TestStateBase):
         assoc.start()
         self.wait_on_state(assoc.dul.state_machine, "Sta4")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta4 + Evt1."""
         # Sta4 + Evt1 -> <ignore> -> Sta4
@@ -1722,6 +1850,9 @@ class TestState04(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -1739,6 +1870,7 @@ class TestState04(TestStateBase):
         # Evt2: Receive TRANSPORT_OPEN from <transport service>
         pass
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt03(self):
         """Test Sta4 + Evt3."""
         # Sta4 + Evt3 -> <ignore> -> Sta4
@@ -1748,6 +1880,10 @@ class TestState04(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1757,6 +1893,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt3"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt04(self):
         """Test Sta4 + Evt4."""
         # Sta4 + Evt4 -> <ignore> -> Sta4
@@ -1766,6 +1903,10 @@ class TestState04(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1784,6 +1925,7 @@ class TestState04(TestStateBase):
         #       Start ARTIM timer
         pass
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt06(self):
         """Test Sta4 + Evt6."""
         # Sta4 + Evt6 -> <ignore> -> Sta4
@@ -1793,6 +1935,10 @@ class TestState04(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1802,6 +1948,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt6"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta4 + Evt7."""
         # Sta4 + Evt7 -> <ignore> -> Sta4
@@ -1812,6 +1959,9 @@ class TestState04(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1821,6 +1971,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt7"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta4 + Evt8."""
         # Sta4 + Evt8 -> <ignore> -> Sta4
@@ -1831,6 +1982,9 @@ class TestState04(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1840,6 +1994,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt8"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt09(self):
         """Test Sta4 + Evt9."""
         # Sta4 + Evt9 -> <ignore> -> Sta4
@@ -1850,6 +2005,9 @@ class TestState04(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_pdata())
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1859,6 +2017,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt9"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt10(self):
         """Test Sta4 + Evt10."""
         # Sta4 + Evt10 -> <ignore> -> Sta4
@@ -1868,6 +2027,10 @@ class TestState04(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1877,6 +2040,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt10"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta4 + Evt11."""
         # Sta4 + Evt11 -> <ignore> -> Sta4
@@ -1887,6 +2051,9 @@ class TestState04(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_release(False))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1896,6 +2063,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt11"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt12(self):
         """Test Sta4 + Evt12."""
         # Sta4 + Evt12 -> <ignore> -> Sta4
@@ -1905,6 +2073,10 @@ class TestState04(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1914,6 +2086,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt12"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt13(self):
         """Test Sta4 + Evt13."""
         # Sta4 + Evt13 -> <ignore> -> Sta4
@@ -1923,6 +2096,10 @@ class TestState04(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1932,6 +2109,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt13"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt14(self):
         """Test Sta4 + Evt14."""
         # Sta4 + Evt14 -> <ignore> -> Sta4
@@ -1942,6 +2120,9 @@ class TestState04(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_release(True))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1951,6 +2132,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt14"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt15(self):
         """Test Sta4 + Evt15."""
         # Sta4 + Evt15 -> <ignore> -> Sta4
@@ -1961,6 +2143,9 @@ class TestState04(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_abort())
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1970,6 +2155,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt15"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt16(self):
         """Test Sta4 + Evt16."""
         # Sta4 + Evt16 -> <ignore> -> Sta4
@@ -1979,6 +2165,10 @@ class TestState04(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -1988,6 +2178,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt16"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt17(self):
         """Test Sta4 + Evt17."""
         # Sta4 + Evt17 -> <ignore> -> Sta4
@@ -1999,7 +2190,8 @@ class TestState04(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        time.sleep(0.5)
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         assert self.fsm._transitions[:1] == ["Sta4"]
         assert self.fsm._changes[:1] == [
@@ -2007,6 +2199,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt17"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt18(self):
         """Test Sta4 + Evt18."""
         # Sta4 + Evt18 -> <ignore> -> Sta4
@@ -2017,7 +2210,9 @@ class TestState04(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        time.sleep(0.5)
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2028,6 +2223,7 @@ class TestState04(TestStateBase):
         ]
         assert self.fsm._events[:2] == ["Evt1", "Evt18"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt19(self):
         """Test Sta4 + Evt19."""
         # Sta4 + Evt19 -> <ignore> -> Sta4
@@ -2037,6 +2233,10 @@ class TestState04(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         scp.step()
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -2047,7 +2247,6 @@ class TestState04(TestStateBase):
         assert self.fsm._events[:2] == ["Evt1", "Evt19"]
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState05(TestStateBase):
     """Tests for State 05: Awaiting A-ASSOCIATE-AC or A-ASSOCIATE-RJ PDU."""
 
@@ -2056,6 +2255,7 @@ class TestState05(TestStateBase):
         scp.step()
         self.wait_on_state(assoc.dul.state_machine, "Sta5")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta5 + Evt1."""
         # Sta5 + Evt1 -> <ignore> -> Sta5
@@ -2065,6 +2265,9 @@ class TestState05(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2164,6 +2367,7 @@ class TestState05(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta5 + Evt7."""
         # Sta5 + Evt7 -> <ignore> -> Sta5
@@ -2173,6 +2377,9 @@ class TestState05(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2184,6 +2391,7 @@ class TestState05(TestStateBase):
         assert self.fsm._transitions[:2] == ["Sta4", "Sta5"]
         assert self.fsm._events[:3] == ["Evt1", "Evt2", "Evt7"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta5 + Evt8."""
         # Sta5 + Evt8 -> <ignore> -> Sta5
@@ -2193,6 +2401,9 @@ class TestState05(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2204,6 +2415,7 @@ class TestState05(TestStateBase):
         assert self.fsm._transitions[:2] == ["Sta4", "Sta5"]
         assert self.fsm._events[:3] == ["Evt1", "Evt2", "Evt8"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt09(self):
         """Test Sta5 + Evt9."""
         # Sta5 + Evt9 -> <ignore> -> Sta5
@@ -2213,6 +2425,9 @@ class TestState05(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2251,6 +2466,7 @@ class TestState05(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta5 + Evt11."""
         # Sta5 + Evt11 -> <ignore> -> Sta5
@@ -2260,6 +2476,9 @@ class TestState05(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2333,6 +2552,7 @@ class TestState05(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt14(self):
         """Test Sta5 + Evt14."""
         # Sta5 + Evt14 -> <ignore> -> Sta5
@@ -2342,6 +2562,9 @@ class TestState05(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2427,6 +2650,7 @@ class TestState05(TestStateBase):
         assert self.fsm._transitions[:3] == ["Sta4", "Sta5", "Sta1"]
         assert self.fsm._events[:3] == ["Evt1", "Evt2", "Evt17"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt18(self):
         """Test Sta5 + Evt18."""
         # Sta5 + Evt18 -> <ignore> -> Sta5
@@ -2437,7 +2661,9 @@ class TestState05(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        time.sleep(0.5)
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2481,7 +2707,6 @@ class TestState05(TestStateBase):
         )
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState06(TestStateBase):
     """Tests for State 06: Association established and ready for data."""
 
@@ -2491,6 +2716,7 @@ class TestState06(TestStateBase):
         scp.step()
         self.wait_on_state(assoc.dul.state_machine, "Sta6")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta6 + Evt1."""
         # Sta6 + Evt1 -> <ignore> -> Sta6
@@ -2500,6 +2726,9 @@ class TestState06(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2628,6 +2857,7 @@ class TestState06(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta6 + Evt7."""
         # Sta6 + Evt7 -> <ignore> -> Sta6
@@ -2637,6 +2867,9 @@ class TestState06(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2649,6 +2882,7 @@ class TestState06(TestStateBase):
         assert self.fsm._transitions[:3] == ["Sta4", "Sta5", "Sta6"]
         assert self.fsm._events[:4] == ["Evt1", "Evt2", "Evt3", "Evt7"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta6 + Evt8."""
         # Sta6 + Evt8 -> <ignore> -> Sta6
@@ -2658,6 +2892,9 @@ class TestState06(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2802,6 +3039,7 @@ class TestState06(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt14(self):
         """Test Sta6 + Evt14."""
         # Sta6 + Evt14 -> <ignore> -> Sta6
@@ -2811,6 +3049,9 @@ class TestState06(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2907,6 +3148,7 @@ class TestState06(TestStateBase):
         assert self.fsm._transitions[:4] == ["Sta4", "Sta5", "Sta6", "Sta1"]
         assert self.fsm._events[:4] == ["Evt1", "Evt2", "Evt3", "Evt17"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt18(self):
         """Test Sta6 + Evt18."""
         # Sta6 + Evt18 -> <ignore> -> Sta6
@@ -2917,7 +3159,9 @@ class TestState06(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        time.sleep(0.5)
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -2965,7 +3209,6 @@ class TestState06(TestStateBase):
         )
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState07(TestStateBase):
     """Tests for State 07: Awaiting A-RELEASE-RP PDU."""
 
@@ -2978,6 +3221,7 @@ class TestState07(TestStateBase):
         scp.step()
         self.wait_on_state(assoc.dul.state_machine, "Sta7")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta7 + Evt1."""
         # Sta7 + Evt1 -> <ignore> -> Sta7
@@ -2992,6 +3236,9 @@ class TestState07(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -3127,6 +3374,7 @@ class TestState07(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta7 + Evt7."""
         # Sta7 + Evt7 -> <ignore> -> Sta7
@@ -3142,6 +3390,9 @@ class TestState07(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -3154,6 +3405,7 @@ class TestState07(TestStateBase):
         assert self.fsm._transitions[:4] == ["Sta4", "Sta5", "Sta6", "Sta7"]
         assert self.fsm._events[:5] == ["Evt1", "Evt2", "Evt3", "Evt11", "Evt7"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta7 + Evt8."""
         # Sta7 + Evt8 -> <ignore> -> Sta7
@@ -3169,6 +3421,9 @@ class TestState07(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -3181,6 +3436,7 @@ class TestState07(TestStateBase):
         assert self.fsm._transitions[:4] == ["Sta4", "Sta5", "Sta6", "Sta7"]
         assert self.fsm._events[:5] == ["Evt1", "Evt2", "Evt3", "Evt11", "Evt8"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt09(self):
         """Test Sta7 + Evt9."""
         # Sta7 + Evt9 -> <ignore> -> Sta7
@@ -3195,6 +3451,9 @@ class TestState07(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -3239,6 +3498,7 @@ class TestState07(TestStateBase):
         assert self.fsm._transitions[:4] == ["Sta4", "Sta5", "Sta6", "Sta7"]
         assert self.fsm._events[:5] == ["Evt1", "Evt2", "Evt3", "Evt11", "Evt10"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta7 + Evt11."""
         # Sta7 + Evt11 -> <ignore> -> Sta7
@@ -3253,6 +3513,9 @@ class TestState07(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -3326,6 +3589,7 @@ class TestState07(TestStateBase):
         assert self.fsm._transitions[:4] == ["Sta4", "Sta5", "Sta6", "Sta7"]
         assert self.fsm._events[:5] == ["Evt1", "Evt2", "Evt3", "Evt11", "Evt13"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt14(self):
         """Test Sta7 + Evt14."""
         # Sta7 + Evt14 -> <ignore> -> Sta7
@@ -3340,6 +3604,9 @@ class TestState07(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -3442,6 +3709,7 @@ class TestState07(TestStateBase):
         assert self.fsm._transitions[:4] == ["Sta4", "Sta5", "Sta6", "Sta7"]
         assert self.fsm._events[:5] == ["Evt1", "Evt2", "Evt3", "Evt11", "Evt17"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt18(self):
         """Test Sta7 + Evt18."""
         # Sta7 + Evt18 -> <ignore> -> Sta7
@@ -3457,7 +3725,9 @@ class TestState07(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        time.sleep(0.5)
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -3508,7 +3778,6 @@ class TestState07(TestStateBase):
         )
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState08(TestStateBase):
     """Tests for State 08: Awaiting A-RELEASE (rp) primitive."""
 
@@ -3526,6 +3795,7 @@ class TestState08(TestStateBase):
         scp.step()
         self.wait_on_state(assoc.dul.state_machine, "Sta8")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta8 + Evt1."""
         # Sta8 + Evt1 -> <ignore> -> Sta8
@@ -3540,6 +3810,9 @@ class TestState08(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -3654,6 +3927,7 @@ class TestState08(TestStateBase):
         assert self.fsm._transitions[:4] == ["Sta4", "Sta5", "Sta6", "Sta8"]
         assert self.fsm._events[:5] == ["Evt1", "Evt2", "Evt3", "Evt12", "Evt6"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta8 + Evt7."""
         # Sta8 + Evt7 -> <ignore> -> Sta8
@@ -3669,6 +3943,9 @@ class TestState08(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -3681,6 +3958,7 @@ class TestState08(TestStateBase):
         assert self.fsm._transitions[:4] == ["Sta4", "Sta5", "Sta6", "Sta8"]
         assert self.fsm._events[:5] == ["Evt1", "Evt2", "Evt3", "Evt12", "Evt7"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta8 + Evt8."""
         # Sta8 + Evt8 -> <ignore> -> Sta8
@@ -3695,6 +3973,9 @@ class TestState08(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -3765,6 +4046,7 @@ class TestState08(TestStateBase):
         assert self.fsm._transitions[:4] == ["Sta4", "Sta5", "Sta6", "Sta8"]
         assert self.fsm._events[:5] == ["Evt1", "Evt2", "Evt3", "Evt12", "Evt10"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta8 + Evt11."""
         # Sta8 + Evt11 -> <ignore> -> Sta8
@@ -3779,6 +4061,9 @@ class TestState08(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -3967,6 +4252,7 @@ class TestState08(TestStateBase):
         assert self.fsm._transitions[:4] == ["Sta4", "Sta5", "Sta6", "Sta8"]
         assert self.fsm._events[:5] == ["Evt1", "Evt2", "Evt3", "Evt12", "Evt17"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt18(self):
         """Test Sta8 + Evt18."""
         # Sta8 + Evt18 -> <ignore> -> Sta1
@@ -3982,7 +4268,9 @@ class TestState08(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        time.sleep(0.5)
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -4026,7 +4314,6 @@ class TestState08(TestStateBase):
         assert self.fsm._events[:5] == ["Evt1", "Evt2", "Evt3", "Evt12", "Evt19"]
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState09(TestStateBase):
     """Tests for State 09: Release collision req - awaiting A-RELEASE (rp)."""
 
@@ -4046,6 +4333,7 @@ class TestState09(TestStateBase):
         scp.step()
         self.wait_on_state(assoc.dul.state_machine, "Sta9")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta9 + Evt1."""
         # Sta9 + Evt1 -> <ignore> -> Sta9
@@ -4061,6 +4349,9 @@ class TestState09(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -4225,6 +4516,7 @@ class TestState09(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta9 + Evt7."""
         # Sta9 + Evt7 -> <ignore> -> Sta9
@@ -4240,6 +4532,9 @@ class TestState09(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -4261,6 +4556,7 @@ class TestState09(TestStateBase):
             "Evt7",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta9 + Evt8."""
         # Sta9 + Evt8 -> <ignore> -> Sta9
@@ -4276,6 +4572,9 @@ class TestState09(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -4297,6 +4596,7 @@ class TestState09(TestStateBase):
             "Evt8",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt09(self):
         """Test Sta9 + Evt9."""
         # Sta9 + Evt9 -> <ignore> -> Sta9
@@ -4312,6 +4612,9 @@ class TestState09(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -4376,6 +4679,7 @@ class TestState09(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta9 + Evt11."""
         # Sta9 + Evt11 -> <ignore> -> Sta9
@@ -4391,6 +4695,9 @@ class TestState09(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -4659,6 +4966,7 @@ class TestState09(TestStateBase):
             "Evt17",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt18(self):
         """Test Sta9 + Evt18."""
         # Sta9 + Evt18 -> <ignore> -> Sta9
@@ -4675,7 +4983,9 @@ class TestState09(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        time.sleep(0.5)
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -4741,7 +5051,6 @@ class TestState09(TestStateBase):
         )
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState10(TestStateBase):
     """Tests for State 10: Release collision acc - awaiting A-RELEASE-RP ."""
 
@@ -4761,6 +5070,7 @@ class TestState10(TestStateBase):
         scp.step()
         self.wait_on_state(assoc.dul.state_machine, "Sta10")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta10 + Evt1."""
         # Sta10 + Evt1 -> <ignore> -> Sta10
@@ -4777,6 +5087,9 @@ class TestState10(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_associate("request"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -4916,6 +5229,7 @@ class TestState10(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta10 + Evt7."""
         # Sta10 + Evt7 -> <ignore> -> Sta10
@@ -4933,6 +5247,9 @@ class TestState10(TestStateBase):
 
         assoc.dul.send_pdu(self.get_associate("accept"))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -4946,6 +5263,7 @@ class TestState10(TestStateBase):
         ]
         assert fsm._events[:6] == ["Evt5", "Evt6", "Evt7", "Evt11", "Evt12", "Evt7"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta10 + Evt8."""
         # Sta10 + Evt8 -> <ignore> -> Sta10
@@ -4963,6 +5281,9 @@ class TestState10(TestStateBase):
 
         assoc.dul.send_pdu(self.get_associate("reject"))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -4976,6 +5297,7 @@ class TestState10(TestStateBase):
         ]
         assert fsm._events[:6] == ["Evt5", "Evt6", "Evt7", "Evt11", "Evt12", "Evt8"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt09(self):
         """Test Sta10 + Evt9."""
         # Sta10 + Evt9 -> <ignore> -> Sta10
@@ -4992,6 +5314,9 @@ class TestState10(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_pdata())
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -5043,6 +5368,7 @@ class TestState10(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta10 + Evt11."""
         # Sta10 + Evt11 -> <ignore> -> Sta10
@@ -5059,6 +5385,9 @@ class TestState10(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_release(False))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -5142,6 +5471,7 @@ class TestState10(TestStateBase):
         ]
         assert fsm._events[:6] == ["Evt5", "Evt6", "Evt7", "Evt11", "Evt12", "Evt13"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt14(self):
         """Test Sta10 + Evt14."""
         # Sta10 + Evt14 -> <ignore> -> Sta10
@@ -5158,6 +5488,9 @@ class TestState10(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_release(True))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -5273,6 +5606,7 @@ class TestState10(TestStateBase):
         ]
         assert fsm._events[:6] == ["Evt5", "Evt6", "Evt7", "Evt11", "Evt12", "Evt17"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt18(self):
         """Test Sta10 + Evt18."""
         # Sta10 + Evt18 -> <ignore> -> Sta10
@@ -5290,7 +5624,9 @@ class TestState10(TestStateBase):
 
         assoc.dul.artim_timer.timeout = 0.05
         assoc.dul.artim_timer.start()
-        time.sleep(0.5)
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -5343,7 +5679,6 @@ class TestState10(TestStateBase):
         )
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState11(TestStateBase):
     """Tests for State 11: Release collision req - awaiting A-RELEASE-RP PDU"""
 
@@ -5365,6 +5700,7 @@ class TestState11(TestStateBase):
         assoc.dul.send_pdu(self.get_release(True))
         self.wait_on_state(assoc.dul.state_machine, "Sta11")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta11 + Evt1."""
         # Sta11 + Evt1 -> <ignore> -> Sta11
@@ -5380,6 +5716,9 @@ class TestState11(TestStateBase):
         self.scp = scp = self.start_server(commands)
         self.move_to_state(self.assoc, scp)
         self.assoc.dul.send_pdu(self.get_associate("request"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.step()
@@ -5578,6 +5917,7 @@ class TestState11(TestStateBase):
             "Evt6",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta11 + Evt7."""
         # Sta11 + Evt7 -> <ignore> -> Sta11
@@ -5594,6 +5934,9 @@ class TestState11(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.step()
@@ -5625,6 +5968,7 @@ class TestState11(TestStateBase):
             "Evt7",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta11 + Evt8."""
         # Sta11 + Evt8 -> <ignore> -> Sta11
@@ -5641,6 +5985,9 @@ class TestState11(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.step()
@@ -5672,6 +6019,7 @@ class TestState11(TestStateBase):
             "Evt8",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt09(self):
         """Test Sta11 + Evt9."""
         # Sta11 + Evt9 -> <ignore> -> Sta11
@@ -5688,6 +6036,9 @@ class TestState11(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.step()
@@ -5770,6 +6121,7 @@ class TestState11(TestStateBase):
             "Evt10",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta11 + Evt11."""
         # Sta11 + Evt11 -> <ignore> -> Sta11
@@ -5786,6 +6138,9 @@ class TestState11(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.step()
@@ -5917,6 +6272,7 @@ class TestState11(TestStateBase):
             "Evt13",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt14(self):
         """Test Sta11 + Evt14."""
         # Sta11 + Evt14 -> <ignore> -> Sta11
@@ -5933,6 +6289,9 @@ class TestState11(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.step()
@@ -6113,6 +6472,7 @@ class TestState11(TestStateBase):
             "Evt17",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt18(self):
         """Test Sta11 + Evt18."""
         # Sta11 + Evt18 -> <ignore> -> Sta11
@@ -6130,7 +6490,9 @@ class TestState11(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        time.sleep(0.5)
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.step()
@@ -6207,7 +6569,6 @@ class TestState11(TestStateBase):
         ]
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState12(TestStateBase):
     """Tests for State 12: Release collision acc - awaiting A-RELEASE (rp)"""
 
@@ -6229,6 +6590,7 @@ class TestState12(TestStateBase):
         scp.step()
         self.wait_on_state(assoc.dul.state_machine, "Sta12")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta12 + Evt1."""
         # Sta12 + Evt1 -> <ignore> -> Sta12
@@ -6245,6 +6607,9 @@ class TestState12(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
         assoc.dul.send_pdu(self.get_associate("request"))
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -6451,6 +6816,7 @@ class TestState12(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta12 + Evt7."""
         # Sta12 + Evt7 -> <ignore> -> Sta12
@@ -6468,6 +6834,9 @@ class TestState12(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_associate("accept"))
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -6498,6 +6867,7 @@ class TestState12(TestStateBase):
             "Evt7",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta12 + Evt8."""
         # Sta12 + Evt8 -> <ignore> -> Sta12
@@ -6515,6 +6885,9 @@ class TestState12(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_associate("reject"))
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -6545,6 +6918,7 @@ class TestState12(TestStateBase):
             "Evt8",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt09(self):
         """Test Sta12 + Evt9."""
         # Sta12 + Evt9 -> <ignore> -> Sta12
@@ -6562,6 +6936,9 @@ class TestState12(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_pdata())
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -6646,6 +7023,7 @@ class TestState12(TestStateBase):
             b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00"
         )
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta12 + Evt11."""
         # Sta12 + Evt11 -> <ignore> -> Sta12
@@ -6663,6 +7041,9 @@ class TestState12(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_release(False))
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -7005,6 +7386,7 @@ class TestState12(TestStateBase):
             "Evt17",
         ]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt18(self):
         """Test Sta12 + Evt18."""
         # Sta12 + Evt18 -> <ignore> -> Sta12
@@ -7023,7 +7405,9 @@ class TestState12(TestStateBase):
 
         assoc.dul.artim_timer.timeout = 0.05
         assoc.dul.artim_timer.start()
-        time.sleep(0.5)
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -7109,7 +7493,6 @@ class TestState12(TestStateBase):
         )
 
 
-@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState13(TestStateBase):
     """Tests for State 13: Waiting for connection closed."""
 
@@ -7139,6 +7522,7 @@ class TestState13(TestStateBase):
         scp.step()
         self.wait_on_state(assoc.dul.state_machine, "Sta13")
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt01(self):
         """Test Sta13 + Evt1."""
         # Sta13 + Evt1 -> <ignore> -> Sta13
@@ -7152,6 +7536,9 @@ class TestState13(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -7273,6 +7660,7 @@ class TestState13(TestStateBase):
         assert self.fsm._transitions[:3] == ["Sta4", "Sta5", "Sta13"]
         assert self.fsm._events[:4] == ["Evt1", "Evt2", "Evt6", "Evt6"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt07(self):
         """Test Sta13 + Evt7."""
         # Sta13 + Evt7 -> <ignore> -> Sta13
@@ -7287,6 +7675,9 @@ class TestState13(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -7298,6 +7689,7 @@ class TestState13(TestStateBase):
         assert self.fsm._transitions[:3] == ["Sta4", "Sta5", "Sta13"]
         assert self.fsm._events[:4] == ["Evt1", "Evt2", "Evt6", "Evt7"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt08(self):
         """Test Sta13 + Evt8."""
         # Sta13 + Evt8 -> <ignore> -> Sta13
@@ -7312,6 +7704,9 @@ class TestState13(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -7323,6 +7718,7 @@ class TestState13(TestStateBase):
         assert self.fsm._transitions[:3] == ["Sta4", "Sta5", "Sta13"]
         assert self.fsm._events[:4] == ["Evt1", "Evt2", "Evt6", "Evt8"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt09(self):
         """Test Sta13 + Evt9."""
         # Sta13 + Evt9 -> <ignore> -> Sta13
@@ -7336,6 +7732,9 @@ class TestState13(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -7375,6 +7774,7 @@ class TestState13(TestStateBase):
         assert self.fsm._transitions[:3] == ["Sta4", "Sta5", "Sta13"]
         assert self.fsm._events[:4] == ["Evt1", "Evt2", "Evt6", "Evt10"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt11(self):
         """Test Sta13 + Evt11."""
         # Sta13 + Evt11 -> <ignore> -> Sta13
@@ -7388,6 +7788,9 @@ class TestState13(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -7454,6 +7857,7 @@ class TestState13(TestStateBase):
         assert self.fsm._transitions[:3] == ["Sta4", "Sta5", "Sta13"]
         assert self.fsm._events[:4] == ["Evt1", "Evt2", "Evt6", "Evt13"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt14(self):
         """Test Sta13 + Evt14."""
         # Sta13 + Evt14 -> <ignore> -> Sta13
@@ -7468,6 +7872,9 @@ class TestState13(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_release(True))
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
         scp.shutdown()
 
@@ -7479,6 +7886,7 @@ class TestState13(TestStateBase):
         assert self.fsm._transitions[:3] == ["Sta4", "Sta5", "Sta13"]
         assert self.fsm._events[:4] == ["Evt1", "Evt2", "Evt6", "Evt14"]
 
+    @pytest.mark.filterwarnings(IGNORE_FILTER)
     def test_evt15(self):
         """Test Sta13 + Evt15."""
         # Sta13 + Evt15 -> <ignore> -> Sta13
@@ -7492,6 +7900,9 @@ class TestState13(TestStateBase):
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_abort())
+
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
 
         scp.step()
         scp.shutdown()
@@ -7646,9 +8057,13 @@ class TestParrotAttack(TestStateBase):
         self.scp = scp = self.start_server(commands)
         self.assoc.start()
 
-        for ii in range(len(commands)):
+        for ii in range(len(commands) - 1):
             scp.step()
 
+        while self.assoc.dul.is_alive():
+            time.sleep(0.001)
+
+        scp.step()
         scp.shutdown()
 
         assert self.fsm._changes[:14] == [
@@ -7721,9 +8136,13 @@ class TestParrotAttack(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
         assoc.start()
 
-        for ii in range(len(commands)):
+        for ii in range(len(commands) - 1):
             scp.step()
 
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
+
+        scp.step()
         scp.shutdown()
 
         assert [
@@ -8156,10 +8575,11 @@ class TestStateMachineFunctionalRequestor:
             dul.socket.send(p_data_tf)
 
             # Normal release response
-            dul.pdu = A_RELEASE_RP()
-            dul.pdu.from_primitive(dul.primitive)
+            primitive = dul.to_provider_queue.get(False)
+            pdu = A_RELEASE_RP()
+            pdu.from_primitive(primitive)
             # Callback
-            dul.socket.send(dul.pdu.encode())
+            dul.socket.send(pdu.encode())
             dul.artim_timer.start()
             return "Sta13"
 
@@ -8226,8 +8646,11 @@ class TestStateMachineFunctionalRequestor:
             # Send C-ECHO request to the peer via DIMSE and wait for the response
             dul.assoc.dimse.send_msg(primitive, 1)
 
+            pdu = dul._recv_pdu.get(False)
+            primitive = pdu.to_primitive()
+
             # Normal AR2 response
-            dul.to_user_queue.put(dul.primitive)
+            dul.to_user_queue.put(primitive)
             return "Sta8"
 
         # In this case the association acceptor will hit AR_2
@@ -8361,10 +8784,11 @@ class TestStateMachineFunctionalAcceptor:
         assert self.fsm.current_state == "Sta1"
 
         def AE_2(dul):
-            dul.pdu = A_ASSOCIATE_RQ()
-            dul.pdu.from_primitive(dul.primitive)
-            dul.pdu.protocol_version = 0x0002
-            bytestream = dul.pdu.encode()
+            conn = dul.to_provider_queue.get(False)
+            pdu = A_ASSOCIATE_RQ()
+            pdu.from_primitive(conn.request)
+            pdu.protocol_version = 0x0002
+            bytestream = pdu.encode()
             dul.socket.send(bytestream)
             return "Sta5"
 

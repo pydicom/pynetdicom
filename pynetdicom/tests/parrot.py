@@ -1,6 +1,7 @@
 """The Parrot testing server."""
 
 import gc
+import logging
 import select
 import socket
 from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
@@ -10,6 +11,9 @@ import threading
 import time
 
 from pynetdicom.transport import AssociationServer
+
+
+LOGGER = logging.getLogger("pynetdicom")
 
 
 class ParrotRequest(BaseRequestHandler):
@@ -171,27 +175,29 @@ class SteppingParrotRequest(ParrotRequest):
         self.received = []
         self.sent = []
         while True:
-            # print('Parrot: waiting on threading.Event')
+            LOGGER.debug("Parrot: waiting on event.wait()")
             self.event.wait()
-            # print('Parrot: wait ended')
+            LOGGER.debug("Parrot: event.wait() ended")
             cmd, data = self.commands.pop(0)
-            # print('Parrot: running command', cmd)
-            if cmd == "exit":
-                # print('Parrot: exiting...')
-                return
+            LOGGER.debug(f"Parrot: running command '{cmd}'")
 
-            if cmd == "recv":
-                # print('Parrot: receiving data')
+            if cmd == "exit":
+                LOGGER.debug("   Parrot: exiting...")
+                return
+            elif cmd == "recv":
+                LOGGER.debug("   Parrot: receiving data")
                 self.kill_read = False
                 while not self.kill_read:
                     if self.ready:
                         self.received.append(bytes(self.read_data))
                         self.kill_read = True
+                LOGGER.debug(f"  Parrot: received {len(self.received)} bytes")
             elif cmd == "send":
-                # print('Parrot: sending data')
+                LOGGER.debug("   Parrot: sending data")
                 self.send(data)
                 self.sent.append(data)
 
+            LOGGER.debug("Parrot: step ending, event.clear()")
             self.event.clear()
 
 
@@ -250,7 +256,7 @@ class Parrot(AssociationServer):
 
     def step(self):
         while self.event.is_set():
-            time.sleep(0.05)
+            time.sleep(0.0001)
 
         self.event.set()
 

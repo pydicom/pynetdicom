@@ -87,33 +87,53 @@ class TestDUL:
             if isinstance(thread, ThreadedParrot):
                 thread.shutdown()
 
-    def test_primitive_to_event(self):
-        """Test that parameter returns expected results"""
+    def test_recv_primitive(self):
+        """Test processing received primitives"""
         dul = DULServiceProvider(DummyAssociation())
-        p2e = dul._primitive_to_event
 
         primitive = A_ASSOCIATE()
         primitive.result = None
-        assert p2e(primitive) == "Evt1"
+        dul.to_provider_queue.put(primitive)
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt1"
         primitive.result = 0
-        assert p2e(primitive) == "Evt7"
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt7"
         primitive.result = 1
-        assert p2e(primitive) == "Evt8"
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt8"
+
+        dul.to_provider_queue.get(False)
 
         primitive = A_RELEASE()
         primitive.result = None
-        assert p2e(primitive) == "Evt11"
+        dul.to_provider_queue.put(primitive)
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt11"
         primitive.result = "affirmative"
-        assert p2e(primitive) == "Evt14"
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt14"
+
+        dul.to_provider_queue.get(False)
 
         primitive = A_ABORT()
-        assert p2e(primitive) == "Evt15"
+        dul.to_provider_queue.put(primitive)
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt15"
+
+        dul.to_provider_queue.get(False)
 
         primitive = P_DATA()
-        assert p2e(primitive) == "Evt9"
+        dul.to_provider_queue.put(primitive)
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt9"
 
-        with pytest.raises(ValueError):
-            p2e("TEST")
+        dul.to_provider_queue.get(False)
+
+        msg = "Unknown primitive type 'str' received"
+        with pytest.raises(ValueError, match=msg):
+            dul.to_provider_queue.put("TEST")
+            dul._process_recv_primitive()
 
     def test_recv_failure_aborts(self):
         """Test connection close during PDU recv causes abort."""
@@ -250,11 +270,15 @@ class TestDUL:
         assert assoc.is_established
 
         scp.step()  # send bad PDU
-        scp.step()  # receive abort
-        assert assoc.is_aborted
 
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
+
+        scp.step()  # receive abort
         scp.step()
         scp.shutdown()
+
+        assert assoc.is_aborted
 
     def test_exception_in_reactor(self):
         """Test that an exception being raised in the DUL reactor kills the
@@ -290,7 +314,12 @@ class TestDUL:
         assoc.dul._read_pdu_data = patch_read_pdu
 
         scp.step()
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
+
         assert assoc.is_aborted
 
         scp.step()
