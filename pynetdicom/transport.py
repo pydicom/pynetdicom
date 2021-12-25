@@ -56,7 +56,7 @@ class T_CONNECT:
     """
 
     def __init__(self, address: Union[Tuple[str, int], "A_ASSOCIATE"]) -> None:
-        """Create a new TRANSPORT CONNECT primitive.
+        """Create a new TRANSPORT CONNECTION primitive.
 
         Parameters
         ----------
@@ -306,13 +306,6 @@ class AssociationSocket:
         """
         return self.assoc.dul.event_queue
 
-    @property
-    def provider_queue(self) -> "_QueueType":
-        """Return the :class:`~pynetdicom.association.Association`'s service provider
-        queue.
-        """
-        return self.assoc.dul.to_provider_queue
-
     def get_local_addr(self, host: Tuple[str, int] = ("10.255.255.255", 1)) -> str:
         """Return an address for the local computer as :class:`str`.
 
@@ -332,6 +325,13 @@ class AssociationSocket:
                 addr = "127.0.0.1"
 
         return addr
+
+    @property
+    def provider_queue(self) -> "_QueueType":
+        """Return the :class:`~pynetdicom.association.Association`'s service provider
+        queue.
+        """
+        return self.assoc.dul.to_provider_queue
 
     @property
     def ready(self) -> bool:
