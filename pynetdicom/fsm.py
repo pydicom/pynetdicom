@@ -99,15 +99,15 @@ class StateMachine:
                     "next_state": next_state,
                 },
             )
-            # print(
-            #     "{}: {} + {} -> {} -> {}".format(
-            #         self.dul.assoc.mode[0].upper(),
-            #         self.current_state,
-            #         event,
-            #         action_name,
-            #         next_state,
-            #     )
-            # )
+            print(
+                "{}: {} + {} -> {} -> {}".format(
+                    self.dul.assoc.mode[0].upper(),
+                    self.current_state,
+                    event,
+                    action_name,
+                    next_state,
+                )
+            )
 
             # Move the state machine to the next state
             self.transition(next_state)

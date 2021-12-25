@@ -1952,7 +1952,9 @@ class A_ABORT_RQ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: Optional["A_ABORT"] = None) -> None:
+    def __init__(
+        self, primitive: Optional[Union["A_ABORT", "A_P_ABORT"]] = None
+    ) -> None:
         """Initialise a new A-ABORT-RQ PDU.
 
         Parameters
