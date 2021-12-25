@@ -403,7 +403,11 @@ class TestStateBase:
 
     def wait_on_state(self, fsm, state, timeout=2):
         start = 0
-        while fsm.current_state != state and start < timeout:
+        while (
+            fsm.current_state != state
+            and fsm.current_state not in state
+            and start < timeout
+        ):
             time.sleep(0.0001)
             start += 0.0001
 
@@ -1436,6 +1440,7 @@ class TestState03(TestStateBase):
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
+        self.wait_on_state(assoc.dul.state_machine, ["Sta13", "Sta1"])
 
         scp.step()
         scp.shutdown()

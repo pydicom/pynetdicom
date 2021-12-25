@@ -99,15 +99,15 @@ class StateMachine:
                     "next_state": next_state,
                 },
             )
-            # print(
-            #     "{}: {} + {} -> {} -> {}".format(
-            #         self.dul.assoc.mode[0].upper(),
-            #         self.current_state,
-            #         event,
-            #         action_name,
-            #         next_state,
-            #     )
-            # )
+            print(
+                "{}: {} + {} -> {} -> {}".format(
+                    self.dul.assoc.mode[0].upper(),
+                    self.current_state,
+                    event,
+                    action_name,
+                    next_state,
+                )
+            )
 
             # Move the state machine to the next state
             self.transition(next_state)
@@ -346,8 +346,6 @@ def AE_6(dul: "DULServiceProvider") -> str:
         )
 
         # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
-        # primitive is A_ASSOCIATE
-
         primitive.result = 0x01
         primitive.result_source = 0x02
         primitive.diagnostic = 0x02
@@ -478,10 +476,9 @@ def DT_2(dul: "DULServiceProvider") -> str:
     """
     # P-DATA-TF PDU received from peer
     pdu = dul._recv_pdu.get(False)
-    primitive = cast("P_DATA", pdu.to_primitive())
 
     # Send P-DATA indication primitive directly to DIMSE for processing
-    dul.assoc.dimse.receive_primitive(primitive)
+    dul.assoc.dimse.receive_primitive(cast("P_DATA", pdu.to_primitive()))
 
     return "Sta6"
 
@@ -535,10 +532,9 @@ def AR_2(dul: "DULServiceProvider") -> str:
     """
     # A-RELEASE-RQ PDU received from peer
     pdu = dul._recv_pdu.get(False)
-    primitive = cast("A_RELEASE", pdu.to_primitive())
 
     # Send A-RELEASE indication primitive
-    dul.to_user_queue.put(primitive)
+    dul.to_user_queue.put(pdu.to_primitive())
 
     return "Sta8"
 
@@ -563,10 +559,9 @@ def AR_3(dul: "DULServiceProvider") -> str:
     """
     # A-RELEASE-RP PDU received from peer
     pdu = dul._recv_pdu.get(False)
-    primitive = cast("A_RELEASE", pdu.to_primitive())
 
     # Issue A-RELEASE confirmation primitive and close transport connection
-    dul.to_user_queue.put(primitive)
+    dul.to_user_queue.put(pdu.to_primitive())
     sock = cast("AssociationSocket", dul.socket)
     sock.close()
 
@@ -663,10 +658,9 @@ def AR_6(dul: "DULServiceProvider") -> str:
     """
     # P-DATA-TF PDU received from peer
     pdu = cast("P_DATA_TF", dul._recv_pdu.get(False))
-    primitive = pdu.to_primitive()
 
     # Issue P-DATA indication
-    dul.to_user_queue.put(primitive)
+    dul.to_user_queue.put(pdu.to_primitive())
 
     return "Sta7"
 
@@ -722,10 +716,9 @@ def AR_8(dul: "DULServiceProvider") -> str:
     """
     # A-RELEASE-RQ PDU received from peer
     pdu = cast("A_RELEASE_RQ", dul._recv_pdu.get(False))
-    primitive = pdu.to_primitive()
 
     # Issue A-RELEASE indication (release collision)
-    dul.to_user_queue.put(primitive)
+    dul.to_user_queue.put(pdu.to_primitive())
     if dul.assoc.is_requestor:
         return "Sta9"
 
@@ -781,10 +774,9 @@ def AR_10(dul: "DULServiceProvider") -> str:
     """
     # A-RELEASE-RP PDU received from peer
     pdu = cast("A_RELEASE_RP", dul._recv_pdu.get(False))
-    primitive = pdu.to_primitive()
 
     # Issue A-RELEASE confirmation primitive
-    dul.to_user_queue.put(primitive)
+    dul.to_user_queue.put(pdu.to_primitive())
 
     return "Sta12"
 
@@ -890,14 +882,13 @@ def AA_3(dul: "DULServiceProvider") -> str:
     """
     # A-ABORT PDU received from peer
     pdu = cast("A_ABORT_RQ", dul._recv_pdu.get(False))
-    primitive = cast("A_ABORT", pdu.to_primitive())
 
     # If (service-user initiated abort):
     #   - Issue A-ABORT indication and close transport connection.
     # Otherwise (service-dul initiated abort):
     #   - Issue A-P-ABORT indication and close transport connection.
     # This action is triggered by the reception of an A-ABORT PDU
-    dul.to_user_queue.put(primitive)
+    dul.to_user_queue.put(pdu.to_primitive())
     sock = cast("AssociationSocket", dul.socket)
     sock.close()
 
