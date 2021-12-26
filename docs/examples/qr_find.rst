@@ -33,7 +33,7 @@ Root Query/Retrieve Information Model - Find* at the ``'PATIENT'`` level.
     ds.QueryRetrieveLevel = 'PATIENT'
 
     # Associate with the peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate("localhost", 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
     if assoc.is_established:
         # Send the C-FIND request
         responses = assoc.send_c_find(ds, PatientRootQueryRetrieveInformationModelFind)

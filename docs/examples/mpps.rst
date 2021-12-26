@@ -90,7 +90,7 @@ SOP Instance.
     ae.add_requested_context(ModalityPerformedProcedureStep)
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate("localhost", 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
 
     if assoc.is_established:
         # Use the N-CREATE service to send a request to create a SOP Instance

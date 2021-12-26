@@ -11,7 +11,7 @@ The major breaking changes with the version 2.0 release are:
     (for example, *VerificationSOPClass* becomes simply *Verification*)
   * AE title values should be :class:`str` rather than :class:`bytes` and trailing
     padding spaces are stripped from the raw value during decoding.
-  * Starting an SCP on ``IPADDR_ANY`` (such as ``""`` or ``"0.0.0.0"``) is disallowed
+  * Starting an SCP on ``INADDR_ANY`` (such as ``""`` or ``"0.0.0.0"``) is disallowed
     by default, use ``"localhost"`` instead, or change
     :attr:`~pynetdicom._config.DISALLOWED_ADDRESSES`
 

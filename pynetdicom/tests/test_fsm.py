@@ -1410,6 +1410,7 @@ class TestState03(TestStateBase):
         self.scp = scp = self.start_server(commands)
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
+        self.wait_on_state(assoc.dul.state_machine, "Sta6")
 
         scp.step()
         scp.shutdown()

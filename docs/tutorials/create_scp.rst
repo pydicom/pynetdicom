@@ -124,7 +124,7 @@ And in another terminal, run :doc:`storescu<../apps/storescu>` on
 
 .. code-block:: text
 
-    $ python -m pynetdicom storescu 127.0.0.1 11112 CTImageStorage.dcm -v -cx
+    $ python -m pynetdicom storescu localhost 11112 CTImageStorage.dcm -v -cx
 
 You should see the following output:
 
@@ -245,7 +245,7 @@ you should see:
 
 .. code-block:: text
 
-    $ python -m pynetdicom storescu 127.0.0.1 11112 CTImageStorage.dcm -v -cx
+    $ python -m pynetdicom storescu localhost 11112 CTImageStorage.dcm -v -cx
     I: Requesting Association
     I: Association Accepted
     I: Sending file: CTImageStorage.dcm

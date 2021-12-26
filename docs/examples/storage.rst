@@ -36,7 +36,7 @@ single CT dataset.
     ds = dcmread('path/to/dataset')
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate("localhost", 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
     if assoc.is_established:
         # Use the C-STORE service to send the dataset
         # returns the response status as a pydicom Dataset
@@ -84,10 +84,10 @@ You can also set the requested contexts on a per association basis.
     mr_context = build_context(MRImageStorage)
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate("localhost", 11112, contexts=[ct_context])
+    assoc = ae.associate("127.0.0.1", 11112, contexts=[ct_context])
     assoc.release()
 
-    assoc = ae.associate("localhost", 11112, contexts=[mr_context])
+    assoc = ae.associate("127.0.0.1", 11112, contexts=[mr_context])
     assoc.release()
 
 .. _example_storage_scp:
