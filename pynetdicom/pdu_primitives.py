@@ -242,10 +242,10 @@ class A_ASSOCIATE:
             self._called_presentation_address = value
         else:
             LOGGER.error(
-                "A_ASSOCIATE.called_presentation_address must be " "(str, int) tuple"
+                "A_ASSOCIATE.called_presentation_address must be (str, int) tuple"
             )
             raise TypeError(
-                "A_ASSOCIATE.called_presentation_address must " "be (str, int) tuple"
+                "A_ASSOCIATE.called_presentation_address must be (str, int) tuple"
             )
 
     @property
@@ -309,10 +309,10 @@ class A_ASSOCIATE:
             self._calling_presentation_address = value
         else:
             LOGGER.error(
-                "A_ASSOCIATE.calling_presentation_address must be " "(str, int) tuple"
+                "A_ASSOCIATE.calling_presentation_address must be (str, int) tuple"
             )
             raise TypeError(
-                "A_ASSOCIATE.calling_presentation_address must " "be (str, int) tuple"
+                "A_ASSOCIATE.calling_presentation_address must be (str, int) tuple"
             )
 
     @property
@@ -376,7 +376,7 @@ class A_ASSOCIATE:
             if isinstance(item, ImplementationClassUIDNotification):
                 if item.implementation_class_uid is None:
                     LOGGER.error("Implementation Class UID has not been set")
-                    raise ValueError("Implementation Class UID has not " "been set")
+                    raise ValueError("Implementation Class UID has not been set")
 
                 return item.implementation_class_uid
 
@@ -482,10 +482,10 @@ class A_ASSOCIATE:
 
         else:
             LOGGER.error(
-                "A_ASSOCIATE.presentation_context_definition_list " "must be a list"
+                "A_ASSOCIATE.presentation_context_definition_list must be a list"
             )
             raise TypeError(
-                "A_ASSOCIATE.presentation_context_definition_list " "must be a list"
+                "A_ASSOCIATE.presentation_context_definition_list must be a list"
             )
 
     @property
@@ -893,7 +893,7 @@ class A_P_ABORT:
         if value in [0, 1, 2, 4, 5, 6, None]:
             self._provider_reason = value
         else:
-            msg = "Attempted to set A_P_ABORT.provider_reason to an invalid " "value"
+            msg = "Attempted to set A_P_ABORT.provider_reason to an invalid value"
             LOGGER.error(msg)
             raise ValueError(msg)
 
@@ -1071,7 +1071,7 @@ class MaximumLengthNotification(ServiceParameter):
         if isinstance(val, int):
             if val < 0:
                 LOGGER.error("Maximum Length Received must be greater than 0")
-                raise ValueError("Maximum Length Received must be greater " "than 0")
+                raise ValueError("Maximum Length Received must be greater than 0")
             else:
                 self._maximum_length = val
         else:
@@ -1339,7 +1339,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
 
         if value < 0:
             raise ValueError(
-                "Maximum Number Operations Invoked must be " "greater than 0"
+                "Maximum Number Operations Invoked must be greater than 0"
             )
 
         self._maximum_number_operations_invoked = value
@@ -1368,11 +1368,11 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
         # pylint: disable=attribute-defined-outside-init
         if not isinstance(value, int):
             LOGGER.error("Maximum Number Operations Performed must be an int")
-            raise TypeError("Maximum Number Operations Performed must be " "an int")
+            raise TypeError("Maximum Number Operations Performed must be an int")
 
         if value < 0:
             raise ValueError(
-                "Maximum Number Operations Performed must be " "greater than 0"
+                "Maximum Number Operations Performed must be greater than 0"
             )
 
         self._maximum_number_operations_performed = value
@@ -1630,10 +1630,10 @@ class SOPClassExtendedNegotiation(ServiceParameter):
             pass
         else:
             LOGGER.error(
-                "Service Class Application Information should be a " "bytes object"
+                "Service Class Application Information should be a bytes object"
             )
             raise TypeError(
-                "Service Class Application Information should " "be a bytes object"
+                "Service Class Application Information should be a bytes object"
             )
 
         self._service_class_application_information = value

@@ -345,7 +345,7 @@ class PresentationContext:
         """
         if value is not None and (not 1 <= value <= 255 or value % 2 == 0):
             raise ValueError(
-                "'context_id' must be an odd integer between 1 and 255, " "inclusive"
+                "'context_id' must be an odd integer between 1 and 255, inclusive"
             )
 
         self._context_id = value

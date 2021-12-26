@@ -133,7 +133,7 @@ class ACSE:
             }
         except Exception as exc:
             LOGGER.error(
-                "Invalid type returned by handler bound to " "'evt.EVT_SOP_COMMON'"
+                "Invalid type returned by handler bound to 'evt.EVT_SOP_COMMON'"
             )
             LOGGER.exception(exc)
             return {}
@@ -162,7 +162,7 @@ class ACSE:
 
         if not isinstance(user_response, (type(None), dict)):
             LOGGER.error(
-                "Invalid type returned by handler bound to " "'evt.EVT_SOP_EXTENDED'"
+                "Invalid type returned by handler bound to 'evt.EVT_SOP_EXTENDED'"
             )
             user_response = {}
 
@@ -601,7 +601,7 @@ class ACSE:
             elif not isinstance(primitive, A_RELEASE):
                 # Should only be P-DATA
                 LOGGER.warning(
-                    "P-DATA received after Association release, data has " "been lost"
+                    "P-DATA received after Association release, data has been lost"
                 )
                 continue
 

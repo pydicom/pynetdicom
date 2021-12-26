@@ -327,7 +327,7 @@ class TestNegotiationRequestor:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(Verification)
         assoc = ae.associate("localhost", 11112)
@@ -354,7 +354,7 @@ class TestNegotiationAcceptor:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
@@ -629,7 +629,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 2
         ae.dimse_timeout = 2
@@ -666,7 +666,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -707,7 +707,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -744,7 +744,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -773,7 +773,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -815,7 +815,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -859,7 +859,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -889,7 +889,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -919,7 +919,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -948,7 +948,7 @@ class TestUserIdentityNegotiation:
         ae.require_calling_aet = ["HAHA NOPE"]
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -979,7 +979,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1010,7 +1010,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1042,7 +1042,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1079,7 +1079,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1102,7 +1102,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1138,7 +1138,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1184,7 +1184,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1221,7 +1221,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1265,7 +1265,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1307,7 +1307,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1348,7 +1348,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1382,7 +1382,7 @@ class TestSOPClassExtendedNegotiation:
         ae.require_calling_aet = ["HAHA NOPE"]
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1411,7 +1411,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1446,7 +1446,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1493,7 +1493,7 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1514,7 +1514,7 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1555,7 +1555,7 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1597,7 +1597,7 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1639,7 +1639,7 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1681,7 +1681,7 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1722,7 +1722,7 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1773,7 +1773,7 @@ class TestAsyncOpsNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1798,7 +1798,7 @@ class TestAsyncOpsNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1827,7 +1827,7 @@ class TestAsyncOpsNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
@@ -1857,7 +1857,7 @@ class TestAsyncOpsNegotiation:
         ae.require_calling_aet = ["HAHA NOPE"]
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1882,7 +1882,7 @@ class TestAsyncOpsNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1912,7 +1912,7 @@ class TestAsyncOpsNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -2213,7 +2213,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
         assoc = ae.associate("localhost", 11112)
@@ -2243,7 +2243,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == [(handle, None)]
 
         assoc = ae.associate("localhost", 11112)
@@ -2288,7 +2288,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
         assoc = ae.associate("localhost", 11112)
@@ -2334,7 +2334,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == [(handle, None)]
 
         assoc = ae.associate("localhost", 11112)
@@ -2383,7 +2383,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", 11112)
@@ -2414,7 +2414,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == [(handle, None)]
 
         assoc = ae.associate("localhost", 11112)
@@ -2457,7 +2457,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
 
         assoc = ae.associate("localhost", 11112)
@@ -2502,7 +2502,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == [(handle, None)]
 
         assoc = ae.associate("localhost", 11112)
@@ -2549,7 +2549,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", 11112)
@@ -2588,7 +2588,7 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
         assoc = ae.associate("localhost", 11112)
@@ -2618,7 +2618,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
@@ -2659,7 +2659,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
@@ -2699,7 +2699,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
         assoc = ae.associate("localhost", 11112)
@@ -2745,7 +2745,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
@@ -2784,7 +2784,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
@@ -2815,7 +2815,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
@@ -2857,7 +2857,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
 
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
         child = scp.active_associations[0]
 
@@ -2887,7 +2887,7 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
 
         assoc = ae.associate("localhost", 11112)
@@ -2926,7 +2926,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
@@ -2970,7 +2970,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", 11112)

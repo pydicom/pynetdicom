@@ -39,7 +39,7 @@ single patient with ID ``1234567``.
     ds.ContentTemplateSequence[0].TemplateIdentifier = '9007'
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112)
+    assoc = ae.associate("localhost", 11112)
 
     if assoc.is_established:
         # Use the C-FIND service to send the identifier
@@ -130,4 +130,4 @@ to see the requirements for the ``evt.EVT_C_FIND`` handler.
     ae.add_supported_context(GeneralRelevantPatientInformationQuery)
 
     # Start listening for incoming association requests
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(("localhost", 11112), evt_handlers=handlers)

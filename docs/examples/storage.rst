@@ -36,7 +36,7 @@ single CT dataset.
     ds = dcmread('path/to/dataset')
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112)
+    assoc = ae.associate("localhost", 11112)
     if assoc.is_established:
         # Use the C-STORE service to send the dataset
         # returns the response status as a pydicom Dataset
@@ -84,10 +84,10 @@ You can also set the requested contexts on a per association basis.
     mr_context = build_context(MRImageStorage)
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112, contexts=[ct_context])
+    assoc = ae.associate("localhost", 11112, contexts=[ct_context])
     assoc.release()
 
-    assoc = ae.associate('127.0.0.1', 11112, contexts=[mr_context])
+    assoc = ae.associate("localhost", 11112, contexts=[mr_context])
     assoc.release()
 
 .. _example_storage_scp:
@@ -141,7 +141,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
     ae.supported_contexts = AllStoragePresentationContexts
 
     # Start listening for incoming association requests
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(("localhost", 11112), evt_handlers=handlers)
 
 If you're optimising for speed you can:
 
@@ -187,7 +187,7 @@ multiple C-STORE requests, depending on the size of the datasets:
     ae.supported_contexts = AllStoragePresentationContexts
 
     # Start listening for incoming association requests
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(("localhost", 11112), evt_handlers=handlers)
 
 
 As with the SCU you can also just support only the contexts you're
@@ -209,7 +209,7 @@ interested in.
 
     handlers = [(evt.EVT_C_STORE, handle_store)]
 
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(("localhost", 11112), evt_handlers=handlers)
 
 You can also start the SCP in non-blocking mode:
 
@@ -225,7 +225,7 @@ You can also start the SCP in non-blocking mode:
 
     ae = AE()
     ae.add_supported_context(CTImageStorage)
-    scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+    scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
     # Zzzz
     time.sleep(60)

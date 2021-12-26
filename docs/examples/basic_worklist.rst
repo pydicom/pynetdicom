@@ -43,7 +43,7 @@ of a Query/Retrieve (Find) SCU, however BWM uses a different
     item.Modality = 'CT'
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112)
+    assoc = ae.associate("localhost", 11112)
 
     if assoc.is_established:
         # Use the C-FIND service to send the identifier

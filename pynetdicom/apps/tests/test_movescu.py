@@ -102,9 +102,9 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
         ae.requested_contexts = StoragePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         store_scp = ae.start_server(
-            ("", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
         )
 
         p = self.func(["-k", "PatientName="])
@@ -169,7 +169,7 @@ class MoveSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         p = self.func(["-q", "-k", "PatientName="])
         p.wait()
@@ -201,10 +201,10 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.supported_contexts = StoragePresentationContexts
         store_scp = ae.start_server(
-            ("", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
         )
 
         p = self.func(["-v", "-k", "PatientName="])
@@ -243,10 +243,10 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.supported_contexts = StoragePresentationContexts
         store_scp = ae.start_server(
-            ("", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
         )
 
         p = self.func(["-d", "-k", "PatientName="])
@@ -291,7 +291,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.supported_contexts = StoragePresentationContexts
 
         p = self.func(["-aet", "MYSCU", "-k", "PatientName="])
@@ -324,7 +324,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-aec", "YOURSCP", "-k", "PatientName="])
         p.wait()
@@ -356,7 +356,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.supported_contexts = StoragePresentationContexts
 
         p = self.func(["-aem", "SOMESCP", "-k", "PatientName="])
@@ -397,7 +397,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-ta", "0.05", "-d", "-k", "PatientName="])
         p.wait()
@@ -436,7 +436,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-td", "0.05", "-d", "-k", "PatientName="])
         p.wait()
@@ -476,7 +476,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["--max-pdu", "123456", "-k", "PatientName="])
         p.wait()
@@ -509,7 +509,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-P", "-k", "PatientName="])
         p.wait()
@@ -541,7 +541,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-S", "-k", "PatientName="])
         p.wait()
@@ -573,7 +573,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-O", "-k", "PatientName="])
         p.wait()
@@ -605,7 +605,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["--store", "-k", "PatientName="])
         p.wait()
@@ -637,7 +637,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["--store", "--store-port", "11114", "-k", "PatientName="])
         p.wait()
@@ -674,7 +674,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["--store", "--store-aet", "SOMESCP", "-k", "PatientName="])
         p.wait()
@@ -704,7 +704,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         assert "test_dir" not in os.listdir()
 
@@ -736,7 +736,7 @@ class MoveSCUBase:
         ae.network_timeout = 5
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["--store", "--ignore", "-k", "PatientName="])
         p.wait()

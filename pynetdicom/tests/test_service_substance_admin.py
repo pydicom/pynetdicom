@@ -69,7 +69,7 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -101,7 +101,7 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -132,7 +132,7 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -161,7 +161,7 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -188,7 +188,7 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -215,7 +215,7 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5

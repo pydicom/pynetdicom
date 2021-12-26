@@ -1034,7 +1034,7 @@ class TestPrimitive_A_ASSOCIATE:
         with caplog.at_level(logging.WARNING, logger="pynetdicom"):
             assert pdu.reason_str == "(no value available)"
             assert (
-                "Invalid A-ASSOCIATE 'Result Source' 2 and/or " "'Diagnostic' 7 values"
+                "Invalid A-ASSOCIATE 'Result Source' 2 and/or 'Diagnostic' 7 values"
             ) in caplog.text
 
 

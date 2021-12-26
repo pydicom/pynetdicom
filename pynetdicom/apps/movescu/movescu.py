@@ -9,6 +9,7 @@ import sys
 
 from pynetdicom import (
     AE,
+    _config,
     evt,
     QueryRetrievePresentationContexts,
     AllStoragePresentationContexts,
@@ -21,6 +22,9 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelMove,
     PatientStudyOnlyQueryRetrieveInformationModelMove,
 )
+
+
+_config.DISALLOWED_ADDRESSES.clear()
 
 
 __version__ = "0.4.0"
@@ -296,7 +300,7 @@ def main(args=None):
             ae.add_supported_context(cx.abstract_syntax, transfer_syntax)
 
         scp = ae.start_server(
-            ("", args.store_port), block=False, evt_handlers=store_handlers
+            ("localhost", args.store_port), block=False, evt_handlers=store_handlers
         )
 
     ae.ae_title = args.calling_aet

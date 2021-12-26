@@ -10,7 +10,13 @@ import pydicom.config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from pynetdicom import AE, evt, AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
+from pynetdicom import (
+    AE,
+    _config,
+    evt,
+    AllStoragePresentationContexts,
+    ALL_TRANSFER_SYNTAXES
+)
 from pynetdicom import _config, _handlers
 from pynetdicom.apps.common import setup_logging
 from pynetdicom.sop_class import (
@@ -37,6 +43,7 @@ from pynetdicom.apps.qrscp import db
 pydicom.config.use_none_as_empty_text_VR_value = True
 # Don't log identifiers
 _config.LOG_RESPONSE_IDENTIFIERS = False
+_config.DISALLOWED_ADDRESSES.clear()
 
 # Override the standard logging handlers
 def _dont_log(event):
@@ -185,7 +192,7 @@ def _setup_argparser():
         "--bind-address",
         metavar="[a]ddress",
         help=(
-            "override the configured address of the network interface to " "listen on"
+            "override the configured address of the network interface to listen on"
         ),
     )
 

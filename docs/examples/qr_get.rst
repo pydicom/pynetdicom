@@ -103,7 +103,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
     ds.SeriesInstanceUID = '1.2.3.4'
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112, ext_neg=[role], evt_handlers=handlers)
+    assoc = ae.associate("localhost", 11112, ext_neg=[role], evt_handlers=handlers)
 
     if assoc.is_established:
         # Use the C-GET service to send the identifier
@@ -215,4 +215,4 @@ Check the
     ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 
     # Start listening for incoming association requests
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(("localhost", 11112), evt_handlers=handlers)

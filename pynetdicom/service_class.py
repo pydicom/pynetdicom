@@ -1335,7 +1335,7 @@ class ServiceClass:
                         )
             else:
                 LOGGER.error(
-                    "User callback returned a `Dataset` without a Status " "element"
+                    "User callback returned a `Dataset` without a Status element"
                 )
                 # Failure: Cannot Understand - callback returned
                 #   a pydicom.dataset.Dataset without a Status element
@@ -1382,7 +1382,7 @@ class ServiceClass:
                     or self.assoc.acse.is_release_requested()
                 ):
                     LOGGER.debug(
-                        "A-ABORT or A-RELEASE-RQ received during " "Q/R sub-operations"
+                        "A-ABORT or A-RELEASE-RQ received during Q/R sub-operations"
                     )
                     return
 

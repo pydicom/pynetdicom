@@ -10,11 +10,13 @@ from pydicom.uid import (
     ExplicitVRBigEndian,
 )
 
-from pynetdicom import AE, evt
+from pynetdicom import AE, _config, evt
 from pynetdicom.apps.common import setup_logging
 from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
 from pynetdicom.sop_class import Verification
 
+
+_config.DISALLOWED_ADDRESSES.clear()
 
 __version__ = "0.7.0"
 

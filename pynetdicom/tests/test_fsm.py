@@ -8276,7 +8276,7 @@ class TestStateMachineFunctionalRequestor:
         """Test normal association/release."""
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8325,7 +8325,7 @@ class TestStateMachineFunctionalRequestor:
         self.ae = ae = AE()
         ae.require_called_aet = True
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8369,7 +8369,7 @@ class TestStateMachineFunctionalRequestor:
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8418,7 +8418,7 @@ class TestStateMachineFunctionalRequestor:
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8466,7 +8466,7 @@ class TestStateMachineFunctionalRequestor:
         ae.network_timeout = 0.5
         ae.acse_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8517,7 +8517,7 @@ class TestStateMachineFunctionalRequestor:
         """Test association acceptance then send DIMSE message."""
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8588,7 +8588,7 @@ class TestStateMachineFunctionalRequestor:
 
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8658,7 +8658,7 @@ class TestStateMachineFunctionalRequestor:
 
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8779,7 +8779,7 @@ class TestStateMachineFunctionalAcceptor:
         """Test receiving an A-ASSOC-RQ with invalid protocol version."""
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8837,7 +8837,7 @@ class TestEventHandling:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
         assoc = ae.associate("localhost", 11112)
@@ -8862,7 +8862,7 @@ class TestEventHandling:
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         assoc = ae.associate("localhost", 11112)
@@ -8903,7 +8903,7 @@ class TestEventHandling:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
         assoc = ae.associate("localhost", 11112)
@@ -8949,7 +8949,7 @@ class TestEventHandling:
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         # Confirm that the handler is bound
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
@@ -9005,7 +9005,7 @@ class TestEventHandling:
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
         assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
@@ -9042,7 +9042,7 @@ class TestEventHandling:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -9085,7 +9085,7 @@ class TestEventHandling:
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
         assert assoc.is_established
@@ -9127,7 +9127,7 @@ class TestEventHandling:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", 11112)

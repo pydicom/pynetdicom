@@ -338,7 +338,7 @@ class TestDUL:
         ae.acse_timeout = 5
         ae.add_supported_context(Verification)
 
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(Verification)
         assoc = ae.associate("localhost", 11112)

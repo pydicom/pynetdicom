@@ -11,6 +11,9 @@ The major breaking changes with the version 2.0 release are:
     (for example, *VerificationSOPClass* becomes simply *Verification*)
   * AE title values should be :class:`str` rather than :class:`bytes` and trailing
     padding spaces are stripped from the raw value during decoding.
+  * Starting an SCP on ``IPADDR_ANY`` (such as ``""`` or ``"0.0.0.0"``) is disallowed
+    by default, use ``"localhost"`` instead, or change
+    :attr:`~pynetdicom._config.DISALLOWED_ADDRESSES`
 
 
 Fixes
@@ -77,6 +80,8 @@ Enhancements
     reducing the memory needed when receiving datasets (:issue:`517`)
   * :attr:`~pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE` to allow the
     use of the AE as an unrestricted Storage SCP (:issue:`505`)
+  * :attr:`~pynetdicom._config.DISALLOWED_ADDRESSES` to allow customising the
+    disallowed IP addresses when binding the networking socket.
 
 * The DUL reactor should be more performant when processing multiple successive events
   (:pr:`651`)
@@ -96,8 +101,9 @@ Changes
   :attr:`~pynetdicom.sop_class.Verification`
 * All AE titles and DIMSE elements with a VR of **AE** should be set using an
   ASCII :class:`str` rather than :class:`bytes`
-* The default bind address used when making association requests changed to
-  ``("127.0.0.1", 0)`` (:issue:`680`)
+* The default bind address used when making association requests has been changed to
+  ``("127.0.0.1", 0)`` and addresses that resolve to ``INADDR_ANY`` are disallowed by
+  default (:issue:`680`)
 * ``DULServiceProvider.primitive`` and ``DULServiceProvider.pdu`` have been removed
 * :meth:`AssociationSocket.connect<pynetdicom.transport.AssociationSocket.connect>`
   now takes a :class:`~pynetdicom.transport.T_CONNECT` primitive

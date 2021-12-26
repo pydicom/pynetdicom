@@ -261,7 +261,7 @@ class TestASSOC_RQ:
         with pytest.raises(ValueError, match=msg):
             pdu.called_ae_title = ""
 
-        msg = "Invalid 'Called AE Title' value - must not consist entirely " "of spaces"
+        msg = "Invalid 'Called AE Title' value - must not consist entirely of spaces"
         with pytest.raises(ValueError, match=msg):
             pdu.called_ae_title = "  "
 
@@ -296,7 +296,7 @@ class TestASSOC_RQ:
             pdu.calling_ae_title = ""
 
         msg = (
-            "Invalid 'Calling AE Title' value - must not consist entirely " "of spaces"
+            "Invalid 'Calling AE Title' value - must not consist entirely of spaces"
         )
         with pytest.raises(ValueError, match=msg):
             pdu.calling_ae_title = "  "
@@ -363,7 +363,7 @@ class TestASSOC_RQ:
     def test_decode_called_empty(self):
         """Check decoding empty called AE title."""
         pdu = A_ASSOCIATE_RQ()
-        msg = "Invalid 'Called AE Title' value - must not consist entirely " "of spaces"
+        msg = "Invalid 'Called AE Title' value - must not consist entirely of spaces"
         with pytest.raises(ValueError, match=msg):
             pdu.decode(a_associate_rq_called)
 
@@ -371,7 +371,7 @@ class TestASSOC_RQ:
         """Check decoding empty called AE title."""
         pdu = A_ASSOCIATE_RQ()
         msg = (
-            "Invalid 'Calling AE Title' value - must not consist entirely " "of spaces"
+            "Invalid 'Calling AE Title' value - must not consist entirely of spaces"
         )
         with pytest.raises(ValueError, match=msg):
             pdu.decode(a_associate_rq_calling)
@@ -1512,7 +1512,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
         assoc = ae.associate("localhost", 11112)
@@ -1542,7 +1542,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         assoc = ae.associate("localhost", 11112)
@@ -1582,7 +1582,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
         assoc = ae.associate("localhost", 11112)
@@ -1623,7 +1623,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         assoc = ae.associate("localhost", 11112)
@@ -1657,7 +1657,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", 11112)
@@ -1687,7 +1687,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
         assoc = ae.associate("localhost", 11112)
@@ -1725,7 +1725,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
 
         assoc = ae.associate("localhost", 11112)
@@ -1766,7 +1766,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
         assoc = ae.associate("localhost", 11112)
@@ -1806,7 +1806,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", 11112)
@@ -1844,7 +1844,7 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
         assoc = ae.associate("localhost", 11112)
@@ -1874,7 +1874,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
@@ -1914,7 +1914,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
         assert assoc.is_established
@@ -1945,7 +1945,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
         assoc = ae.associate("localhost", 11112)
@@ -1987,7 +1987,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
@@ -2021,7 +2021,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
@@ -2051,7 +2051,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
@@ -2090,7 +2090,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
         assert assoc.is_established
@@ -2119,7 +2119,7 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
 
         assoc = ae.associate("localhost", 11112)
@@ -2161,7 +2161,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
 
         assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
@@ -2202,7 +2202,7 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", 11112)

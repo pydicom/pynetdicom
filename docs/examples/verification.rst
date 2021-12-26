@@ -37,7 +37,7 @@ Verification Service.
    ae.add_requested_context(Verification)
 
    # Associate with peer AE at IP 127.0.0.1 and port 11112
-   assoc = ae.associate('127.0.0.1', 11112)
+   assoc = ae.associate("localhost", 11112)
 
    if assoc.is_established:
        # Use the C-ECHO service to send the request
@@ -91,7 +91,7 @@ to return an ``0x0000`` *Success* :ref:`status <verification_statuses>`.
     ae.add_supported_context(Verification)
 
    # Start listening for incoming association requests in blocking mode
-   ae.start_server(('', 11112), block=True)
+   ae.start_server(("localhost", 11112), block=True)
 
 You can also optionally bind your own handler to ``evt.EVT_C_ECHO``. Check the
 :func:`handler implementation documentation
@@ -112,4 +112,4 @@ to see the requirements for the ``evt.EVT_C_ECHO`` handler.
 
     ae = AE()
     ae.add_supported_context(Verification)
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(("localhost", 11112), evt_handlers=handlers)

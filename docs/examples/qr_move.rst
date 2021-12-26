@@ -47,7 +47,7 @@ series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
     ds.SeriesInstanceUID = '1.2.3.4'
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112)
+    assoc = ae.associate("localhost", 11112)
 
     if assoc.is_established:
         # Use the C-MOVE service to send the identifier
@@ -100,7 +100,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
     # Start our Storage SCP in non-blocking mode, listening on port 11120
     ae.ae_title = 'OUR_STORE_SCP'
-    scp = ae.start_server(('', 11120), block=False, evt_handlers=handlers)
+    scp = ae.start_server(("localhost", 11120), block=False, evt_handlers=handlers)
 
     # Create out identifier (query) dataset
     ds = Dataset()
@@ -113,7 +113,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
     ds.SeriesInstanceUID = '1.2.3.4'
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112)
+    assoc = ae.associate("localhost", 11112)
 
     if assoc.is_established:
         # Use the C-MOVE service to send the identifier
@@ -234,7 +234,7 @@ Check the :func:`handler implementation documentation
     ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
 
     # Start listening for incoming association requests
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(("localhost", 11112), evt_handlers=handlers)
 
 It's also possible to get more control over the association with the Storage
 SCP that'll be receiving any matching datasets by yielding ``(addr, port,

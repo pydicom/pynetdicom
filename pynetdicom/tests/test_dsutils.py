@@ -153,7 +153,7 @@ class TestPrettyElement:
         ds.PixelData = b""
         ds["PixelData"].VR = "OB"
         assert (
-            "(7FE0,0010) OB (no value available)                     # 0" " PixelData"
+            "(7FE0,0010) OB (no value available)                     # 0 PixelData"
         ) == pretty_element(ds["PixelData"])
 
     def test_bytes_short(self):
@@ -162,7 +162,7 @@ class TestPrettyElement:
         ds.PixelData = b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C"
         ds["PixelData"].VR = "OB"
         assert (
-            "(7FE0,0010) OB [00 01 02 03 04 05 06 07 08 09 0a 0b 0c] # 1" " PixelData"
+            "(7FE0,0010) OB [00 01 02 03 04 05 06 07 08 09 0a 0b 0c] # 1 PixelData"
         ) == pretty_element(ds["PixelData"])
 
     def test_bytes_long(self):
@@ -171,7 +171,7 @@ class TestPrettyElement:
         ds.PixelData = b"\x00" * 128
         ds["PixelData"].VR = "OB"
         assert (
-            "(7FE0,0010) OB (128 bytes of binary data)               # 1" " PixelData"
+            "(7FE0,0010) OB (128 bytes of binary data)               # 1 PixelData"
         ) == pretty_element(ds["PixelData"])
 
     def test_bytes_vm_multi(self):
@@ -183,7 +183,7 @@ class TestPrettyElement:
         ]
         ds["PixelData"].VR = "OB"
         assert (
-            "(7FE0,0010) OB (26 bytes of binary data)                # 2" " PixelData"
+            "(7FE0,0010) OB (26 bytes of binary data)                # 2 PixelData"
         ) == pretty_element(ds["PixelData"])
 
     def test_da_empty(self):
@@ -368,7 +368,7 @@ class TestPrettyElement:
         ds = Dataset()
         ds.StageNumber = None
         assert (
-            "(0008,2122) IS (no value available)                     # 0" " StageNumber"
+            "(0008,2122) IS (no value available)                     # 0 StageNumber"
         ) == pretty_element(ds["StageNumber"])
 
     def test_is_vm_one(self):
@@ -378,7 +378,7 @@ class TestPrettyElement:
         ds.StageNumber = "20200102"
         assert isinstance(ds.StageNumber, IS)
         assert (
-            "(0008,2122) IS [20200102]                               # 1" " StageNumber"
+            "(0008,2122) IS [20200102]                               # 1 StageNumber"
         ) == pretty_element(ds["StageNumber"])
 
     def test_is_vm_multi(self):
@@ -397,7 +397,7 @@ class TestPrettyElement:
         ds = Dataset()
         ds.PatientName = None
         assert (
-            "(0010,0010) PN (no value available)                     # 0" " PatientName"
+            "(0010,0010) PN (no value available)                     # 0 PatientName"
         ) == pretty_element(ds["PatientName"])
 
     def test_pn_vm_one(self):
@@ -405,7 +405,7 @@ class TestPrettyElement:
         ds = Dataset()
         ds.PatientName = "Citizen^Jan"
         assert (
-            "(0010,0010) PN [Citizen^Jan]                            # 1" " PatientName"
+            "(0010,0010) PN [Citizen^Jan]                            # 1 PatientName"
         ) == pretty_element(ds["PatientName"])
 
     def test_pn_vm_multi(self):
@@ -449,7 +449,7 @@ class TestPrettyElement:
         ds = Dataset()
         ds.PatientAge = None
         assert (
-            "(0010,1010) AS (no value available)                     # 0" " PatientAge"
+            "(0010,1010) AS (no value available)                     # 0 PatientAge"
         ) == pretty_element(ds["PatientAge"])
 
     def test_str_vm_one(self):
@@ -457,7 +457,7 @@ class TestPrettyElement:
         ds = Dataset()
         ds.PatientAge = "10"
         assert (
-            "(0010,1010) AS [10]                                     # 1" " PatientAge"
+            "(0010,1010) AS [10]                                     # 1 PatientAge"
         ) == pretty_element(ds["PatientAge"])
 
     def test_str_vm_multi(self):
@@ -465,7 +465,7 @@ class TestPrettyElement:
         ds = Dataset()
         ds.PatientAge = ["10", "11"]
         assert (
-            r"(0010,1010) AS [10\11]                                  # 2" " PatientAge"
+            r"(0010,1010) AS [10\11]                                  # 2 PatientAge"
         ) == pretty_element(ds["PatientAge"])
 
     def test_tm_empty(self):
@@ -556,10 +556,10 @@ class TestPrettyDataset:
         out = pretty_dataset(ds)
         assert 3 == len(out)
         assert (
-            "(0010,0010) PN [Citizen^Jan]                            # 1" " PatientName"
+            "(0010,0010) PN [Citizen^Jan]                            # 1 PatientName"
         ) == out[0]
         assert (
-            "(0010,0020) LO (no value available)                     # 0" " PatientID"
+            "(0010,0020) LO (no value available)                     # 0 PatientID"
         ) == out[1]
         assert (
             r"(0010,0030) DA [19840988\20200527]                      # 2"

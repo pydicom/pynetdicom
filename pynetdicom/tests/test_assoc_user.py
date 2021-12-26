@@ -654,7 +654,7 @@ class TestServiceUserAcceptor:
         assert len(class_items) == 0
 
         msg = (
-            "Invalid 'implementation_version_name' value - must not be an " "empty str"
+            "Invalid 'implementation_version_name' value - must not be an empty str"
         )
         with pytest.raises(ValueError, match=msg):
             user.implementation_version_name = ""
