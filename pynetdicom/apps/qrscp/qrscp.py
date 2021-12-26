@@ -43,7 +43,6 @@ from pynetdicom.apps.qrscp import db
 pydicom.config.use_none_as_empty_text_VR_value = True
 # Don't log identifiers
 _config.LOG_RESPONSE_IDENTIFIERS = False
-_config.DISALLOWED_ADDRESSES.clear()
 
 # Override the standard logging handlers
 def _dont_log(event):

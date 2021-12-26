@@ -13,7 +13,6 @@ from pydicom.uid import generate_uid
 
 from pynetdicom import (
     AE,
-    _config,
     BasicWorklistManagementPresentationContexts,
     QueryRetrievePresentationContexts,
     PYNETDICOM_IMPLEMENTATION_UID,
@@ -29,9 +28,6 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelFind,
     PatientStudyOnlyQueryRetrieveInformationModelFind,
 )
-
-
-_config.DISALLOWED_ADDRESSES.clear()
 
 
 __version__ = "0.2.0"

@@ -113,15 +113,6 @@ class TestAssociationSocket:
         with pytest.raises(queue.Empty):
             sock.event_queue.get(block=False)
 
-    def test_disallowed_address_raises(self):
-        """Test binding to a disallowed address raises and exception"""
-        msg = (
-            r"Binding a socket to '0.0.0.0' is disallowed by default, see "
-            r"'_config.DISALLOWED_ADDRESSES' for details"
-        )
-        with pytest.raises(ValueError, match=msg):
-            AssociationSocket(self.assoc, address=("0.0.0.0", 11112))
-
     def test_init_address(self):
         """Test creating a new bound AssociationSocket instance."""
         sock = AssociationSocket(self.assoc, address=("127.0.0.1", 11112))

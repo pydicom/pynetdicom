@@ -9,7 +9,6 @@ import sys
 
 from pynetdicom import (
     AE,
-    _config,
     build_role,
     evt,
     StoragePresentationContexts,
@@ -25,9 +24,6 @@ from pynetdicom.sop_class import (
     EncapsulatedOBJStorage,
     EncapsulatedMTLStorage,
 )
-
-
-_config.DISALLOWED_ADDRESSES.clear()
 
 
 __version__ = "0.4.0"

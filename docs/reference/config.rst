@@ -11,7 +11,6 @@ Configuration Options (:mod:`pynetdicom._config`)
    :toctree: generated/
 
    CODECS
-   DISALLOWED_ADDRESSES
    ENFORCE_UID_CONFORMANCE
    LOG_HANDLER_LEVEL
    LOG_REQUEST_IDENTIFIERS

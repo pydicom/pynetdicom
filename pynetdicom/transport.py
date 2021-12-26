@@ -272,12 +272,6 @@ class AssociationSocket:
         socket.socket
             A bound and unconnected socket instance.
         """
-        if address[0] in _config.DISALLOWED_ADDRESSES:
-            raise ValueError(
-                f"Binding a socket to '{address[0]}' is disallowed by default, see "
-                "'_config.DISALLOWED_ADDRESSES' for details"
-            )
-
         # AF_INET: IPv4, SOCK_STREAM: TCP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
@@ -782,12 +776,6 @@ class AssociationServer(TCPServer):
           <pynetdicom.ae.ApplicationEntity.network_timeout>` unless the
           value is ``None`` in which case it will be left unset.
         """
-        if self.server_address[0] in _config.DISALLOWED_ADDRESSES:
-            raise ValueError(
-                f"Binding a socket to '{self.server_address[0]}' is disallowed by "
-                "default, see '_config.DISALLOWED_ADDRESSES' for details"
-            )
-
         self.socket = cast(socket.socket, self.socket)
         # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
         #   waiting for its natural timeout to expire

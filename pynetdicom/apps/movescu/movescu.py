@@ -9,7 +9,6 @@ import sys
 
 from pynetdicom import (
     AE,
-    _config,
     evt,
     QueryRetrievePresentationContexts,
     AllStoragePresentationContexts,
@@ -22,9 +21,6 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelMove,
     PatientStudyOnlyQueryRetrieveInformationModelMove,
 )
-
-
-_config.DISALLOWED_ADDRESSES.clear()
 
 
 __version__ = "0.4.0"
