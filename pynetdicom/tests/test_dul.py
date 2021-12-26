@@ -73,9 +73,7 @@ class TestDUL:
     READ_PDU_EXC_A - test_transport.py::TestTLS::test_tls_yes_server_not_client
     READ_PDU_EXC_B - test_assoc.py::TestAssociation::test_unknown_abort_source
     READ_PDU_EXC_C - test_assoc.py::TestAssociation::test_bad_connection
-
     READ_PDU_EXC_D - test_dul.py::TestDUL::test_recv_short_aborts
-
     READ_PDU_EXC_E - test_dul.py::TestDUL::test_recv_missing_data
     READ_PDU_EXC_F - test_dul.py::TestDUL::test_recv_bad_pdu_aborts
     """

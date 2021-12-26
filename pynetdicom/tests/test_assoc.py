@@ -127,7 +127,7 @@ class TestAssociation:
             ae.network_timeout = 5
             assoc = ae.associate("localhost", 22)
             assert not assoc.is_established
-            assert "Unknown PDU type received '0x53'" in caplog.text
+            assert "Unknown PDU type received '0x" in caplog.text
 
     def test_connection_refused(self):
         """Test connection refused"""
