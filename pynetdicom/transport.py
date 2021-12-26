@@ -15,7 +15,6 @@ try:
     _HAS_SSL = True
 except ImportError:
     _HAS_SSL = False
-from struct import pack
 import threading
 from typing import (
     TYPE_CHECKING,

@@ -362,25 +362,24 @@ class TestTLS:
 
         importlib.reload(pynetdicom.transport)
 
-    def test_tls_not_server_not_client(self, caplog):
+    def test_tls_not_server_not_client(self):
         """Test associating with no TLS on either end."""
-        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            self.ae = ae = AE()
-            ae.add_supported_context("1.2.840.10008.1.1")
-            server = ae.start_server(("localhost", 11112), block=False)
 
-            ae.add_requested_context("1.2.840.10008.1.1")
-            assoc = ae.associate("localhost", 11112)
-            assert assoc.is_established
-            status = assoc.send_c_echo()
-            assert status.Status == 0x0000
-            assoc.release()
-            assert assoc.is_released
+        self.ae = ae = AE()
+        ae.add_supported_context("1.2.840.10008.1.1")
+        server = ae.start_server(("localhost", 11112), block=False)
 
-            server.shutdown()
+        ae.add_requested_context("1.2.840.10008.1.1")
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+        status = assoc.send_c_echo()
+        assert status.Status == 0x0000
+        assoc.release()
+        assert assoc.is_released
 
-            assert len(server.active_associations) == 0
-            assert "Connection closed before the entire PDU was received" in caplog.text
+        server.shutdown()
+
+        assert len(server.active_associations) == 0
 
     def test_tls_not_server_yes_client(self, client_context):
         """Test wrapping the requestor socket with TLS (but not server)."""
@@ -402,23 +401,25 @@ class TestTLS:
 
         assert len(server.active_associations) == 0
 
-    def test_tls_yes_server_not_client(self, server_context):
+    def test_tls_yes_server_not_client(self, server_context, caplog):
         """Test wrapping the acceptor socket with TLS (and not client)."""
-        self.ae = ae = AE()
-        ae.add_supported_context("1.2.840.10008.1.1")
-        server = ae.start_server(
-            ("localhost", 11112),
-            block=False,
-            ssl_context=server_context,
-        )
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            self.ae = ae = AE()
+            ae.add_supported_context("1.2.840.10008.1.1")
+            server = ae.start_server(
+                ("localhost", 11112),
+                block=False,
+                ssl_context=server_context,
+            )
 
-        ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112)
-        assert assoc.is_aborted
+            ae.add_requested_context("1.2.840.10008.1.1")
+            assoc = ae.associate("localhost", 11112)
+            assert assoc.is_aborted
 
-        server.shutdown()
+            server.shutdown()
 
-        assert len(server.active_associations) == 0
+            assert len(server.active_associations) == 0
+            assert "Connection closed before the entire PDU was received" in caplog.text
 
     def test_tls_yes_server_yes_client(self, server_context, client_context):
         """Test associating with TLS on both ends."""
