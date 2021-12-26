@@ -67,7 +67,18 @@ class DummyAssociation:
 
 
 class TestDUL:
-    """Run tests on DUL service provider."""
+    """Run tests on DUL service provider.
+
+    DULServiceProvider._read_pdu_data() tests
+    READ_PDU_EXC_A - test_transport.py::TestTLS::test_tls_yes_server_not_client
+    READ_PDU_EXC_B - test_assoc.py::TestAssociation::test_unknown_abort_source
+    READ_PDU_EXC_C - test_assoc.py::TestAssociation::test_bad_connection
+
+    READ_PDU_EXC_D - test_dul.py::TestDUL::test_recv_short_aborts
+
+    READ_PDU_EXC_E - test_dul.py::TestDUL::test_recv_missing_data
+    READ_PDU_EXC_F - test_dul.py::TestDUL::test_recv_bad_pdu_aborts
+    """
 
     def setup(self):
         self.scp = None
@@ -135,150 +146,157 @@ class TestDUL:
             dul.to_provider_queue.put("TEST")
             dul._process_recv_primitive()
 
-    def test_recv_failure_aborts(self):
+    def test_recv_failure_aborts(self, caplog):
         """Test connection close during PDU recv causes abort."""
-        commands = [
-            ("recv", None),  # recv a-associate-rq
-            ("send", a_associate_ac),
-            ("send", b"\x07\x00\x00\x00\x00\x04"),
-            ("exit", None),
-        ]
-        self.scp = scp = start_server(commands)
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            commands = [
+                ("recv", None),  # recv a-associate-rq
+                ("send", a_associate_ac),
+                ("send", b"\x07\x00\x00\x00\x00\x04"),
+                ("exit", None),
+            ]
+            self.scp = scp = start_server(commands)
 
-        def handle(event):
-            scp.step()
-            scp.step()
+            def handle(event):
+                scp.step()
+                scp.step()
 
-        hh = [(evt.EVT_REQUESTED, handle)]
+            hh = [(evt.EVT_REQUESTED, handle)]
 
-        ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 0.2
-        ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
-        assert assoc.is_established
+            ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 0.2
+            ae.add_requested_context("1.2.840.10008.1.1")
+            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+            assert assoc.is_established
 
-        scp.step()  # send short pdu
-        scp.step()  # close connection
-        scp.shutdown()
+            scp.step()  # send short pdu
+            scp.step()  # close connection
+            scp.shutdown()
 
-        # Need to wait for network timeout to expire
-        timeout = 0
-        while not assoc.is_aborted and timeout < 1:
-            time.sleep(0.05)
-            timeout += 0.05
-        assert assoc.is_aborted
+            # Need to wait for network timeout to expire
+            timeout = 0
+            while not assoc.is_aborted and timeout < 1:
+                time.sleep(0.05)
+                timeout += 0.05
+            assert assoc.is_aborted
+            assert (
+                "The received PDU is shorter than expected (6 of 10 bytes received)"
+            ) in caplog.text
 
-    def test_recv_short_aborts(self):
+    def test_recv_short_aborts(self, caplog):
         """Test receiving short PDU causes abort."""
-        commands = [
-            ("recv", None),  # recv a-associate-rq
-            ("send", a_associate_ac),
-            ("send", b"\x07\x00\x00\x00\x00\x04\x00\x00"),  # Send short PDU
-            ("exit", None),
-        ]
-        self.scp = scp = start_server(commands)
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            commands = [
+                ("recv", None),  # recv a-associate-rq
+                ("send", a_associate_ac),
+                ("send", b"\x07\x00\x00\x00\x00\x04"),  # Send first 6
+                ("send", b"\x00\x00"),  # Send short remainder
+                ("exit", None),
+            ]
+            self.scp = scp = start_server(commands)
 
-        def handle(event):
+            def handle(event):
+                scp.step()  # recv A-ASSOCIATE-RQ
+                scp.step()  # send A-ASSOCIATE-AC
+
+            hh = [(evt.EVT_REQUESTED, handle)]
+
+            ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 0.5
+            ae.add_requested_context("1.2.840.10008.1.1")
+            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+            assert assoc.is_established
+
+            scp.step()  # send short pdu
+            time.sleep(0.1)
+            assoc.dul.socket.socket.close()
+            # Need to wait for network timeout to expire
+            timeout = 0
+            while not assoc.is_aborted and timeout < 1:
+                time.sleep(0.05)
+                timeout += 0.05
             scp.step()
-            scp.step()
+            scp.step()  # exit
+            assert assoc.is_aborted
+            scp.shutdown()
 
-        hh = [(evt.EVT_REQUESTED, handle)]
+            assert "Connection closed before the entire PDU was received" in caplog.text
 
-        ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 0.2
-        ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
-        assert assoc.is_established
-
-        scp.step()  # send short pdu
-        # Need to wait for network timeout to expire
-        timeout = 0
-        while not assoc.is_aborted and timeout < 1:
-            time.sleep(0.05)
-            timeout += 0.05
-        assert assoc.is_aborted
-
-        scp.step()
-        scp.shutdown()
-
-    def test_recv_missing_data(self):
+    def test_recv_missing_data(self ,caplog):
         """Test missing data when receiving."""
-        commands = [
-            ("recv", None),  # recv a-associate-rq
-            ("send", a_associate_ac),
-            ("send", b"\x07\x00\x00\x00\x00\x02\x00"),  # Send short PDU
-            ("exit", None),
-        ]
-        self.scp = scp = start_server(commands)
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            commands = [
+                ("recv", None),  # recv a-associate-rq
+                ("send", a_associate_ac),
+                ("send", b"\x07\x00\x00\x00\x00\x02\x00"),  # Send short PDU
+                ("exit", None),
+            ]
+            self.scp = scp = start_server(commands)
 
-        def handle(event):
+            def handle(event):
+                scp.step()
+                scp.step()
+
+            hh = [(evt.EVT_REQUESTED, handle)]
+
+            ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            # ae.network_timeout = 0.5
+            ae.add_requested_context("1.2.840.10008.1.1")
+            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+            assert assoc.is_established
+
+            scp.step()  # send short pdu
+
             scp.step()
-            scp.step()
+            scp.shutdown()
+            assert assoc.is_aborted
+            assert (
+                "The received PDU is shorter than expected (7 of 8 bytes received)"
+            ) in caplog.text
 
-        hh = [(evt.EVT_REQUESTED, handle)]
-
-        def recv(nr_bytes):
-            return assoc.dul.socket.socket.recv(6)
-
-        ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 0.5
-        ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
-        assert assoc.is_established
-        assoc.dul.socket.recv = recv
-
-        scp.step()  # send short pdu
-        # Need to wait for network timeout to expire
-        timeout = 0
-        while not assoc.is_aborted and timeout < 1:
-            time.sleep(0.05)
-            timeout += 0.05
-        assert assoc.is_aborted
-
-        scp.step()
-        scp.shutdown()
-
-    def test_recv_bad_pdu_aborts(self):
+    def test_recv_bad_pdu_aborts(self, caplog):
         """Test receiving undecodable PDU causes abort."""
-        commands = [
-            ("recv", None),  # recv a-associate-rq
-            ("send", a_associate_ac),
-            ("send", b"\x07\x00\x00\x00\x00\x02\x00\x00"),
-            ("recv", None),
-            ("exit", None),
-        ]
-        self.scp = scp = start_server(commands)
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            commands = [
+                ("recv", None),  # recv a-associate-rq
+                ("send", a_associate_ac),
+                ("send", b"\x07\x00\x00\x00\x00\x02\x00\x00"),
+                ("recv", None),
+                ("exit", None),
+            ]
+            self.scp = scp = start_server(commands)
 
-        def handle(event):
+            def handle(event):
+                scp.step()
+                scp.step()
+
+            hh = [(evt.EVT_REQUESTED, handle)]
+
+            ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            ae.add_requested_context("1.2.840.10008.1.1")
+            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+            assert assoc.is_established
+
+            scp.step()  # send bad PDU
+
+            while assoc.dul.is_alive():
+                time.sleep(0.001)
+
+            scp.step()  # receive abort
             scp.step()
-            scp.step()
+            scp.shutdown()
 
-        hh = [(evt.EVT_REQUESTED, handle)]
-
-        ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
-        assert assoc.is_established
-
-        scp.step()  # send bad PDU
-
-        while assoc.dul.is_alive():
-            time.sleep(0.001)
-
-        scp.step()  # receive abort
-        scp.step()
-        scp.shutdown()
-
-        assert assoc.is_aborted
+            assert assoc.is_aborted
+            assert "Unable to decode the received PDU data" in caplog.text
 
     def test_exception_in_reactor(self):
         """Test that an exception being raised in the DUL reactor kills the

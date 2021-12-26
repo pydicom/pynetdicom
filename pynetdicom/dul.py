@@ -267,7 +267,10 @@ class DULServiceProvider(Thread):
         # Try and read the PDU type and length from the socket
         try:
             bytestream.extend(self.socket.recv(6))
-        except (socket.error, socket.timeout):
+        except (socket.error, socket.timeout) as exc:
+            # READ_PDU_EXC_A
+            LOGGER.error("Connection closed before the entire PDU was received")
+            LOGGER.exception(exc)
             # Evt17: Transport connection closed
             self.event_queue.put("Evt17")
             return
@@ -277,14 +280,17 @@ class DULServiceProvider(Thread):
             # Byte 2 is always reserved
             # Bytes 3-6 are always the PDU length
             pdu_type, _, pdu_length = struct.unpack(">BBL", bytestream)
-        except struct.error:
-            # Raised if there's not enough data
+        except struct.error as exc:
+            # READ_PDU_EXC_B
+            LOGGER.error("Insufficient data received to decode the PDU")
             # Evt17: Transport connection closed
             self.event_queue.put("Evt17")
             return
 
         # If the `pdu_type` is unrecognised
         if pdu_type not in (0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07):
+            # READ_PDU_EXC_C
+            LOGGER.error(f"Unknown PDU type received '0x{pdu_type:02X}'")
             # Evt19: Unrecognised or invalid PDU received
             self.event_queue.put("Evt19")
             return
@@ -292,14 +298,22 @@ class DULServiceProvider(Thread):
         # Try and read the rest of the PDU
         try:
             bytestream += self.socket.recv(pdu_length)
-        except (socket.error, socket.timeout):
+        except (socket.error, socket.timeout) as exc:
+            # READ_PDU_EXC_D
+            LOGGER.error("Connection closed before the entire PDU was received")
+            LOGGER.exception(exc)
             # Evt17: Transport connection closed
             self.event_queue.put("Evt17")
             return
 
         # Check that the PDU data was completely read
         if len(bytestream) != 6 + pdu_length:
+            # READ_PDU_EXC_E
             # Evt17: Transport connection closed
+            LOGGER.error(
+                f"The received PDU is shorter than expected ({len(bytestream)} of "
+                f"{6 + pdu_length} bytes received)"
+            )
             self.event_queue.put("Evt17")
             return
 
@@ -308,6 +322,7 @@ class DULServiceProvider(Thread):
             pdu, event = self._decode_pdu(bytestream)
             self.event_queue.put(event)
         except Exception as exc:
+            # READ_PDU_EXC_F
             LOGGER.error("Unable to decode the received PDU data")
             LOGGER.exception(exc)
             # Evt19: Unrecognised or invalid PDU received

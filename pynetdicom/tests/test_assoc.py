@@ -117,16 +117,17 @@ class TestAssociation:
         if self.ae:
             self.ae.shutdown()
 
-    def test_bad_connection(self):
+    def test_bad_connection(self, caplog):
         """Test connect to non-AE"""
-        # sometimes causes hangs in Travis
-        ae = AE()
-        ae.add_requested_context(Verification)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        assoc = ae.associate("localhost", 22)
-        assert not assoc.is_established
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            ae = AE()
+            ae.add_requested_context(Verification)
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            assoc = ae.associate("localhost", 22)
+            assert not assoc.is_established
+            assert "Unknown PDU type received '0x53'" in caplog.text
 
     def test_connection_refused(self):
         """Test connection refused"""
@@ -583,32 +584,34 @@ class TestAssociation:
 
         scp.shutdown()
 
-    def test_unknown_abort_source(self):
+    def test_unknown_abort_source(self, caplog):
         """Test an unknown abort source handled correctly #561"""
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            def handle_req(event):
+                pdu = b"\x07\x00\x00\x00\x00\x04\x00\x00\x01\x00"
+                event.assoc.dul.socket.send(pdu)
+                # Give the requestor time to process the message before killing
+                #   the connection
+                time.sleep(0.1)
 
-        def handle_req(event):
-            pdu = b"\x07\x00\x00\x00\x00\x04\x00\x00\x01\x00"
-            event.assoc.dul.socket.send(pdu)
-            # Give the requestor time to process the message before killing
-            #   the connection
-            time.sleep(0.1)
+            self.ae = ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            ae.add_supported_context(Verification)
 
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_supported_context(Verification)
+            hh = [(evt.EVT_REQUESTED, handle_req)]
 
-        hh = [(evt.EVT_REQUESTED, handle_req)]
+            scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
 
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+            ae.add_requested_context(Verification)
+            assoc = ae.associate("localhost", 11112)
+            assert not assoc.is_established
+            assert assoc.is_aborted
 
-        ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
-        assert not assoc.is_established
-        assert assoc.is_aborted
+            scp.shutdown()
 
-        scp.shutdown()
+            assert "Insufficient data received to decode the PDU" in caplog.text
 
 
 class TestCStoreSCP:
