@@ -217,7 +217,7 @@ notifications over the same association (and ignore them).
         attr_list.FilmSizeID = 'A4'
 
         # Can only contain a single item, is a reference to the *Film Session*
-        attr_list.ReferencedFilmSessionSequence = [Dataset]
+        attr_list.ReferencedFilmSessionSequence = [Dataset()]
         item = attr_list.ReferencedFilmSessionSequence[0]
         item.ReferencedSOPClassUID = session.SOPClassUID
         item.ReferencedSOPInstanceUID = session.SOPInstanceUID

@@ -41,6 +41,7 @@ Fixes
 * Fixed an exception in the state machine during association negotiation as the acceptor
   when an A-ABORT-RQ PDU is received before the initial A-ASSOCIATE-RQ has been
   processed (:issue:`721`)
+* Fixed network timeouts not working as expected on Windows (:issue:`653`)
 
 
 Enhancements

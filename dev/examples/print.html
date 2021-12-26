@@ -341,7 +341,7 @@ notifications over the same association (and ignore them).</p>
     <span class="n">attr_list</span><span class="o">.</span><span class="n">FilmSizeID</span> <span class="o">=</span> <span class="s1">&#39;A4&#39;</span>
 
     <span class="c1"># Can only contain a single item, is a reference to the *Film Session*</span>
-    <span class="n">attr_list</span><span class="o">.</span><span class="n">ReferencedFilmSessionSequence</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dataset</span><span class="p">]</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">ReferencedFilmSessionSequence</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dataset</span><span class="p">()]</span>
     <span class="n">item</span> <span class="o">=</span> <span class="n">attr_list</span><span class="o">.</span><span class="n">ReferencedFilmSessionSequence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">item</span><span class="o">.</span><span class="n">ReferencedSOPClassUID</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">SOPClassUID</span>
     <span class="n">item</span><span class="o">.</span><span class="n">ReferencedSOPInstanceUID</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">SOPInstanceUID</span>
