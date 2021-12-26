@@ -296,6 +296,42 @@ class TestDUL:
             assert assoc.is_aborted
             assert "Unable to decode the received PDU data" in caplog.text
 
+    def test_unknown_pdu_aborts(self, caplog):
+        # with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+        commands = [
+            ("recv", None),  # recv a-associate-rq
+            ("send", a_associate_ac),
+            ("send", b"\x53\x00\x00\x00\x00\x02"),
+            ("recv", None),
+            ("exit", None),
+        ]
+        self.scp = scp = start_server(commands)
+
+        def handle(event):
+            scp.step()
+            scp.step()
+
+        hh = [(evt.EVT_REQUESTED, handle)]
+
+        ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context("1.2.840.10008.1.1")
+        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+        assert assoc.is_established
+
+        scp.step()  # send bad PDU
+
+        time.sleep(0.1)
+
+        scp.step()  # receive abort
+        scp.step()
+        scp.shutdown()
+
+        assert assoc.is_aborted
+        # assert "Unknown PDU type received '0x53'" in caplog.text
+
     def test_exception_in_reactor(self):
         """Test that an exception being raised in the DUL reactor kills the
         DUL and aborts the association.

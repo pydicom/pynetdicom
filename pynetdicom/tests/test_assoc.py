@@ -119,15 +119,13 @@ class TestAssociation:
 
     def test_bad_connection(self, caplog):
         """Test connect to non-AE"""
-        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            ae = AE()
-            ae.add_requested_context(Verification)
-            ae.acse_timeout = 5
-            ae.dimse_timeout = 5
-            ae.network_timeout = 5
-            assoc = ae.associate("localhost", 22)
-            assert not assoc.is_established
-            assert "Unknown PDU type received '0x" in caplog.text
+        ae = AE()
+        ae.add_requested_context(Verification)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        assoc = ae.associate("localhost", 22)
+        assert not assoc.is_established
 
     def test_connection_refused(self):
         """Test connection refused"""
@@ -1196,23 +1194,26 @@ class TestAssociationSendCEcho:
 
         scp.shutdown()
 
-    def test_network_times_out_requestor(self):
+    def test_network_times_out_requestor(self, caplog):
         """Regression test for #286."""
-        self.ae = ae = AE()
-        ae.add_requested_context(Verification)
-        ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            self.ae = ae = AE()
+            ae.add_requested_context(Verification)
+            ae.add_supported_context(Verification)
+            scp = ae.start_server(("localhost", 11112), block=False)
 
-        assoc = ae.associate("localhost", 11112)
-        assert assoc.is_established
-        assert assoc.network_timeout == 60
-        assoc.network_timeout = 0.5
-        assert assoc.network_timeout == 0.5
+            assoc = ae.associate("localhost", 11112)
+            assert assoc.is_established
+            assert assoc.network_timeout == 60
+            assoc.network_timeout = 0.5
+            assert assoc.network_timeout == 0.5
 
-        time.sleep(1.0)
-        assert assoc.is_aborted
+            while not assoc.is_aborted:
+                time.sleep(0.01)
 
-        scp.shutdown()
+            scp.shutdown()
+
+            assert "Network timeout reached" in caplog.text
 
     def test_network_times_out_acceptor(self):
         """Regression test for #286."""
