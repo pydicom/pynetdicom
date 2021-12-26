@@ -974,11 +974,7 @@ def AA_7(dul: "DULServiceProvider") -> str:
     primitive.provider_reason = 0x02
 
     # Send A-ABORT PDU
-    try:
-        dul._send(A_ABORT_RQ(primitive))
-    except Exception as exc:
-        LOGGER.warning("Connection closed before A-ABORT could be sent")
-        LOGGER.exception(exc)
+    dul._send(A_ABORT_RQ(primitive))
 
     return "Sta13"
 
