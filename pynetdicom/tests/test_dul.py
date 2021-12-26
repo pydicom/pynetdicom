@@ -226,7 +226,7 @@ class TestDUL:
 
             assert "Connection closed before the entire PDU was received" in caplog.text
 
-    def test_recv_missing_data(self ,caplog):
+    def test_recv_missing_data(self, caplog):
         """Test missing data when receiving."""
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             commands = [
