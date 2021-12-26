@@ -204,7 +204,7 @@ attribute directly using a list of <a class="reference internal" href="../refere
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)]</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
@@ -217,7 +217,7 @@ method to add a new <a class="reference internal" href="../reference/generated/p
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
@@ -229,7 +229,7 @@ via the <em>contexts</em> keyword parameter.</p>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">requested</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)]</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="n">requested</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="n">requested</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
@@ -290,7 +290,7 @@ attribute directly using a list of <a class="reference internal" href="../refere
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)]</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
 </pre></div>
 </div>
 </li>
@@ -303,7 +303,7 @@ method to add a new <a class="reference internal" href="../reference/generated/p
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
 </pre></div>
 </div>
 </li>
@@ -315,7 +315,7 @@ via the <cite>contexts</cite> keyword parameter</p>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)]</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">contexts</span><span class="o">=</span><span class="n">supported</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">contexts</span><span class="o">=</span><span class="n">supported</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
@@ -450,7 +450,7 @@ using the <a class="reference internal" href="../reference/generated/pynetdicom.
 
 <span class="n">role_b</span> <span class="o">=</span> <span class="n">build_role</span><span class="p">(</span><span class="n">MRImageStorage</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="p">[</span><span class="n">role_a</span><span class="p">,</span> <span class="n">role_b</span><span class="p">])</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="p">[</span><span class="n">role_a</span><span class="p">,</span> <span class="n">role_b</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>When acting as the <em>requestor</em> you can set <strong>either or both</strong> of <em>scu_role</em> and
@@ -463,7 +463,7 @@ and <em>scp_role</em> keyword parameters in <a class="reference internal" href="
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">scu_role</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>When acting as the <em>acceptor</em> <strong>both</strong> <em>scu_role</em> and <em>scp_role</em> must be

@@ -134,7 +134,7 @@ single CT dataset.</p>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">dcmread</span><span class="p">(</span><span class="s1">&#39;path/to/dataset&#39;</span><span class="p">)</span>
 
 <span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Use the C-STORE service to send the dataset</span>
     <span class="c1"># returns the response status as a pydicom Dataset</span>
@@ -178,10 +178,10 @@ the requested contexts, or just add as many contexts as you need.</p>
 <span class="n">mr_context</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="n">MRImageStorage</span><span class="p">)</span>
 
 <span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="p">[</span><span class="n">ct_context</span><span class="p">])</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="p">[</span><span class="n">ct_context</span><span class="p">])</span>
 <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="p">[</span><span class="n">mr_context</span><span class="p">])</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="p">[</span><span class="n">mr_context</span><span class="p">])</span>
 <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -228,7 +228,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 <span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">AllStoragePresentationContexts</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If you’re optimising for speed you can:</p>
@@ -270,7 +270,7 @@ multiple C-STORE requests, depending on the size of the datasets:</p>
 <span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">AllStoragePresentationContexts</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>As with the SCU you can also just support only the contexts you’re
@@ -289,7 +289,7 @@ interested in.</p>
 
 <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
 
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can also start the SCP in non-blocking mode:</p>
@@ -303,7 +303,7 @@ interested in.</p>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
-<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
 <span class="c1"># Zzzz</span>
 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>

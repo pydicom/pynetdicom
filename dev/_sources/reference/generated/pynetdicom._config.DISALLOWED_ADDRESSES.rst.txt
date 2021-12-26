@@ -1,0 +1,6 @@
+﻿pynetdicom.\_config.DISALLOWED\_ADDRESSES
+=========================================
+
+.. currentmodule:: pynetdicom._config
+
+.. autodata:: DISALLOWED_ADDRESSES

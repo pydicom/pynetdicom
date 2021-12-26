@@ -133,7 +133,7 @@ method, which returns an <a class="reference internal" href="../reference/genera
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 
 <span class="c1"># Associate with the peer at IP address 127.0.0.1 and port 11112</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 
 <span class="c1"># Release the association</span>
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -153,7 +153,7 @@ and aborts.</p>
 <p>Some SCPs will reject an association request if the <em>Called AE Title</em> parameter
 value doesn’t match its own title, so this can be set using the <em>ae_title</em>
 keyword parameter:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -169,7 +169,7 @@ per-association basis you can use the <em>contexts</em> keyword parameter:</p>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">requested_contexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)]</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="n">requested_contexts</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="n">requested_contexts</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
@@ -212,7 +212,7 @@ also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</
 <span class="n">negotiation_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user_identity</span><span class="p">)</span>
 
 <span class="c1"># Associate with the peer at IP address 127.0.0.1 and port 11112</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="n">negotiation_items</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="n">negotiation_items</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
@@ -232,7 +232,7 @@ also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</
 <p>If you want to bind handlers to any
 <a class="reference internal" href="events.html#user-events"><span class="std std-ref">events</span></a> within a new <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> you can
 use the <em>evt_handlers</em> keyword parameter:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
@@ -258,7 +258,7 @@ use the <em>evt_handlers</em> keyword parameter:</p>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
@@ -266,7 +266,7 @@ use the <em>evt_handlers</em> keyword parameter:</p>
 </div>
 <p>Handlers can also be bound and unbound from events in an existing
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
@@ -288,7 +288,7 @@ use the <em>evt_handlers</em> keyword parameter:</p>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
 <span class="n">assoc</span><span class="o">.</span><span class="n">unbind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)</span>
 <span class="n">assoc</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_CLOSE</span><span class="p">,</span> <span class="n">handle_close</span><span class="p">)</span>
@@ -307,7 +307,7 @@ use the <em>evt_handlers</em> keyword parameter:</p>
 <p>The client socket used for the association can be wrapped in TLS by supplying
 the <em>tls_args</em> keyword parameter to
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">associate()</span></code></a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
@@ -320,7 +320,7 @@ the <em>tls_args</em> keyword parameter to
 <span class="n">ssl_cx</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_REQUIRED</span>
 <span class="n">ssl_cx</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span><span class="n">certfile</span><span class="o">=</span><span class="s1">&#39;client.crt&#39;</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="s1">&#39;client.key&#39;</span><span class="p">)</span>
 
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">tls_args</span><span class="o">=</span><span class="p">(</span><span class="n">ssl_cx</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">tls_args</span><span class="o">=</span><span class="p">(</span><span class="n">ssl_cx</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
@@ -336,14 +336,14 @@ value of the <em>server_hostname</em> keyword parameter in
 establishment, association rejection, association abort or a connection
 failure, so its a good idea to test for establishment before attempting to
 use the association:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 
 <span class="c1"># Associate with the peer at IP address 127.0.0.1 and port 11112</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Do something useful...</span>
@@ -410,14 +410,14 @@ property after the association has been established.</p>
 listening for association requests from peers with the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a>
 method:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 
 <span class="c1"># Listen for association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>The above is suitable as an implementation of the Verification Service
@@ -425,17 +425,17 @@ Class, however other service classes will require that you implement and bind
 one or more of the <a class="reference internal" href="events.html#events-intervention"><span class="std std-ref">intervention event handlers</span></a>.</p>
 <p>The association server can be started in both blocking (default) and
 non-blocking modes:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 
 <span class="c1"># Returns a ThreadedAssociationServer instance</span>
-<span class="n">server</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">server</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="c1"># Blocks</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11113</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11113</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The returned
@@ -448,7 +448,7 @@ associations can be stopped using
 <h3>Specifying the AE Title<a class="headerlink" href="#specifying-the-ae-title" title="Permalink to this headline">¶</a></h3>
 <p>The AE title for each SCP can be set using the <em>ae_title</em> keyword parameter.
 If no value is set then the AE title of the parent AE will be used instead:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">ae_title</span><span class="o">=</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">ae_title</span><span class="o">=</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -456,11 +456,11 @@ If no value is set then the AE title of the parent AE will be used instead:</p>
 <h3>Specifying Presentation Contexts for each SCP<a class="headerlink" href="#specifying-presentation-contexts-for-each-scp" title="Permalink to this headline">¶</a></h3>
 <p>To support presentation contexts on a per-SCP basis you can use the
 <em>contexts</em> keyword parameter:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">supported_cx</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)]</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">contexts</span><span class="o">=</span><span class="n">supported_cx</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">contexts</span><span class="o">=</span><span class="n">supported_cx</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -469,7 +469,7 @@ If no value is set then the AE title of the parent AE will be used instead:</p>
 <p>If you want to bind handlers to any
 <a class="reference internal" href="events.html#user-events"><span class="std std-ref">events</span></a> within any <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> instances
 generated by the SCP you can use the <em>evt_handlers</em> keyword parameter:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
@@ -495,13 +495,13 @@ generated by the SCP you can use the <em>evt_handlers</em> keyword parameter:</p
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Handlers can also be bound and unbound from events in an existing
 <a class="reference internal" href="../reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>, provided you run in
 non-blocking mode:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
@@ -524,7 +524,7 @@ non-blocking mode:</p>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
-<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 
@@ -554,7 +554,7 @@ unaffected.</p>
 <p>The client sockets generated by the association server can also be wrapped in
 TLS by  supplying a <a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ssl.SSLContext</span></code></a> instance via the <em>ssl_context</em>
 keyword parameter:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
@@ -571,7 +571,7 @@ keyword parameter:</p>
 <span class="c1">#   method to set the TLS version - check the Python documentation</span>
 <span class="n">ssl_cx</span><span class="o">.</span><span class="n">maximum_version</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">TLSVersion</span><span class="o">.</span><span class="n">TLSv1_2</span>
 
-<span class="n">server</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="n">ssl_cx</span><span class="p">)</span>
+<span class="n">server</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="n">ssl_cx</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -631,7 +631,7 @@ implementation that always returns a <code class="docutils literal notranslate">
 <p>For instance, if your SCP is to support the Storage Service then you would
 implement and bind a handler for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> event in manner
 similar to:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -646,7 +646,7 @@ similar to:</p>
 <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
 
 <span class="c1"># Listen for association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For more detailed information on implementing the DIMSE service

@@ -144,7 +144,7 @@ series with <em>Study Instance UID</em> <code class="docutils literal notranslat
 <span class="n">ds</span><span class="o">.</span><span class="n">SeriesInstanceUID</span> <span class="o">=</span> <span class="s1">&#39;1.2.3.4&#39;</span>
 
 <span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Use the C-MOVE service to send the identifier</span>
@@ -193,7 +193,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 
 <span class="c1"># Start our Storage SCP in non-blocking mode, listening on port 11120</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="s1">&#39;OUR_STORE_SCP&#39;</span>
-<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11120</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11120</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
 <span class="c1"># Create out identifier (query) dataset</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
@@ -206,7 +206,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 <span class="n">ds</span><span class="o">.</span><span class="n">SeriesInstanceUID</span> <span class="o">=</span> <span class="s1">&#39;1.2.3.4&#39;</span>
 
 <span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Use the C-MOVE service to send the identifier</span>
@@ -233,7 +233,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 <p>The following represents a toy implementation of a Query/Retrieve (Move) SCP
 where the SCU has sent the following <em>Identifier</em> dataset under the <em>Patient
 Root Query Retrieve Information Model - Move</em> context and the move destination
-AE title <code class="docutils literal notranslate"><span class="pre">b'STORE_SCP</span></code> is known to correspond to the IP address <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>
+AE title <code class="docutils literal notranslate"><span class="pre">&quot;STORE_SCP&quot;</span> <span class="pre">is</span> <span class="pre">known</span> <span class="pre">to</span> <span class="pre">correspond</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">IP</span> <span class="pre">address</span> <span class="pre">``127.0.0.1</span></code>
 and listen port number <code class="docutils literal notranslate"><span class="pre">11113</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
 <span class="n">ds</span><span class="o">.</span><span class="n">QueryRetrieveLevel</span> <span class="o">=</span> <span class="s1">&#39;PATIENT&#39;</span>
@@ -319,7 +319,7 @@ query against that, which is the approach taken by the
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelMove</span><span class="p">)</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>It’s also possible to get more control over the association with the Storage

@@ -156,7 +156,7 @@ using the <em>Explicit VR Little Endian</em> transfer syntax. Create a new file
 <span class="linenos"> 7</span>
 <span class="linenos"> 8</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="linenos"> 9</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
-<span class="linenos">10</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">10</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Let’s break this down</p>
@@ -183,7 +183,7 @@ we’ll be the association <em>acceptor</em>, its up to us to specify what
 using the <em>Explicit VR Little Endian</em> transfer syntax we use
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_supported_context()</span></code></a> to add a corresponding
 presentation context.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">10</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">10</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The call to <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">start_server()</span></code></a> starts our SCP listening
@@ -278,7 +278,7 @@ SCP, such as when an SCU sends a store request to a Storage SCP…</p></li>
 </span><span class="linenos">13</span>
 <span class="linenos">14</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="linenos">15</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
-<span class="hll"><span class="linenos">16</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="hll"><span class="linenos">16</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </span></pre></div>
 </div>
 <p>We import <code class="docutils literal notranslate"><span class="pre">evt</span></code>, which contains all the events, and add a function
@@ -442,7 +442,7 @@ supported presentation contexts:</p>
 </span><span class="hll"><span class="linenos">22</span> <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">storage_sop_classes</span><span class="p">:</span>
 </span><span class="hll"><span class="linenos">23</span>     <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">ALL_TRANSFER_SYNTAXES</span><span class="p">)</span>
 </span><span class="linenos">24</span>
-<span class="linenos">25</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="linenos">25</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><a class="reference internal" href="../reference/generated/pynetdicom.presentation.AllStoragePresentationContexts.html#pynetdicom.presentation.AllStoragePresentationContexts" title="pynetdicom.presentation.AllStoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AllStoragePresentationContexts</span></code></a> is a list of pre-built
@@ -498,7 +498,7 @@ complex code:</p>
 <span class="linenos">38</span> <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">storage_sop_classes</span><span class="p">:</span>
 <span class="linenos">39</span>     <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">ALL_TRANSFER_SYNTAXES</span><span class="p">)</span>
 <span class="linenos">40</span>
-<span class="linenos">41</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="linenos">41</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We’ve modified the handler to write the preamble and prefix to file,

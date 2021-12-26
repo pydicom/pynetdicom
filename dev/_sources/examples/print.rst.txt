@@ -265,7 +265,7 @@ notifications over the same association (and ignore them).
 
     ae = AE()
     ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-    assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+    assoc = ae.associate("127.0.0.1", 11112, evt_handlers=handlers)
 
     if assoc.is_established:
         # Step 1: Check the status of the printer

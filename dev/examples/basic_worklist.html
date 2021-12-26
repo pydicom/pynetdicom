@@ -141,7 +141,7 @@ of a Query/Retrieve (Find) SCU, however BWM uses a different
 <span class="n">item</span><span class="o">.</span><span class="n">Modality</span> <span class="o">=</span> <span class="s1">&#39;CT&#39;</span>
 
 <span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Use the C-FIND service to send the identifier</span>

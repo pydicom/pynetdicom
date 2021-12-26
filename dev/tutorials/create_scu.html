@@ -218,7 +218,7 @@ editor and add the following:</p>
 <span class="linenos"> 2</span>
 <span class="linenos"> 3</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="linenos"> 4</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
-<span class="linenos"> 5</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="linenos"> 5</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 <span class="linenos"> 6</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
 <span class="linenos"> 7</span>     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association established with Echo SCP!&#39;</span><span class="p">)</span>
 <span class="linenos"> 8</span>     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
@@ -242,12 +242,12 @@ requests must contain at least one presentation context, and in this case we’v
 added one that proposes the use of the verification service. We’ll go into
 presentation contexts and how they’re used to define an association’s services
 a bit more later on.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">5</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">5</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Here we initiate the association negotiation by connecting to the IP address
-<code class="docutils literal notranslate"><span class="pre">'127.0.0.1'</span></code> on port <code class="docutils literal notranslate"><span class="pre">11112</span></code> and sending an association request.
-<code class="docutils literal notranslate"><span class="pre">'127.0.0.1'</span></code> (also known as <code class="docutils literal notranslate"><span class="pre">'localhost'</span></code>) is a <a class="reference external" href="https://en.wikipedia.org/wiki/Localhost">special IP address</a> that means <em>this computer</em>. This
+<code class="docutils literal notranslate"><span class="pre">&quot;127.0.0.1&quot;</span></code> on port <code class="docutils literal notranslate"><span class="pre">11112</span></code> and sending an association request.
+<code class="docutils literal notranslate"><span class="pre">&quot;127.0.0.1&quot;</span></code> (also known as <code class="docutils literal notranslate"><span class="pre">&quot;localhost&quot;</span></code>) is a <a class="reference external" href="https://en.wikipedia.org/wiki/Localhost">special IP address</a> that means <em>this computer</em>. This
 should be the same IP address and port that you started the
 <a class="reference internal" href="../apps/echoscp.html"><span class="doc">echoscp</span></a>
 application on earlier, so if you used a different port you should change this
@@ -310,7 +310,7 @@ sent to the terminal by calling <a class="reference internal" href="../reference
 </span><span class="linenos">4</span>
 <span class="linenos">5</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="linenos">6</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
-<span class="linenos">7</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="linenos">7</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 <span class="linenos">8</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
 <span class="linenos">9</span>     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
@@ -473,7 +473,7 @@ request:</p>
 <span class="linenos"> 4</span>
 <span class="linenos"> 5</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="linenos"> 6</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
-<span class="linenos"> 7</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="linenos"> 7</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 <span class="linenos"> 8</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
 <span class="hll"><span class="linenos"> 9</span>     <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_echo</span><span class="p">()</span>
 </span><span class="linenos">10</span>     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>

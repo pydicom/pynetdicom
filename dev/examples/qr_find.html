@@ -131,7 +131,7 @@ Root Query/Retrieve Information Model - Find</em> at the <code class="docutils l
 <span class="n">ds</span><span class="o">.</span><span class="n">QueryRetrieveLevel</span> <span class="o">=</span> <span class="s1">&#39;PATIENT&#39;</span>
 
 <span class="c1"># Associate with the peer AE at IP 127.0.0.1 and port 11112</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Send the C-FIND request</span>
     <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">PatientRootQueryRetrieveInformationModelFind</span><span class="p">)</span>
@@ -237,7 +237,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelFind</span><span class="p">)</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

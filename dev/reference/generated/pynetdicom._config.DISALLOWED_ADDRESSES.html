@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pynetdicom.sop_class.UnifiedProcedureStepQuery &mdash; pynetdicom 2.0.0.dev0 documentation</title>
+  <title>pynetdicom._config.DISALLOWED_ADDRESSES &mdash; pynetdicom 2.0.0.dev0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -23,8 +23,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="pynetdicom.sop_class.UnifiedProcedureStepWatch" href="pynetdicom.sop_class.UnifiedProcedureStepWatch.html" />
-    <link rel="prev" title="pynetdicom.sop_class.UnifiedProcedureStepPush" href="pynetdicom.sop_class.UnifiedProcedureStepPush.html" /> 
+    <link rel="next" title="pynetdicom._config.ENFORCE_UID_CONFORMANCE" href="pynetdicom._config.ENFORCE_UID_CONFORMANCE.html" />
+    <link rel="prev" title="pynetdicom._config.CODECS" href="pynetdicom._config.CODECS.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -56,7 +56,22 @@
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.CODECS.html">pynetdicom._config.CODECS</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom._config.DISALLOWED_ADDRESSES</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.ENFORCE_UID_CONFORMANCE.html">pynetdicom._config.ENFORCE_UID_CONFORMANCE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_HANDLER_LEVEL.html">pynetdicom._config.LOG_HANDLER_LEVEL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html">pynetdicom._config.LOG_REQUEST_IDENTIFIERS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_RESPONSE_IDENTIFIERS.html">pynetdicom._config.LOG_RESPONSE_IDENTIFIERS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.PASS_CONTEXTVARS.html">pynetdicom._config.PASS_CONTEXTVARS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.STORE_RECV_CHUNKED_DATASET.html">pynetdicom._config.STORE_RECV_CHUNKED_DATASET</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.STORE_SEND_CHUNKED_DATASET.html">pynetdicom._config.STORE_SEND_CHUNKED_DATASET</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.USE_SHORT_DIMSE_AET.html">pynetdicom._config.USE_SHORT_DIMSE_AET</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE.html">pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.VALIDATORS.html">pynetdicom._config.VALIDATORS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html">pynetdicom._config.WINDOWS_TIMER_RESOLUTION</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
@@ -64,36 +79,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../sop_classes.html#sop-class-utilities">SOP Class Utilities</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="../sop_classes.html#sop-classes">SOP Classes</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#application-event">Application Event</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#basic-worklist">Basic Worklist</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#color-palette">Color Palette</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#defined-procedure">Defined Procedure</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#display-system">Display System</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#hanging-protocol">Hanging Protocol</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#implant-template">Implant Template</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#instance-availability">Instance Availability</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#media-creation">Media Creation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#media-storage">Media Storage</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#non-patient-object">Non-patient Object</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#print-management">Print Management</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#procedure-step">Procedure Step</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#protocol-approval">Protocol Approval</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#query-retrieve">Query/Retrieve</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#relevant-patient">Relevant Patient</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#rt-machine-verification">RT Machine Verification</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#storage">Storage</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#storage-commitment">Storage Commitment</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#substance-availability">Substance Availability</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../sop_classes.html#unified-procedure-step">Unified Procedure Step</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../sop_classes.html#verification">Verification</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../sop_classes.html#well-known-sop-instances">Well-known SOP Instances</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
@@ -126,8 +112,8 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../index.html">API Reference</a> &raquo;</li>
-          <li><a href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a> &raquo;</li>
-      <li>pynetdicom.sop_class.UnifiedProcedureStepQuery</li>
+          <li><a href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a> &raquo;</li>
+      <li>pynetdicom._config.DISALLOWED_ADDRESSES</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -136,12 +122,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pynetdicom-sop-class-unifiedprocedurestepquery">
-<h1>pynetdicom.sop_class.UnifiedProcedureStepQuery<a class="headerlink" href="#pynetdicom-sop-class-unifiedprocedurestepquery" title="Permalink to this headline">¶</a></h1>
+  <section id="pynetdicom-config-disallowed-addresses">
+<h1>pynetdicom._config.DISALLOWED_ADDRESSES<a class="headerlink" href="#pynetdicom-config-disallowed-addresses" title="Permalink to this headline">¶</a></h1>
 <dl class="py data">
-<dt class="sig sig-object py" id="pynetdicom.sop_class.UnifiedProcedureStepQuery">
-<span class="sig-prename descclassname"><span class="pre">pynetdicom.sop_class.</span></span><span class="sig-name descname"><span class="pre">UnifiedProcedureStepQuery</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'1.2.840.10008.5.1.4.34.6.5'</span></em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d534e2c0f/pynetdicom/sop_class.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.sop_class.UnifiedProcedureStepQuery" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">1.2.840.10008.5.1.4.34.6.5</span></code></p>
+<dt class="sig sig-object py" id="pynetdicom._config.DISALLOWED_ADDRESSES">
+<span class="sig-prename descclassname"><span class="pre">pynetdicom._config.</span></span><span class="sig-name descname"><span class="pre">DISALLOWED_ADDRESSES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['',</span> <span class="pre">'0.0.0.0',</span> <span class="pre">'::',</span> <span class="pre">'::0']</span></em><a class="headerlink" href="#pynetdicom._config.DISALLOWED_ADDRESSES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disallowed <code class="xref py py-meth docutils literal notranslate"><span class="pre">socket.bind()</span></code> IP addresses.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 2.0.</span></p>
+</div>
+<p>For security reasons, binding a socket to <code class="docutils literal notranslate"><span class="pre">INADDR_ANY</span></code> is not recommended,
+so by default this is disallowed.</p>
+<p>For an explanation see <a class="reference external" href="https://stackoverflow.com/questions/53808966/binding-with-inaddr-any-vs-inaddr-loopback-in-development">this Stack Overflow question</a>
+and CVE-2018-1281, CVE-2020-26262, CVE-2020-13872 and others.</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">[&quot;&quot;,</span> <span class="pre">&quot;0.0.0.0&quot;,</span> <span class="pre">&quot;::&quot;,</span> <span class="pre">&quot;::0&quot;]</span></code></p>
+<p class="rubric">Examples</p>
+<p>Allow any bind address.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">_config</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_config</span><span class="o">.</span><span class="n">DISALLOWED_ADDRESSES</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -150,8 +150,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="pynetdicom.sop_class.UnifiedProcedureStepPush.html" class="btn btn-neutral float-left" title="pynetdicom.sop_class.UnifiedProcedureStepPush" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="pynetdicom.sop_class.UnifiedProcedureStepWatch.html" class="btn btn-neutral float-right" title="pynetdicom.sop_class.UnifiedProcedureStepWatch" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="pynetdicom._config.CODECS.html" class="btn btn-neutral float-left" title="pynetdicom._config.CODECS" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pynetdicom._config.ENFORCE_UID_CONFORMANCE.html" class="btn btn-neutral float-right" title="pynetdicom._config.ENFORCE_UID_CONFORMANCE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
