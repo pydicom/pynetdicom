@@ -1274,7 +1274,7 @@ class TestState03(TestStateBase):
 
         assoc.dul.send_pdu(self.get_associate("request"))
 
-        while self.assoc.dul.is_alive():
+        while assoc.dul.is_alive():
             time.sleep(0.001)
 
         scp.step()
@@ -1473,7 +1473,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
 
-        while self.assoc.dul.is_alive():
+        while assoc.dul.is_alive():
             time.sleep(0.001)
 
         scp.step()
@@ -1538,7 +1538,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
 
-        while self.assoc.dul.is_alive():
+        while assoc.dul.is_alive():
             time.sleep(0.001)
 
         scp.step()
@@ -1636,7 +1636,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
 
-        while self.assoc.dul.is_alive():
+        while assoc.dul.is_alive():
             time.sleep(0.001)
 
         scp.step()
@@ -1770,7 +1770,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
 
-        while self.assoc.dul.is_alive():
+        while assoc.dul.is_alive():
             time.sleep(0.001)
 
         scp.shutdown()
@@ -5089,7 +5089,7 @@ class TestState10(TestStateBase):
 
         assoc.dul.send_pdu(self.get_associate("request"))
 
-        while self.assoc.dul.is_alive():
+        while assoc.dul.is_alive():
             time.sleep(0.001)
 
         scp.step()
@@ -5248,7 +5248,7 @@ class TestState10(TestStateBase):
 
         assoc.dul.send_pdu(self.get_associate("accept"))
 
-        while self.assoc.dul.is_alive():
+        while assoc.dul.is_alive():
             time.sleep(0.001)
 
         scp.step()
@@ -5281,8 +5281,7 @@ class TestState10(TestStateBase):
         self.move_to_state(assoc, scp)
 
         assoc.dul.send_pdu(self.get_associate("reject"))
-
-        while self.assoc.dul.is_alive():
+        while assoc.dul.is_alive():
             time.sleep(0.001)
 
         scp.step()
@@ -5316,7 +5315,7 @@ class TestState10(TestStateBase):
 
         assoc.dul.send_pdu(self.get_pdata())
 
-        while self.assoc.dul.is_alive():
+        while assoc.dul.is_alive():
             time.sleep(0.001)
 
         scp.step()
@@ -5387,7 +5386,7 @@ class TestState10(TestStateBase):
 
         assoc.dul.send_pdu(self.get_release(False))
 
-        while self.assoc.dul.is_alive():
+        while assoc.dul.is_alive():
             time.sleep(0.001)
 
         scp.step()
@@ -5490,7 +5489,7 @@ class TestState10(TestStateBase):
 
         assoc.dul.send_pdu(self.get_release(True))
 
-        while self.assoc.dul.is_alive():
+        while assoc.dul.is_alive():
             time.sleep(0.001)
 
         scp.step()
