@@ -2,39 +2,92 @@
 
 from copy import deepcopy
 from datetime import datetime
+import gc
 import logging
 import queue
 import select
 import socket
-try:
-    from SocketServer import TCPServer, ThreadingMixIn, BaseRequestHandler
-except ImportError:
-    from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
+from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
+
 try:
     import ssl
+
     _HAS_SSL = True
 except ImportError:
     _HAS_SSL = False
 from struct import pack
 import threading
 from typing import (
-    TYPE_CHECKING, Optional, Any, Tuple, cast, List, Dict, Callable, Union
+    TYPE_CHECKING,
+    Optional,
+    Any,
+    Tuple,
+    cast,
+    List,
+    Dict,
+    Callable,
+    Union,
 )
 
 from pynetdicom import evt, _config
-from pynetdicom._globals import MODE_ACCEPTOR
+from pynetdicom._globals import MODE_ACCEPTOR, BIND_ADDRESS
 from pynetdicom._handlers import (
-    standard_dimse_recv_handler, standard_dimse_sent_handler,
-    standard_pdu_recv_handler, standard_pdu_sent_handler,
+    standard_dimse_recv_handler,
+    standard_dimse_sent_handler,
+    standard_pdu_recv_handler,
+    standard_pdu_sent_handler,
 )
+from pynetdicom.pdu_primitives import A_ASSOCIATE
 from pynetdicom.presentation import PresentationContext
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.ae import ApplicationEntity
     from pynetdicom.association import Association
+    from pynetdicom.dul import _QueueType
 
 
-LOGGER = logging.getLogger('pynetdicom.transport')
+LOGGER = logging.getLogger("pynetdicom.transport")
+
+
+class T_CONNECT:
+    """A TRANSPORT CONNECTION primitive
+
+    .. versionadded:: 2.0
+    """
+
+    def __init__(self, address: Union[Tuple[str, int], "A_ASSOCIATE"]) -> None:
+        """Create a new TRANSPORT CONNECTION primitive.
+
+        Parameters
+        ----------
+        address : Union[Tuple[str, int], pynetdicom.pdu_primitives.A_ASSOCIATE]
+            The ``(str: IP address, int: port)`` or A-ASSOCIATE (request) primitive to
+            use when making a connection with a peer.
+        """
+        self._request = None
+        self.result = ""
+
+        if isinstance(address, tuple):
+            self._address = address
+        elif isinstance(address, A_ASSOCIATE):
+            self._address = cast(Tuple[str, int], address.called_presentation_address)
+            self._request = address
+        else:
+            raise TypeError(
+                f"'address' must be 'Tuple[str, int]' or "
+                "'pynetdicom.pdu_primitives.A_ASSOCIATE', not "
+                f"'{address.__class__.__name__}'"
+            )
+
+    @property
+    def address(self) -> Tuple[str, int]:
+        """Return the peer's ``(str: IP address, int: port)``."""
+        return self._address
+
+    @property
+    def request(self) -> Optional[A_ASSOCIATE]:
+        """Return the A-ASSOCIATE (request) primitive, or ``None`` if not available."""
+        return self._request
 
 
 class AssociationSocket:
@@ -57,13 +110,18 @@ class AssociationSocket:
     socket : socket.socket or None
         The wrapped socket, will be ``None`` if :meth:`close` is called.
     """
+
     def __init__(
         self,
         assoc: "Association",
         client_socket: Optional[socket.socket] = None,
-        address: Tuple[str, int] = ('', 0)
+        address: Tuple[str, int] = BIND_ADDRESS,
     ) -> None:
         """Create a new :class:`AssociationSocket`.
+
+        .. versionchanged:: 2.0
+
+            The default for *address* was changed to ``("127.0.0.1", 0)``
 
         Parameters
         ----------
@@ -76,11 +134,11 @@ class AssociationSocket:
         address : 2-tuple, optional
             If *client_socket* is ``None`` then this is the ``(host, port)`` to
             bind the newly created socket to, which by default will be
-            ``('', 0)``.
+            ``('127.0.0.1', 0)``.
         """
         self._assoc = assoc
 
-        if client_socket is not None and address != ('', 0):
+        if client_socket is not None and address != BIND_ADDRESS:
             LOGGER.warning(
                 "AssociationSocket instantiated with both a 'client_socket' "
                 "and bind 'address'. The original socket will not be rebound"
@@ -97,7 +155,7 @@ class AssociationSocket:
             self._is_connected = True
             self._ready.set()
             # Evt5: Transport connection indication
-            self.event_queue.put('Evt5')
+            self.event_queue.put("Evt5")
 
         self._tls_args: Optional[Tuple["ssl.SSLContext", str]] = None
         self.select_timeout = 0.5
@@ -130,20 +188,20 @@ class AssociationSocket:
         self.socket = None
         self._is_connected = False
         # Evt17: Transport connection closed
-        self.event_queue.put('Evt17')
+        self.event_queue.put("Evt17")
 
-    def connect(self, address: Tuple[str, int]) -> None:
+    def connect(self, primitive: T_CONNECT) -> None:
         """Try and connect to a remote at `address`.
 
-        **Events Emitted**
+        .. versionchanged:: 2.0
 
-        - Evt2: Transport connection confirmed
-        - Evt17: Transport connection closed
+            Changed to take a :class:`~pynetdicom.transport.T_CONNECT` primitive rather
+            than an address tuple.
 
         Parameters
         ----------
-        address : 2-tuple
-            The ``(host, port)`` IPv4 address to connect to.
+        primitive : pynetdicom.transport.T_CONNECT
+            The TRANSPORT CONNECT primitive to use when connecting to a peer.
         """
         if self.socket is None:
             self.socket = self._create_socket()
@@ -157,25 +215,24 @@ class AssociationSocket:
                         self.socket,
                         server_side=False,
                         server_hostname=server_hostname,
-                    )
+                    ),
                 )
             # Set ae connection timeout
             self.socket.settimeout(self.assoc.connection_timeout)
             # Try and connect to remote at (address, port)
             #   raises socket.error if connection refused
-            self.socket.connect(address)
+            self.socket.connect(primitive.address)
             # Clear ae connection timeout
             self.socket.settimeout(None)
             # Trigger event - connection open
-            evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {'address': address})
+            evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {"address": primitive.address})
             self._is_connected = True
             # Evt2: Transport connection confirmation
-            self.event_queue.put('Evt2')
+            primitive.result = "Evt2"
+            self.provider_queue.put(primitive)
         except OSError as exc:
             # Log connection failure
-            LOGGER.error(
-                "Association request failed: unable to connect to remote"
-            )
+            LOGGER.error("Association request failed: unable to connect to remote")
             LOGGER.error(f"TCP Initialisation Error: {exc}")
             # Log exception if TLS issue to help with troubleshooting
             if isinstance(exc, ssl.SSLError):
@@ -186,17 +243,17 @@ class AssociationSocket:
             if self.socket:
                 try:
                     self.socket.shutdown(socket.SHUT_RDWR)
-                except:
+                except Exception:
                     pass
                 self.socket.close()
                 self.socket = None
-            self.event_queue.put('Evt17')
+
+            primitive.result = "Evt17"
+            self.provider_queue.put(primitive)
         finally:
             self._ready.set()
 
-    def _create_socket(
-        self, address: Tuple[str, int] = ('', 0)
-    ) -> socket.socket:
+    def _create_socket(self, address: Tuple[str, int] = BIND_ADDRESS) -> socket.socket:
         """Create a new IPv4 TCP socket and set it up for use.
 
         *Socket Options*
@@ -208,14 +265,20 @@ class AssociationSocket:
         Parameters
         ----------
         address : 2-tuple, optional
-            The ``(host, port)`` to bind the socket to. By default the socket
-            is bound to ``('', 0)``, i.e. the first available port.
+            The ``(host: str, port: int)`` to bind the socket to. By default the socket
+            is bound to ``("127.0.0.1", 0)``, i.e. the first available port.
 
         Returns
         -------
         socket.socket
             A bound and unconnected socket instance.
         """
+        if address[0] in _config.DISALLOWED_ADDRESSES:
+            raise ValueError(
+                f"Binding a socket to '{address[0]}' is disallowed by default, see "
+                "'_config.DISALLOWED_ADDRESSES' for details"
+            )
+
         # AF_INET: IPv4, SOCK_STREAM: TCP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
@@ -235,34 +298,37 @@ class AssociationSocket:
 
     @property
     def event_queue(self) -> "queue.Queue[str]":
-        """Return the :class:`~pynetdicom.association.Association`'s event
+        """Return the :class:`~pynetdicom.association.Association`'s service event
         queue.
         """
         return self.assoc.dul.event_queue
 
-    def get_local_addr(
-        self, host: Tuple[str, int] = ('10.255.255.255', 1)
-    ) -> str:
+    def get_local_addr(self, host: Tuple[str, int] = ("10.255.255.255", 1)) -> str:
         """Return an address for the local computer as :class:`str`.
 
         Parameters
         ----------
-        host : str
-            The host's (*addr*, *port*) when trying to determine the local
+        host : Tuple[str, int]
+            The host's ``(addr: str, port: int)`` when trying to determine the local
             address.
         """
         # Solution from https://stackoverflow.com/a/28950776
-        temp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        try:
-            # We use `host` to allow unit testing
-            temp.connect(host)
-            addr: str = temp.getsockname()[0]
-        except:
-            addr = '127.0.0.1'
-        finally:
-            temp.close()
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            try:
+                # We use `host` to allow unit testing
+                sock.connect(host)
+                addr: str = sock.getsockname()[0]
+            except Exception:
+                addr = "127.0.0.1"
 
         return addr
+
+    @property
+    def provider_queue(self) -> "_QueueType":
+        """Return the :class:`~pynetdicom.association.Association`'s service provider
+        queue.
+        """
+        return self.assoc.dul.to_provider_queue
 
     @property
     def ready(self) -> bool:
@@ -287,7 +353,7 @@ class AssociationSocket:
             ready, _, _ = select.select([self.socket], [], [], 0)
         except (socket.error, socket.timeout, ValueError):
             # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
+            self.event_queue.put("Evt17")
             return False
 
         # An SSLSocket may have buffered data available that `select`
@@ -363,10 +429,10 @@ class AssociationSocket:
                 nr_sent = self.socket.send(bytestream[total_sent:])
                 total_sent += nr_sent
 
-            evt.trigger(self.assoc, evt.EVT_DATA_SENT, {'data': bytestream})
+            evt.trigger(self.assoc, evt.EVT_DATA_SENT, {"data": bytestream})
         except (socket.error, socket.timeout):
             # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
+            self.event_queue.put("Evt17")
 
     def __str__(self) -> str:
         """Return the string output for ``socket``."""
@@ -393,14 +459,10 @@ class AssociationSocket:
         return self._tls_args
 
     @tls_args.setter
-    def tls_args(
-        self, tls_args: Optional[Tuple["ssl.SSLContext", str]]
-    ) -> None:
+    def tls_args(self, tls_args: Optional[Tuple["ssl.SSLContext", str]]) -> None:
         """Set the TLS arguments for the socket."""
         if not _HAS_SSL:
-            raise RuntimeError(
-                "Your Python installation lacks support for SSL"
-            )
+            raise RuntimeError("Your Python installation lacks support for SSL")
 
         self._tls_args = tls_args
 
@@ -419,6 +481,7 @@ class RequestHandler(BaseRequestHandler):
     server : transport.AssociationServer or transport.ThreadedAssociationServer
         The server that received the connection request.
     """
+
     server: "AssociationServer"
 
     @property
@@ -436,9 +499,7 @@ class RequestHandler(BaseRequestHandler):
         assoc = self._create_association()
 
         # Trigger must be after binding the events
-        evt.trigger(
-            assoc, evt.EVT_CONN_OPEN, {'address': self.client_address}
-        )
+        evt.trigger(assoc, evt.EVT_CONN_OPEN, {"address": self.client_address})
 
         assoc.start()
 
@@ -474,12 +535,8 @@ class RequestHandler(BaseRequestHandler):
         assoc.acceptor.ae_title = self.server.ae_title
         assoc.acceptor.address = self.local[0]
         assoc.acceptor.port = self.local[1]
-        assoc.acceptor.implementation_class_uid = (
-            self.ae.implementation_class_uid
-        )
-        assoc.acceptor.implementation_version_name = (
-            self.ae.implementation_version_name
-        )
+        assoc.acceptor.implementation_class_uid = self.ae.implementation_class_uid
+        assoc.acceptor.implementation_version_name = self.ae.implementation_version_name
         assoc.acceptor.supported_contexts = deepcopy(self.server.contexts)
 
         # Association Requestor object -> remote AE
@@ -525,9 +582,10 @@ class AssociationServer(TCPServer):
         The parent AE that is running the server.
     request_queue_size : int
         Default ``5``.
-    server_address : 2-tuple
-        The ``(host, port)`` that the server is running on.
+    server_address : Tuple[str, int]
+        The ``(host: str, port: int)`` that the server is running on.
     """
+
     def __init__(
         self,
         ae: "ApplicationEntity",
@@ -536,7 +594,7 @@ class AssociationServer(TCPServer):
         contexts: List[PresentationContext],
         ssl_context: Optional["ssl.SSLContext"] = None,
         evt_handlers: List[evt.EventHandlerType] = None,
-        request_handler: Optional[BaseRequestHandler] = None
+        request_handler: Optional[Callable[..., BaseRequestHandler]] = None,
     ) -> None:
         """Create a new :class:`AssociationServer`, bind a socket and start
         listening.
@@ -545,8 +603,8 @@ class AssociationServer(TCPServer):
         ----------
         ae : ae.ApplicationEntity
             The parent AE that's running the server.
-        address : 2-tuple
-            The ``(host, port)`` that the server should run on.
+        address : Tuple[str, int]
+            The ``(host: str, port: int)`` that the server should run on.
         ae_title : str
             The AE title of the SCP.
         contexts : list of presentation.PresentationContext
@@ -570,9 +628,10 @@ class AssociationServer(TCPServer):
         self.ssl_context = ssl_context
         self.allow_reuse_address = True
         self.server_address: Tuple[str, int] = address
-        self.socket: Optional[socket.socket] = None
+        self.socket: Optional[socket.socket] = None  # type: ignore[assignment]
 
         request_handler = request_handler or RequestHandler
+
         super().__init__(address, request_handler, bind_and_activate=True)
 
         self.timeout = 60
@@ -580,22 +639,22 @@ class AssociationServer(TCPServer):
         # Stores all currently bound event handlers so future
         #   Associations can be bound
         self._handlers: Dict[
-            evt.EventType, Union[
+            evt.EventType,
+            Union[
                 List[Tuple[Callable, Optional[List[Any]]]],
-                Tuple[Callable, Optional[List[Any]]]
-            ]
+                Tuple[Callable, Optional[List[Any]]],
+            ],
         ] = {}
         self._bind_defaults()
 
         # Bind the functions to their events
-        for evt_hh_args in (evt_handlers or ()):
+        for evt_hh_args in evt_handlers or ():
             self.bind(*evt_hh_args)
 
+        self._gc = [0, 59]
+
     def bind(
-        self,
-        event: evt.EventType,
-        handler: Callable,
-        args: Optional[List[Any]] = None
+        self, event: evt.EventType, handler: Callable, args: Optional[List[Any]] = None
     ) -> None:
         """Bind a callable `handler` to an `event`.
 
@@ -629,7 +688,7 @@ class AssociationServer(TCPServer):
             self.bind(event, handler)
 
         # Notification event handlers
-        if _config.LOG_HANDLER_LEVEL == 'standard':
+        if _config.LOG_HANDLER_LEVEL == "standard":
             self.bind(evt.EVT_DIMSE_RECV, standard_dimse_recv_handler)
             self.bind(evt.EVT_DIMSE_SENT, standard_dimse_sent_handler)
             self.bind(evt.EVT_PDU_RECV, standard_pdu_recv_handler)
@@ -643,10 +702,7 @@ class AssociationServer(TCPServer):
         # Find all AcceptorThreads with `_server` as self
         threads = cast(
             List["Association"],
-            [
-                tt for tt in threading.enumerate()
-                if 'AcceptorThread' in tt.name
-            ]
+            [tt for tt in threading.enumerate() if "AcceptorThread" in tt.name],
         )
         return [tt for tt in threads if tt._server is self]
 
@@ -710,9 +766,12 @@ class AssociationServer(TCPServer):
         return client_socket, address
 
     def process_request(
-        self, request: socket.socket, client_address: Tuple[str, int]
+        self,
+        request: Union[socket.socket, Tuple[bytes, socket.socket]],
+        client_address: Union[Tuple[str, int], str],
     ) -> None:
-        """Process a connection request."""
+        """Process a connection request"""
+        # Calls request_handler(request, client_address, self)
         self.finish_request(request, client_address)
 
     def server_bind(self) -> None:
@@ -724,6 +783,12 @@ class AssociationServer(TCPServer):
           <pynetdicom.ae.ApplicationEntity.network_timeout>` unless the
           value is ``None`` in which case it will be left unset.
         """
+        if self.server_address[0] in _config.DISALLOWED_ADDRESSES:
+            raise ValueError(
+                f"Binding a socket to '{self.server_address[0]}' is disallowed by "
+                "default, see '_config.DISALLOWED_ADDRESSES' for details"
+            )
+
         self.socket = cast(socket.socket, self.socket)
         # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
         #   waiting for its natural timeout to expire
@@ -754,11 +819,22 @@ class AssociationServer(TCPServer):
 
         self.socket.close()
 
+    def service_actions(self) -> None:
+        """Called by the serve_forever() loop"""
+        # For whatever reason dead Association threads aren't being garbage
+        #   collected so do it manually when a request is received
+        if self._gc[0] == self._gc[1]:
+            gc.collect()
+            self._gc[0] = 0
+            return
+
+        self._gc[0] += 1
+
     def shutdown(self) -> None:
         """Completely shutdown the server and close it's socket."""
         super().shutdown()
         self.server_close()
-        self.ae._servers.remove(self)
+        self.ae._servers.remove(cast("ThreadedAssociationServer", self))
 
     @property
     def ssl_context(self) -> Optional["ssl.SSLContext"]:
@@ -777,9 +853,7 @@ class AssociationServer(TCPServer):
     def ssl_context(self, context: Optional["ssl.SSLContext"]) -> None:
         """Set the SSL context for the socket."""
         if not _HAS_SSL:
-            raise RuntimeError(
-                "Your Python installation lacks support for SSL"
-            )
+            raise RuntimeError("Your Python installation lacks support for SSL")
 
         self._ssl_context = context
 
@@ -807,8 +881,11 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
 
     .. versionadded:: 1.2
     """
+
     def process_request_thread(
-        self, request: socket.socket, client_address: Tuple[str, int]
+        self,
+        request: Union[socket.socket, Tuple[bytes, socket.socket]],
+        client_address: Union[Tuple[str, int], str],
     ) -> None:
         """Process a connection request."""
         # pylint: disable=broad-except

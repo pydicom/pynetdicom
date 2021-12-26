@@ -6,22 +6,19 @@ requests to a QR/BWM - Find SCP.
 """
 
 import argparse
-import os
 import sys
 
-from pydicom import dcmread
 from pydicom.dataset import Dataset
-from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian,
-    generate_uid
-)
+from pydicom.uid import generate_uid
 
 from pynetdicom import (
-    AE, QueryRetrievePresentationContexts,
+    AE,
+    _config,
     BasicWorklistManagementPresentationContexts,
-    PYNETDICOM_UID_PREFIX,
+    QueryRetrievePresentationContexts,
     PYNETDICOM_IMPLEMENTATION_UID,
-    PYNETDICOM_IMPLEMENTATION_VERSION
+    PYNETDICOM_IMPLEMENTATION_VERSION,
+    PYNETDICOM_UID_PREFIX,
 )
 from pynetdicom.apps.common import create_dataset, setup_logging
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
@@ -34,7 +31,10 @@ from pynetdicom.sop_class import (
 )
 
 
-__version__ = '0.2.0'
+_config.DISALLOWED_ADDRESSES.clear()
+
+
+__version__ = "0.2.0"
 
 
 def _setup_argparser():
@@ -49,133 +49,151 @@ def _setup_argparser():
             "waits for a response. The application can be used to test SCPs "
             "of the QR and BWM Service Classes."
         ),
-        usage="findscu [options] addr port"
+        usage="findscu [options] addr port",
     )
 
     # Parameters
-    req_opts = parser.add_argument_group('Parameters')
+    req_opts = parser.add_argument_group("Parameters")
     req_opts.add_argument(
         "addr", help="TCP/IP address or hostname of DICOM peer", type=str
     )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
 
     # General Options
-    gen_opts = parser.add_argument_group('General Options')
+    gen_opts = parser.add_argument_group("General Options")
     gen_opts.add_argument(
-        "--version",
-        help="print version information and exit",
-        action="store_true"
+        "--version", help="print version information and exit", action="store_true"
     )
     output = gen_opts.add_mutually_exclusive_group()
     output.add_argument(
-        "-q", "--quiet",
+        "-q",
+        "--quiet",
         help="quiet mode, print no warnings and errors",
         action="store_const",
-        dest='log_type', const='q'
+        dest="log_type",
+        const="q",
     )
     output.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         help="verbose mode, print processing details",
         action="store_const",
-        dest='log_type', const='v'
+        dest="log_type",
+        const="v",
     )
     output.add_argument(
-        "-d", "--debug",
+        "-d",
+        "--debug",
         help="debug mode, print debug information",
         action="store_const",
-        dest='log_type', const='d'
+        dest="log_type",
+        const="d",
     )
     gen_opts.add_argument(
-        "-ll", "--log-level", metavar='[l]',
-        help=(
-            "use level l for the logger (fatal, error, warn, info, debug, "
-            "trace)"
-        ),
+        "-ll",
+        "--log-level",
+        metavar="[l]",
+        help=("use level l for the logger (fatal, error, warn, info, debug, trace)"),
         type=str,
-        choices=['fatal', 'error', 'warn', 'info', 'debug', 'trace']
+        choices=["fatal", "error", "warn", "info", "debug", "trace"],
     )
-    parser.set_defaults(log_type='v')
+    parser.set_defaults(log_type="v")
 
     # Network Options
-    net_opts = parser.add_argument_group('Network Options')
+    net_opts = parser.add_argument_group("Network Options")
     net_opts.add_argument(
-        "-aet", "--calling-aet", metavar='[a]etitle',
+        "-aet",
+        "--calling-aet",
+        metavar="[a]etitle",
         help="set my calling AE title (default: FINDSCU)",
         type=str,
-        default='FINDSCU'
+        default="FINDSCU",
     )
     net_opts.add_argument(
-        "-aec", "--called-aet", metavar='[a]etitle',
+        "-aec",
+        "--called-aet",
+        metavar="[a]etitle",
         help="set called AE title of peer (default: ANY-SCP)",
         type=str,
-        default='ANY-SCP'
+        default="ANY-SCP",
     )
     net_opts.add_argument(
-        "-ta", "--acse-timeout", metavar='[s]econds',
+        "-ta",
+        "--acse-timeout",
+        metavar="[s]econds",
         help="timeout for ACSE messages (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-td", "--dimse-timeout", metavar='[s]econds',
+        "-td",
+        "--dimse-timeout",
+        metavar="[s]econds",
         help="timeout for DIMSE messages (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-tn", "--network-timeout", metavar='[s]econds',
+        "-tn",
+        "--network-timeout",
+        metavar="[s]econds",
         help="timeout for the network (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-pdu", "--max-pdu", metavar='[n]umber of bytes',
+        "-pdu",
+        "--max-pdu",
+        metavar="[n]umber of bytes",
         help=(
             f"set max receive pdu to n bytes (0 for unlimited, "
             f"default: {DEFAULT_MAX_LENGTH})"
         ),
         type=int,
-        default=DEFAULT_MAX_LENGTH
+        default=DEFAULT_MAX_LENGTH,
     )
 
     # Query information model choices
-    qr_group = parser.add_argument_group('Query Information Model Options')
+    qr_group = parser.add_argument_group("Query Information Model Options")
     qr_model = qr_group.add_mutually_exclusive_group()
     qr_model.add_argument(
-        "-P", "--patient",
+        "-P",
+        "--patient",
         help="use patient root information model (default)",
-        action="store_true"
+        action="store_true",
     )
     qr_model.add_argument(
-        "-S", "--study",
-        help="use study root information model",
-        action="store_true"
+        "-S", "--study", help="use study root information model", action="store_true"
     )
     qr_model.add_argument(
-        "-O", "--psonly",
+        "-O",
+        "--psonly",
         help="use patient/study only information model",
-        action="store_true"
+        action="store_true",
     )
     qr_model.add_argument(
-        "-W", "--worklist",
+        "-W",
+        "--worklist",
         help="use modality worklist information model",
-        action="store_true"
+        action="store_true",
     )
 
-    qr_query = parser.add_argument_group('Query Options')
+    qr_query = parser.add_argument_group("Query Options")
     qr_query.add_argument(
-        '-k', '--keyword',
-        metavar='[k]eyword: (gggg,eeee)=str, keyword=str',
+        "-k",
+        "--keyword",
+        metavar="[k]eyword: (gggg,eeee)=str, keyword=str",
         help=(
             "add or override a query element using either an element tag as "
             "(group,element) or the element's keyword (such as PatientName)"
         ),
         type=str,
-        action='append',
+        action="append",
     )
     qr_query.add_argument(
-        '-f', '--file',
-        metavar='path to [f]ile',
+        "-f",
+        "--file",
+        metavar="path to [f]ile",
         help=(
             "use a DICOM file as the query dataset, if "
             "used with -k then the elements will be added to or overwrite "
@@ -184,38 +202,37 @@ def _setup_argparser():
         type=str,
     )
 
-    out_opts = parser.add_argument_group('Output Options')
+    out_opts = parser.add_argument_group("Output Options")
     out_opts.add_argument(
-        '-w', '--write',
-        help=(
-            "write the responses to file as rsp000001.dcm, rsp000002.dcm, ..."
-        ),
-        action="store_true"
+        "-w",
+        "--write",
+        help=("write the responses to file as rsp000001.dcm, rsp000002.dcm, ..."),
+        action="store_true",
     )
 
-    ext_neg = parser.add_argument_group('Extended Negotiation Options')
+    ext_neg = parser.add_argument_group("Extended Negotiation Options")
     ext_neg.add_argument(
-        '--relational-query',
+        "--relational-query",
         help="request the use of relational queries",
         action="store_true",
     )
     ext_neg.add_argument(
-        '--dt-matching',
+        "--dt-matching",
         help="request the use of date-time matching",
         action="store_true",
     )
     ext_neg.add_argument(
-        '--fuzzy-names',
+        "--fuzzy-names",
         help="request the use of fuzzy semantic matching of person names",
         action="store_true",
     )
     ext_neg.add_argument(
-        '--timezone-adj',
+        "--timezone-adj",
         help="request the use of timezone query adjustment",
         action="store_true",
     )
     ext_neg.add_argument(
-        '--enhanced-conversion',
+        "--enhanced-conversion",
         help="request the use of enhanced multi-frame image conversion",
         action="store_true",
     )
@@ -224,7 +241,7 @@ def _setup_argparser():
     if ns.version:
         pass
     elif not bool(ns.file) and not bool(ns.keyword):
-        parser.error('-f and/or -k must be specified')
+        parser.error("-f and/or -k must be specified")
 
     return ns
 
@@ -233,13 +250,11 @@ def get_file_meta(assoc, query_model):
     """Return a Dataset containing sufficient File Meta elements
     for conformance.
     """
-    cx = assoc._get_valid_context(query_model, '', 'scu')
+    cx = assoc._get_valid_context(query_model, "", "scu")
     file_meta = Dataset()
     file_meta.TransferSyntaxUID = cx.transfer_syntax[0]
     file_meta.MediaStorageSOPClassUID = query_model
-    file_meta.MediaStorageSOPInstanceUID = generate_uid(
-        prefix=PYNETDICOM_UID_PREFIX
-    )
+    file_meta.MediaStorageSOPInstanceUID = generate_uid(prefix=PYNETDICOM_UID_PREFIX)
     file_meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
     file_meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
 
@@ -250,7 +265,7 @@ def generate_filename():
     """Return a `str` filename for extracted C-FIND responses."""
     ii = 1
     while True:
-        yield f'rsp{ii:06d}.dcm'
+        yield f"rsp{ii:06d}.dcm"
         ii += 1
 
 
@@ -262,12 +277,12 @@ def main(args=None):
     args = _setup_argparser()
 
     if args.version:
-        print(f'findscu.py v{__version__}')
+        print(f"findscu.py v{__version__}")
         sys.exit()
 
-    APP_LOGGER = setup_logging(args, 'findscu')
-    APP_LOGGER.debug(f'findscu.py v{__version__}')
-    APP_LOGGER.debug('')
+    APP_LOGGER = setup_logging(args, "findscu")
+    APP_LOGGER.debug(f"findscu.py v{__version__}")
+    APP_LOGGER.debug("")
 
     # Create query (identifier) dataset
     try:
@@ -279,7 +294,6 @@ def main(args=None):
         identifier = create_dataset(args, APP_LOGGER)
     except Exception as exc:
         APP_LOGGER.exception(exc)
-        raise exc
         sys.exit(1)
 
     # Create application entity
@@ -293,8 +307,7 @@ def main(args=None):
 
     # Set the Presentation Contexts we are requesting the Find SCP support
     ae.requested_contexts = (
-        QueryRetrievePresentationContexts
-        + BasicWorklistManagementPresentationContexts
+        QueryRetrievePresentationContexts + BasicWorklistManagementPresentationContexts
     )
 
     # Query/Retrieve Information Models
@@ -310,22 +323,25 @@ def main(args=None):
     # Extended Negotiation
     ext_neg = []
     ext_opts = [
-        args.relational_query, args.dt_matching, args.fuzzy_names,
-        args.timezone_adj, args.enhanced_conversion
+        args.relational_query,
+        args.dt_matching,
+        args.fuzzy_names,
+        args.timezone_adj,
+        args.enhanced_conversion,
     ]
     if not args.worklist and any(ext_opts):
-        app_info = b''
+        app_info = b""
         for option in ext_opts:
-            app_info += b'\x01' if option else b'\x00'
+            app_info += b"\x01" if option else b"\x00"
 
         item = SOPClassExtendedNegotiation()
         item.sop_class_uid = query_model
         item.service_class_application_information = app_info
         ext_neg = [item]
     elif args.worklist and any([args.fuzzy_names, args.timezone_adj]):
-        app_info = b'\x01\x01'
+        app_info = b"\x01\x01"
         for option in [args.fuzzy_names, args.timezone_adj]:
-            app_info += b'\x01' if option else b'\x00'
+            app_info += b"\x01" if option else b"\x00"
 
         item = SOPClassExtendedNegotiation()
         item.sop_class_uid = query_model
@@ -334,8 +350,11 @@ def main(args=None):
 
     # Request association with (QR/BWM) Find SCP
     assoc = ae.associate(
-        args.addr, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu,
-        ext_neg=ext_neg
+        args.addr,
+        args.port,
+        ae_title=args.called_aet,
+        max_pdu=args.max_pdu,
+        ext_neg=ext_neg,
     )
     if assoc.is_established:
         # Send C-FIND request, `responses` is a generator
@@ -347,12 +366,8 @@ def main(args=None):
             #   `rsp_identifier` is the C-FIND response's Identifier dataset
             if status and status.Status in [0xFF00, 0xFF01]:
                 if args.write:
-                    rsp_identifier.file_meta = get_file_meta(
-                        assoc, query_model
-                    )
-                    rsp_identifier.save_as(
-                        next(fname), write_like_original=False
-                    )
+                    rsp_identifier.file_meta = get_file_meta(assoc, query_model)
+                    rsp_identifier.save_as(next(fname), write_like_original=False)
 
         # Release the association
         assoc.release()

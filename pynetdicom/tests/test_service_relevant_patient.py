@@ -11,9 +11,7 @@ from pydicom.uid import ExplicitVRLittleEndian
 
 from pynetdicom import AE, evt, debug_logger
 from pynetdicom.dimse_primitives import C_FIND
-from pynetdicom.service_class import (
-    RelevantPatientInformationQueryServiceClass
-)
+from pynetdicom.service_class import RelevantPatientInformationQueryServiceClass
 from pynetdicom.sop_class import (
     GeneralRelevantPatientInformationQuery,
     BreastImagingRelevantPatientInformationQuery,
@@ -21,16 +19,17 @@ from pynetdicom.sop_class import (
 )
 
 
-#debug_logger()
+# debug_logger()
 
 
 class TestRelevantPatientServiceClass:
     """Test the RelevantPatientInformationQueryServiceClass"""
+
     def setup(self):
         """Run prior to each test"""
         self.query = Dataset()
         self.query.QueryRetrieveLevel = "PATIENT"
-        self.query.PatientName = '*'
+        self.query.PatientName = "*"
 
         self.ae = None
 
@@ -41,6 +40,7 @@ class TestRelevantPatientServiceClass:
 
     def test_bad_req_identifier(self):
         """Test SCP handles a bad request identifier"""
+
         def handle(event):
             try:
                 for elem in event.identifier.iterall():
@@ -54,21 +54,22 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(
-            GeneralRelevantPatientInformationQuery,
-            ExplicitVRLittleEndian
+            GeneralRelevantPatientInformationQuery, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         req = C_FIND()
         req.MessageID = 1
         req.AffectedSOPClassUID = GeneralRelevantPatientInformationQuery
         req.Priority = 2
-        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        req.Identifier = BytesIO(
+            b"\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49"
+        )
         assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
         with pytest.warns(UserWarning):
@@ -81,24 +82,24 @@ class TestRelevantPatientServiceClass:
 
     def test_handler_status_dataset(self):
         """Test handler yielding a Dataset status"""
+
         def handle(event):
             status = Dataset()
             status.Status = 0xFF00
-            yield status,  self.query
+            yield status, self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(
-            GeneralRelevantPatientInformationQuery,
-            ExplicitVRLittleEndian
+            GeneralRelevantPatientInformationQuery, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -111,28 +112,29 @@ class TestRelevantPatientServiceClass:
 
     def test_handler_status_dataset_multi(self):
         """Test handler yielding a Dataset status with other elements"""
+
         def handle(event):
             status = Dataset()
             status.Status = 0xFF00
             status.ErrorComment = "Test"
             status.OffendingElement = 0x00010001
-            yield status,  self.query
+            yield status, self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
-        assert status.ErrorComment == 'Test'
+        assert status.ErrorComment == "Test"
         assert status.OffendingElement == 0x00010001
         status, identifier = next(result)
         assert status.Status == 0x0000
@@ -142,6 +144,7 @@ class TestRelevantPatientServiceClass:
 
     def test_handler_status_int(self):
         """Test handler yielding an int status"""
+
         def handle(event):
             yield 0xFF00, self.query
 
@@ -150,11 +153,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -167,6 +170,7 @@ class TestRelevantPatientServiceClass:
 
     def test_handler_status_unknown(self):
         """Test SCP handles handler yielding a unknown status"""
+
         def handle(event):
             yield 0xFFF0, self.query
 
@@ -175,11 +179,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -190,19 +194,20 @@ class TestRelevantPatientServiceClass:
 
     def test_handler_status_invalid(self):
         """Test SCP handles handler yielding a invalid status"""
+
         def handle(event):
-            yield 'Failed',  self.query
+            yield "Failed", self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -213,19 +218,20 @@ class TestRelevantPatientServiceClass:
 
     def test_handler_status_none(self):
         """Test SCP handles handler not yielding a status"""
+
         def handle(event):
-            yield None,  self.query
+            yield None, self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -236,6 +242,7 @@ class TestRelevantPatientServiceClass:
 
     def test_handler_exception(self):
         """Test SCP handles handler yielding an exception"""
+
         def handle(event):
             raise ValueError
             yield 0xFF00, self.query
@@ -245,11 +252,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -260,6 +267,7 @@ class TestRelevantPatientServiceClass:
 
     def test_handler_bad_identifier(self):
         """Test SCP handles a bad handler identifier"""
+
         def handle(event):
             yield 0xFF00, None
 
@@ -268,11 +276,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -294,11 +302,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -314,6 +322,7 @@ class TestRelevantPatientServiceClass:
 
     def test_pending_success(self):
         """Test handler yielding pending then success status"""
+
         def handle(event):
             yield 0xFF00, self.query
             yield 0x0000, None
@@ -323,11 +332,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -343,6 +352,7 @@ class TestRelevantPatientServiceClass:
 
     def test_pending_failure(self):
         """Test handler yielding pending then failure status"""
+
         def handle(event):
             yield 0xFF00, self.query
             yield 0xA700, None
@@ -352,11 +362,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -372,6 +382,7 @@ class TestRelevantPatientServiceClass:
 
     def test_cancel(self):
         """Test handler yielding cancel status"""
+
         def handle(event):
             yield 0xFE00, None
 
@@ -380,11 +391,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -397,6 +408,7 @@ class TestRelevantPatientServiceClass:
 
     def test_failure(self):
         """Test handler yielding failure status"""
+
         def handle(event):
             yield 0xA700, None
 
@@ -405,11 +417,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -422,6 +434,7 @@ class TestRelevantPatientServiceClass:
 
     def test_success(self):
         """Test handler yielding success status"""
+
         def handle(event):
             yield 0x0000, None
 
@@ -430,11 +443,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -447,6 +460,7 @@ class TestRelevantPatientServiceClass:
 
     def test_no_response(self):
         """Test handler yielding success status"""
+
         def handle(event):
             pass
 
@@ -455,11 +469,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -473,11 +487,12 @@ class TestRelevantPatientServiceClass:
     def test_scp_handler_context(self):
         """Test handler event's context attribute"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['identifier'] = event.identifier
-            attrs['request'] = event.request
-            attrs['assoc'] = event.assoc
+            attrs["context"] = event.context
+            attrs["identifier"] = event.identifier
+            attrs["request"] = event.request
+            attrs["assoc"] = event.assoc
             yield 0xFF00, self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]
@@ -485,11 +500,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -499,21 +514,22 @@ class TestRelevantPatientServiceClass:
         assoc.release()
         assert assoc.is_released
 
-        cx = attrs['context']
+        cx = attrs["context"]
         assert cx.context_id == 1
         assert cx.abstract_syntax == GeneralRelevantPatientInformationQuery
-        assert cx.transfer_syntax == '1.2.840.10008.1.2'
+        assert cx.transfer_syntax == "1.2.840.10008.1.2"
 
         scp.shutdown()
 
     def test_scp_handler_assoc(self):
         """Test handler event's assoc attribute"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['identifier'] = event.identifier
-            attrs['request'] = event.request
-            attrs['assoc'] = event.assoc
+            attrs["context"] = event.context
+            attrs["identifier"] = event.identifier
+            attrs["request"] = event.request
+            attrs["assoc"] = event.assoc
             yield 0xFF00, self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]
@@ -521,11 +537,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -533,7 +549,7 @@ class TestRelevantPatientServiceClass:
         status, identifier = next(result)
         assert status.Status == 0x0000
 
-        scp_assoc = attrs['assoc']
+        scp_assoc = attrs["assoc"]
         assert scp_assoc == scp.active_associations[0]
         scp_assoc.release()
         assert scp_assoc.is_released
@@ -543,11 +559,12 @@ class TestRelevantPatientServiceClass:
     def test_scp_handler_request(self):
         """Test handler event's request attribute"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['identifier'] = event.identifier
-            attrs['request'] = event.request
-            attrs['assoc'] = event.assoc
+            attrs["context"] = event.context
+            attrs["identifier"] = event.identifier
+            attrs["request"] = event.request
+            attrs["assoc"] = event.assoc
             yield 0xFF00, self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]
@@ -555,11 +572,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -569,7 +586,7 @@ class TestRelevantPatientServiceClass:
         assoc.release()
         assert assoc.is_released
 
-        req = attrs['request']
+        req = attrs["request"]
         assert isinstance(req, C_FIND)
 
         scp.shutdown()
@@ -577,11 +594,12 @@ class TestRelevantPatientServiceClass:
     def test_scp_handler_identifier(self):
         """Test handler event's identifier property"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['identifier'] = event.identifier
-            attrs['request'] = event.request
-            attrs['assoc'] = event.assoc
+            attrs["context"] = event.context
+            attrs["identifier"] = event.identifier
+            attrs["request"] = event.request
+            attrs["assoc"] = event.assoc
             yield 0xFF00, self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]
@@ -589,11 +607,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -603,13 +621,14 @@ class TestRelevantPatientServiceClass:
         assoc.release()
         assert assoc.is_released
 
-        ds = attrs['identifier']
-        assert ds.PatientName == '*'
+        ds = attrs["identifier"]
+        assert ds.PatientName == "*"
 
         scp.shutdown()
 
     def test_scp_handler_aborts_before(self):
         """Test handler aborts before any yields"""
+
         def handle(event):
             event.assoc.abort()
             yield 0xFF00, self.query
@@ -619,15 +638,13 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(
-            self.query, GeneralRelevantPatientInformationQuery
-        )
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status == Dataset()
         assert identifier is None
@@ -638,6 +655,7 @@ class TestRelevantPatientServiceClass:
 
     def test_scp_handler_aborts_before_solo(self):
         """Test handler aborts before any yields"""
+
         def handle(event):
             event.assoc.abort()
 
@@ -646,15 +664,13 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(
-            self.query, GeneralRelevantPatientInformationQuery
-        )
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status == Dataset()
         assert identifier is None

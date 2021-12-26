@@ -228,7 +228,7 @@ requesting an association, which takes a 2-tuple of (:class:`str` *host*,
     >>> from pynetdicom import AE
     >>> ae = AE()
     >>> ae.add_requested_context('1.2.840.10008.1.1')
-    >>> assoc = ae.associate('localhost', 11112, bind_address=('', 11113))  # doctest: +SKIP
+    >>> assoc = ae.associate("127.0.0.1", 11112, bind_address=("127.0.0.1", 11113))  # doctest: +SKIP
 
 
 Association
@@ -482,7 +482,7 @@ to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
 
     ae = AE()
     ae.add_supported_context(Verification)
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(("127.0.0.1", 11112), evt_handlers=handlers)
 
 
 Specifying the bind address
@@ -496,7 +496,7 @@ parameter to :meth:`~pynetdicom.ae.ApplicationEntity.start_server` as
     >>> from pynetdicom import AE
     >>> ae = AE()
     >>> ae.add_supported_context('1.2.840.10008.1.1')
-    >>> ae.start_server(('', 11112))
+    >>> ae.start_server(("127.0.0.1", 11112))
 
 
 Association

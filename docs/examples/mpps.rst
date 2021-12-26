@@ -90,7 +90,7 @@ SOP Instance.
     ae.add_requested_context(ModalityPerformedProcedureStep)
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
 
     if assoc.is_established:
         # Use the N-CREATE service to send a request to create a SOP Instance
@@ -125,7 +125,7 @@ MPPS - Set SCU
 Once the MPPS SOP Instance has successfully been created, the modality can send
 one or more N-SET requests to the MPPS SCP in order to update the attributes
 of the SOP Instance. When the procedure has been completed a final N-SET
-request is sent containing a *Modification List* with an (0040,0252) *Peformed
+request is sent containing a *Modification List* with an (0040,0252) *Performed
 Procedure Step Status* of ``"COMPLETED"``.
 
 .. code-block:: python
@@ -169,7 +169,7 @@ Procedure Step Status* of ``"COMPLETED"``.
     final_ds.PerformedProcedureStepEndTime = "1300"
 
     # Associate with peer again
-    assoc = ae.associate('127.0.0.1', 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
 
     if assoc.is_established:
         # Use the N-SET service to update the SOP Instance
@@ -290,4 +290,4 @@ handlers.
     ae.add_supported_context(ModalityPerformedProcedureStep)
 
     # Start listening for incoming association requests
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(("127.0.0.1", 11112), evt_handlers=handlers)

@@ -7,6 +7,8 @@
     :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Atype-hints
 .. image:: https://circleci.com/gh/pydicom/pynetdicom/tree/master.svg?style=shield
     :target: https://circleci.com/gh/pydicom/pynetdicom/tree/master
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
 .. image:: https://badge.fury.io/py/pynetdicom.svg
     :target: https://badge.fury.io/py/pynetdicom
 .. image:: https://img.shields.io/pypi/pyversions/pynetdicom.svg
@@ -296,7 +298,7 @@ other than an ``0x0000`` *Success* status):
         ae.supported_contexts = VerificationPresentationContexts
 
         # Start the SCP on (host, port) in blocking mode
-        ae.start_server(('', 11112), block=True)
+        ae.start_server(("localhost", 11112), block=True)
 
 Alternatively, you can start the SCP in non-blocking mode, which returns the
 running server instance. This can be useful when you want to run a Storage SCP
@@ -358,7 +360,7 @@ requestor's address and port number and the timestamp for the event.
         handlers = [(evt.EVT_C_ECHO, handle_echo, [logging.getLogger('pynetdicom')])]
 
         # Start the SCP in non-blocking mode
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         # Associate and send a C-ECHO request to our own Verification SCP
         ae.add_requested_context(VerificationSOPClass)

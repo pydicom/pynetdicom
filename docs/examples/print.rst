@@ -38,7 +38,7 @@ Which utilise the following SOP Classes:
   of the printer.
 
 There are also the following SOP Classes that are not included under
-the Meta Print Mangement SOP Classes and which may optionally be supported:
+the Meta Print Management SOP Classes and which may optionally be supported:
 
 * *Basic Annotation Box SOP Class* used with N-SET to describe the presentation
   of an annotation on a film.
@@ -265,7 +265,7 @@ notifications over the same association (and ignore them).
 
     ae = AE()
     ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-    assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+    assoc = ae.associate("127.0.0.1", 11112, evt_handlers=handlers)
 
     if assoc.is_established:
         # Step 1: Check the status of the printer

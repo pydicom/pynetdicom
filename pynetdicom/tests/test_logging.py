@@ -12,16 +12,34 @@ from pynetdicom import build_context, evt, AE, build_role, debug_logger
 from pynetdicom.acse import ACSE, APPLICATION_CONTEXT_NAME
 from pynetdicom.dimse_primitives import C_MOVE, N_EVENT_REPORT, N_GET, N_DELETE
 from pynetdicom._handlers import (
-    doc_handle_echo, doc_handle_find, doc_handle_c_get, doc_handle_move,
-    doc_handle_store, doc_handle_action, doc_handle_create, doc_handle_delete,
-    doc_handle_event_report, doc_handle_n_get, doc_handle_set,
-    doc_handle_async, doc_handle_sop_common, doc_handle_sop_extended,
-    doc_handle_userid, doc_handle_acse, doc_handle_dimse, doc_handle_data,
-    doc_handle_pdu, doc_handle_transport, doc_handle_assoc, doc_handle_fsm,
-    debug_fsm, debug_data
+    doc_handle_echo,
+    doc_handle_find,
+    doc_handle_c_get,
+    doc_handle_move,
+    doc_handle_store,
+    doc_handle_action,
+    doc_handle_create,
+    doc_handle_delete,
+    doc_handle_event_report,
+    doc_handle_n_get,
+    doc_handle_set,
+    doc_handle_async,
+    doc_handle_sop_common,
+    doc_handle_sop_extended,
+    doc_handle_userid,
+    doc_handle_acse,
+    doc_handle_dimse,
+    doc_handle_data,
+    doc_handle_pdu,
+    doc_handle_transport,
+    doc_handle_assoc,
+    doc_handle_fsm,
+    debug_fsm,
+    debug_data,
 )
 from pynetdicom.pdu import (
-    A_ASSOCIATE_RQ, A_ASSOCIATE_AC,
+    A_ASSOCIATE_RQ,
+    A_ASSOCIATE_AC,
 )
 from pynetdicom.pdu_primitives import (
     A_ASSOCIATE,
@@ -37,12 +55,12 @@ from pynetdicom.pdu_primitives import (
 from pynetdicom.sop_class import CTImageStorage, Verification
 
 
-#debug_logger()
+# debug_logger()
 
 
 REFERENCE_USER_ID = [
     (
-        (1, b'username', None, False),
+        (1, b"username", None, False),
         [
             "Authentication Mode: 1 - Username",
             "Username: [username]",
@@ -50,7 +68,7 @@ REFERENCE_USER_ID = [
         ],
     ),
     (
-        (1, b'username', None, True),
+        (1, b"username", None, True),
         [
             "Authentication Mode: 1 - Username",
             "Username: [username]",
@@ -58,7 +76,7 @@ REFERENCE_USER_ID = [
         ],
     ),
     (
-        (2, b'username', b'pass', False),
+        (2, b"username", b"pass", False),
         [
             "Authentication Mode: 2 - Username/Password",
             "Username: [username]",
@@ -67,7 +85,7 @@ REFERENCE_USER_ID = [
         ],
     ),
     (
-        (2, b'username', b'pass', True),
+        (2, b"username", b"pass", True),
         [
             "Authentication Mode: 2 - Username/Password",
             "Username: [username]",
@@ -76,7 +94,7 @@ REFERENCE_USER_ID = [
         ],
     ),
     (
-        (3, b'KERBEROS', None, False),
+        (3, b"KERBEROS", None, False),
         [
             "Authentication Mode: 3 - Kerberos",
             "Kerberos Service Ticket (not dumped) length: 8",
@@ -84,7 +102,7 @@ REFERENCE_USER_ID = [
         ],
     ),
     (
-        (3, b'KERBEROS', None, True),
+        (3, b"KERBEROS", None, True),
         [
             "Authentication Mode: 3 - Kerberos",
             "Kerberos Service Ticket (not dumped) length: 8",
@@ -92,7 +110,7 @@ REFERENCE_USER_ID = [
         ],
     ),
     (
-        (4, b'SAML', None, False),
+        (4, b"SAML", None, False),
         [
             "Authentication Mode: 4 - SAML",
             "SAML Assertion (not dumped) length: 4",
@@ -100,7 +118,7 @@ REFERENCE_USER_ID = [
         ],
     ),
     (
-        (4, b'SAML', None, True),
+        (4, b"SAML", None, True),
         [
             "Authentication Mode: 4 - SAML",
             "SAML Assertion (not dumped) length: 4",
@@ -108,7 +126,7 @@ REFERENCE_USER_ID = [
         ],
     ),
     (
-        (5, b'JSON', None, False),
+        (5, b"JSON", None, False),
         [
             "Authentication Mode: 5 - JSON Web Token",
             "JSON Web Token (not dumped) length: 4",
@@ -116,29 +134,45 @@ REFERENCE_USER_ID = [
         ],
     ),
     (
-        (5, b'JSON', None, True),
+        (5, b"JSON", None, True),
         [
             "Authentication Mode: 5 - JSON Web Token",
             "JSON Web Token (not dumped) length: 4",
             "Positive Response Requested: Yes",
         ],
-    )
+    ),
 ]
 
 
 DOC_HANDLERS = [
-    doc_handle_echo, doc_handle_find, doc_handle_c_get, doc_handle_move,
-    doc_handle_store, doc_handle_action, doc_handle_create, doc_handle_delete,
-    doc_handle_event_report, doc_handle_n_get, doc_handle_set,
-    doc_handle_async, doc_handle_sop_common, doc_handle_sop_extended,
-    doc_handle_userid, doc_handle_acse, doc_handle_dimse, doc_handle_data,
-    doc_handle_pdu, doc_handle_transport, doc_handle_assoc, doc_handle_fsm
+    doc_handle_echo,
+    doc_handle_find,
+    doc_handle_c_get,
+    doc_handle_move,
+    doc_handle_store,
+    doc_handle_action,
+    doc_handle_create,
+    doc_handle_delete,
+    doc_handle_event_report,
+    doc_handle_n_get,
+    doc_handle_set,
+    doc_handle_async,
+    doc_handle_sop_common,
+    doc_handle_sop_extended,
+    doc_handle_userid,
+    doc_handle_acse,
+    doc_handle_dimse,
+    doc_handle_data,
+    doc_handle_pdu,
+    doc_handle_transport,
+    doc_handle_assoc,
+    doc_handle_fsm,
 ]
 
 
 def test_debug_logger():
     """Test __init__.debug_logger()."""
-    logger = logging.getLogger('pynetdicom')
+    logger = logging.getLogger("pynetdicom")
     assert len(logger.handlers) == 1
     assert isinstance(logger.handlers[0], logging.NullHandler)
 
@@ -157,7 +191,8 @@ def test_debug_logger():
 
 class TestDocHandlers:
     """Dummy tests to coverage for handler documentation functions."""
-    @pytest.mark.parametrize('handler', DOC_HANDLERS)
+
+    @pytest.mark.parametrize("handler", DOC_HANDLERS)
     def test_doc_handlers(self, handler):
         handler(None)
 
@@ -175,17 +210,17 @@ class TestStandardDIMSE:
     def test_send_n_delete_rsp(self):
         """Test the handler for N-DELETE rsp"""
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         msg = N_DELETE()
         msg.MessageIDBeingRespondedTo = 1
-        msg.AffectedSOPClassUID = '1.2.3'
-        msg.AffectedSOPInstanceUID = '1.2.3.4'
+        msg.AffectedSOPClassUID = "1.2.3"
+        msg.AffectedSOPInstanceUID = "1.2.3.4"
         msg.Status = 0x0000
 
         assoc.dimse.send_msg(msg, 1)
@@ -196,18 +231,18 @@ class TestStandardDIMSE:
     def test_send_n_get_rq_multiple_attr(self):
         """Test the handler for N-GET rq with multiple Attribute Identifiers"""
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         msg = N_GET()
         msg.MessageID = 1
-        msg.RequestedSOPClassUID = '1.2.3'
-        msg.RequestedSOPInstanceUID = '1.2.3.4'
-        msg.AttributeIdentifierList = [(0x0000,0x0010), (0x00080010)]
+        msg.RequestedSOPClassUID = "1.2.3"
+        msg.RequestedSOPInstanceUID = "1.2.3.4"
+        msg.AttributeIdentifierList = [(0x0000, 0x0010), (0x00080010)]
 
         assoc.dimse.send_msg(msg, 1)
 
@@ -217,19 +252,19 @@ class TestStandardDIMSE:
     def test_send_n_event_report_rsp(self):
         """Test the handler for N-EVENT-REPORT rsp with Event Type ID."""
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         msg = N_EVENT_REPORT()
         msg.MessageIDBeingRespondedTo = 1
-        msg.AffectedSOPClassUID = '1.2.3'
-        msg.AffectedSOPInstanceUID = '1.2.3.4'
+        msg.AffectedSOPClassUID = "1.2.3"
+        msg.AffectedSOPInstanceUID = "1.2.3.4"
         msg.EventTypeID = 1  # US
-        msg.EventReply = BytesIO(b'\x00\x01')  # Dataset
+        msg.EventReply = BytesIO(b"\x00\x01")  # Dataset
         msg.Status = 0x0000
 
         assoc.dimse.send_msg(msg, 1)
@@ -240,11 +275,11 @@ class TestStandardDIMSE:
     def test_send_c_move_rsp_no_affected_sop(self):
         """Test the handler for C-MOVE rsp with no Affected SOP Class UID."""
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         msg = C_MOVE()
@@ -263,6 +298,7 @@ class TestStandardDIMSE:
 
 class TestStandardLogging:
     """Tests for standard logging handlers."""
+
     def setup(self):
         """Setup each test."""
         self.ae = None
@@ -271,17 +307,17 @@ class TestStandardLogging:
         primitive = A_ASSOCIATE()
         primitive.application_context_name = APPLICATION_CONTEXT_NAME
         # Calling AE Title is the source DICOM AE title
-        primitive.calling_ae_title = 'ABCDEFGHIJKLMNOP'
+        primitive.calling_ae_title = "ABCDEFGHIJKLMNOP"
         # Called AE Title is the destination DICOM AE title
-        primitive.called_ae_title = '1234567890123456'
+        primitive.called_ae_title = "1234567890123456"
         # The TCP/IP address of the source, pynetdicom includes port too
-        primitive.calling_presentation_address = ('127.127.127.127', 111112)
+        primitive.calling_presentation_address = ("127.127.127.127", 111112)
         # The TCP/IP address of the destination, pynetdicom includes port too
-        primitive.called_presentation_address = ('0.0.0.0', 0)
+        primitive.called_presentation_address = ("0.0.0.0", 0)
         # Proposed presentation contexts
         contexts = [
-            build_context('1.2.3.4.5.6', JPEGBaseline8Bit),
-            build_context('1.2.840.10008.1.1')
+            build_context("1.2.3.4.5.6", JPEGBaseline8Bit),
+            build_context("1.2.840.10008.1.1"),
         ]
         for ii, cx in enumerate(contexts):
             cx.context_id = ii * 2 + 1
@@ -293,7 +329,7 @@ class TestStandardLogging:
         primitive.user_information.append(item)
 
         item = ImplementationClassUIDNotification()
-        item.implementation_class_uid = generate_uid(entropy_srcs=['lorem'])
+        item.implementation_class_uid = generate_uid(entropy_srcs=["lorem"])
         primitive.user_information.append(item)
 
         self.associate_rq = primitive
@@ -302,20 +338,20 @@ class TestStandardLogging:
         primitive = A_ASSOCIATE()
         primitive.application_context_name = APPLICATION_CONTEXT_NAME
         # Calling AE Title is the source DICOM AE title
-        primitive.calling_ae_title = 'ABCDEFGHIJKLMNOP'
+        primitive.calling_ae_title = "ABCDEFGHIJKLMNOP"
         # Called AE Title is the destination DICOM AE title
-        primitive.called_ae_title = '1234567890123456'
+        primitive.called_ae_title = "1234567890123456"
         # The TCP/IP address of the source, pynetdicom includes port too
-        primitive.calling_presentation_address = ('127.127.127.127', 111112)
+        primitive.calling_presentation_address = ("127.127.127.127", 111112)
         # The TCP/IP address of the destination, pynetdicom includes port too
-        primitive.called_presentation_address = ('0.0.0.0', 0)
+        primitive.called_presentation_address = ("0.0.0.0", 0)
         # Proposed presentation contexts
         contexts = [
-            build_context('1.2.3.4.5.6', JPEGBaseline8Bit),
-            build_context('1.2.840.10008.1.1'),
-            build_context('1.2.840.10008.1.1'),
-            build_context('1.2.840.10008.1.1'),
-            build_context('1.2.840.10008.1.1'),
+            build_context("1.2.3.4.5.6", JPEGBaseline8Bit),
+            build_context("1.2.840.10008.1.1"),
+            build_context("1.2.840.10008.1.1"),
+            build_context("1.2.840.10008.1.1"),
+            build_context("1.2.840.10008.1.1"),
         ]
         for ii, cx in enumerate(contexts):
             cx.context_id = ii * 2 + 1
@@ -329,7 +365,7 @@ class TestStandardLogging:
         primitive.user_information.append(item)
 
         item = ImplementationClassUIDNotification()
-        item.implementation_class_uid = generate_uid(entropy_srcs=['lorem'])
+        item.implementation_class_uid = generate_uid(entropy_srcs=["lorem"])
         primitive.user_information.append(item)
 
         self.associate_ac = primitive
@@ -339,7 +375,7 @@ class TestStandardLogging:
         if self.ae:
             self.ae.shutdown()
 
-    def add_impl_name(self, primitive, name=b'A               '):
+    def add_impl_name(self, primitive, name=b"A               "):
         """Add an Implementation Version Name to the A-ASSOCIATE primitive."""
         assert len(name) == 16
         item = ImplementationVersionNameNotification()
@@ -360,7 +396,7 @@ class TestStandardLogging:
     def add_user_identity_rsp(self, primitive):
         """Add User Identity (rsp) to the A-ASSOCIATE primitive."""
         item = UserIdentityNegotiation()
-        item.server_response = b'this is the response'
+        item.server_response = b"this is the response"
         primitive.user_information.append(item)
 
     def add_async_ops(self, primitive):
@@ -373,10 +409,10 @@ class TestStandardLogging:
     def add_scp_scu_role(self, primitive):
         """Add SCP/SCU Role Selection to the A-ASSOCIATE primitive."""
         contexts = [
-            build_context('1.2.840.10008.1.1'),
-            build_context('1.2.840.10008.1.2'),
-            build_context('1.2.840.10008.1.3'),
-            build_context('1.2.840.10008.1.4'),
+            build_context("1.2.840.10008.1.1"),
+            build_context("1.2.840.10008.1.2"),
+            build_context("1.2.840.10008.1.3"),
+            build_context("1.2.840.10008.1.4"),
         ]
 
         for ii, cx in enumerate(contexts):
@@ -385,29 +421,26 @@ class TestStandardLogging:
         primitive.presentation_context_definition_list = contexts
 
         item = SCP_SCU_RoleSelectionNegotiation()
-        item.sop_class_uid = '1.2.840.10008.1.2'
+        item.sop_class_uid = "1.2.840.10008.1.2"
         item.scu_role = True
         item.scp_role = False
         primitive.user_information.append(item)
 
         item = SCP_SCU_RoleSelectionNegotiation()
-        item.sop_class_uid = '1.2.840.10008.1.3'
+        item.sop_class_uid = "1.2.840.10008.1.3"
         item.scu_role = False
         item.scp_role = True
         primitive.user_information.append(item)
 
         item = SCP_SCU_RoleSelectionNegotiation()
-        item.sop_class_uid = '1.2.840.10008.1.4'
+        item.sop_class_uid = "1.2.840.10008.1.4"
         item.scu_role = True
         item.scp_role = True
         primitive.user_information.append(item)
 
     def add_sop_ext(self, primitive):
         """Add SOP Class Extended to the A-ASSOCIATE primitive."""
-        req = {
-            '1.2.3.4' : b'\x00\x01',
-            '1.2.840.10008.1.1' : b'\x00\x01\x02\x03' * 10
-        }
+        req = {"1.2.3.4": b"\x00\x01", "1.2.840.10008.1.1": b"\x00\x01\x02\x03" * 10}
 
         for uid, data in req.items():
             item = SOPClassExtendedNegotiation()
@@ -418,11 +451,10 @@ class TestStandardLogging:
     def add_sop_common(self, primitive):
         """Add SOP Class Common Extended to the A-ASSOCIATE primitive."""
         req = {
-            '1.2.3.4' : ('1.2.3', []),
-            '1.2.3.4.5' : ('1.2.3', ['1.2.1', '1.4.3']),
-            '1.2.840.10008.1.1' : ('1.2.840.10008.4.2', []),
-            '1.2.840.10008.1.1.1' : ('1.2.840.10008.4.2',
-                                     [CTImageStorage, '1.9.1']),
+            "1.2.3.4": ("1.2.3", []),
+            "1.2.3.4.5": ("1.2.3", ["1.2.1", "1.4.3"]),
+            "1.2.840.10008.1.1": ("1.2.840.10008.4.2", []),
+            "1.2.840.10008.1.1.1": ("1.2.840.10008.4.2", [CTImageStorage, "1.9.1"]),
         }
 
         for uid, data in req.items():
@@ -435,18 +467,16 @@ class TestStandardLogging:
     # debug_send_associate_rq
     def test_send_assoc_rq_minimal(self, caplog):
         """Test standard PDU logging handler with minimal A-ASSOCIATE-RQ."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Our Implementation Class UID:      1.2.826.0.1.3680043.8.498"
@@ -481,19 +511,17 @@ class TestStandardLogging:
 
     def test_send_assoc_rq_role(self, caplog):
         """Test A-ASSOCIATE-RQ with role selection."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_scp_scu_role(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Proposed SCP/SCU Role: Default",
@@ -514,19 +542,17 @@ class TestStandardLogging:
 
     def test_send_assoc_rq_async(self, caplog):
         """Test A-ASSOCIATE-RQ with async ops."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_async_ops(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Requested Extended Negotiation: None",
@@ -545,29 +571,25 @@ class TestStandardLogging:
 
     def test_send_assoc_rq_sop_ext(self, caplog):
         """Test ACSE.debug_send_associate_rq with SOP Class Extended."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_sop_ext(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Requested Extended Negotiation:",
                 "SOP Class: =1.2.3.4",
                 "00  01",
                 "SOP Class: =1.2.840.10008.1.1",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02"
-                "  03",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02"
-                "  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
                 "00  01  02  03  00  01  02  03",
                 "Requested Common Extended Negotiation: None",
                 "Requested Asynchronous Operations Window Negotiation: None",
@@ -582,19 +604,17 @@ class TestStandardLogging:
 
     def test_send_assoc_rq_sop_common(self, caplog):
         """Test ACSE.debug_send_associate_rq with SOP Class Common."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_sop_common(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Requested Extended Negotiation: None",
@@ -620,19 +640,17 @@ class TestStandardLogging:
     @pytest.mark.parametrize("info, output", REFERENCE_USER_ID)
     def test_send_assoc_rq_user_id(self, caplog, info, output):
         """Test ACSE.debug_send_associate_rq with SOP User Identity."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_user_identity(self.associate_rq, *info)
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Requested Extended Negotiation: None",
@@ -651,18 +669,16 @@ class TestStandardLogging:
     # debug_receive_associate_rq
     def test_recv_assoc_rq_minimal(self, caplog):
         """Test minimal ACSE.debug_receive_associate_rq."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_RECV, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
             messages = [
                 "Their Implementation Class UID:      1.2.826.0.1.3680043.8."
@@ -698,19 +714,17 @@ class TestStandardLogging:
 
     def test_recv_assoc_rq_role(self, caplog):
         """Test ACSE.debug_receive_associate_rq with role selection."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_scp_scu_role(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_RECV, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
             messages = [
                 "Proposed SCP/SCU Role: Default",
@@ -731,19 +745,17 @@ class TestStandardLogging:
 
     def test_recv_assoc_rq_async(self, caplog):
         """Test ACSE.debug_receive_associate_rq with async ops."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_async_ops(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_RECV, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
             messages = [
                 "Requested Extended Negotiation: None",
@@ -762,29 +774,25 @@ class TestStandardLogging:
 
     def test_recv_assoc_rq_sop_ext(self, caplog):
         """Test ACSE.debug_receive_associate_rq with SOP Class Extended."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_sop_ext(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_RECV, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
             messages = [
                 "Requested Extended Negotiation:",
                 "SOP Class: =1.2.3.4",
                 "00  01",
                 "SOP Class: =1.2.840.10008.1.1",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02"
-                "  03",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02"
-                "  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
                 "00  01  02  03  00  01  02  03",
                 "Requested Common Extended Negotiation: None",
                 "Requested Asynchronous Operations Window Negotiation: None",
@@ -799,19 +807,17 @@ class TestStandardLogging:
 
     def test_recv_assoc_rq_sop_common(self, caplog):
         """Test ACSE.debug_receive_associate_rq with SOP Class Common."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_sop_common(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_RECV, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
             messages = [
                 "Requested Extended Negotiation: None",
@@ -837,19 +843,17 @@ class TestStandardLogging:
     @pytest.mark.parametrize("info, output", REFERENCE_USER_ID)
     def test_recv_assoc_rq_user_id(self, caplog, info, output):
         """Test ACSE.debug_receive_associate_rq with User Identity."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_user_identity(self.associate_rq, *info)
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
-            evt.trigger(
-                assoc, evt.EVT_PDU_RECV, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
             messages = [
                 "Requested Extended Negotiation: None",
@@ -868,7 +872,7 @@ class TestStandardLogging:
     # debug_send_associate_ac
     def test_send_assoc_ac_minimal(self, caplog):
         """Test minimal ACSE.debug_send_associate_ac."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
@@ -876,14 +880,12 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Our Implementation Class UID:      1.2.826.0.1.3680043.8.498"
@@ -913,27 +915,25 @@ class TestStandardLogging:
 
     def test_send_assoc_ac_role(self, caplog):
         """Test ACSE.debug_send_associate_ac with role selection."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
-            ae.add_supported_context(
-                '1.2.840.10008.1.2', scu_role=True, scp_role=True)
-            ae.add_supported_context(
-                '1.2.840.10008.1.3', scu_role=True, scp_role=True)
-            ae.add_supported_context(
-                '1.2.840.10008.1.4', scu_role=True, scp_role=True)
-            ae.add_requested_context('1.2.840.10008.1.2')
-            ae.add_requested_context('1.2.840.10008.1.3')
-            ae.add_requested_context('1.2.840.10008.1.4')
+            ae.add_supported_context("1.2.840.10008.1.2", scu_role=True, scp_role=True)
+            ae.add_supported_context("1.2.840.10008.1.3", scu_role=True, scp_role=True)
+            ae.add_supported_context("1.2.840.10008.1.4", scu_role=True, scp_role=True)
+            ae.add_requested_context("1.2.840.10008.1.2")
+            ae.add_requested_context("1.2.840.10008.1.3")
+            ae.add_requested_context("1.2.840.10008.1.4")
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
 
             ext_neg = []
-            ext_neg.append(build_role('1.2.840.10008.1.2', scu_role=True))
-            ext_neg.append(build_role('1.2.840.10008.1.3', scp_role=True))
-            ext_neg.append(build_role(
-                '1.2.840.10008.1.4', scu_role=True, scp_role=True))
-            assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
+            ext_neg.append(build_role("1.2.840.10008.1.2", scu_role=True))
+            ext_neg.append(build_role("1.2.840.10008.1.3", scp_role=True))
+            ext_neg.append(
+                build_role("1.2.840.10008.1.4", scu_role=True, scp_role=True)
+            )
+            assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
 
             self.add_scp_scu_role(self.associate_ac)
             contexts = self.associate_ac.presentation_context_definition_results_list
@@ -942,9 +942,7 @@ class TestStandardLogging:
                 cx.result = 0
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Abstract Syntax: =Implicit VR Little Endian",
@@ -966,7 +964,7 @@ class TestStandardLogging:
 
     def test_send_assoc_ac_async(self, caplog):
         """Test ACSE.debug_send_associate_ac with async ops."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
@@ -974,15 +972,13 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_async_ops(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Accepted Extended Negotiation: None",
@@ -1000,7 +996,7 @@ class TestStandardLogging:
 
     def test_send_assoc_ac_sop_ext(self, caplog):
         """Test ACSE.debug_send_associate_ac with SOP Class Extended."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
@@ -1008,25 +1004,21 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_sop_ext(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Accepted Extended Negotiation:",
                 "SOP Class: =1.2.3.4",
                 "00  01",
                 "SOP Class: =1.2.840.10008.1.1",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02"
-                "  03",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02"
-                "  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
                 "00  01  02  03  00  01  02  03",
                 "Accepted Asynchronous Operations Window Negotiation: None",
                 "User Identity Negotiation Response: None",
@@ -1040,7 +1032,7 @@ class TestStandardLogging:
 
     def test_send_assoc_ac_user_id(self, caplog):
         """Test ACSE.debug_send_associate_ac with User Identity."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
@@ -1048,15 +1040,13 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_user_identity_rsp(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Accepted Extended Negotiation: None",
@@ -1072,7 +1062,7 @@ class TestStandardLogging:
 
     def test_send_assoc_ac_no_cx(self, caplog):
         """Test _send_associate_ac logger with no presentations contexts"""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
@@ -1080,16 +1070,14 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             primitive = self.associate_ac
             primitive.presentation_context_definition_results_list = []
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(primitive)
-            evt.trigger(
-                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
             messages = [
                 "Our Implementation Class UID:      1.2.826.0.1.3680043.8.498"
@@ -1112,7 +1100,7 @@ class TestStandardLogging:
     # debug_receive_associate_ac
     def test_recv_assoc_ac_minimal(self, caplog):
         """Test minimal ACSE.debug_receive_associate_ac."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
@@ -1120,14 +1108,12 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
-            evt.trigger(
-                assoc, evt.EVT_PDU_RECV, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
             messages = [
                 "Their Implementation Class UID:    1.2.826.0.1.3680043.8.498"
@@ -1157,34 +1143,30 @@ class TestStandardLogging:
 
     def test_recv_assoc_ac_role(self, caplog):
         """Test ACSE.debug_receive_associate_ac with role selection."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
-            ae.add_supported_context(
-                '1.2.840.10008.1.2', scu_role=True, scp_role=True)
-            ae.add_supported_context(
-                '1.2.840.10008.1.3', scu_role=True, scp_role=True)
-            ae.add_supported_context(
-                '1.2.840.10008.1.4', scu_role=True, scp_role=True)
-            ae.add_requested_context('1.2.840.10008.1.2')
-            ae.add_requested_context('1.2.840.10008.1.3')
-            ae.add_requested_context('1.2.840.10008.1.4')
+            ae.add_supported_context("1.2.840.10008.1.2", scu_role=True, scp_role=True)
+            ae.add_supported_context("1.2.840.10008.1.3", scu_role=True, scp_role=True)
+            ae.add_supported_context("1.2.840.10008.1.4", scu_role=True, scp_role=True)
+            ae.add_requested_context("1.2.840.10008.1.2")
+            ae.add_requested_context("1.2.840.10008.1.3")
+            ae.add_requested_context("1.2.840.10008.1.4")
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
 
             ext_neg = []
-            ext_neg.append(build_role('1.2.840.10008.1.2', scu_role=True))
-            ext_neg.append(build_role('1.2.840.10008.1.3', scp_role=True))
-            ext_neg.append(build_role(
-                '1.2.840.10008.1.4', scu_role=True, scp_role=True))
-            assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
+            ext_neg.append(build_role("1.2.840.10008.1.2", scu_role=True))
+            ext_neg.append(build_role("1.2.840.10008.1.3", scp_role=True))
+            ext_neg.append(
+                build_role("1.2.840.10008.1.4", scu_role=True, scp_role=True)
+            )
+            assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
 
             self.add_scp_scu_role(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
-            evt.trigger(
-                assoc, evt.EVT_PDU_RECV, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
             messages = [
                 "Abstract Syntax: =Implicit VR Little Endian",
@@ -1206,7 +1188,7 @@ class TestStandardLogging:
 
     def test_recv_assoc_ac_async(self, caplog):
         """Test ACSE.debug_receive_associate_ac with async ops."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
@@ -1214,15 +1196,13 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_async_ops(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
-            evt.trigger(
-                assoc, evt.EVT_PDU_RECV, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
             messages = [
                 "Accepted Extended Negotiation: None",
@@ -1240,7 +1220,7 @@ class TestStandardLogging:
 
     def test_recv_assoc_ac_sop_ext(self, caplog):
         """Test ACSE.debug_receive_associate_ac with SOP Class Extended."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
@@ -1248,25 +1228,21 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_sop_ext(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
-            evt.trigger(
-                assoc, evt.EVT_PDU_RECV, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
             messages = [
                 "Accepted Extended Negotiation:",
                 "SOP Class: =1.2.3.4",
                 "00  01",
                 "SOP Class: =1.2.840.10008.1.1",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02"
-                "  03",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02"
-                "  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
                 "00  01  02  03  00  01  02  03",
                 "Accepted Asynchronous Operations Window Negotiation: None",
                 "User Identity Negotiation Response: None",
@@ -1280,7 +1256,7 @@ class TestStandardLogging:
 
     def test_recv_assoc_ac_user_id(self, caplog):
         """Test ACSE.debug_receive_associate_ac with User Identity."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
@@ -1288,15 +1264,13 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
-            assoc = ae.associate('localhost', 11112)
+            scp = ae.start_server(("localhost", 11112), block=False)
+            assoc = ae.associate("localhost", 11112)
 
             self.add_user_identity_rsp(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
-            evt.trigger(
-                assoc, evt.EVT_PDU_RECV, {'pdu' : pdu}
-            )
+            evt.trigger(assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
             messages = [
                 "Accepted Extended Negotiation: None",
@@ -1313,6 +1287,7 @@ class TestStandardLogging:
 
 class TestDebuggingLogging:
     """Tests for debugging handlers."""
+
     def setup(self):
         """Setup each test."""
         self.ae = None
@@ -1325,13 +1300,13 @@ class TestDebuggingLogging:
     def test_debug_fsm(self, caplog):
         """Test debug_fsm."""
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         hh = [(evt.EVT_FSM_TRANSITION, debug_fsm)]
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
-            assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
+            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -1344,18 +1319,16 @@ class TestDebuggingLogging:
         """Test debug_data."""
         self.ae = ae = AE()
         ae.require_called_aet = True
-        ae.add_supported_context('1.2.840.10008.1.1')
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        role = build_role('1.2.840.10008.1.1', scp_role=True)
+        role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
             (evt.EVT_DATA_RECV, debug_data, [3, True, True]),
         ]
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
-            assoc = ae.associate(
-                'localhost', 11112, evt_handlers=hh, ext_neg=[role]
-            )
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
+            assoc = ae.associate("localhost", 11112, evt_handlers=hh, ext_neg=[role])
             assert assoc.is_rejected
 
         scp.shutdown()
@@ -1370,15 +1343,15 @@ class TestDebuggingLogging:
     def test_debug_data_abort(self, caplog):
         """Test debug_data."""
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         hh = [
             (evt.EVT_DATA_SENT, debug_data, [7, True, True]),
         ]
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
-            assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
+            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
             assert assoc.is_established
             assoc.abort()
             assert assoc.is_aborted
@@ -1388,25 +1361,21 @@ class TestDebuggingLogging:
         assert "DEBUG - ENCODED PDU" in caplog.text
         assert "07 00 00 00 00 04 00 00 00 00" in caplog.text
         assert "DEBUG - PDU SUMMARY" in caplog.text
-        assert (
-            "0: 0x07 - A-ABORT (4 bytes) - Source 0, Reason 0" in caplog.text
-        )
+        assert "0: 0x07 - A-ABORT (4 bytes) - Source 0, Reason 0" in caplog.text
 
     def test_debug_data_raw(self, caplog):
         """Test debug_data."""
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        role = build_role('1.2.840.10008.1.1', scp_role=True)
+        role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
             (evt.EVT_DATA_SENT, debug_data, [1, True, False]),
         ]
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
-            assoc = ae.associate(
-                'localhost', 11112, evt_handlers=hh, ext_neg=[role]
-            )
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
+            assoc = ae.associate("localhost", 11112, evt_handlers=hh, ext_neg=[role])
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -1421,18 +1390,16 @@ class TestDebuggingLogging:
     def test_debug_data_pdata(self, caplog):
         """Test debug_data."""
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        role = build_role('1.2.840.10008.1.1', scp_role=True)
+        role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
             (evt.EVT_DATA_SENT, debug_data, [4, True, True]),
         ]
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
-            assoc = ae.associate(
-                'localhost', 11112, evt_handlers=hh, ext_neg=[role]
-            )
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
+            assoc = ae.associate("localhost", 11112, evt_handlers=hh, ext_neg=[role])
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -1449,18 +1416,16 @@ class TestDebuggingLogging:
     def test_debug_data_summary(self, caplog):
         """Test debug_data."""
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        role = build_role('1.2.840.10008.1.1', scp_role=True)
+        role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
             (evt.EVT_DATA_SENT, debug_data, [1, False, True]),
         ]
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
-            assoc = ae.associate(
-                'localhost', 11112, evt_handlers=hh, ext_neg=[role]
-            )
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
+            assoc = ae.associate("localhost", 11112, evt_handlers=hh, ext_neg=[role])
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -1474,14 +1439,8 @@ class TestDebuggingLogging:
             " 74: 0x10 - Application Context (21 bytes)",
             " 99: 0x20 - Presentation Context RQ (118 bytes) - 1",
             "107: 0x30 - Abstract Syntax (17 bytes) - Verification SOP Class",
-            (
-                "128: 0x40 - Transfer Syntax (17 bytes) - Implicit VR "
-                "Little Endian"
-            ),
-            (
-                "149: 0x40 - Transfer Syntax (19 bytes) - Explicit VR "
-                "Little Endian"
-            ),
+            ("128: 0x40 - Transfer Syntax (17 bytes) - Implicit VR Little Endian"),
+            ("149: 0x40 - Transfer Syntax (19 bytes) - Explicit VR Little Endian"),
             (
                 "172: 0x40 - Transfer Syntax (22 bytes) - Deflated Explicit "
                 "VR Little Endian"

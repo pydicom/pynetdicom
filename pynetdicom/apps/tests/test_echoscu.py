@@ -9,37 +9,40 @@ import time
 import pytest
 
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian, ExplicitVRBigEndian
+    ExplicitVRLittleEndian,
+    ImplicitVRLittleEndian,
+    DeflatedExplicitVRLittleEndian,
+    ExplicitVRBigEndian,
 )
 
 from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
 from pynetdicom.sop_class import Verification, CTImageStorage
 
 
-#debug_logger()
+# debug_logger()
 
 
-APP_DIR = os.path.join(os.path.dirname(__file__), '../')
-APP_FILE = os.path.join(APP_DIR, 'echoscu', 'echoscu.py')
+APP_DIR = os.path.join(os.path.dirname(__file__), "../")
+APP_FILE = os.path.join(APP_DIR, "echoscu", "echoscu.py")
 
 
 def start_echoscu(args):
     """Start the echoscu.py app and return the process."""
-    pargs = [sys.executable, APP_FILE, 'localhost', '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, "localhost", "11112"] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_echoscu_cli(args):
     """Start the echoscu app using CLI and return the process."""
-    pargs = [
-        sys.executable, '-m', 'pynetdicom', 'echoscu', 'localhost', '11112'
-    ] + [*args]
+    pargs = [sys.executable, "-m", "pynetdicom", "echoscu", "localhost", "11112"] + [
+        *args
+    ]
     return subprocess.Popen(pargs)
 
 
 class EchoSCUBase:
     """Tests for echoscu.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -61,17 +64,14 @@ class EchoSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_ECHO, handle_echo), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([])
         p.wait()
@@ -82,9 +82,9 @@ class EchoSCUBase:
         assert events[0].event == evt.EVT_C_ECHO
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
-        assert 'ECHOSCU' == requestor.ae_title
+        assert "ECHOSCU" == requestor.ae_title
         assert 16382 == requestor.maximum_length
-        assert 'ANY-SCP' == requestor.primitive.called_ae_title
+        assert "ANY-SCP" == requestor.primitive.called_ae_title
         assert [] == requestor.extended_negotiation
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
@@ -97,7 +97,7 @@ class EchoSCUBase:
             ExplicitVRLittleEndian,
             ImplicitVRLittleEndian,
             DeflatedExplicitVRLittleEndian,
-            ExplicitVRBigEndian
+            ExplicitVRBigEndian,
         ]
 
     def test_no_peer(self, capfd):
@@ -112,12 +112,12 @@ class EchoSCUBase:
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        p = self.func(['--version'])
+        p = self.func(["--version"])
         p.wait()
         assert p.returncode == 0
 
         out, err = capfd.readouterr()
-        assert 'echoscu.py v' in out
+        assert "echoscu.py v" in out
 
     def test_flag_quiet(self, capfd):
         """Test --quiet flag."""
@@ -126,14 +126,14 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        p = self.func(['-q'])
+        p = self.func(["-q"])
         p.wait()
         assert p.returncode == 1
 
         out, err = capfd.readouterr()
-        assert out == err == ''
+        assert out == err == ""
 
         scp.shutdown()
 
@@ -144,9 +144,9 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        p = self.func(['-v'])
+        p = self.func(["-v"])
         p.wait()
         assert p.returncode == 0
 
@@ -167,9 +167,9 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        p = self.func(['-d'])
+        p = self.func(["-d"])
         p.wait()
         assert p.returncode == 0
 
@@ -181,7 +181,7 @@ class EchoSCUBase:
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        p = self.func(['-q', '-v'])
+        p = self.func(["-q", "-v"])
         p.wait()
         assert p.returncode != 0
 
@@ -201,19 +201,16 @@ class EchoSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_ECHO, handle_echo), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-aet', 'MYSCU'])
+        p = self.func(["-aet", "MYSCU"])
         p.wait()
         assert p.returncode == 0
 
@@ -222,7 +219,7 @@ class EchoSCUBase:
         assert events[0].event == evt.EVT_C_ECHO
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
-        assert 'MYSCU' == requestor.ae_title
+        assert "MYSCU" == requestor.ae_title
 
     def test_flag_aec(self):
         """Test --called-aet flag."""
@@ -235,19 +232,16 @@ class EchoSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_ECHO, handle_echo), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-aec', 'YOURSCP'])
+        p = self.func(["-aec", "YOURSCP"])
         p.wait()
         assert p.returncode == 0
 
@@ -256,7 +250,7 @@ class EchoSCUBase:
         assert events[0].event == evt.EVT_C_ECHO
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
-        assert 'YOURSCP' == requestor.primitive.called_ae_title
+        assert "YOURSCP" == requestor.primitive.called_ae_title
 
     def test_flag_ta(self, capfd):
         """Test --acse-timeout flag."""
@@ -284,9 +278,9 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-ta', '0.05', '-d'])
+        p = self.func(["-ta", "0.05", "-d"])
         p.wait()
         assert p.returncode == 1
 
@@ -321,9 +315,9 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-td', '0.05', '-d'])
+        p = self.func(["-td", "0.05", "-d"])
         p.wait()
         assert p.returncode == 0
 
@@ -352,19 +346,16 @@ class EchoSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_ECHO, handle_echo), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['--max-pdu', '123456'])
+        p = self.func(["--max-pdu", "123456"])
         p.wait()
         assert p.returncode == 0
 
@@ -386,19 +377,16 @@ class EchoSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_ECHO, handle_echo), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-xe'])
+        p = self.func(["-xe"])
         p.wait()
         assert p.returncode == 0
 
@@ -423,19 +411,16 @@ class EchoSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_ECHO, handle_echo), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-xb'])
+        p = self.func(["-xb"])
         p.wait()
         assert p.returncode == 0
 
@@ -460,19 +445,16 @@ class EchoSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_ECHO, handle_echo), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-xi'])
+        p = self.func(["-xi"])
         p.wait()
         assert p.returncode == 0
 
@@ -497,19 +479,16 @@ class EchoSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_ECHO, handle_echo), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['--repeat', '3'])
+        p = self.func(["--repeat", "3"])
         p.wait()
         assert p.returncode == 0
 
@@ -545,9 +524,9 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['--abort'])
+        p = self.func(["--abort"])
         p.wait()
         assert p.returncode == 0
 
@@ -559,6 +538,7 @@ class EchoSCUBase:
 
 class TestEchoSCU(EchoSCUBase):
     """Tests for echoscu.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -567,6 +547,7 @@ class TestEchoSCU(EchoSCUBase):
 
 class TestEchoSCUCLI(EchoSCUBase):
     """Tests for echoscu using CLI"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None

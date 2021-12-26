@@ -5,16 +5,20 @@ import argparse
 import sys
 
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+    ExplicitVRLittleEndian,
+    ImplicitVRLittleEndian,
+    ExplicitVRBigEndian,
 )
 
-from pynetdicom import AE, evt
+from pynetdicom import AE, _config, evt
 from pynetdicom.apps.common import setup_logging
 from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
 from pynetdicom.sop_class import Verification
 
 
-__version__ = '0.7.0'
+_config.DISALLOWED_ADDRESSES.clear()
+
+__version__ = "0.7.0"
 
 
 def _setup_argparser():
@@ -28,118 +32,134 @@ def _setup_argparser():
             "User (SCU) and sends a response. The application can be "
             "used to verify basic DICOM connectivity."
         ),
-        usage="echoscp [options] port"
+        usage="echoscp [options] port",
     )
 
     # Parameters
-    req_opts = parser.add_argument_group('Parameters')
-    req_opts.add_argument(
-        "port",
-        help="TCP/IP port number to listen on",
-        type=int
-    )
+    req_opts = parser.add_argument_group("Parameters")
+    req_opts.add_argument("port", help="TCP/IP port number to listen on", type=int)
 
     # General Options
-    gen_opts = parser.add_argument_group('General Options')
+    gen_opts = parser.add_argument_group("General Options")
     gen_opts.add_argument(
-        "--version",
-        help="print version information and exit",
-        action="store_true"
+        "--version", help="print version information and exit", action="store_true"
     )
     output = gen_opts.add_mutually_exclusive_group()
     output.add_argument(
-        "-q", "--quiet",
+        "-q",
+        "--quiet",
         help="quiet mode, print no warnings and errors",
         action="store_const",
-        dest='log_type', const='q'
+        dest="log_type",
+        const="q",
     )
     output.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         help="verbose mode, print processing details",
         action="store_const",
-        dest='log_type', const='v'
+        dest="log_type",
+        const="v",
     )
     output.add_argument(
-        "-d", "--debug",
+        "-d",
+        "--debug",
         help="debug mode, print debug information",
         action="store_const",
-        dest='log_type', const='d'
+        dest="log_type",
+        const="d",
     )
     gen_opts.add_argument(
-        "-ll", "--log-level", metavar='[l]',
-        help=(
-            "use level l for the logger (critical, error, warn, info, debug)"
-        ),
+        "-ll",
+        "--log-level",
+        metavar="[l]",
+        help=("use level l for the logger (critical, error, warn, info, debug)"),
         type=str,
-        choices=['critical', 'error', 'warn', 'info', 'debug']
+        choices=["critical", "error", "warn", "info", "debug"],
     )
 
     # Network Options
-    net_opts = parser.add_argument_group('Network Options')
+    net_opts = parser.add_argument_group("Network Options")
     net_opts.add_argument(
-        "-aet", "--ae-title", metavar='[a]etitle',
+        "-aet",
+        "--ae-title",
+        metavar="[a]etitle",
         help="set my AE title (default: ECHOSCP)",
         type=str,
-        default='ECHOSCP'
+        default="ECHOSCP",
     )
     net_opts.add_argument(
-        "-ta", "--acse-timeout", metavar='[s]econds',
+        "-ta",
+        "--acse-timeout",
+        metavar="[s]econds",
         help="timeout for ACSE messages (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-td", "--dimse-timeout", metavar='[s]econds',
+        "-td",
+        "--dimse-timeout",
+        metavar="[s]econds",
         help="timeout for DIMSE messages (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-tn", "--network-timeout", metavar='[s]econds',
+        "-tn",
+        "--network-timeout",
+        metavar="[s]econds",
         help="timeout for the network (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-pdu", "--max-pdu", metavar='[n]umber of bytes',
+        "-pdu",
+        "--max-pdu",
+        metavar="[n]umber of bytes",
         help=(
             f"set max receive pdu to n bytes (0 for unlimited, "
             f"default: {DEFAULT_MAX_LENGTH})"
         ),
         type=int,
-        default=DEFAULT_MAX_LENGTH
+        default=DEFAULT_MAX_LENGTH,
     )
     net_opts.add_argument(
-        "-ba", "--bind-address", metavar="[a]ddress",
+        "-ba",
+        "--bind-address",
+        metavar="[a]ddress",
         help=(
             "The address of the network interface to "
             "listen on. If unset, listen on all interfaces."
         ),
-        default=''
+        default="",
     )
 
     # Transfer Syntaxes
-    ts_opts = parser.add_argument_group('Preferred Transfer Syntaxes')
+    ts_opts = parser.add_argument_group("Preferred Transfer Syntaxes")
     ts = ts_opts.add_mutually_exclusive_group()
     ts.add_argument(
-        "-x=", "--prefer-uncompr",
+        "-x=",
+        "--prefer-uncompr",
         help="prefer explicit VR local byte order",
-        action="store_true"
+        action="store_true",
     )
     ts.add_argument(
-        "-xe", "--prefer-little",
+        "-xe",
+        "--prefer-little",
         help="prefer explicit VR little endian TS",
-        action="store_true"
+        action="store_true",
     )
     ts.add_argument(
-        "-xb", "--prefer-big",
+        "-xb",
+        "--prefer-big",
         help="prefer explicit VR big endian TS",
-        action="store_true"
+        action="store_true",
     )
     ts.add_argument(
-        "-xi", "--implicit",
+        "-xi",
+        "--implicit",
         help="accept implicit VR little endian TS only",
-        action="store_true"
+        action="store_true",
     )
 
     return parser.parse_args()
@@ -161,12 +181,12 @@ def main(args=None):
     args = _setup_argparser()
 
     if args.version:
-        print(f'echoscp.py v{__version__}')
+        print(f"echoscp.py v{__version__}")
         sys.exit()
 
-    APP_LOGGER = setup_logging(args, 'echoscp')
-    APP_LOGGER.debug(f'echoscp.py v{__version__}')
-    APP_LOGGER.debug('')
+    APP_LOGGER = setup_logging(args, "echoscp")
+    APP_LOGGER.debug(f"echoscp.py v{__version__}")
+    APP_LOGGER.debug("")
 
     # Set Transfer Syntax options
     transfer_syntax = ALL_TRANSFER_SYNTAXES[:]

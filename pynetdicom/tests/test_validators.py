@@ -28,7 +28,7 @@ AE_REFERENCE = [
     ("\r", False, "must not contain control characters or backslashes"),
     (b"A", False, "must be str"),
     # zero-width space
-    ('\u200b5', False, "must only contain ASCII characters"),
+    ("\u200b5", False, "must only contain ASCII characters"),
 ]
 
 
@@ -42,31 +42,19 @@ def test_validate_ae(value, ref_result, ref_msg):
 
 UI_REFERENCE = [
     # value, result if enforcing conf, result if not enforcing conf
-    (
-        "",
-        (False, "UID is non-conformant"),
-        (False, "must not be an empty str")
-    ),
-    (
-        " ",
-        (False, "UID is non-conformant"),
-        (False, "must not be an empty str")
-    ),
+    ("", (False, "UID is non-conformant"), (False, "must not be an empty str")),
+    (" ", (False, "UID is non-conformant"), (False, "must not be an empty str")),
     ("a", (False, "UID is non-conformant"), (True, "")),
     (
         "a" * 65,
         (False, "UID is non-conformant"),
-        (False, "must not exceed 64 characters")
+        (False, "must not exceed 64 characters"),
     ),
     ("1", (True, ""), (True, "")),
     (" 1", (True, ""), (True, "")),
-    (
-        b"1",
-        (False, "must be pydicom.uid.UID"),
-        (False, "must be pydicom.uid.UID")
-    ),
-    ('1.2.03', (False, "UID is non-conformant"), (True, "")),
-    ('1.2.840.10008.1.2', (True, ""), (True, "")),
+    (b"1", (False, "must be pydicom.uid.UID"), (False, "must be pydicom.uid.UID")),
+    ("1.2.03", (False, "UID is non-conformant"), (True, "")),
+    ("1.2.840.10008.1.2", (True, ""), (True, "")),
 ]
 
 

@@ -1,7 +1,6 @@
 """
-Implementaion of the service parameter primitives.
+Implementation of the service parameter primitives.
 """
-import codecs
 import logging
 from typing import Optional, List, Any, Union, Tuple, cast, Type
 
@@ -17,29 +16,27 @@ from pynetdicom.pdu_items import (
     SOPClassExtendedNegotiationSubItem,
     SOPClassCommonExtendedNegotiationSubItem,
     UserIdentitySubItemRQ,
-    UserIdentitySubItemAC
+    UserIdentitySubItemAC,
 )
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.utils import (
-    validate_uid, decode_bytes, set_ae, set_uid
-)
+from pynetdicom.utils import validate_uid, decode_bytes, set_ae, set_uid
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
 
-LOGGER = logging.getLogger('pynetdicom.pdu_primitives')
+LOGGER = logging.getLogger("pynetdicom.pdu_primitives")
 
-_PDUPrimitiveType = Union[
-    "A_ASSOCIATE", "A_RELEASE", "A_ABORT", "A_P_ABORT", "P_DATA"
+_PDUPrimitiveType = Union["A_ASSOCIATE", "A_RELEASE", "A_ABORT", "A_P_ABORT", "P_DATA"]
+_UserInformationPrimitiveType = List[
+    Union[
+        "MaximumLengthNotification",
+        "ImplementationClassUIDNotification",
+        "ImplementationVersionNameNotification",
+        "AsynchronousOperationsWindowNegotiation",
+        "SCP_SCU_RoleSelectionNegotiation",
+        "SOPClassExtendedNegotiation",
+        "UserIdentityNegotiation",
+        "SOPClassCommonExtendedNegotiation",
+    ]
 ]
-_UserInformationPrimitiveType = List[Union[
-    "MaximumLengthNotification",
-    "ImplementationClassUIDNotification",
-    "ImplementationVersionNameNotification",
-    "AsynchronousOperationsWindowNegotiation",
-    "SCP_SCU_RoleSelectionNegotiation",
-    "SOPClassExtendedNegotiation",
-    "UserIdentityNegotiation",
-    "SOPClassCommonExtendedNegotiation",
-]]
 _UI = Union[
     "MaximumLengthNotification",
     "ImplementationClassUIDNotification",
@@ -48,7 +45,7 @@ _UI = Union[
     "SCP_SCU_RoleSelectionNegotiation",
     "SOPClassExtendedNegotiation",
     "SOPClassCommonExtendedNegotiation",
-    "UserIdentityNegotiation"
+    "UserIdentityNegotiation",
 ]
 _UITypes = Union[
     Type["MaximumLengthNotification"],
@@ -64,7 +61,8 @@ _UITypes = Union[
 
 # TODO: Rename to UserInformation
 class ServiceParameter:
-    """ Base class for Service Parameters """
+    """Base class for Service Parameters"""
+
     def __eq__(self, other: Any) -> bool:
         """Equality of two ServiceParameters"""
         if isinstance(other, self.__class__):
@@ -141,12 +139,13 @@ class A_ASSOCIATE:
     * DICOM Standard, Part 8,
       :dcm:`Section 7.1.1<part08/chapter_7.html#sect_7.1.1>`
     """
+
     # pylint: disable=too-many-instance-attributes
 
     def __init__(self) -> None:
         self._application_context_name: Optional[UID] = None
-        self._calling_ae_title: str = 'DEFAULT'
-        self._called_ae_title: str = 'DEFAULT'
+        self._calling_ae_title: str = "DEFAULT"
+        self._called_ae_title: str = "DEFAULT"
         self._user_information: _UserInformationPrimitiveType = []
         self._result: Optional[int] = None
         self._result_source: Optional[int] = None
@@ -154,7 +153,9 @@ class A_ASSOCIATE:
         self._calling_presentation_address: Optional[Tuple[str, int]] = None
         self._called_presentation_address: Optional[Tuple[str, int]] = None
         self._presentation_context_definition_list: List[PresentationContext] = []
-        self._presentation_context_definition_results_list: List[PresentationContext] = []
+        self._presentation_context_definition_results_list: List[
+            PresentationContext
+        ] = []
 
     @property
     def application_context_name(self) -> Optional[UID]:
@@ -180,9 +181,7 @@ class A_ASSOCIATE:
     @application_context_name.setter
     def application_context_name(self, value: OptionalUIDType) -> None:
         """Set the Application Context Name parameter."""
-        self._application_context_name = (
-            set_uid(value, 'Application Context Name')
-        )
+        self._application_context_name = set_uid(value, "Application Context Name")
 
     @property
     def called_ae_title(self) -> str:
@@ -204,7 +203,7 @@ class A_ASSOCIATE:
     def called_ae_title(self, value: str) -> None:
         """Set the Called AE Title parameter."""
         self._called_ae_title = cast(
-            str, set_ae(value, 'Called AE Title', False, False)
+            str, set_ae(value, "Called AE Title", False, False)
         )
 
     @property
@@ -220,9 +219,7 @@ class A_ASSOCIATE:
         return self._called_presentation_address
 
     @called_presentation_address.setter
-    def called_presentation_address(
-        self, value: Optional[Tuple[str, int]]
-    ) -> None:
+    def called_presentation_address(self, value: Optional[Tuple[str, int]]) -> None:
         """Set the Called Presentation Address parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, tuple):
@@ -245,12 +242,10 @@ class A_ASSOCIATE:
             self._called_presentation_address = value
         else:
             LOGGER.error(
-                "A_ASSOCIATE.called_presentation_address must be "
-                "(str, int) tuple"
+                "A_ASSOCIATE.called_presentation_address must be (str, int) tuple"
             )
             raise TypeError(
-                "A_ASSOCIATE.called_presentation_address must "
-                "be (str, int) tuple"
+                "A_ASSOCIATE.called_presentation_address must be (str, int) tuple"
             )
 
     @property
@@ -273,7 +268,7 @@ class A_ASSOCIATE:
     def calling_ae_title(self, value: str) -> None:
         """Set the Calling AE Title parameter."""
         self._calling_ae_title = cast(
-            str, set_ae(value, 'Calling AE Title', False, False)
+            str, set_ae(value, "Calling AE Title", False, False)
         )
 
     @property
@@ -289,9 +284,7 @@ class A_ASSOCIATE:
         return self._calling_presentation_address
 
     @calling_presentation_address.setter
-    def calling_presentation_address(
-        self, value: Optional[Tuple[str, int]]
-    ) -> None:
+    def calling_presentation_address(self, value: Optional[Tuple[str, int]]) -> None:
         """Set the A-ASSOCIATE Service primitive's Calling Presentation
         Address parameter.
         """
@@ -304,17 +297,23 @@ class A_ASSOCIATE:
             ):
                 self._calling_presentation_address = value
             else:
-                LOGGER.error("A_ASSOCIATE.calling_presentation_address must "
-                             "be (str, int) tuple")
-                raise TypeError("A_ASSOCIATE.calling_presentation_address "
-                                "must be (str, int) tuple")
+                LOGGER.error(
+                    "A_ASSOCIATE.calling_presentation_address must "
+                    "be (str, int) tuple"
+                )
+                raise TypeError(
+                    "A_ASSOCIATE.calling_presentation_address "
+                    "must be (str, int) tuple"
+                )
         elif value is None:
             self._calling_presentation_address = value
         else:
-            LOGGER.error("A_ASSOCIATE.calling_presentation_address must be "
-                         "(str, int) tuple")
-            raise TypeError("A_ASSOCIATE.calling_presentation_address must "
-                            "be (str, int) tuple")
+            LOGGER.error(
+                "A_ASSOCIATE.calling_presentation_address must be (str, int) tuple"
+            )
+            raise TypeError(
+                "A_ASSOCIATE.calling_presentation_address must be (str, int) tuple"
+            )
 
     @property
     def diagnostic(self) -> Optional[int]:
@@ -377,8 +376,7 @@ class A_ASSOCIATE:
             if isinstance(item, ImplementationClassUIDNotification):
                 if item.implementation_class_uid is None:
                     LOGGER.error("Implementation Class UID has not been set")
-                    raise ValueError("Implementation Class UID has not "
-                                     "been set")
+                    raise ValueError("Implementation Class UID has not been set")
 
                 return item.implementation_class_uid
 
@@ -450,9 +448,7 @@ class A_ASSOCIATE:
         return "normal"
 
     @property
-    def presentation_context_definition_list(
-        self
-    ) -> List[PresentationContext]:
+    def presentation_context_definition_list(self) -> List[PresentationContext]:
         """Get or set the *Presentation Context Definition List*.
 
         Parameters
@@ -485,15 +481,15 @@ class A_ASSOCIATE:
             self._presentation_context_definition_list = valid_items
 
         else:
-            LOGGER.error("A_ASSOCIATE.presentation_context_definition_list "
-                         "must be a list")
-            raise TypeError("A_ASSOCIATE.presentation_context_definition_list "
-                            "must be a list")
+            LOGGER.error(
+                "A_ASSOCIATE.presentation_context_definition_list must be a list"
+            )
+            raise TypeError(
+                "A_ASSOCIATE.presentation_context_definition_list must be a list"
+            )
 
     @property
-    def presentation_context_definition_results_list(
-        self
-    ) -> List[PresentationContext]:
+    def presentation_context_definition_results_list(self) -> List[PresentationContext]:
         """Get or set the *Presentation Context Definition Results List*.
 
         Parameters
@@ -526,10 +522,14 @@ class A_ASSOCIATE:
             self._presentation_context_definition_results_list = valid_items
 
         else:
-            LOGGER.error("A_ASSOCIATE.presentation_context_definition_"
-                         "results_list must be a list")
-            raise TypeError("A_ASSOCIATE.presentation_context_definition_"
-                            "results_list must be a list")
+            LOGGER.error(
+                "A_ASSOCIATE.presentation_context_definition_"
+                "results_list must be a list"
+            )
+            raise TypeError(
+                "A_ASSOCIATE.presentation_context_definition_"
+                "results_list must be a list"
+            )
 
     @property
     def presentation_requirements(self) -> str:
@@ -541,31 +541,28 @@ class A_ASSOCIATE:
         """Return the rejection reason as str."""
         reasons = {
             1: {
-                1: 'No reason given',
-                2: 'Application context name not supported',
-                3: 'Calling AE title not recognised',
-                4: 'Reserved',
-                5: 'Reserved',
-                6: 'Reserved',
-                7: 'Called AE title not recognised',
-                8: 'Reserved',
-                9: 'Reserved',
-                10: 'Reserved',
+                1: "No reason given",
+                2: "Application context name not supported",
+                3: "Calling AE title not recognised",
+                4: "Reserved",
+                5: "Reserved",
+                6: "Reserved",
+                7: "Called AE title not recognised",
+                8: "Reserved",
+                9: "Reserved",
+                10: "Reserved",
             },
-            2: {
-                1: 'No reason given',
-                2: 'Protocol version not supported'
-            },
+            2: {1: "No reason given", 2: "Protocol version not supported"},
             3: {
                 0: "Reserved",
                 1: "Temporary congestion",
                 2: "Local limit exceeded",
-                3: 'Reserved',
-                4: 'Reserved',
-                5: 'Reserved',
-                6: 'Reserved',
-                7: 'Reserved',
-            }
+                3: "Reserved",
+                4: "Reserved",
+                5: "Reserved",
+                6: "Reserved",
+                7: "Reserved",
+            },
         }
         result = cast(int, self.result_source)
         diagnostic = cast(int, self.diagnostic)
@@ -653,14 +650,10 @@ class A_ASSOCIATE:
     @property
     def result_str(self) -> str:
         """Return the result as str."""
-        results = {
-            0: "Accepted", 1: "Rejected Permanent", 2: "Rejected Transient"
-        }
+        results = {0: "Accepted", 1: "Rejected Permanent", 2: "Rejected Transient"}
 
         if self.result not in results:
-            LOGGER.warning(
-                f"Invalid A-ASSOCIATE 'Result' {self.result}"
-            )
+            LOGGER.warning(f"Invalid A-ASSOCIATE 'Result' {self.result}")
             return "(no value available)"
 
         return results[self.result]
@@ -674,14 +667,12 @@ class A_ASSOCIATE:
     def source_str(self) -> str:
         """Return the reject source as str."""
         sources = {
-            1: 'Service User',
-            2: 'Service Provider (ACSE)',
-            3: 'Service Provider (Presentation)'
+            1: "Service User",
+            2: "Service Provider (ACSE)",
+            3: "Service Provider (Presentation)",
         }
         if self.result_source not in sources:
-            LOGGER.warning(
-                f"Invalid A-ASSOCIATE 'Result Source' {self.result_source}"
-            )
+            LOGGER.warning(f"Invalid A-ASSOCIATE 'Result Source' {self.result_source}")
             return "(no value available)"
 
         return sources[self.result_source]
@@ -699,9 +690,7 @@ class A_ASSOCIATE:
         return self._user_information
 
     @user_information.setter
-    def user_information(
-        self, value_list: _UserInformationPrimitiveType
-    ) -> None:
+    def user_information(self, value_list: _UserInformationPrimitiveType) -> None:
         """Set the A-ASSOCIATE primitive's User Information parameter."""
         # pylint: disable=attribute-defined-outside-init
         valid_usr_info_items = []
@@ -709,20 +698,23 @@ class A_ASSOCIATE:
         if isinstance(value_list, list):
             # Iterate through the items and check they're an acceptable class
             for item in value_list:
-                if item.__class__.__name__ in \
-                        ["MaximumLengthNotification",
-                         "ImplementationClassUIDNotification",
-                         "ImplementationVersionNameNotification",
-                         "AsynchronousOperationsWindowNegotiation",
-                         "SCP_SCU_RoleSelectionNegotiation",
-                         "SOPClassExtendedNegotiation",
-                         "SOPClassCommonExtendedNegotiation",
-                         "UserIdentityNegotiation"]:
+                if item.__class__.__name__ in [
+                    "MaximumLengthNotification",
+                    "ImplementationClassUIDNotification",
+                    "ImplementationVersionNameNotification",
+                    "AsynchronousOperationsWindowNegotiation",
+                    "SCP_SCU_RoleSelectionNegotiation",
+                    "SOPClassExtendedNegotiation",
+                    "SOPClassCommonExtendedNegotiation",
+                    "UserIdentityNegotiation",
+                ]:
                     valid_usr_info_items.append(item)
                 else:
-                    LOGGER.info("Attempted to set "
-                                "A_ASSOCIATE.user_information to a list "
-                                "which includes an unsupported item")
+                    LOGGER.info(
+                        "Attempted to set "
+                        "A_ASSOCIATE.user_information to a list "
+                        "which includes an unsupported item"
+                    )
         else:
             LOGGER.error("A_ASSOCIATE.user_information must be a list")
             raise TypeError("A_ASSOCIATE.user_information must be a list")
@@ -755,6 +747,7 @@ class A_RELEASE:
     ----------
     * DICOM Standard, Part 8, :dcm:`Section 7.2<part08/sect_7.2.html>`
     """
+
     def __init__(self) -> None:
         self._result: Optional[str] = None
 
@@ -868,6 +861,7 @@ class A_P_ABORT:
 
     * DICOM Standard, Part 8, :dcm:`Section 7.4<part08/sect_7.4.html>`
     """
+
     def __init__(self) -> None:
         self._provider_reason: Optional[int] = None
 
@@ -899,10 +893,7 @@ class A_P_ABORT:
         if value in [0, 1, 2, 4, 5, 6, None]:
             self._provider_reason = value
         else:
-            msg = (
-                "Attempted to set A_P_ABORT.provider_reason to an invalid "
-                "value"
-            )
+            msg = "Attempted to set A_P_ABORT.provider_reason to an invalid value"
             LOGGER.error(msg)
             raise ValueError(msg)
 
@@ -930,6 +921,7 @@ class P_DATA:
 
     * DICOM Standard, Part 8, :dcm:`Section 7.6<part08/sect_7.6.html>`
     """
+
     def __init__(self) -> None:
         self._presentation_data_value_list: List[Tuple[int, bytes]] = []
 
@@ -949,9 +941,7 @@ class P_DATA:
         return self._presentation_data_value_list
 
     @presentation_data_value_list.setter
-    def presentation_data_value_list(
-        self, value_list: List[Tuple[int, bytes]]
-    ) -> None:
+    def presentation_data_value_list(self, value_list: List[Tuple[int, bytes]]) -> None:
         """Set the Presentation Data Value List."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value_list, list):
@@ -960,24 +950,30 @@ class P_DATA:
                     if isinstance(pdv[0], int) and isinstance(pdv[1], bytes):
                         pass
                     else:
-                        raise TypeError("P_DATA.presentation_data_value_list "
-                                        "should be a list of [int, bytes]")
+                        raise TypeError(
+                            "P_DATA.presentation_data_value_list "
+                            "should be a list of [int, bytes]"
+                        )
                 else:
-                    raise TypeError("P_DATA.presentation_data_value_list "
-                                    "should be a list of [ID, PDV]")
+                    raise TypeError(
+                        "P_DATA.presentation_data_value_list "
+                        "should be a list of [ID, PDV]"
+                    )
         else:
-            raise TypeError("P_DATA.presentation_data_value_list "
-                            "should be a list of [int, bytes]")
+            raise TypeError(
+                "P_DATA.presentation_data_value_list "
+                "should be a list of [int, bytes]"
+            )
 
         self._presentation_data_value_list = value_list
 
     def __str__(self) -> str:
         """String representation of the class."""
-        s = 'P-DATA\n'
+        s = "P-DATA\n"
         for pdv in self.presentation_data_value_list:
             header_byte = pdv[1][0]
-            s += f'  Context ID: {pdv[0]}\n'
-            s += f'  Value Length: {len(pdv[1])} bytes\n'
+            s += f"  Context ID: {pdv[0]}\n"
+            s += f"  Value Length: {len(pdv[1])} bytes\n"
             s += f"  Message Control Header Byte: {header_byte:08b}\n"
 
             # xxxxxx01 and xxxxxx011
@@ -985,28 +981,28 @@ class P_DATA:
                 # xxxxxx11
                 if header_byte & 2:
                     s += (
-                        '    Command information, last fragment of the '
-                        'DIMSE message\n'
+                        "    Command information, last fragment of the "
+                        "DIMSE message\n"
                     )
                 # xxxxxx01
                 else:
                     s += (
-                        '    Command information, not the last fragment of '
-                        'the DIMSE message\n'
+                        "    Command information, not the last fragment of "
+                        "the DIMSE message\n"
                     )
             # xxxxxx00, xxxxxxx10
             else:
                 # xxxxxx10
                 if header_byte & 2 != 0:
                     s += (
-                        '    Dataset information, last fragment of the '
-                        'DIMSE message\n'
+                        "    Dataset information, last fragment of the "
+                        "DIMSE message\n"
                     )
                 # xxxxxx00
                 else:
                     s += (
-                        '    Dataset information, not the last fragment of '
-                        'the DIMSE message\n'
+                        "    Dataset information, not the last fragment of "
+                        "the DIMSE message\n"
                     )
 
         return s
@@ -1031,6 +1027,7 @@ class MaximumLengthNotification(ServiceParameter):
       :dcm:`Annex D.3.3.1<part07/sect_D.3.3.html#sect_D.3.3.1>`
     * DICOM Standard, Part 8, :dcm:`Annex D.1<part08/chapter_D.html#sect_D.1>`
     """
+
     def __init__(self) -> None:
         self._maximum_length: int
         self.maximum_length_received = DEFAULT_MAX_LENGTH
@@ -1073,9 +1070,8 @@ class MaximumLengthNotification(ServiceParameter):
         # pylint: disable=attribute-defined-outside-init
         if isinstance(val, int):
             if val < 0:
-                LOGGER.error('Maximum Length Received must be greater than 0')
-                raise ValueError("Maximum Length Received must be greater "
-                                 "than 0")
+                LOGGER.error("Maximum Length Received must be greater than 0")
+                raise ValueError("Maximum Length Received must be greater than 0")
             else:
                 self._maximum_length = val
         else:
@@ -1086,10 +1082,9 @@ class MaximumLengthNotification(ServiceParameter):
         """String representation of the class."""
         s = [
             "Maximum Length Negotiation",
-            f"  Maximum length received: "
-            f"{self.maximum_length_received:d} bytes\n",
+            f"  Maximum length received: " f"{self.maximum_length_received:d} bytes\n",
         ]
-        return '\n'.join(s)
+        return "\n".join(s)
 
 
 class ImplementationClassUIDNotification(ServiceParameter):
@@ -1124,6 +1119,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
 
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.2<part07/sect_D.3.3.2.html>`
     """
+
     def __init__(self) -> None:
         self._implementation_class_uid: Optional[UID] = None
 
@@ -1140,10 +1136,14 @@ class ImplementationClassUIDNotification(ServiceParameter):
             If no UID is set
         """
         if self.implementation_class_uid is None:
-            LOGGER.error("The Implementation Class UID must be set prior to "
-                         "requesting Association")
-            raise ValueError("The Implementation Class UID must be set "
-                             "prior to requesting Association")
+            LOGGER.error(
+                "The Implementation Class UID must be set prior to "
+                "requesting Association"
+            )
+            raise ValueError(
+                "The Implementation Class UID must be set "
+                "prior to requesting Association"
+            )
 
         item = ImplementationClassUIDSubItem()
         item.from_primitive(self)
@@ -1164,9 +1164,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
     @implementation_class_uid.setter
     def implementation_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the Implementation Class UID parameter."""
-        self._implementation_class_uid = (
-            set_uid(value, 'Implementation Class UID')
-        )
+        self._implementation_class_uid = set_uid(value, "Implementation Class UID")
 
     def __str__(self) -> str:
         """String representation of the class."""
@@ -1207,6 +1205,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
 
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.2<part07/sect_D.3.3.2.html>`
     """
+
     def __init__(self) -> None:
         self._implementation_version_name: Optional[str] = None
 
@@ -1254,7 +1253,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
     def implementation_version_name(self, value: Optional[str]) -> None:
         """Sets the Implementation Version Name parameter."""
         self._implementation_version_name = set_ae(
-            value, 'Implementation Version Name', True, True
+            value, "Implementation Version Name", True, True
         )
 
     def __str__(self) -> str:
@@ -1339,8 +1338,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
             raise TypeError("Maximum Number Operations Invoked must be an int")
 
         if value < 0:
-            raise ValueError("Maximum Number Operations Invoked must be "
-                             "greater than 0")
+            raise ValueError("Maximum Number Operations Invoked must be greater than 0")
 
         self._maximum_number_operations_invoked = value
 
@@ -1368,12 +1366,12 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
         # pylint: disable=attribute-defined-outside-init
         if not isinstance(value, int):
             LOGGER.error("Maximum Number Operations Performed must be an int")
-            raise TypeError("Maximum Number Operations Performed must be "
-                            "an int")
+            raise TypeError("Maximum Number Operations Performed must be an int")
 
         if value < 0:
-            raise ValueError("Maximum Number Operations Performed must be "
-                             "greater than 0")
+            raise ValueError(
+                "Maximum Number Operations Performed must be greater than 0"
+            )
 
         self._maximum_number_operations_performed = value
 
@@ -1423,6 +1421,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
 
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.4<part07/sect_D.3.3.4.html>`
     """
+
     def __init__(self) -> None:
         self._sop_class_uid: Optional[UID] = None
         self._scu_role: Optional[bool] = None
@@ -1444,9 +1443,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         """
         if self.sop_class_uid is None:
             LOGGER.error("'sop_class_uid' must be set prior to Association")
-            raise ValueError(
-                "'sop_class_uid' must be set prior to Association"
-            )
+            raise ValueError("'sop_class_uid' must be set prior to Association")
 
         # To get to this point self.sop_class_uid must be set
         if not self.scu_role and not self.scp_role:
@@ -1535,7 +1532,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
-        self._sop_class_uid = set_uid(value, 'SOP Class UID')
+        self._sop_class_uid = set_uid(value, "SOP Class UID")
 
 
 class SOPClassExtendedNegotiation(ServiceParameter):
@@ -1568,6 +1565,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
 
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.5<part07/sect_D.3.3.5.html>`
     """
+
     def __init__(self) -> None:
         self._sop_class_uid: Optional[UID] = None
         self._service_class_application_information: Optional[bytes] = None
@@ -1589,12 +1587,16 @@ class SOPClassExtendedNegotiation(ServiceParameter):
             self.sop_class_uid is None
             or self.service_class_application_information is None
         ):
-            LOGGER.error("SOP Class UID and Service Class Application "
-                         "Information must be set prior to Association "
-                         "negotiation")
-            raise ValueError("SOP Class UID and Service Class Application "
-                             "Information must be set prior to Association "
-                             "negotiation")
+            LOGGER.error(
+                "SOP Class UID and Service Class Application "
+                "Information must be set prior to Association "
+                "negotiation"
+            )
+            raise ValueError(
+                "SOP Class UID and Service Class Application "
+                "Information must be set prior to Association "
+                "negotiation"
+            )
 
         item = SOPClassExtendedNegotiationSubItem()
         item.from_primitive(self)
@@ -1619,18 +1621,18 @@ class SOPClassExtendedNegotiation(ServiceParameter):
         return self._service_class_application_information
 
     @service_class_application_information.setter
-    def service_class_application_information(
-        self, value: Optional[bytes]
-    ) -> None:
+    def service_class_application_information(self, value: Optional[bytes]) -> None:
         """Sets the Service Class Application Information parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes) or value is None:
             pass
         else:
-            LOGGER.error("Service Class Application Information should be a "
-                         "bytes object")
-            raise TypeError("Service Class Application Information should "
-                            "be a bytes object")
+            LOGGER.error(
+                "Service Class Application Information should be a bytes object"
+            )
+            raise TypeError(
+                "Service Class Application Information should be a bytes object"
+            )
 
         self._service_class_application_information = value
 
@@ -1653,7 +1655,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
-        self._sop_class_uid = set_uid(value, 'SOP Class UID')
+        self._sop_class_uid = set_uid(value, "SOP Class UID")
 
 
 class SOPClassCommonExtendedNegotiation(ServiceParameter):
@@ -1684,6 +1686,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
 
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.6<part07/sect_D.3.3.6.html>`
     """
+
     def __init__(self) -> None:
         self._service_class_uid: Optional[UID] = None
         self._sop_class_uid: Optional[UID] = None
@@ -1702,10 +1705,14 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
             If `sop_class_uid` or `service_class_uid` are not set
         """
         if self.sop_class_uid is None or self.service_class_uid is None:
-            LOGGER.error("SOP Class UID and Service Class UID must be set "
-                         "prior to Association negotiation")
-            raise ValueError("SOP Class UID and Service Class UID must be "
-                             "set prior to Association negotiation")
+            LOGGER.error(
+                "SOP Class UID and Service Class UID must be set "
+                "prior to Association negotiation"
+            )
+            raise ValueError(
+                "SOP Class UID and Service Class UID must be "
+                "set prior to Association negotiation"
+            )
 
         item = SOPClassCommonExtendedNegotiationSubItem()
         item.from_primitive(self)
@@ -1801,7 +1808,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
     @service_class_uid.setter
     def service_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the Service Class UID parameter."""
-        self._service_class_uid = set_uid(value, 'Service Class UID')
+        self._service_class_uid = set_uid(value, "Service Class UID")
 
     @property
     def sop_class_uid(self) -> Optional[UID]:
@@ -1822,7 +1829,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
-        self._sop_class_uid = set_uid(value, 'SOP Class UID')
+        self._sop_class_uid = set_uid(value, "SOP Class UID")
 
 
 class UserIdentityNegotiation(ServiceParameter):
@@ -1876,12 +1883,10 @@ class UserIdentityNegotiation(ServiceParameter):
         self._user_identity_type: Optional[int] = None
         self._positive_response_requested: bool = False
         self._primary_field: Optional[bytes] = None
-        self._secondary_field: Optional[bytes] = b''
+        self._secondary_field: Optional[bytes] = b""
         self._server_response: Optional[bytes] = None
 
-    def from_primitive(
-        self
-    ) -> Union[UserIdentitySubItemAC, UserIdentitySubItemRQ]:
+    def from_primitive(self) -> Union[UserIdentitySubItemAC, UserIdentitySubItemRQ]:
         """Convert the primitive to a PDU item ready to be encoded.
 
         Returns
@@ -1910,7 +1915,7 @@ class UserIdentityNegotiation(ServiceParameter):
                 LOGGER.error(msg)
                 raise ValueError(msg)
 
-            if self.user_identity_type == 2 and self.secondary_field == b'':
+            if self.user_identity_type == 2 and self.secondary_field == b"":
                 msg = "Secondary Field must be set when User Identity is 2"
                 LOGGER.error(msg)
                 raise ValueError(msg)
@@ -1979,10 +1984,14 @@ class UserIdentityNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            LOGGER.error("Primary Field must be bytes if requesting "
-                         "Association, None otherwise")
-            raise TypeError("Primary Field must be bytes if requesting "
-                            "Association, None otherwise")
+            LOGGER.error(
+                "Primary Field must be bytes if requesting "
+                "Association, None otherwise"
+            )
+            raise TypeError(
+                "Primary Field must be bytes if requesting "
+                "Association, None otherwise"
+            )
 
         self._primary_field = value
 
@@ -2006,12 +2015,16 @@ class UserIdentityNegotiation(ServiceParameter):
         if isinstance(value, bytes) or value is None:
             pass
         else:
-            LOGGER.error("Secondary Field must be bytes if requesting "
-                         "Association with User Identity Type equal to 2, "
-                         "None otherwise")
-            raise TypeError("Secondary Field must be bytes if requesting "
-                            "Association with User Identity Type equal to 2, "
-                            "None otherwise")
+            LOGGER.error(
+                "Secondary Field must be bytes if requesting "
+                "Association with User Identity Type equal to 2, "
+                "None otherwise"
+            )
+            raise TypeError(
+                "Secondary Field must be bytes if requesting "
+                "Association with User Identity Type equal to 2, "
+                "None otherwise"
+            )
 
         self._secondary_field = value
 
@@ -2052,15 +2065,15 @@ class UserIdentityNegotiation(ServiceParameter):
 
     def __str__(self) -> str:
         """String representation of the class."""
-        s = 'User Identity Parameters\n'
+        s = "User Identity Parameters\n"
         if self.server_response is None:
             rsp_req = self.positive_response_requested
-            s += f'  User identity type: {self.user_identity_type:d}\n'
-            s += f'  Positive response requested: {rsp_req}\n'
-            s += f'  Primary field: {self.primary_field!r}\n'
-            s += f'  Secondary field: {self.secondary_field!r}\n'
+            s += f"  User identity type: {self.user_identity_type:d}\n"
+            s += f"  Positive response requested: {rsp_req}\n"
+            s += f"  Primary field: {self.primary_field!r}\n"
+            s += f"  Secondary field: {self.secondary_field!r}\n"
         else:
-            s += f'  Server response: {self.server_response!r}\n'
+            s += f"  Server response: {self.server_response!r}\n"
 
         return s
 
@@ -2094,10 +2107,14 @@ class UserIdentityNegotiation(ServiceParameter):
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, int):
             if value not in [1, 2, 3, 4, 5]:
-                LOGGER.error("User Identity Type must be 1, 2, 3, 4 or 5 if "
-                             "requesting Association, None otherwise")
-                raise ValueError("User Identity Type must be 1, 2, 3, 4 or 5 "
-                                 "if requesting Association, None otherwise")
+                LOGGER.error(
+                    "User Identity Type must be 1, 2, 3, 4 or 5 if "
+                    "requesting Association, None otherwise"
+                )
+                raise ValueError(
+                    "User Identity Type must be 1, 2, 3, 4 or 5 "
+                    "if requesting Association, None otherwise"
+                )
         elif value is None:
             pass
         else:

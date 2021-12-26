@@ -40,12 +40,19 @@
 - PresentationDataValueItem
 """
 
-import codecs
 import logging
 from struct import Struct
 from typing import (
-    Optional, Any, Union, TYPE_CHECKING, List, Iterator, Dict, Tuple, cast,
-    Callable
+    Optional,
+    Any,
+    Union,
+    TYPE_CHECKING,
+    List,
+    Iterator,
+    Dict,
+    Tuple,
+    cast,
+    Callable,
 )
 
 from pydicom.uid import UID
@@ -64,16 +71,16 @@ if TYPE_CHECKING:  # pragma: no cover
         SCP_SCU_RoleSelectionNegotiation,
         UserIdentityNegotiation,
         AsynchronousOperationsWindowNegotiation,
-        _UserInformationPrimitiveType
+        _UserInformationPrimitiveType,
     )
 
 
-LOGGER = logging.getLogger('pynetdicom.pdu_items')
+LOGGER = logging.getLogger("pynetdicom.pdu_items")
 
 # Predefine some structs to make decoding and encoding faster
-UCHAR = Struct('B')
-UINT2 = Struct('>H')
-UINT4 = Struct('>I')
+UCHAR = Struct("B")
+UINT2 = Struct(">H")
+UINT4 = Struct(">I")
 
 UNPACK_UCHAR = UCHAR.unpack
 UNPACK_UINT2 = UINT2.unpack
@@ -84,16 +91,16 @@ PACK_UINT2 = UINT2.pack
 PACK_UINT4 = UINT4.pack
 
 
-_DecoderType = List[
-    Tuple[int, Optional[int], str, Callable[[Any], bytes], List[Any]]
-]
+_DecoderType = List[Tuple[int, Optional[int], str, Callable[[Any], bytes], List[Any]]]
 _EncoderType = List[Tuple[str, Callable[[Any], bytes], List[Any]]]
-_PDUItemType = List[Union[
-    "ApplicationContextItem",
-    "PresentationContextItemRQ",
-    "PresentationContextItemAC",
-    "UserInformationItem",
-]]
+_PDUItemType = List[
+    Union[
+        "ApplicationContextItem",
+        "PresentationContextItemRQ",
+        "PresentationContextItemAC",
+        "UserInformationItem",
+    ]
+]
 _AllItemType = Union[
     "MaximumLengthSubItem",
     "ImplementationClassUIDSubItem",
@@ -184,9 +191,7 @@ class PDUItem:
 
         if isinstance(other, type(self)):
             # Use the values of the class attributes that get encoded
-            self_dict = {
-                en[0]: getattr(self, en[0]) for en in self._encoders if en[0]
-            }
+            self_dict = {en[0]: getattr(self, en[0]) for en in self._encoders if en[0]}
             other_dict = {
                 en[0]: getattr(other, en[0]) for en in other._encoders if en[0]
             }
@@ -198,66 +203,66 @@ class PDUItem:
     def _generate_items(bytestream: bytes) -> Iterator[Tuple[int, bytes]]:
         """Yield PDU item data from `bytestream`.
 
-        Parameters
-        ----------
-        bytestream : bytes
-            The encoded PDU variable item data.
+         Parameters
+         ----------
+         bytestream : bytes
+             The encoded PDU variable item data.
 
-        Yields
-        ------
-        int, bytes
-            The variable item's *Item Type* parameter as int, and the item's
-            entire encoded data as bytes.
+         Yields
+         ------
+         int, bytes
+             The variable item's *Item Type* parameter as int, and the item's
+             entire encoded data as bytes.
 
-        Notes
-        -----
-        Can be used with the following PDU items/sub-items:
+         Notes
+         -----
+         Can be used with the following PDU items/sub-items:
 
-        - Application Context Item
-        - Presentation Context Item (RQ/AC)
+         - Application Context Item
+         - Presentation Context Item (RQ/AC)
 
-          - Abstract Syntax Sub-item
-          - Transfer Syntax Sub-item
-        - User Information Item
+           - Abstract Syntax Sub-item
+           - Transfer Syntax Sub-item
+         - User Information Item
 
-          - Implementation Class UID Sub-item (RQ/AC)
-          - Implementation Version Name Sub-item (RQ/AC)
-          - Asynchronous Operations Window Sub-item (RQ/AC)
-          - SCP/SCU Role Selection Sub-item (RQ/AC)
-          - SOP Class Extended Negotiation Sub-item (RQ/AC)
-          - SOP Class Common Extended Negotiation Sub-item (RQ/AC)
-          - User Identity Sub-item (RQ/AC)
+           - Implementation Class UID Sub-item (RQ/AC)
+           - Implementation Version Name Sub-item (RQ/AC)
+           - Asynchronous Operations Window Sub-item (RQ/AC)
+           - SCP/SCU Role Selection Sub-item (RQ/AC)
+           - SOP Class Extended Negotiation Sub-item (RQ/AC)
+           - SOP Class Common Extended Negotiation Sub-item (RQ/AC)
+           - User Identity Sub-item (RQ/AC)
 
-       **Encoding**
+        **Encoding**
 
-        When encoded, PDU item and sub-item data for the above has the
-        following structure, taken from various tables in of the DICOM Standard
-        (offsets shown with Python indexing). Items are always encoded using
-        Big Endian.
+         When encoded, PDU item and sub-item data for the above has the
+         following structure, taken from various tables in of the DICOM Standard
+         (offsets shown with Python indexing). Items are always encoded using
+         Big Endian.
 
-        +--------+-------------+-------------+
-        | Offset | Length      | Description |
-        +========+=============+=============+
-        | 0      | 1           | Item type   |
-        +--------+-------------+-------------+
-        | 1      | 1           | Reserved    |
-        +--------+-------------+-------------+
-        | 2      | 2           | Item length |
-        +--------+-------------+-------------+
-        | 4      | Item length | Item data   |
-        +--------+-------------+-------------+
+         +--------+-------------+-------------+
+         | Offset | Length      | Description |
+         +========+=============+=============+
+         | 0      | 1           | Item type   |
+         +--------+-------------+-------------+
+         | 1      | 1           | Reserved    |
+         +--------+-------------+-------------+
+         | 2      | 2           | Item length |
+         +--------+-------------+-------------+
+         | 4      | Item length | Item data   |
+         +--------+-------------+-------------+
 
-        References
-        ----------
-        * DICOM Standard, Part 8, :dcm:`Section 9.3 <part08/sect_9.3.html>`
-        * DICOM Standard, Part 8,
-          :dcm:`Section 9.3.1 <part08/sect_9.3.html#sect_9.3.1>`
+         References
+         ----------
+         * DICOM Standard, Part 8, :dcm:`Section 9.3 <part08/sect_9.3.html>`
+         * DICOM Standard, Part 8,
+           :dcm:`Section 9.3.1 <part08/sect_9.3.html#sect_9.3.1>`
         """
         offset = 0
-        while bytestream[offset:offset + 1]:
-            item_type = UNPACK_UCHAR(bytestream[offset:offset + 1])[0]
-            item_length = UNPACK_UINT2(bytestream[offset + 2:offset + 4])[0]
-            item_data = bytestream[offset:offset + 4 + item_length]
+        while bytestream[offset : offset + 1]:
+            item_type = UNPACK_UCHAR(bytestream[offset : offset + 1])[0]
+            item_length = UNPACK_UINT2(bytestream[offset + 2 : offset + 4])[0]
+            item_data = bytestream[offset : offset + 4 + item_length]
             assert len(item_data) == 4 + item_length
             yield item_type, item_data
             # Move `offset` to the start of the next item
@@ -289,7 +294,7 @@ class PDUItem:
     @staticmethod
     def _wrap_uid_bytes(bytestream: bytes) -> bytes:
         """Return `bytestream` without any trailing null padding."""
-        if bytestream[-1:] == b'\x00':
+        if bytestream[-1:] == b"\x00":
             return bytestream[:-1]
 
         return bytestream
@@ -347,7 +352,7 @@ class PDUItem:
         * `Python 3 codecs module
           <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
-        return value.encode('ascii', errors='strict')
+        return value.encode("ascii", errors="strict")
 
     def _wrap_generate_items(self, b: bytes) -> List[_AllItemType]:
         """Return a list of encoded PDU items generated from `bytestream`."""
@@ -379,9 +384,7 @@ class PDUItem:
         return packer(value)
 
     @staticmethod
-    def _wrap_unpack(
-        bytestream: bytes, unpacker: Callable[[bytes], Tuple[Any]]
-    ) -> Any:
+    def _wrap_unpack(bytestream: bytes, unpacker: Callable[[bytes], Tuple[Any]]) -> Any:
         """Return the first value when `unpacker` is run on `bytestream`.
 
         Parameters
@@ -462,7 +465,7 @@ class ApplicationContextItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new Application Context Item."""
-        self._application_context_name = UID('1.2.840.10008.3.1.1.1')
+        self._application_context_name = UID("1.2.840.10008.3.1.1.1")
 
     @property
     def application_context_name(self) -> UID:
@@ -482,7 +485,7 @@ class ApplicationContextItem(PDUItem):
         """
         # Disallow None as a value
         self._application_context_name = cast(
-            UID, set_uid(value, 'Application Context Name', True, False)
+            UID, set_uid(value, "Application Context Name", True, False)
         )
 
     @property
@@ -501,9 +504,7 @@ class ApplicationContextItem(PDUItem):
             - callable is a decoding function that returns the decoded value,
             - args is a list of arguments to pass callable.
         """
-        return [
-            ((4, None), 'application_context_name', self._wrap_uid_bytes, [])
-        ]
+        return [((4, None), "application_context_name", self._wrap_uid_bytes, [])]
 
     @property
     def _encoders(self) -> Any:
@@ -519,10 +520,10 @@ class ApplicationContextItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('application_context_name', self._wrap_encode_str, [])
+            ("item_length", PACK_UINT2, []),
+            ("application_context_name", self._wrap_encode_str, []),
         ]
 
     @property
@@ -690,18 +691,13 @@ class PresentationContextItemRQ(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            (
-                (4, 1),
-                'presentation_context_id',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            ),
+            ((4, 1), "presentation_context_id", self._wrap_unpack, [UNPACK_UCHAR]),
             (
                 (8, None),
-                'abstract_transfer_syntax_sub_items',
+                "abstract_transfer_syntax_sub_items",
                 self._wrap_generate_items,
-                []
-            )
+                [],
+            ),
         ]
 
     @property
@@ -718,14 +714,14 @@ class PresentationContextItemRQ(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('presentation_context_id', PACK_UCHAR, []),
+            ("item_length", PACK_UINT2, []),
+            ("presentation_context_id", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('abstract_transfer_syntax_sub_items', self._wrap_encode_items, [])
+            ("abstract_transfer_syntax_sub_items", self._wrap_encode_items, []),
         ]
 
     @property
@@ -745,11 +741,11 @@ class PresentationContextItemRQ(PDUItem):
         s += f"  Context ID: {self.context_id}\n"
 
         for ii in self.abstract_transfer_syntax_sub_items:
-            item_str = f'{ii}'
-            item_str_list = item_str.split('\n')
-            s += f'  + {item_str_list[0]}\n'
+            item_str = f"{ii}"
+            item_str_list = item_str.split("\n")
+            s += f"  + {item_str_list[0]}\n"
             for jj in item_str_list[1:]:
-                s += f'    {jj}\n'
+                s += f"    {jj}\n"
 
         return s
 
@@ -886,24 +882,9 @@ class PresentationContextItemAC(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            (
-                (4, 1),
-                'presentation_context_id',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            ),
-            (
-                (6, 1),
-                'result_reason',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            ),
-            (
-                (8, None),
-                'transfer_syntax_sub_item',
-                self._wrap_generate_items,
-                []
-            )
+            ((4, 1), "presentation_context_id", self._wrap_unpack, [UNPACK_UCHAR]),
+            ((6, 1), "result_reason", self._wrap_unpack, [UNPACK_UCHAR]),
+            ((8, None), "transfer_syntax_sub_item", self._wrap_generate_items, []),
         ]
 
     @property
@@ -920,14 +901,14 @@ class PresentationContextItemAC(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('presentation_context_id', PACK_UCHAR, []),
+            ("item_length", PACK_UINT2, []),
+            ("presentation_context_id", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('result_reason', PACK_UCHAR, []),
+            ("result_reason", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('transfer_syntax_sub_item', self._wrap_encode_items, [])
+            ("transfer_syntax_sub_item", self._wrap_encode_items, []),
         ]
 
     @property
@@ -947,16 +928,15 @@ class PresentationContextItemAC(PDUItem):
     def result_str(self) -> str:
         """Get a string describing the result."""
         _result = {
-            0: 'Accepted',
-            1: 'User Rejection',
-            2: 'Provider Rejection',
-            3: 'Rejected - Abstract Syntax Not Supported',
-            4: 'Rejected - Transfer Syntax Not Supported'
+            0: "Accepted",
+            1: "User Rejection",
+            2: "Provider Rejection",
+            3: "Rejected - Abstract Syntax Not Supported",
+            4: "Rejected - Transfer Syntax Not Supported",
         }
         if self.result_reason not in _result:
             LOGGER.error(
-                "Invalid Presentation Context Item 'Result' "
-                f"{self.result_reason}"
+                "Invalid Presentation Context Item 'Result' " f"{self.result_reason}"
             )
             return "(no value available)"
 
@@ -971,8 +951,8 @@ class PresentationContextItemAC(PDUItem):
         s += f"  Result/Reason: {self.result_str}\n"
 
         if self.transfer_syntax:
-            item_str = f'{self.transfer_syntax.name}'
-            s += f'  +  {item_str}\n'
+            item_str = f"{self.transfer_syntax.name}"
+            s += f"  +  {item_str}\n"
 
         return s
 
@@ -1059,9 +1039,7 @@ class UserInformationItem(PDUItem):
         """Initialise a new User Information Item."""
         self.user_data: List[_UIType] = []
 
-    def from_primitive(
-        self, primitive: "_UserInformationPrimitiveType"
-    ) -> None:
+    def from_primitive(self, primitive: "_UserInformationPrimitiveType") -> None:
         """Set up the current Item using User Information primitives.
 
         Parameters
@@ -1111,9 +1089,7 @@ class UserInformationItem(PDUItem):
         return primitive
 
     @property
-    def async_ops_window(
-        self
-    ) -> Optional["AsynchronousOperationsWindowSubItem"]:
+    def async_ops_window(self) -> Optional["AsynchronousOperationsWindowSubItem"]:
         """Return the *Asynchronous Operations Window Sub-item*, if
         available.
         """
@@ -1124,9 +1100,7 @@ class UserInformationItem(PDUItem):
         return None
 
     @property
-    def common_ext_neg(
-        self
-    ) -> List["SOPClassCommonExtendedNegotiationSubItem"]:
+    def common_ext_neg(self) -> List["SOPClassCommonExtendedNegotiationSubItem"]:
         """Return the *SOP Class Common Extended Negotiation Sub-items*."""
         items = []
         for item in self.user_data:
@@ -1151,9 +1125,7 @@ class UserInformationItem(PDUItem):
             - callable is a decoding function that returns the decoded value,
             - args is a list of arguments to pass callable.
         """
-        return [
-            ((4, None), 'user_data', self._wrap_generate_items, [])
-        ]
+        return [((4, None), "user_data", self._wrap_generate_items, [])]
 
     @property
     def _encoders(self) -> Any:
@@ -1169,10 +1141,10 @@ class UserInformationItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('user_data', self._wrap_encode_items, [])
+            ("item_length", PACK_UINT2, []),
+            ("user_data", self._wrap_encode_items, []),
         ]
 
     @property
@@ -1257,13 +1229,11 @@ class UserInformationItem(PDUItem):
 
     @property
     def user_identity(
-        self
+        self,
     ) -> Optional[Union["UserIdentitySubItemAC", "UserIdentitySubItemRQ"]]:
         """Return the *User Identity Sub-item*, if available."""
         for item in self.user_data:
-            if isinstance(
-                item, (UserIdentitySubItemRQ, UserIdentitySubItemAC)
-            ):
+            if isinstance(item, (UserIdentitySubItemRQ, UserIdentitySubItemAC)):
                 return item
 
         return None
@@ -1354,7 +1324,7 @@ class AbstractSyntaxSubItem(PDUItem):
         value : pydicom.uid.UID, bytes or str
             The value for the Abstract Syntax Name.
         """
-        self._abstract_syntax_name = set_uid(value, 'Abstract Syntax Name')
+        self._abstract_syntax_name = set_uid(value, "Abstract Syntax Name")
 
     @property
     def _decoders(self) -> Any:
@@ -1372,9 +1342,7 @@ class AbstractSyntaxSubItem(PDUItem):
             - callable is a decoding function that returns the decoded value,
             - args is a list of arguments to pass callable.
         """
-        return [
-            ((4, None), 'abstract_syntax_name', self._wrap_uid_bytes, [])
-        ]
+        return [((4, None), "abstract_syntax_name", self._wrap_uid_bytes, [])]
 
     @property
     def _encoders(self) -> Any:
@@ -1390,10 +1358,10 @@ class AbstractSyntaxSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('abstract_syntax_name', self._wrap_encode_str, [])
+            ("item_length", PACK_UINT2, []),
+            ("abstract_syntax_name", self._wrap_encode_str, []),
         ]
 
     @property
@@ -1409,9 +1377,7 @@ class AbstractSyntaxSubItem(PDUItem):
         s = ["Abstract Syntax Sub-item"]
         s.append(f"  Item type: 0x{self.item_type:02X}")
         s.append(f"  Item length: {self.item_length} bytes")
-        s.append(
-            f'  Syntax name: ={self.abstract_syntax.name}'  # type: ignore
-        )
+        s.append(f"  Syntax name: ={self.abstract_syntax.name}")  # type: ignore
 
         return "\n".join(s)
 
@@ -1500,9 +1466,7 @@ class TransferSyntaxSubItem(PDUItem):
             - callable is a decoding function that returns the decoded value,
             - args is a list of arguments to pass callable.
         """
-        return [
-            ((4, None), 'transfer_syntax_name', self._wrap_uid_bytes, [])
-        ]
+        return [((4, None), "transfer_syntax_name", self._wrap_uid_bytes, [])]
 
     @property
     def _encoders(self) -> Any:
@@ -1518,10 +1482,10 @@ class TransferSyntaxSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('transfer_syntax_name', self._wrap_encode_str, [])
+            ("item_length", PACK_UINT2, []),
+            ("transfer_syntax_name", self._wrap_encode_str, []),
         ]
 
     @property
@@ -1538,9 +1502,7 @@ class TransferSyntaxSubItem(PDUItem):
         s.append(f"  Item type: 0x{self.item_type:02X}")
         s.append(f"  Item length: {self.item_length} bytes")
         if self.transfer_syntax_name:
-            s.append(
-                f'  Transfer syntax name: ={self.transfer_syntax_name.name}'
-            )
+            s.append(f"  Transfer syntax name: ={self.transfer_syntax_name.name}")
 
         return "\n".join(s)
 
@@ -1566,7 +1528,7 @@ class TransferSyntaxSubItem(PDUItem):
         validate = not self._skip_validation
         # Issue 342: handle empty transfer syntax name value
         self._transfer_syntax_name = (
-            set_uid(value, 'Transfer Syntax Name', validate=validate) or None
+            set_uid(value, "Transfer Syntax Name", validate=validate) or None
         )
 
 
@@ -1638,9 +1600,7 @@ class MaximumLengthSubItem(PDUItem):
         from pynetdicom.pdu_primitives import MaximumLengthNotification
 
         primitive = MaximumLengthNotification()
-        primitive.maximum_length_received = (
-            cast(int, self.maximum_length_received)
-        )
+        primitive.maximum_length_received = cast(int, self.maximum_length_received)
 
         return primitive
 
@@ -1661,12 +1621,7 @@ class MaximumLengthSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            (
-                (4, None),
-                'maximum_length_received',
-                self._wrap_unpack,
-                [UNPACK_UINT4]
-            )
+            ((4, None), "maximum_length_received", self._wrap_unpack, [UNPACK_UINT4])
         ]
 
     @property
@@ -1683,10 +1638,10 @@ class MaximumLengthSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('maximum_length_received', PACK_UINT4, [])
+            ("item_length", PACK_UINT2, []),
+            ("maximum_length_received", PACK_UINT4, []),
         ]
 
     @property
@@ -1749,9 +1704,7 @@ class ImplementationClassUIDSubItem(PDUItem):
         """Initialise a new Implementation Class UID Item."""
         self._implementation_class_uid: Optional[UID] = None
 
-    def from_primitive(
-        self, primitive: "ImplementationClassUIDNotification"
-    ) -> None:
+    def from_primitive(self, primitive: "ImplementationClassUIDNotification") -> None:
         """Set the item's values using an Implementation Identification
         primitive.
 
@@ -1771,9 +1724,7 @@ class ImplementationClassUIDSubItem(PDUItem):
         pdu_primitives.ImplementationClassUIDNotification
             The primitive representation of the current Item.
         """
-        from pynetdicom.pdu_primitives import (
-            ImplementationClassUIDNotification
-        )
+        from pynetdicom.pdu_primitives import ImplementationClassUIDNotification
 
         primitive = ImplementationClassUIDNotification()
         primitive.implementation_class_uid = self.implementation_class_uid
@@ -1796,9 +1747,7 @@ class ImplementationClassUIDSubItem(PDUItem):
             - callable is a decoding function that returns the decoded value,
             - args is a list of arguments to pass callable.
         """
-        return [
-            ((4, None), 'implementation_class_uid', self._wrap_uid_bytes, [])
-        ]
+        return [((4, None), "implementation_class_uid", self._wrap_uid_bytes, [])]
 
     @property
     def _encoders(self) -> Any:
@@ -1814,10 +1763,10 @@ class ImplementationClassUIDSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('implementation_class_uid', self._wrap_encode_str, [])
+            ("item_length", PACK_UINT2, []),
+            ("implementation_class_uid", self._wrap_encode_str, []),
         ]
 
     @property
@@ -1834,9 +1783,7 @@ class ImplementationClassUIDSubItem(PDUItem):
         value : pydicom.uid.UID, bytes or str
             The value to set.
         """
-        self._implementation_class_uid = (
-            set_uid(value, 'Implementation Class UID')
-        )
+        self._implementation_class_uid = set_uid(value, "Implementation Class UID")
 
     @property
     def item_length(self) -> int:
@@ -1918,9 +1865,7 @@ class ImplementationVersionNameSubItem(PDUItem):
         primitive : pdu_primitives.ImplementationVersionNameNotification
             The primitive to use to set the Item's field values.
         """
-        self.implementation_version_name = (
-            primitive.implementation_version_name
-        )
+        self.implementation_version_name = primitive.implementation_version_name
 
     def to_primitive(self) -> "ImplementationVersionNameNotification":
         """Return an Implementation Identification primitive from the current
@@ -1931,9 +1876,7 @@ class ImplementationVersionNameSubItem(PDUItem):
         pdu_primitives.ImplementationVersionNameNotification
             The primitive representation of the current Item.
         """
-        from pynetdicom.pdu_primitives import (
-            ImplementationVersionNameNotification
-        )
+        from pynetdicom.pdu_primitives import ImplementationVersionNameNotification
 
         prim = ImplementationVersionNameNotification()
         prim.implementation_version_name = self.implementation_version_name
@@ -1956,9 +1899,7 @@ class ImplementationVersionNameSubItem(PDUItem):
             - callable is a decoding function that returns the decoded value,
             - args is a list of arguments to pass callable.
         """
-        return [
-            ((4, None), 'implementation_version_name', self._wrap_bytes, [])
-        ]
+        return [((4, None), "implementation_version_name", self._wrap_bytes, [])]
 
     @property
     def _encoders(self) -> Any:
@@ -1974,10 +1915,10 @@ class ImplementationVersionNameSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('implementation_version_name', self._wrap_encode_str, [])
+            ("item_length", PACK_UINT2, []),
+            ("implementation_version_name", self._wrap_encode_str, []),
         ]
 
     @property
@@ -1986,16 +1927,12 @@ class ImplementationVersionNameSubItem(PDUItem):
         return self._implementation_version_name
 
     @implementation_version_name.setter
-    def implementation_version_name(
-        self, value: Optional[Union[str, bytes]]
-    ) -> None:
+    def implementation_version_name(self, value: Optional[Union[str, bytes]]) -> None:
         """Set the *Implementation Version Name* field value."""
         if isinstance(value, bytes):
             value = decode_bytes(value)
 
-        self._implementation_version_name = (
-            set_ae(value, 'Implementation Version Name')
-        )
+        self._implementation_version_name = set_ae(value, "Implementation Version Name")
 
     @property
     def item_length(self) -> int:
@@ -2094,16 +2031,14 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
         pdu_primitives.AsynchronousOperationsWindowNegotiation
             The primitive representation of the current Item.
         """
-        from pynetdicom.pdu_primitives import (
-            AsynchronousOperationsWindowNegotiation
-        )
+        from pynetdicom.pdu_primitives import AsynchronousOperationsWindowNegotiation
 
         primitive = AsynchronousOperationsWindowNegotiation()
-        primitive.maximum_number_operations_invoked = (
-            cast(int, self.maximum_number_operations_invoked)
+        primitive.maximum_number_operations_invoked = cast(
+            int, self.maximum_number_operations_invoked
         )
-        primitive.maximum_number_operations_performed = (
-            cast(int, self.maximum_number_operations_performed)
+        primitive.maximum_number_operations_performed = cast(
+            int, self.maximum_number_operations_performed
         )
 
         return primitive
@@ -2127,16 +2062,16 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
         return [
             (
                 (4, 2),
-                'maximum_number_operations_invoked',
+                "maximum_number_operations_invoked",
                 self._wrap_unpack,
-                [UNPACK_UINT2]
+                [UNPACK_UINT2],
             ),
             (
                 (6, 2),
-                'maximum_number_operations_performed',
+                "maximum_number_operations_performed",
                 self._wrap_unpack,
-                [UNPACK_UINT2]
-            )
+                [UNPACK_UINT2],
+            ),
         ]
 
     @property
@@ -2153,11 +2088,11 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('maximum_number_operations_invoked', PACK_UINT2, []),
-            ('maximum_number_operations_performed', PACK_UINT2, [])
+            ("item_length", PACK_UINT2, []),
+            ("maximum_number_operations_invoked", PACK_UINT2, []),
+            ("maximum_number_operations_performed", PACK_UINT2, []),
         ]
 
     @property
@@ -2167,14 +2102,12 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
 
     @property
     def max_operations_invoked(self) -> Optional[int]:
-        """Return the item's *Maximum Number Operations Invoked* field value.
-        """
+        """Return the item's *Maximum Number Operations Invoked* field value."""
         return self.maximum_number_operations_invoked
 
     @property
     def max_operations_performed(self) -> Optional[int]:
-        """Return the item's *Maximum Number Operations Performed* field value.
-        """
+        """Return the item's *Maximum Number Operations Performed* field value."""
         return self.maximum_number_operations_performed
 
     def __str__(self) -> str:
@@ -2253,9 +2186,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         self._scu_role: Optional[int] = None
         self._scp_role: Optional[int] = None
 
-    def from_primitive(
-        self, primitive: "SCP_SCU_RoleSelectionNegotiation"
-    ) -> None:
+    def from_primitive(self, primitive: "SCP_SCU_RoleSelectionNegotiation") -> None:
         """Set the item's values using an SCP/SCU Role Selection primitive.
 
         Parameters
@@ -2310,32 +2241,22 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
             - callable is a decoding function that returns the decoded value,
             - args is a list of arguments to pass callable.
         """
-        yield (
-            (4, 2),
-            '_uid_length',
-            self._wrap_unpack,
-            [UNPACK_UINT2]
-        )
+        yield ((4, 2), "_uid_length", self._wrap_unpack, [UNPACK_UINT2])
 
-        yield (
-            (6, self._uid_length),
-            'sop_class_uid',
-            self._wrap_uid_bytes,
-            []
-        )
+        yield ((6, self._uid_length), "sop_class_uid", self._wrap_uid_bytes, [])
 
         yield (
             (6 + cast(int, self._uid_length), 1),
-            'scu_role',
+            "scu_role",
             self._wrap_unpack,
-            [UNPACK_UCHAR]
+            [UNPACK_UCHAR],
         )
 
         yield (
             (7 + cast(int, self._uid_length), 1),
-            'scp_role',
+            "scp_role",
             self._wrap_unpack,
-            [UNPACK_UCHAR]
+            [UNPACK_UCHAR],
         )
 
     @property
@@ -2352,13 +2273,13 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_str, []),
-            ('scu_role', PACK_UCHAR, []),
-            ('scp_role', PACK_UCHAR, [])
+            ("item_length", PACK_UINT2, []),
+            ("uid_length", PACK_UINT2, []),
+            ("sop_class_uid", self._wrap_encode_str, []),
+            ("scu_role", PACK_UCHAR, []),
+            ("scp_role", PACK_UCHAR, []),
         ]
 
     @property
@@ -2381,7 +2302,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         """Set the *SCU Role* field value."""
         # pylint: disable=attribute-defined-outside-init
         if value not in [0, 1, None]:
-            raise ValueError('SCU Role parameter value must be 0 or 1')
+            raise ValueError("SCU Role parameter value must be 0 or 1")
         else:
             self._scu_role = value
 
@@ -2400,7 +2321,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         """Set the *SCP Role* field value."""
         # pylint: disable=attribute-defined-outside-init
         if value not in [0, 1, None]:
-            raise ValueError('SCP Role parameter value must be 0 or 1')
+            raise ValueError("SCP Role parameter value must be 0 or 1")
         else:
             self._scp_role = value
 
@@ -2412,7 +2333,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Set the SOP class uid."""
-        self._sop_class_uid = set_uid(value, 'SOP Class UID')
+        self._sop_class_uid = set_uid(value, "SOP Class UID")
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
@@ -2443,7 +2364,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 class SOPClassExtendedNegotiationSubItem(PDUItem):
     """A SOP Class Extended Negotiation Sub-item.
 
-    A SOP Class Extended Negotation Sub-item allows peer Application Entities
+    A SOP Class Extended Negotiation Sub-item allows peer Application Entities
     to exchange application information defined by specific Service Class
     specifications.
 
@@ -2559,25 +2480,20 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
             - callable is a decoding function that returns the decoded value,
             - args is a list of arguments to pass callable.
         """
-        yield (
-            (4, 2),
-            '_sop_class_uid_length',
-            self._wrap_unpack,
-            [UNPACK_UINT2]
-        )
+        yield ((4, 2), "_sop_class_uid_length", self._wrap_unpack, [UNPACK_UINT2])
 
         yield (
             (6, self._sop_class_uid_length),
-            'sop_class_uid',
+            "sop_class_uid",
             self._wrap_uid_bytes,
-            []
+            [],
         )
 
         yield (
             (6 + cast(int, self._sop_class_uid_length), None),
-            'service_class_application_information',
+            "service_class_application_information",
             self._wrap_bytes,
-            []
+            [],
         )
 
     @property
@@ -2594,12 +2510,12 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_str, []),
-            ('service_class_application_information', self._wrap_bytes, [])
+            ("item_length", PACK_UINT2, []),
+            ("sop_class_uid_length", PACK_UINT2, []),
+            ("sop_class_uid", self._wrap_encode_str, []),
+            ("service_class_application_information", self._wrap_bytes, []),
         ]
 
     @property
@@ -2619,7 +2535,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Set the *SOP Class UID* field value."""
-        self._sop_class_uid = set_uid(value, 'SOP Class UID')
+        self._sop_class_uid = set_uid(value, "SOP Class UID")
 
     @property
     def sop_class_uid_length(self) -> int:
@@ -2649,7 +2565,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         return self.sop_class_uid
 
 
-# Overriden _generate_items, _wrap_generate_items
+# Overridden _generate_items, _wrap_generate_items
 class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     """A SOP Class Common Extended Negotiation Sub-item.
 
@@ -2739,9 +2655,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         self._service_class_uid: Optional[UID] = None
         self._related_general_sop_class_identification: List[UID] = []
 
-    def from_primitive(
-        self, primitive: "SOPClassCommonExtendedNegotiation"
-    ) -> None:
+    def from_primitive(self, primitive: "SOPClassCommonExtendedNegotiation") -> None:
         """Set the item's values using a SOP Class Common Extended Negotiation
         primitive.
 
@@ -2795,40 +2709,30 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             - callable is a decoding function that returns the decoded value,
             - args is a list of arguments to pass callable.
         """
-        yield (
-            (4, 2),
-            '_sop_length',
-            self._wrap_unpack,
-            [UNPACK_UINT2]
-        )
+        yield ((4, 2), "_sop_length", self._wrap_unpack, [UNPACK_UINT2])
 
         sop_length = cast(int, self._sop_length)
-        yield (
-            (6, sop_length),
-            'sop_class_uid',
-            self._wrap_uid_bytes,
-            []
-        )
+        yield ((6, sop_length), "sop_class_uid", self._wrap_uid_bytes, [])
 
         yield (
             (6 + sop_length, 2),
-            '_service_length',
+            "_service_length",
             self._wrap_unpack,
-            [UNPACK_UINT2]
+            [UNPACK_UINT2],
         )
 
         yield (
             (8 + sop_length, self._service_length),
-            'service_class_uid',
+            "service_class_uid",
             self._wrap_uid_bytes,
-            []
+            [],
         )
 
         yield (
             (10 + sop_length + cast(int, self._service_length), None),
-            'related_general_sop_class_identification',
+            "related_general_sop_class_identification",
             self._generate_items,
-            []
+            [],
         )
 
     @property
@@ -2845,18 +2749,15 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
-            ('sub_item_version', PACK_UCHAR, []),
-            ('item_length', PACK_UINT2, []),
-            ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_str, []),
-            ('service_class_uid_length', PACK_UINT2, []),
-            ('service_class_uid', self._wrap_encode_str, []),
-            (
-                'related_general_sop_class_identification_length',
-                PACK_UINT2, []
-            ),
-            ('related_general_sop_class_identification', self._wrap_list, []),
+            ("item_type", PACK_UCHAR, []),
+            ("sub_item_version", PACK_UCHAR, []),
+            ("item_length", PACK_UINT2, []),
+            ("sop_class_uid_length", PACK_UINT2, []),
+            ("sop_class_uid", self._wrap_encode_str, []),
+            ("service_class_uid_length", PACK_UINT2, []),
+            ("service_class_uid", self._wrap_encode_str, []),
+            ("related_general_sop_class_identification_length", PACK_UINT2, []),
+            ("related_general_sop_class_identification", self._wrap_list, []),
             # (None, )
         ]
 
@@ -2864,45 +2765,45 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     def _generate_items(bytestream: bytes) -> Iterator[UID]:  # type: ignore
         """Yield Related General SOP Class UIDs from `bytestream`.
 
-        Parameters
-        ----------
-        bytestream : bytes
-            The encoded related general SOP Class UID data.
+         Parameters
+         ----------
+         bytestream : bytes
+             The encoded related general SOP Class UID data.
 
-        Yields
-        ------
-        pydicom.uid.UID
-            The related general SOP Class UIDs.
+         Yields
+         ------
+         pydicom.uid.UID
+             The related general SOP Class UIDs.
 
-        Notes
-        -----
-       **Encoding**
+         Notes
+         -----
+        **Encoding**
 
-        The Related General SOP Class Identification field is made up of a
-        number of sub-fields with the following structure, taken from
-        Table D.3-13.
+         The Related General SOP Class Identification field is made up of a
+         number of sub-fields with the following structure, taken from
+         Table D.3-13.
 
-        +--------+-------------+--------------------------------------+
-        | Offset | Length      | Description                          |
-        +========+=============+======================================+
-        | 0      | 2           | Related general SOP class UID length |
-        +--------+-------------+--------------------------------------+
-        | 2      | Variable    | Related general SOP class UID        |
-        +--------+-------------+--------------------------------------+
+         +--------+-------------+--------------------------------------+
+         | Offset | Length      | Description                          |
+         +========+=============+======================================+
+         | 0      | 2           | Related general SOP class UID length |
+         +--------+-------------+--------------------------------------+
+         | 2      | Variable    | Related general SOP class UID        |
+         +--------+-------------+--------------------------------------+
 
-        References
-        ----------
-        * DICOM Standard, Part 7,
-           :dcm:`Annex D.3.3.6 <part07/sect_D.3.3.6.html>`
-        * DICOM Standard, Part 8,
-           :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
+         References
+         ----------
+         * DICOM Standard, Part 7,
+            :dcm:`Annex D.3.3.6 <part07/sect_D.3.3.6.html>`
+         * DICOM Standard, Part 8,
+            :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
         """
         offset = 0
-        while bytestream[offset:offset + 1]:
-            uid_length = UNPACK_UINT2(bytestream[offset:offset + 2])[0]
-            raw_uid = bytestream[offset + 2:offset + 2 + uid_length]
+        while bytestream[offset : offset + 1]:
+            uid_length = UNPACK_UINT2(bytestream[offset : offset + 2])[0]
+            raw_uid = bytestream[offset + 2 : offset + 2 + uid_length]
             stripped_uid_length = uid_length
-            if raw_uid[-1:] == b'\x00':
+            if raw_uid[-1:] == b"\x00":
                 raw_uid = raw_uid[:-1]
                 stripped_uid_length = uid_length - 1
 
@@ -2915,9 +2816,12 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     def item_length(self) -> int:
         """Return the item's *Item Length* field value as :class:`int`."""
         return (
-            2 + self.sop_class_uid_length +
-            2 + self.service_class_uid_length +
-            2 + self.related_general_sop_class_identification_length
+            2
+            + self.sop_class_uid_length
+            + 2
+            + self.service_class_uid_length
+            + 2
+            + self.related_general_sop_class_identification_length
         )
 
     @property
@@ -2947,8 +2851,10 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             elif isinstance(value, str):
                 value = UID(value)
             else:
-                raise TypeError('related_general_sop_class_identification '
-                                'must be str, bytes or pydicom.uid.UID')
+                raise TypeError(
+                    "related_general_sop_class_identification "
+                    "must be str, bytes or pydicom.uid.UID"
+                )
 
             if value is not None and not validate_uid(value):
                 msg = (
@@ -2979,7 +2885,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Set the *SOP Class UID* field value."""
-        self._sop_class_uid = set_uid(value, 'SOP Class UID')
+        self._sop_class_uid = set_uid(value, "SOP Class UID")
 
     @property
     def sop_class_uid_length(self) -> int:
@@ -2997,7 +2903,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     @service_class_uid.setter
     def service_class_uid(self, value: OptionalUIDType) -> None:
         """Set the *Service Class UID* field value."""
-        self._service_class_uid = set_uid(value, 'Service Class UID')
+        self._service_class_uid = set_uid(value, "Service Class UID")
 
     @property
     def service_class_uid_length(self) -> int:
@@ -3015,20 +2921,18 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             f"  Item length: {self.item_length} bytes",
             f"  SOP class UID length: {self.sop_class_uid_length} bytes",
             f"  SOP class: ={self.sop_class_uid.name}",  # type: ignore
-            f"  Service class UID length: "
-            f"{self.service_class_uid_length} bytes",
-            "  Service class UID: ="
-            f"{self.service_class_uid.name}",  # type: ignore
+            f"  Service class UID length: " f"{self.service_class_uid_length} bytes",
+            "  Service class UID: =" f"{self.service_class_uid.name}",  # type: ignore
             f"  Related general SOP class ID length: "
             f"{self.related_general_sop_class_identification_length} bytes",
-            "  Related general SOP class ID(s):"
+            "  Related general SOP class ID(s):",
         ]
         for uid in self.related_general_sop_class_identification:
             s.append(f"    ={uid} ({uid.name})")
 
         s.append("")
 
-        return '\n'.join(s)
+        return "\n".join(s)
 
     def _wrap_generate_items(self, b: bytes) -> List[UID]:  # type: ignore
         """Return a list of UID items generated from `bytestream`."""
@@ -3129,7 +3033,7 @@ class UserIdentitySubItemRQ(PDUItem):
         self._primary_length: Optional[int] = None
         self.primary_field: Optional[bytes] = None
         self._secondary_length: Optional[int] = None
-        self.secondary_field: Optional[bytes] = b''
+        self.secondary_field: Optional[bytes] = b""
 
     def from_primitive(self, primitive: "UserIdentityNegotiation") -> None:
         """Set the item's values using an User Identity primitive.
@@ -3140,9 +3044,7 @@ class UserIdentitySubItemRQ(PDUItem):
             The primitive to use to set the Item's field values.
         """
         self.user_identity_type = primitive.user_identity_type
-        self.positive_response_requested = int(
-            primitive.positive_response_requested
-        )
+        self.positive_response_requested = int(primitive.positive_response_requested)
         self.primary_field = primitive.primary_field
         self.secondary_field = primitive.secondary_field
 
@@ -3158,9 +3060,7 @@ class UserIdentitySubItemRQ(PDUItem):
 
         primitive = UserIdentityNegotiation()
         primitive.user_identity_type = self.user_identity_type
-        primitive.positive_response_requested = (
-            bool(self.positive_response_requested)
-        )
+        primitive.positive_response_requested = bool(self.positive_response_requested)
         primitive.primary_field = self.primary_field
         primitive.secondary_field = self.secondary_field
 
@@ -3185,39 +3085,19 @@ class UserIdentitySubItemRQ(PDUItem):
             - callable is a decoding function that returns the decoded value,
             - args is a list of arguments to pass callable.
         """
-        yield (
-            (4, 1),
-            'user_identity_type',
-            self._wrap_unpack,
-            [UNPACK_UCHAR]
-        )
+        yield ((4, 1), "user_identity_type", self._wrap_unpack, [UNPACK_UCHAR])
 
-        yield (
-            (5, 1),
-            'positive_response_requested',
-            self._wrap_unpack,
-            [UNPACK_UCHAR]
-        )
+        yield ((5, 1), "positive_response_requested", self._wrap_unpack, [UNPACK_UCHAR])
 
-        yield (
-            (6, 2),
-            '_primary_length',
-            self._wrap_unpack,
-            [UNPACK_UINT2]
-        )
+        yield ((6, 2), "_primary_length", self._wrap_unpack, [UNPACK_UINT2])
 
-        yield (
-            (8, self._primary_length),
-            'primary_field',
-            self._wrap_bytes,
-            []
-        )
+        yield ((8, self._primary_length), "primary_field", self._wrap_bytes, [])
 
         yield (
             (10 + cast(int, self._primary_length), None),
-            'secondary_field',
+            "secondary_field",
             self._wrap_bytes,
-            []
+            [],
         )
 
     @property
@@ -3234,15 +3114,15 @@ class UserIdentitySubItemRQ(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('user_identity_type', PACK_UCHAR, []),
-            ('positive_response_requested', PACK_UCHAR, []),
-            ('primary_field_length', PACK_UINT2, []),
-            ('primary_field', self._wrap_bytes, []),
-            ('secondary_field_length', PACK_UINT2, []),
-            ('secondary_field', self._wrap_bytes, [])
+            ("item_length", PACK_UINT2, []),
+            ("user_identity_type", PACK_UCHAR, []),
+            ("positive_response_requested", PACK_UCHAR, []),
+            ("primary_field_length", PACK_UINT2, []),
+            ("primary_field", self._wrap_bytes, []),
+            ("secondary_field_length", PACK_UINT2, []),
+            ("secondary_field", self._wrap_bytes, []),
         ]
 
     @property
@@ -3254,16 +3134,14 @@ class UserIdentitySubItemRQ(PDUItem):
     def id_type_str(self) -> str:
         """Return a string description of the *User Identity Type* field."""
         _types = {
-            1: 'Username',
-            2: 'Username/Password',
-            3: 'Kerberos',
-            4: 'SAML',
-            5: 'JSON Web Token',
+            1: "Username",
+            2: "Username/Password",
+            3: "Kerberos",
+            4: "SAML",
+            5: "JSON Web Token",
         }
         if self.user_identity_type not in _types:
-            LOGGER.error(
-                f"Invalid 'User Identity Type' {self.user_identity_type}"
-            )
+            LOGGER.error(f"Invalid 'User Identity Type' {self.user_identity_type}")
             return "(no value available)"
 
         return _types[self.user_identity_type]
@@ -3316,22 +3194,20 @@ class UserIdentitySubItemRQ(PDUItem):
             f"  Item type: 0x{self.item_type:02X}",
             f"  Item length: {self.item_length} bytes",
             f"  User identity type: {self.user_identity_type}",
-            f"  Positive response requested: "
-            f"{self.positive_response_requested}",
+            f"  Positive response requested: " f"{self.positive_response_requested}",
             f"  Primary field length: {self.primary_field_length} bytes",
             f"  Primary field: {self.primary_field!r}",
         ]
         if self.user_identity_type == 0x02:
             s.append(
-                f"  Secondary field length: "
-                f"{self.secondary_field_length} bytes"
+                f"  Secondary field length: " f"{self.secondary_field_length} bytes"
             )
             s.append(f"  Secondary field: {self.secondary_field!r}\n")
         else:
             s.append("  Secondary field length: (not used)")
             s.append("  Secondary field: (not used)\n")
 
-        return '\n'.join(s)
+        return "\n".join(s)
 
 
 class UserIdentitySubItemAC(PDUItem):
@@ -3424,7 +3300,7 @@ class UserIdentitySubItemAC(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((6, None), 'server_response', self._wrap_bytes, []),
+            ((6, None), "server_response", self._wrap_bytes, []),
         ]
 
     @property
@@ -3441,11 +3317,11 @@ class UserIdentitySubItemAC(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_type', PACK_UCHAR, []),
+            ("item_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('server_response_length', PACK_UINT2, []),
-            ('server_response', self._wrap_bytes, [])
+            ("item_length", PACK_UINT2, []),
+            ("server_response_length", PACK_UINT2, []),
+            ("server_response", self._wrap_bytes, []),
         ]
 
     @property
@@ -3473,14 +3349,14 @@ class UserIdentitySubItemAC(PDUItem):
             f"  Item type: 0x{self.item_type:02X}",
             f"  Item length: {self.item_length} bytes"
             f"  Server response length: {self.server_response_length} bytes",
-            f"  Server response: {self.server_response!r}\n"
+            f"  Server response: {self.server_response!r}\n",
         ]
 
-        return '\n'.join(s)
+        return "\n".join(s)
 
 
 # P-DATA-TF Item
-# Overriden item_type
+# Overridden item_type
 class PresentationDataValueItem(PDUItem):
     """A Presentation Data Value Item.
 
@@ -3554,18 +3430,8 @@ class PresentationDataValueItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            (
-                (4, 1),
-                'presentation_context_id',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            ),
-            (
-                (5, None),
-                'presentation_data_value',
-                self._wrap_bytes,
-                []
-            )
+            ((4, 1), "presentation_context_id", self._wrap_unpack, [UNPACK_UCHAR]),
+            ((5, None), "presentation_data_value", self._wrap_bytes, []),
         ]
 
     @property
@@ -3582,9 +3448,9 @@ class PresentationDataValueItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('item_length', PACK_UINT4, []),
-            ('presentation_context_id', PACK_UCHAR, []),
-            ('presentation_data_value', self._wrap_bytes, [])
+            ("item_length", PACK_UINT4, []),
+            ("presentation_context_id", PACK_UCHAR, []),
+            ("presentation_data_value", self._wrap_bytes, []),
         ]
 
     @property
@@ -3598,7 +3464,7 @@ class PresentationDataValueItem(PDUItem):
     @property
     def item_type(self) -> int:
         """Raise NotImplementedError as Presentation Data Value Items have no
-       *Item Type* field.
+        *Item Type* field.
         """
         raise NotImplementedError
 
@@ -3617,8 +3483,7 @@ class PresentationDataValueItem(PDUItem):
         s.append(f"  Context ID: {self.presentation_context_id}")
 
         pdv_sample = [
-            f"0x{b:02X}" for b
-            in self.presentation_data_value[:10]  # type: ignore
+            f"0x{b:02X}" for b in self.presentation_data_value[:10]  # type: ignore
         ]
         s.append(f"  Data value: {' '.join(pdv_sample)} ...")
 
@@ -3641,7 +3506,7 @@ PDU_ITEM_TYPES = {
     0x56: SOPClassExtendedNegotiationSubItem,
     0x57: SOPClassCommonExtendedNegotiationSubItem,
     0x58: UserIdentitySubItemRQ,
-    0x59: UserIdentitySubItemAC
+    0x59: UserIdentitySubItemAC,
 }
 
 _TYPE_TO_PDU_ITEM = {vv: kk for kk, vv in PDU_ITEM_TYPES.items()}

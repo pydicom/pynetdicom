@@ -10,92 +10,138 @@ import pytest
 from pynetdicom import AE, debug_logger, evt
 from pynetdicom.dul import DULServiceProvider
 from pynetdicom.pdu import (
-    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
-    A_RELEASE_RQ, A_RELEASE_RP, P_DATA_TF, A_ABORT_RQ
+    A_ASSOCIATE_RQ,
+    A_ASSOCIATE_AC,
+    A_ASSOCIATE_RJ,
+    A_RELEASE_RQ,
+    A_RELEASE_RP,
+    P_DATA_TF,
+    A_ABORT_RQ,
 )
 from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
+from pynetdicom.sop_class import Verification
 from .encoded_pdu_items import a_associate_ac, a_release_rq
 from .parrot import start_server, ThreadedParrot, ParrotRequest
 from .utils import sleep
 
 
-#debug_logger()
+# debug_logger()
 
 
 class DummyACSE:
     """Dummy ACSE class"""
+
     @staticmethod
-    def debug_receive_associate_rq(): pass
+    def debug_receive_associate_rq():
+        pass
+
     @staticmethod
-    def debug_receive_associate_ac(): pass
+    def debug_receive_associate_ac():
+        pass
+
     @staticmethod
-    def debug_receive_associate_rj(): pass
+    def debug_receive_associate_rj():
+        pass
+
     @staticmethod
-    def debug_receive_data_tf(): pass
+    def debug_receive_data_tf():
+        pass
+
     @staticmethod
-    def debug_receive_release_rq(): pass
+    def debug_receive_release_rq():
+        pass
+
     @staticmethod
-    def debug_receive_release_rp(): pass
+    def debug_receive_release_rp():
+        pass
+
     @staticmethod
-    def debug_receive_abort(): pass
+    def debug_receive_abort():
+        pass
 
 
 class DummyAssociation:
     """Dummy Association class"""
+
     acse = DummyACSE()
 
 
 class TestDUL:
     """Run tests on DUL service provider."""
+
     def setup(self):
         self.scp = None
+        self.ae = None
 
     def teardown(self):
         if self.scp:
-            self.scp.commands = [('exit', None)]
+            self.scp.commands = [("exit", None)]
             self.scp.step
             self.scp.commands = []
             self.scp.shutdown()
+
+        if self.ae:
+            self.ae.shutdown()
 
         for thread in threading.enumerate():
             if isinstance(thread, ThreadedParrot):
                 thread.shutdown()
 
-    def test_primitive_to_event(self):
-        """Test that parameter returns expected results"""
+    def test_recv_primitive(self):
+        """Test processing received primitives"""
         dul = DULServiceProvider(DummyAssociation())
-        p2e = dul._primitive_to_event
 
         primitive = A_ASSOCIATE()
         primitive.result = None
-        assert p2e(primitive) == 'Evt1'
+        dul.to_provider_queue.put(primitive)
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt1"
         primitive.result = 0
-        assert p2e(primitive) == 'Evt7'
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt7"
         primitive.result = 1
-        assert p2e(primitive) == 'Evt8'
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt8"
+
+        dul.to_provider_queue.get(False)
 
         primitive = A_RELEASE()
         primitive.result = None
-        assert p2e(primitive) == 'Evt11'
-        primitive.result = 'affirmative'
-        assert p2e(primitive) == 'Evt14'
+        dul.to_provider_queue.put(primitive)
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt11"
+        primitive.result = "affirmative"
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt14"
+
+        dul.to_provider_queue.get(False)
 
         primitive = A_ABORT()
-        assert p2e(primitive) == 'Evt15'
+        dul.to_provider_queue.put(primitive)
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt15"
+
+        dul.to_provider_queue.get(False)
 
         primitive = P_DATA()
-        assert p2e(primitive) == 'Evt9'
+        dul.to_provider_queue.put(primitive)
+        dul._process_recv_primitive()
+        assert dul.event_queue.get(False) == "Evt9"
 
-        with pytest.raises(ValueError):
-            p2e('TEST')
+        dul.to_provider_queue.get(False)
+
+        msg = "Unknown primitive type 'str' received"
+        with pytest.raises(ValueError, match=msg):
+            dul.to_provider_queue.put("TEST")
+            dul._process_recv_primitive()
 
     def test_recv_failure_aborts(self):
         """Test connection close during PDU recv causes abort."""
         commands = [
-            ('recv', None),  # recv a-associate-rq
-            ('send', a_associate_ac),
-            ('send', b"\x07\x00\x00\x00\x00\x04"),
-            ('exit', None)
+            ("recv", None),  # recv a-associate-rq
+            ("send", a_associate_ac),
+            ("send", b"\x07\x00\x00\x00\x00\x04"),
+            ("exit", None),
         ]
         self.scp = scp = start_server(commands)
 
@@ -109,8 +155,8 @@ class TestDUL:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 0.2
-        ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+        ae.add_requested_context("1.2.840.10008.1.1")
+        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
         assert assoc.is_established
 
         scp.step()  # send short pdu
@@ -127,10 +173,10 @@ class TestDUL:
     def test_recv_short_aborts(self):
         """Test receiving short PDU causes abort."""
         commands = [
-            ('recv', None),  # recv a-associate-rq
-            ('send', a_associate_ac),
-            ('send', b"\x07\x00\x00\x00\x00\x04\x00\x00"),  # Send short PDU
-            ('exit', None)
+            ("recv", None),  # recv a-associate-rq
+            ("send", a_associate_ac),
+            ("send", b"\x07\x00\x00\x00\x00\x04\x00\x00"),  # Send short PDU
+            ("exit", None),
         ]
         self.scp = scp = start_server(commands)
 
@@ -144,8 +190,8 @@ class TestDUL:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 0.2
-        ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+        ae.add_requested_context("1.2.840.10008.1.1")
+        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
         assert assoc.is_established
 
         scp.step()  # send short pdu
@@ -162,10 +208,10 @@ class TestDUL:
     def test_recv_missing_data(self):
         """Test missing data when receiving."""
         commands = [
-            ('recv', None),  # recv a-associate-rq
-            ('send', a_associate_ac),
-            ('send', b"\x07\x00\x00\x00\x00\x02\x00"),  # Send short PDU
-            ('exit', None)
+            ("recv", None),  # recv a-associate-rq
+            ("send", a_associate_ac),
+            ("send", b"\x07\x00\x00\x00\x00\x02\x00"),  # Send short PDU
+            ("exit", None),
         ]
         self.scp = scp = start_server(commands)
 
@@ -182,8 +228,8 @@ class TestDUL:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 0.5
-        ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+        ae.add_requested_context("1.2.840.10008.1.1")
+        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
         assert assoc.is_established
         assoc.dul.socket.recv = recv
 
@@ -201,11 +247,11 @@ class TestDUL:
     def test_recv_bad_pdu_aborts(self):
         """Test receiving undecodable PDU causes abort."""
         commands = [
-            ('recv', None),  # recv a-associate-rq
-            ('send', a_associate_ac),
-            ('send', b"\x07\x00\x00\x00\x00\x02\x00\x00"),
-            ('recv', None),
-            ('exit', None)
+            ("recv", None),  # recv a-associate-rq
+            ("send", a_associate_ac),
+            ("send", b"\x07\x00\x00\x00\x00\x02\x00\x00"),
+            ("recv", None),
+            ("exit", None),
         ]
         self.scp = scp = start_server(commands)
 
@@ -219,27 +265,31 @@ class TestDUL:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+        ae.add_requested_context("1.2.840.10008.1.1")
+        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
         assert assoc.is_established
 
         scp.step()  # send bad PDU
-        scp.step()  # receive abort
-        assert assoc.is_aborted
 
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
+
+        scp.step()  # receive abort
         scp.step()
         scp.shutdown()
+
+        assert assoc.is_aborted
 
     def test_exception_in_reactor(self):
         """Test that an exception being raised in the DUL reactor kills the
         DUL and aborts the association.
         """
         commands = [
-            ('recv', None),  # recv a-associate-rq
-            ('send', a_associate_ac),
-            ('send', a_release_rq),  # Trigger the exception
-            ('recv', None),  # recv a-abort
-            ('exit', None),
+            ("recv", None),  # recv a-associate-rq
+            ("send", a_associate_ac),
+            ("send", a_release_rq),  # Trigger the exception
+            ("recv", None),  # recv a-abort
+            ("exit", None),
         ]
         self.scp = scp = start_server(commands)
 
@@ -253,8 +303,8 @@ class TestDUL:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+        ae.add_requested_context("1.2.840.10008.1.1")
+        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
 
         assert assoc.is_established
 
@@ -264,8 +314,40 @@ class TestDUL:
         assoc.dul._read_pdu_data = patch_read_pdu
 
         scp.step()
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
+
         assert assoc.is_aborted
 
         scp.step()
+        scp.shutdown()
+
+    def test_stop_dul_sta1(self):
+        """Test that stop_dul() returns True when in Sta1"""
+        dul = DULServiceProvider(DummyAssociation())
+        assert dul.state_machine.current_state == "Sta1"
+        assert dul.stop_dul()
+
+    def test_stop_dul(self):
+        self.ae = ae = AE()
+        ae.network_timeout = 5
+        ae.dimse_timeout = 5
+        ae.acse_timeout = 5
+        ae.add_supported_context(Verification)
+
+        scp = ae.start_server(("localhost", 11112), block=False)
+
+        ae.add_requested_context(Verification)
+        assoc = ae.associate("localhost", 11112)
+
+        dul = assoc.dul
+
+        dul.state_machine.current_state = "Sta1"
+        dul.stop_dul()
+
+        assoc.release()
+
         scp.shutdown()

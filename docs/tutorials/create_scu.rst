@@ -138,7 +138,7 @@ editor and add the following:
 
     ae = AE()
     ae.add_requested_context('1.2.840.10008.1.1')
-    assoc = ae.associate('localhost', 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
     if assoc.is_established:
         print('Association established with Echo SCP!')
         assoc.release()
@@ -170,11 +170,11 @@ a bit more later on.
    :linenos:
    :lineno-start: 5
 
-    assoc = ae.associate('127.0.0.1', 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
 
 Here we initiate the association negotiation by connecting to the IP address
-``'127.0.0.1'`` on port ``11112`` and sending an association request.
-``'127.0.0.1'`` (also known as ``'localhost'``) is a `special IP address
+``"127.0.0.1"`` on port ``11112`` and sending an association request.
+``"127.0.0.1"`` (also known as ``"localhost"``) is a `special IP address
 <https://en.wikipedia.org/wiki/Localhost>`_ that means *this computer*. This
 should be the same IP address and port that you started the
 :doc:`echoscp<../apps/echoscp>`
@@ -213,7 +213,7 @@ connection is closed automatically (if required), and we don't need to do
 anything further.
 
 If you don't release the association yourself then it'll remain established
-until the connection is closed, usually when a timeouts expires on
+until the connection is closed, usually when a timeout expires on
 either the *requestor* or *acceptor* AE.
 
 So, let's see what happens when we run our code. Open a new terminal and
@@ -259,7 +259,7 @@ sent to the terminal by calling :func:`~debug_logger`:
 
     ae = AE()
     ae.add_requested_context('1.2.840.10008.1.1')
-    assoc = ae.associate('localhost', 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
     if assoc.is_established:
         assoc.release()
 
@@ -293,12 +293,12 @@ information:
     D: ========================== END A-ASSOCIATE-RQ PDU ==========================
     D: Accept Parameters:
     D: ======================= INCOMING A-ASSOCIATE-AC PDU ========================
-    D: Their Implementation Class UID:    1.2.276.0.7230010.3.0.3.6.2
-    D: Their Implementation Version Name: OFFIS_DCMTK_362
+    D: Their Implementation Class UID:    1.2.826.0.1.3680043.9.3811.2.0.0
+    D: Their Implementation Version Name: PYNETDICOM_200
     D: Application Context Name:    1.2.840.10008.3.1.1.1
     D: Calling Application Name:    PYNETDICOM
     D: Called Application Name:     ANY-SCP
-    D: Their Max PDU Receive Size:  16384
+    D: Their Max PDU Receive Size:  16382
     D: Presentation Contexts:
     D:   Context ID:        1 (Accepted)
     D:     Abstract Syntax: =Verification SOP Class
@@ -436,7 +436,7 @@ request:
 
     ae = AE()
     ae.add_requested_context('1.2.840.10008.1.1')
-    assoc = ae.associate('localhost', 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
     if assoc.is_established:
         status = assoc.send_c_echo()
         assoc.release()

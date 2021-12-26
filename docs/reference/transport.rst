@@ -19,3 +19,4 @@ communication with peer AEs.
    AssociationServer
    RequestHandler
    ThreadedAssociationServer
+   T_CONNECT

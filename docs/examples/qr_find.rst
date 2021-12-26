@@ -33,7 +33,7 @@ Root Query/Retrieve Information Model - Find* at the ``'PATIENT'`` level.
     ds.QueryRetrieveLevel = 'PATIENT'
 
     # Associate with the peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
     if assoc.is_established:
         # Send the C-FIND request
         responses = assoc.send_c_find(ds, PatientRootQueryRetrieveInformationModelFind)
@@ -121,7 +121,7 @@ to see the requirements for the ``evt.EVT_C_FIND`` handler.
                         inst for inst in instances if inst.PatientName == ds.PatientName
                     ]
 
-                # Skip the other possibile values...
+                # Skip the other possible values...
 
             # Skip the other possible attributes...
 
@@ -149,4 +149,4 @@ to see the requirements for the ``evt.EVT_C_FIND`` handler.
    ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
 
    # Start listening for incoming association requests
-   ae.start_server(('', 11112), evt_handlers=handlers)
+   ae.start_server(("127.0.0.1", 11112), evt_handlers=handlers)

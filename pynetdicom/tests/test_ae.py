@@ -13,12 +13,16 @@ from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
 from pynetdicom import (
-    AE, evt, debug_logger, build_context,
+    AE,
+    build_context,
+    _config,
+    debug_logger,
     DEFAULT_TRANSFER_SYNTAXES,
+    evt,
+    PYNETDICOM_IMPLEMENTATION_UID,
+    PYNETDICOM_IMPLEMENTATION_VERSION,
     StoragePresentationContexts,
     VerificationPresentationContexts,
-    PYNETDICOM_IMPLEMENTATION_UID,
-    PYNETDICOM_IMPLEMENTATION_VERSION
 )
 from pynetdicom.presentation import build_context
 from pynetdicom.sop_class import RTImageStorage, Verification
@@ -28,15 +32,25 @@ from pynetdicom.transport import AssociationServer, RequestHandler
 # debug_logger()
 
 
-TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
-DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
-COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
+TEST_DS_DIR = os.path.join(os.path.dirname(__file__), "dicom_files")
+DATASET = read_file(os.path.join(TEST_DS_DIR, "RTImageStorage.dcm"))
+COMP_DATASET = read_file(
+    os.path.join(TEST_DS_DIR, "MRImageStorage_JPG2000_Lossless.dcm")
+)
+
+
+@pytest.fixture()
+def allow_all_addresses():
+    original = _config.DISALLOWED_ADDRESSES[:]
+    _config.DISALLOWED_ADDRESSES.clear()
+    yield
+    _config.DISALLOWED_ADDRESSES = original
 
 
 def test_blocking_handler():
     """Test binding events to the blocking AssociationServer."""
     ae = AE()
-    ae.add_supported_context('1.2.840.10008.1.1')
+    ae.add_supported_context("1.2.840.10008.1.1")
 
     def handle_echo(event):
         return 0x0000
@@ -45,8 +59,8 @@ def test_blocking_handler():
 
     thread = threading.Thread(
         target=ae.start_server,
-        args=(('', 11112), ),
-        kwargs={'evt_handlers' : handlers}
+        args=(("localhost", 11112),),
+        kwargs={"evt_handlers": handlers},
     )
     thread.daemon = True
     thread.start()
@@ -58,6 +72,7 @@ def test_blocking_handler():
 
 class TestMakeServer:
     """Tests for AE.make_server()"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -71,7 +86,7 @@ class TestMakeServer:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
 
-        server = ae.make_server(('', 11112))
+        server = ae.make_server(("localhost", 11112))
         assert isinstance(server, AssociationServer)
 
     def test_custom_request_handler(self):
@@ -81,7 +96,7 @@ class TestMakeServer:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
 
-        server = ae.make_server(('', 11112), request_handler=MyRequestHandler)
+        server = ae.make_server(("localhost", 11112), request_handler=MyRequestHandler)
         assert server.RequestHandlerClass is MyRequestHandler
 
     def test_aet_bytes_deprecation(self):
@@ -94,13 +109,16 @@ class TestMakeServer:
             r"str instead"
         )
         with pytest.warns(DeprecationWarning, match=msg):
-            server = ae.start_server(('', 11112), block=False, ae_title=b'BADAE2')
-            assert server.ae_title == 'BADAE2'
+            server = ae.start_server(
+                ("localhost", 11112), block=False, ae_title=b"BADAE2"
+            )
+            assert server.ae_title == "BADAE2"
             server.shutdown()
 
 
 class TestStartServer:
     """Tests for AE.start_server()"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -116,21 +134,21 @@ class TestStartServer:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.ae_title = 'TESTAET'
-        assert ae.ae_title == 'TESTAET'
+        ae.ae_title = "TESTAET"
+        assert ae.ae_title == "TESTAET"
 
         ae.add_supported_context(Verification)
-        server = ae.start_server(('', 11112), block=False)
+        server = ae.start_server(("localhost", 11112), block=False)
         assert server.ae_title == ae.ae_title
 
         server.shutdown()
 
-        server = ae.start_server(('', 11112), block=False, ae_title='MYAE')
-        assert server.ae_title == 'MYAE'
+        server = ae.start_server(("localhost", 11112), block=False, ae_title="MYAE")
+        assert server.ae_title == "MYAE"
         ae.require_called_aet = True
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate('localhost', 11112, ae_title='MYAE')
+        assoc = ae.associate("localhost", 11112, ae_title="MYAE")
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -143,26 +161,49 @@ class TestStartServer:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.ae_title = 'TESTAET'
-        assert ae.ae_title == 'TESTAET'
+        ae.ae_title = "TESTAET"
+        assert ae.ae_title == "TESTAET"
 
         cx = build_context(Verification)
-        server = ae.start_server(('', 11112), block=False, contexts=[cx])
+        server = ae.start_server(("localhost", 11112), block=False, contexts=[cx])
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate('localhost', 11112, ae_title='MYAE')
+        assoc = ae.associate("localhost", 11112, ae_title="MYAE")
         assert assoc.is_established
-        assert (
-            assoc.accepted_contexts[0].abstract_syntax == Verification
-        )
+        assert assoc.accepted_contexts[0].abstract_syntax == Verification
         assoc.release()
         assert assoc.is_released
 
         server.shutdown()
 
+    def test_server_address_raises(self):
+        """Test binding to INADDR_ANY raises exception"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(Verification)
+        msg = (
+            r"Binding a socket to '' is disallowed by default, see "
+            r"'_config.DISALLOWED_ADDRESSES' for details"
+        )
+        with pytest.raises(ValueError, match=msg):
+            ae.start_server(("", 11112), block=False)
+
+    def test_server_address_disallowed(self, allow_all_addresses):
+        """Test allowing bind to INADDR_ANY"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(Verification)
+        scp = ae.start_server(("", 11112), block=False)
+        scp.shutdown()
+
 
 class TestAEVerificationSCP:
     """Check verification SCP"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -182,28 +223,31 @@ class TestAEVerificationSCP:
             os.kill(pid, signal.SIGINT)
 
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.3')
+        ae.add_supported_context("1.2.3")
         thread = threading.Thread(target=trigger_signal)
         thread.daemon = True
         thread.start()
 
-        ae.start_server(('', 11112))
+        ae.start_server(("localhost", 11112))
 
         ae.shutdown()
 
     def test_no_supported_contexts(self):
         """Test starting with no contexts raises"""
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
         with pytest.raises(ValueError, match=r"No supported Presentation"):
-            ae.start_server(('', 11112))
+            ae.start_server(("localhost", 11112))
 
     def test_new_scu_scp_warning(self):
         """Test that a warning is given if scu_role and scp_role bad."""
         ae = AE()
-        ae.add_supported_context('1.2.3.4', scp_role=False)
+        ae.add_supported_context("1.2.3.4", scp_role=False)
         msg = r"The following presentation contexts have "
         with pytest.raises(ValueError, match=msg):
-            ae.start_server(('', 11112))
+            ae.start_server(("localhost", 11112))
 
     def test_str_empty(self):
         """Test str output for default AE"""
@@ -213,6 +257,7 @@ class TestAEVerificationSCP:
 
 class TestAEPresentationSCU:
     """Tests for AE presentation contexts when running as an SCU"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -227,19 +272,19 @@ class TestAEPresentationSCU:
         # Test AE.requested_contexts
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.requested_contexts = VerificationPresentationContexts
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         assert ae.requested_contexts[0].context_id is None
         assert len(assoc.requestor.requested_contexts) == 1
         assert assoc.requestor.requested_contexts[0].abstract_syntax == (
-            '1.2.840.10008.1.1'
+            "1.2.840.10008.1.1"
         )
         assert assoc.requestor.requested_contexts[0].context_id == 1
         assoc.release()
@@ -248,14 +293,15 @@ class TestAEPresentationSCU:
 
         # Test associate(contexts=...)
         ae.requested_contexts = []
-        assoc = ae.associate('localhost', 11112,
-                             contexts=VerificationPresentationContexts)
+        assoc = ae.associate(
+            "localhost", 11112, contexts=VerificationPresentationContexts
+        )
         assert assoc.is_established
 
         assert VerificationPresentationContexts[0].context_id is None
         assert len(assoc.requestor.requested_contexts) == 1
         assert assoc.requestor.requested_contexts[0].abstract_syntax == (
-            '1.2.840.10008.1.1'
+            "1.2.840.10008.1.1"
         )
         assert assoc.requestor.requested_contexts[0].context_id == 1
         assoc.release()
@@ -268,19 +314,19 @@ class TestAEPresentationSCU:
         """Test that AE.associate raises exception if no requested contexts"""
         self.ae = ae = AE()
         with pytest.raises(RuntimeError):
-            assoc = ae.associate('localhost', 11112)
+            assoc = ae.associate("localhost", 11112)
 
 
 class TestAEGoodTimeoutSetters:
     def test_acse_timeout(self):
-        """ Check AE ACSE timeout change produces good value """
+        """Check AE ACSE timeout change produces good value"""
         ae = AE()
         assert ae.acse_timeout == 30
         ae.acse_timeout = None
         assert ae.acse_timeout is None
         ae.acse_timeout = -100
         assert ae.acse_timeout == 30
-        ae.acse_timeout = 'a'
+        ae.acse_timeout = "a"
         assert ae.acse_timeout == 30
         ae.acse_timeout = 0
         assert ae.acse_timeout == 0
@@ -288,14 +334,14 @@ class TestAEGoodTimeoutSetters:
         assert ae.acse_timeout == 30
 
     def test_dimse_timeout(self):
-        """ Check AE DIMSE timeout change produces good value """
+        """Check AE DIMSE timeout change produces good value"""
         ae = AE()
         assert ae.dimse_timeout == 30
         ae.dimse_timeout = None
         assert ae.dimse_timeout is None
         ae.dimse_timeout = -100
         assert ae.dimse_timeout == 30
-        ae.dimse_timeout = 'a'
+        ae.dimse_timeout = "a"
         assert ae.dimse_timeout == 30
         ae.dimse_timeout = 0
         assert ae.dimse_timeout == 0
@@ -303,14 +349,14 @@ class TestAEGoodTimeoutSetters:
         assert ae.dimse_timeout == 30
 
     def test_network_timeout(self):
-        """ Check AE network timeout change produces good value """
+        """Check AE network timeout change produces good value"""
         ae = AE()
         assert ae.network_timeout == 60
         ae.network_timeout = None
         assert ae.network_timeout is None
         ae.network_timeout = -100
         assert ae.network_timeout == 60
-        ae.network_timeout = 'a'
+        ae.network_timeout = "a"
         assert ae.network_timeout == 60
         ae.network_timeout = 0
         assert ae.network_timeout == 0
@@ -318,14 +364,14 @@ class TestAEGoodTimeoutSetters:
         assert ae.network_timeout == 30
 
     def test_connection_timeout(self):
-        """ Check AE connection timeout change produces good value """
+        """Check AE connection timeout change produces good value"""
         ae = AE()
         assert ae.connection_timeout is None
         ae.connection_timeout = None
         assert ae.connection_timeout is None
         ae.connection_timeout = -100
         assert ae.connection_timeout is None
-        ae.connection_timeout = 'a'
+        ae.connection_timeout = "a"
         assert ae.connection_timeout is None
         ae.connection_timeout = 0
         assert ae.connection_timeout is None
@@ -335,11 +381,11 @@ class TestAEGoodTimeoutSetters:
     def test_active_acse(self):
         """Test changing acse_timeout with active associations."""
         ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112)
+        ae.add_requested_context("1.2.840.10008.1.1")
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         assert assoc.acse_timeout == 30
@@ -354,11 +400,11 @@ class TestAEGoodTimeoutSetters:
     def test_active_dimse(self):
         """Test changing dimse_timeout with active associations."""
         ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112)
+        ae.add_requested_context("1.2.840.10008.1.1")
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         assert assoc.dimse_timeout == 30
@@ -372,11 +418,11 @@ class TestAEGoodTimeoutSetters:
     def test_active_network(self):
         """Test changing network_timeout with active associations."""
         ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112)
+        ae.add_requested_context("1.2.840.10008.1.1")
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         assert assoc.network_timeout == 60
@@ -390,11 +436,11 @@ class TestAEGoodTimeoutSetters:
     def test_active_connection(self):
         """Test changing connection_timeout with active associations."""
         ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("localhost", 11112), block=False)
 
-        ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112)
+        ae.add_requested_context("1.2.840.10008.1.1")
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         assert assoc.connection_timeout is None
@@ -417,16 +463,16 @@ class TestAEGoodAssociation:
             self.ae.shutdown()
 
     def test_associate_establish_release(self):
-        """ Check SCU Association with SCP """
+        """Check SCU Association with SCP"""
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         assoc.release()
@@ -436,29 +482,25 @@ class TestAEGoodAssociation:
         scp.shutdown()
 
     def test_associate_max_pdu(self):
-        """ Check Association has correct max PDUs on either end """
+        """Check Association has correct max PDUs on either end"""
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.maximum_pdu_size = 54321
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         scu_ae = AE()
         scu_ae.acse_timeout = 5
         scu_ae.dimse_timeout = 5
         scu_ae.network_timeout = 5
         scu_ae.add_requested_context(Verification)
-        assoc = scu_ae.associate('localhost', 11112, max_pdu=12345)
+        assoc = scu_ae.associate("localhost", 11112, max_pdu=12345)
         assert assoc.is_established
 
-        assert scp.active_associations[0].acceptor.maximum_length == (
-            54321
-        )
-        assert scp.active_associations[0].requestor.maximum_length == (
-            12345
-        )
+        assert scp.active_associations[0].acceptor.maximum_length == (54321)
+        assert scp.active_associations[0].requestor.maximum_length == (12345)
         assert assoc.requestor.maximum_length == 12345
         assert assoc.acceptor.maximum_length == 54321
         assoc.release()
@@ -467,7 +509,7 @@ class TestAEGoodAssociation:
         assert scp.active_associations == []
 
         # Check 0 max pdu value - max PDU value maps to 0x10000 internally
-        assoc = scu_ae.associate('localhost', 11112, max_pdu=0)
+        assoc = scu_ae.associate("localhost", 11112, max_pdu=0)
         assert assoc.requestor.maximum_length == 0
         assert scp.active_associations[0].requestor.maximum_length == 0
 
@@ -476,8 +518,8 @@ class TestAEGoodAssociation:
         scp.shutdown()
 
     def test_association_timeouts(self):
-        """ Check that the Association timeouts are being set correctly and
-        work """
+        """Check that the Association timeouts are being set correctly and
+        work"""
 
         acse_delay = None
         dimse_delay = None
@@ -498,7 +540,12 @@ class TestAEGoodAssociation:
         ae.network_timeout = 0.5
         ae.add_supported_context(Verification)
         scp = ae.start_server(
-            ('', 11112), block=False, evt_handlers=[(evt.EVT_ACSE_RECV, handle_acse_recv), (evt.EVT_C_ECHO, handle_echo)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[
+                (evt.EVT_ACSE_RECV, handle_acse_recv),
+                (evt.EVT_C_ECHO, handle_echo),
+            ],
         )
 
         scu_ae = AE()
@@ -506,7 +553,7 @@ class TestAEGoodAssociation:
         scu_ae.dimse_timeout = 30
         scu_ae.network_timeout = 30
         scu_ae.add_requested_context(Verification)
-        assoc = scu_ae.associate('localhost', 11112)
+        assoc = scu_ae.associate("localhost", 11112)
         assert assoc.is_established
 
         # Hit the network timeout
@@ -523,7 +570,7 @@ class TestAEGoodAssociation:
 
         dimse_delay = 1
 
-        assoc = scu_ae.associate('localhost', 11112)
+        assoc = scu_ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_echo()
         time.sleep(1.5)
@@ -537,7 +584,7 @@ class TestAEGoodAssociation:
 
         acse_delay = 1
 
-        assoc = scu_ae.associate('localhost', 11112)
+        assoc = scu_ae.associate("localhost", 11112)
         assert not assoc.is_established
         assert assoc.is_aborted
         time.sleep(1.5)
@@ -550,7 +597,7 @@ class TestAEGoodAssociation:
 
         # The host exists and is routable, but there is a middlebox ignoring
         # the initial TCP SYN.
-        assoc = scu_ae.associate('example.com', 11112)
+        assoc = scu_ae.associate("example.com", 11112)
         assert not assoc.is_established
         assert assoc.is_aborted
         assert len(scp.active_associations) == 0
@@ -561,7 +608,7 @@ class TestAEGoodAssociation:
         scu_ae.connection_timeout = None
         scu_ae.dimse_timeout = 32
 
-        assoc = scu_ae.associate('localhost', 11112)
+        assoc = scu_ae.associate("localhost", 11112)
         assert assoc.is_established
 
         assert scp.active_associations[0].acse_timeout == 21
@@ -573,21 +620,24 @@ class TestAEGoodAssociation:
 
         scp.shutdown()
 
-    def test_connection_timeout(self, caplog):
+    def test_connection_timeout(self, caplog, allow_all_addresses):
         # * ACSE timeout does not start until connection timeout completes
         # * Logs indicate that we hit the timeout case
         scu_ae = AE()
-        scu_ae.acse_timeout = 1
-        scu_ae.connection_timeout = 2
+        scu_ae.acse_timeout = 0.5
+        scu_ae.connection_timeout = 1
         scu_ae.add_requested_context(Verification)
-        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
-            assoc = scu_ae.associate('example.com', 11112)
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            assoc = scu_ae.associate(
+                "8.8.8.8",
+                11112,
+                bind_address=("", 0),
+            )
             assert not assoc.is_established
             assert assoc.is_aborted
             msgs = [
                 "TCP Initialisation Error: timed out",
-                "TCP Initialisation Error: [Errno -2] Name or service "
-                "not known"
+                "TCP Initialisation Error: [Errno -2] Name or service not known",
             ]
             assert len([m for m in msgs if m in caplog.text]) == 1
 
@@ -602,10 +652,10 @@ class TestAEGoodAssociation:
             ae.dimse_timeout = 5
             ae.network_timeout = 5
             ae.add_supported_context(Verification)
-            scp = ae.start_server(('', 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
 
             ae.add_requested_context(Verification)
-            assoc = ae.associate('localhost', 11112)
+            assoc = ae.associate("localhost", 11112)
             assert assoc.is_established
             assoc.release()
             assert assoc.is_released
@@ -620,7 +670,7 @@ class TestAEGoodAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        server = ae.start_server(('', 11112), block=False)
+        server = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(Verification)
         msg = (
@@ -628,9 +678,9 @@ class TestAEGoodAssociation:
             r"str instead"
         )
         with pytest.warns(DeprecationWarning, match=msg):
-            assoc = ae.associate('', 11112, ae_title=b'BADAE2')
-            assert assoc.acceptor.ae_title == 'BADAE2'
-            assert assoc.requestor.ae_title == 'PYNETDICOM'
+            assoc = ae.associate("localhost", 11112, ae_title=b"BADAE2")
+            assert assoc.acceptor.ae_title == "BADAE2"
+            assert assoc.requestor.ae_title == "PYNETDICOM"
 
         server.shutdown()
 
@@ -644,46 +694,45 @@ class TestAEBadAssociation:
         with pytest.raises(TypeError):
             ae.associate(1112, 11112)
         with pytest.raises(TypeError):
-            ae.associate('localhost', '1.2.3.4')
+            ae.associate("localhost", "1.2.3.4")
 
     def test_invalid_ae_title(self):
         """Test invalid AE.ae_title"""
         ae = AE()
-        ae.add_requested_context(Verification
-        )
+        ae.add_requested_context(Verification)
         msg = r"Invalid 'ae_title' value - must not consist entirely of spaces"
         with pytest.raises(ValueError, match=msg):
-            ae.associate('localhost', 11112, ae_title='                ')
+            ae.associate("localhost", 11112, ae_title="                ")
 
         msg = (
             r"Invalid 'ae_title' value '\u200b5' "
             r"- must only contain ASCII characters"
         )
         with pytest.raises(ValueError, match=msg):
-            aet = b"\xe2\x80\x8b\x35".decode('utf8')
-            ae.associate('localhost', 11112, ae_title=aet)
+            aet = b"\xe2\x80\x8b\x35".decode("utf8")
+            ae.associate("localhost", 11112, ae_title=aet)
 
         msg = (
             r"Invalid 'ae_title' value '1234567890ABCDEFG' "
             r"- must not exceed 16 characters"
         )
         with pytest.raises(ValueError, match=msg):
-            ae.associate('localhost', 11112, ae_title='1234567890ABCDEFG')
+            ae.associate("localhost", 11112, ae_title="1234567890ABCDEFG")
 
         msg = r"Invalid 'ae_title' value - must not be an empty str"
         with pytest.raises(ValueError, match=msg):
-            ae.associate('localhost', 11112, ae_title='')
+            ae.associate("localhost", 11112, ae_title="")
 
         msg = (
             r"Invalid 'ae_title' value 'TEST\\ME' - must not contain control "
             r"characters or backslashes"
         )
         with pytest.raises(ValueError, match=msg):
-            ae.associate('localhost', 11112, ae_title='TEST\\ME')
+            ae.associate("localhost", 11112, ae_title="TEST\\ME")
 
         msg = r"'ae_title' must be str, not 'int'"
         with pytest.raises(TypeError, match=msg):
-            ae.associate('localhost', 11112, ae_title=12345)
+            ae.associate("localhost", 11112, ae_title=12345)
 
 
 class TestAEGoodMiscSetters:
@@ -695,16 +744,16 @@ class TestAEGoodMiscSetters:
             self.ae.shutdown()
 
     def test_ae_title_good(self):
-        """ Check AE title change produces good value """
+        """Check AE title change produces good value"""
         ae = AE()
-        ae.ae_title = '     TEST     '
-        assert ae.ae_title == '     TEST     '
-        ae.ae_title = '            TEST'
-        assert ae.ae_title == '            TEST'
-        ae.ae_title = 'a            TES'
-        assert ae.ae_title == 'a            TES'
-        ae.ae_title = 'a        TEST'
-        assert ae.ae_title == 'a        TEST'
+        ae.ae_title = "     TEST     "
+        assert ae.ae_title == "     TEST     "
+        ae.ae_title = "            TEST"
+        assert ae.ae_title == "            TEST"
+        ae.ae_title = "a            TES"
+        assert ae.ae_title == "a            TES"
+        ae.ae_title = "a        TEST"
+        assert ae.ae_title == "a        TEST"
 
     def test_aet_bytes_deprecation(self):
         """Test warning if using bytes to set an AE title."""
@@ -713,25 +762,25 @@ class TestAEGoodMiscSetters:
             r"str instead"
         )
         with pytest.warns(DeprecationWarning, match=msg):
-            ae = AE(b'BADAE')
-            assert ae.ae_title == 'BADAE'
+            ae = AE(b"BADAE")
+            assert ae.ae_title == "BADAE"
 
     def test_implementation(self):
         """Check the implementation version name and class UID setters"""
         ae = AE()
         ae.implementation_version_name = None
         assert ae.implementation_version_name is None
-        ae.implementation_class_uid = '1.2.3'
-        assert ae.implementation_class_uid == '1.2.3'
+        ae.implementation_class_uid = "1.2.3"
+        assert ae.implementation_class_uid == "1.2.3"
 
     def test_max_assoc_good(self):
-        """ Check AE maximum association change produces good value """
+        """Check AE maximum association change produces good value"""
         ae = AE()
         ae.maximum_associations = -10
         assert ae.maximum_associations == 1
-        ae.maximum_associations = ['a']
+        ae.maximum_associations = ["a"]
         assert ae.maximum_associations == 1
-        ae.maximum_associations = '10'
+        ae.maximum_associations = "10"
         assert ae.maximum_associations == 1
         ae.maximum_associations = 0
         assert ae.maximum_associations == 1
@@ -739,7 +788,7 @@ class TestAEGoodMiscSetters:
         assert ae.maximum_associations == 5
 
     def test_max_pdu_good(self):
-        """ Check AE maximum pdu size change produces good value """
+        """Check AE maximum pdu size change produces good value"""
         ae = AE()
         ae.maximum_pdu_size = -10
         assert ae.maximum_pdu_size == 16382
@@ -755,31 +804,31 @@ class TestAEGoodMiscSetters:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
 
-        ae.require_calling_aet = ['MYAE']
-        assert ae.require_calling_aet == ['MYAE']
-        assoc = ae.associate('localhost', 11112)
+        ae.require_calling_aet = ["MYAE"]
+        assert ae.require_calling_aet == ["MYAE"]
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_rejected
 
-        ae.require_calling_aet = ['PYNETDICOM']
-        assert ae.require_calling_aet == ['PYNETDICOM']
-        assoc = ae.associate('localhost', 11112)
+        ae.require_calling_aet = ["PYNETDICOM"]
+        assert ae.require_calling_aet == ["PYNETDICOM"]
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assoc.release()
 
         msg = r"Invalid 'require_calling_aet' value - must not be an empty str"
         with pytest.raises(ValueError, match=msg):
-            ae.require_calling_aet = ['']
-        assert ae.require_calling_aet == ['PYNETDICOM']
-        assoc = ae.associate('localhost', 11112)
+            ae.require_calling_aet = [""]
+        assert ae.require_calling_aet == ["PYNETDICOM"]
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assoc.release()
 
@@ -793,9 +842,9 @@ class TestAEGoodMiscSetters:
             r"deprecated, use a list of ASCII str instead"
         )
         with pytest.warns(DeprecationWarning, match=msg):
-            ae.require_calling_aet = [b'BADAE', 'GOODAE']
+            ae.require_calling_aet = [b"BADAE", "GOODAE"]
 
-        assert ae.require_calling_aet == ['BADAE', 'GOODAE']
+        assert ae.require_calling_aet == ["BADAE", "GOODAE"]
 
     def test_require_called_aet(self):
         """Test AE.require_called_aet"""
@@ -804,10 +853,10 @@ class TestAEGoodMiscSetters:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -815,23 +864,23 @@ class TestAEGoodMiscSetters:
 
         ae.require_called_aet = True
         assert ae.require_called_aet is True
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_rejected
 
-        assoc = ae.associate('localhost', 11112, ae_title='PYNETDICOM')
+        assoc = ae.associate("localhost", 11112, ae_title="PYNETDICOM")
         assert assoc.is_established
         assoc.release()
 
         scp.shutdown()
 
     def test_req_calling_aet(self):
-        """ Check AE require calling aet change produces good value """
+        """Check AE require calling aet change produces good value"""
         ae = AE()
-        ae.require_calling_aet = ['10', 'asdf']
-        assert ae.require_calling_aet == ['10', 'asdf']
+        ae.require_calling_aet = ["10", "asdf"]
+        assert ae.require_calling_aet == ["10", "asdf"]
 
     def test_req_called_aet(self):
-        """ Check AE require called aet change produces good value """
+        """Check AE require called aet change produces good value"""
         ae = AE()
         assert ae.require_called_aet is False
         ae.require_called_aet = True
@@ -843,34 +892,34 @@ class TestAEGoodMiscSetters:
         """Test string output"""
         ae = AE()
         ae.add_requested_context(Verification)
-        ae.require_calling_aet = ['something']
+        ae.require_calling_aet = ["something"]
         ae.require_called_aet = True
-        assert 'Explicit VR' in ae.__str__()
-        assert 'Verification' in ae.__str__()
-        assert '0/10' in ae.__str__()
-        assert 'something' in ae.__str__()
-        assert 'Require called AE title: True' in ae.__str__()
+        assert "Explicit VR" in ae.__str__()
+        assert "Verification" in ae.__str__()
+        assert "0/10" in ae.__str__()
+        assert "something" in ae.__str__()
+        assert "Require called AE title: True" in ae.__str__()
         ae.supported_contexts = StoragePresentationContexts
-        assert 'CT Image' in ae.__str__()
+        assert "CT Image" in ae.__str__()
 
         ae = AE()
         ae.add_requested_context(Verification)
-        assert 'None' in ae.__str__()
+        assert "None" in ae.__str__()
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
 
         assert assoc.is_established
         assert assoc.is_established
-        assert 'Explicit VR' in ae.__str__()
-        assert 'Peer' in ae.__str__()
+        assert "Explicit VR" in ae.__str__()
+        assert "Peer" in ae.__str__()
 
         assoc.release()
         assert assoc.is_released
@@ -900,10 +949,7 @@ class TestAEGoodMiscSetters:
         with pytest.raises(TypeError, match=msg):
             ae.implementation_version_name = 1234
 
-        msg = (
-            "Invalid 'implementation_version_name' value - must not be an "
-            "empty str"
-        )
+        msg = "Invalid 'implementation_version_name' value - must not be an empty str"
         with pytest.raises(ValueError, match=msg):
             ae.implementation_version_name = ""
 
@@ -912,31 +958,27 @@ class TestAEGoodMiscSetters:
     def test_implementation_class(self):
         """Test implementation_class_uid"""
         ae = AE()
-        ae.implementation_class_uid  = '12.3.4'
+        ae.implementation_class_uid = "12.3.4"
         assert isinstance(ae.implementation_class_uid, UID)
-        assert ae.implementation_class_uid == UID('12.3.4')
+        assert ae.implementation_class_uid == UID("12.3.4")
 
         msg = (
-            r"'implementation_class_uid' must be str, bytes or UID, not "
-            r"'NoneType'"
+            r"'implementation_class_uid' must be str, bytes or UID, not " r"'NoneType'"
         )
         with pytest.raises(TypeError, match=msg):
             ae.implementation_class_uid = None
 
-        assert ae.implementation_class_uid == UID('12.3.4')
+        assert ae.implementation_class_uid == UID("12.3.4")
 
-        msg = (
-            r"Invalid 'implementation_class_uid' value - must not be an "
-            r"empty str"
-        )
+        msg = r"Invalid 'implementation_class_uid' value - must not be an " r"empty str"
         with pytest.raises(ValueError, match=msg):
-            ae.implementation_class_uid = ''
+            ae.implementation_class_uid = ""
 
         msg = r"Invalid 'implementation_class_uid' value '1.2.04'"
         with pytest.raises(ValueError, match=msg):
-            ae.implementation_class_uid = '1.2.04'
+            ae.implementation_class_uid = "1.2.04"
 
-        assert ae.implementation_class_uid == UID('12.3.4')
+        assert ae.implementation_class_uid == UID("12.3.4")
 
 
 class TestAEBadInitialisation:
@@ -944,32 +986,32 @@ class TestAEBadInitialisation:
         """Test invalid AE.ae_title"""
         msg = r"Invalid 'ae_title' value - must not consist entirely of spaces"
         with pytest.raises(ValueError, match=msg):
-            AE(ae_title='                ')
+            AE(ae_title="                ")
 
         msg = (
             r"Invalid 'ae_title' value '\u200b5' "
             r"- must only contain ASCII characters"
         )
         with pytest.raises(ValueError, match=msg):
-            AE(ae_title=b"\xe2\x80\x8b\x35".decode('utf8'))
+            AE(ae_title=b"\xe2\x80\x8b\x35".decode("utf8"))
 
         msg = (
             r"Invalid 'ae_title' value '1234567890ABCDEFG' "
             r"- must not exceed 16 characters"
         )
         with pytest.raises(ValueError, match=msg):
-            AE(ae_title='1234567890ABCDEFG')
+            AE(ae_title="1234567890ABCDEFG")
 
         msg = r"Invalid 'ae_title' value - must not be an empty str"
         with pytest.raises(ValueError, match=msg):
-            AE(ae_title='')
+            AE(ae_title="")
 
         msg = (
             r"Invalid 'ae_title' value 'TEST\\ME' - must not contain control "
             r"characters or backslashes"
         )
         with pytest.raises(ValueError, match=msg):
-            AE(ae_title='TEST\\ME')
+            AE(ae_title="TEST\\ME")
 
         msg = r"'ae_title' must be str, not 'NoneType'"
         with pytest.raises(TypeError, match=msg):
@@ -987,19 +1029,19 @@ class TestAE_GoodExit:
             self.ae.shutdown()
 
     def test_ae_release_assoc(self):
-        """ Association releases OK """
+        """Association releases OK"""
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(Verification)
 
         # Test N associate/release cycles
         for ii in range(5):
-            assoc = ae.associate('localhost', 11112)
+            assoc = ae.associate("localhost", 11112)
             assert assoc.is_established
             assoc.release()
             assert not assoc.is_established
@@ -1010,19 +1052,19 @@ class TestAE_GoodExit:
         scp.shutdown()
 
     def test_ae_aborts_assoc(self):
-        """ Association aborts OK """
+        """Association aborts OK"""
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(Verification)
 
         # Test N associate/abort cycles
         for ii in range(5):
-            assoc = ae.associate('localhost', 11112)
+            assoc = ae.associate("localhost", 11112)
             assert assoc.is_established
             assoc.abort()
             assert not assoc.is_established
@@ -1035,15 +1077,16 @@ class TestAE_GoodExit:
 
 class TestAESupportedPresentationContexts:
     """Tests for AE's presentation contexts when acting as an SCP"""
+
     def setup(self):
         self.ae = AE()
 
     def test_add_supported_context_str(self):
         """Tests for AE.add_supported_context using str."""
-        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context("1.2.840.10008.1.1")
 
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert context.context_id is None
 
@@ -1052,101 +1095,103 @@ class TestAESupportedPresentationContexts:
         self.ae.add_supported_context(RTImageStorage)
 
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.481.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
     def test_add_supported_context_uid(self):
         """Tests for AE.add_supported_context using UID."""
-        self.ae.add_supported_context(UID('1.2.840.10008.1.1'))
+        self.ae.add_supported_context(UID("1.2.840.10008.1.1"))
 
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
     def test_add_supported_context_duplicate(self):
         """Tests for AE.add_supported_context using a duplicate UID."""
-        self.ae.add_supported_context(UID('1.2.840.10008.1.1'))
-        self.ae.add_supported_context(UID('1.2.840.10008.1.1'))
+        self.ae.add_supported_context(UID("1.2.840.10008.1.1"))
+        self.ae.add_supported_context(UID("1.2.840.10008.1.1"))
 
         contexts = self.ae.supported_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.1.1"
         assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
     def test_add_supported_context_transfer_single(self):
         """Test adding a single transfer syntax without a list"""
-        self.ae.add_supported_context('1.2', '1.3')
+        self.ae.add_supported_context("1.2", "1.3")
 
         contexts = self.ae.supported_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2'
-        assert contexts[0].transfer_syntax == ['1.3']
+        assert contexts[0].abstract_syntax == "1.2"
+        assert contexts[0].transfer_syntax == ["1.3"]
 
-        self.ae.add_supported_context('1.2', UID('1.4'))
+        self.ae.add_supported_context("1.2", UID("1.4"))
 
         contexts = self.ae.supported_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2'
-        assert contexts[0].transfer_syntax == ['1.3', '1.4']
+        assert contexts[0].abstract_syntax == "1.2"
+        assert contexts[0].transfer_syntax == ["1.3", "1.4"]
 
     def test_add_supported_context_duplicate_transfer(self):
         """Test adding duplicate transfer syntaxes."""
-        self.ae.add_supported_context('1.2', ['1.3', '1.3'])
+        self.ae.add_supported_context("1.2", ["1.3", "1.3"])
 
         contexts = self.ae.supported_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2'
-        assert contexts[0].transfer_syntax == ['1.3']
+        assert contexts[0].abstract_syntax == "1.2"
+        assert contexts[0].transfer_syntax == ["1.3"]
 
         self.ae.supported_contexts = []
-        self.ae.add_supported_context('1.2.840.10008.1.1')
-        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context("1.2.840.10008.1.1")
+        self.ae.add_supported_context("1.2.840.10008.1.1")
 
         contexts = self.ae.supported_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.1.1"
         assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
         self.ae.supported_contexts = []
-        self.ae.add_supported_context('1.2.840.10008.1.1')
-        self.ae.add_supported_context('1.2.840.10008.1.1', [DEFAULT_TRANSFER_SYNTAXES[0]])
+        self.ae.add_supported_context("1.2.840.10008.1.1")
+        self.ae.add_supported_context(
+            "1.2.840.10008.1.1", [DEFAULT_TRANSFER_SYNTAXES[0]]
+        )
 
         contexts = self.ae.supported_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.1.1"
         assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
     def test_add_supported_context_duplicate_multi(self):
         """Tests for AE.add_supported_context using a duplicate UID."""
-        self.ae.add_supported_context('1.2.840.10008.1.1',
-                                      [DEFAULT_TRANSFER_SYNTAXES[0]])
-        self.ae.add_supported_context('1.2.840.10008.1.1',
-                                      DEFAULT_TRANSFER_SYNTAXES[1:])
-
+        self.ae.add_supported_context(
+            "1.2.840.10008.1.1", [DEFAULT_TRANSFER_SYNTAXES[0]]
+        )
+        self.ae.add_supported_context(
+            "1.2.840.10008.1.1", DEFAULT_TRANSFER_SYNTAXES[1:]
+        )
 
         contexts = self.ae.supported_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.1.1"
         assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
     def test_add_supported_context_private_abs(self):
         """Test AE.add_supported_context with a private abstract syntax"""
-        self.ae.add_supported_context('1.2.3.4')
+        self.ae.add_supported_context("1.2.3.4")
 
         contexts = self.ae.supported_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2.3.4'
+        assert contexts[0].abstract_syntax == "1.2.3.4"
         assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
     def test_add_supported_context_private_tran(self):
         """Test AE.add_supported_context with a private transfer syntax"""
-        self.ae.add_supported_context('1.2.3.4',
-                                      ['1.2.3', '1.2.840.10008.1.1'])
+        self.ae.add_supported_context("1.2.3.4", ["1.2.3", "1.2.840.10008.1.1"])
 
         contexts = self.ae.supported_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2.3.4'
-        assert contexts[0].transfer_syntax == ['1.2.3', '1.2.840.10008.1.1']
+        assert contexts[0].abstract_syntax == "1.2.3.4"
+        assert contexts[0].transfer_syntax == ["1.2.3", "1.2.840.10008.1.1"]
 
     def test_add_supported_context_more_128(self):
         """Test adding more than 128 presentation contexts"""
@@ -1158,18 +1203,18 @@ class TestAESupportedPresentationContexts:
 
     def test_supported_contexts_setter(self):
         """Test the AE.supported_contexts property setter."""
-        context = build_context('1.2.840.10008.1.1')
+        context = build_context("1.2.840.10008.1.1")
         self.ae.supported_contexts = [context]
 
         contexts = self.ae.supported_contexts
         assert len(contexts) == 1
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert context.context_id is None
 
     def test_supported_contexts_empty(self):
         """Test the setting supported_contexts to an empty list."""
-        context = build_context('1.2.840.10008.1.1')
+        context = build_context("1.2.840.10008.1.1")
         self.ae.supported_contexts = [context]
         assert len(self.ae.supported_contexts) == 1
 
@@ -1179,24 +1224,20 @@ class TestAESupportedPresentationContexts:
     def test_supported_contexts_setter_raises(self):
         """Test the AE.supported_contexts property raises if not context."""
         with pytest.raises(ValueError):
-            self.ae.supported_contexts = ['1.2.3']
+            self.ae.supported_contexts = ["1.2.3"]
 
     def test_supported_contexts_sorted(self):
         """Test that the supported_contexts returns contexts in order."""
-        self.ae.add_supported_context('1.2.3.4')
-        self.ae.add_supported_context('1.2.3.5')
+        self.ae.add_supported_context("1.2.3.4")
+        self.ae.add_supported_context("1.2.3.5")
 
-        asyntaxes = [
-            cntx.abstract_syntax for cntx in self.ae.supported_contexts
-        ]
-        assert asyntaxes == ['1.2.3.4', '1.2.3.5']
+        asyntaxes = [cntx.abstract_syntax for cntx in self.ae.supported_contexts]
+        assert asyntaxes == ["1.2.3.4", "1.2.3.5"]
 
-        self.ae.add_supported_context('0.1.2.3')
-        self.ae.add_supported_context('2.1.2.3')
-        asyntaxes = [
-            cntx.abstract_syntax for cntx in self.ae.supported_contexts
-        ]
-        assert asyntaxes == ['0.1.2.3', '1.2.3.4', '1.2.3.5', '2.1.2.3']
+        self.ae.add_supported_context("0.1.2.3")
+        self.ae.add_supported_context("2.1.2.3")
+        asyntaxes = [cntx.abstract_syntax for cntx in self.ae.supported_contexts]
+        assert asyntaxes == ["0.1.2.3", "1.2.3.4", "1.2.3.5", "2.1.2.3"]
 
     def test_supported_contexts_more_128(self):
         """Test setting supported_contexts with more than 128 contexts."""
@@ -1209,35 +1250,35 @@ class TestAESupportedPresentationContexts:
 
     def test_remove_supported_context_str(self):
         """Tests for AE.remove_supported_context using str."""
-        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context("1.2.840.10008.1.1")
 
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
-        self.ae.remove_supported_context('1.2.840.10008.1.1')
+        self.ae.remove_supported_context("1.2.840.10008.1.1")
         assert len(self.ae.supported_contexts) == 0
 
         # Test multiple
-        self.ae.add_supported_context('1.2.840.10008.1.1')
-        self.ae.add_supported_context('1.2.840.10008.1.4', ['1.2.3.4'])
+        self.ae.add_supported_context("1.2.840.10008.1.1")
+        self.ae.add_supported_context("1.2.840.10008.1.4", ["1.2.3.4"])
 
         assert len(self.ae.supported_contexts) == 2
-        self.ae.remove_supported_context('1.2.840.10008.1.1')
+        self.ae.remove_supported_context("1.2.840.10008.1.1")
         assert len(self.ae.supported_contexts) == 1
 
         for context in self.ae.supported_contexts:
-            assert context.abstract_syntax != '1.2.840.10008.1.1'
+            assert context.abstract_syntax != "1.2.840.10008.1.1"
 
     def test_remove_supported_context_uid(self):
         """Tests for AE.remove_supported_context using UID."""
-        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context("1.2.840.10008.1.1")
 
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
-        self.ae.remove_supported_context(UID('1.2.840.10008.1.1'))
+        self.ae.remove_supported_context(UID("1.2.840.10008.1.1"))
         assert len(self.ae.supported_contexts) == 0
 
     def test_remove_supported_context_sop_class(self):
@@ -1245,7 +1286,7 @@ class TestAESupportedPresentationContexts:
         self.ae.add_supported_context(RTImageStorage)
 
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.481.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
         self.ae.remove_supported_context(RTImageStorage)
@@ -1253,144 +1294,144 @@ class TestAESupportedPresentationContexts:
 
     def test_remove_supported_context_default(self):
         """Tests for AE.remove_supported_context with default transfers."""
-        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context("1.2.840.10008.1.1")
 
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert len(context.transfer_syntax) == 4
 
-        self.ae.remove_supported_context('1.2.840.10008.1.1')
+        self.ae.remove_supported_context("1.2.840.10008.1.1")
         assert len(self.ae.supported_contexts) == 0
 
     def test_remove_supported_context_single_transfer(self):
         """Tests for AE.remove_supported_context with single transfer."""
-        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context("1.2.840.10008.1.1")
 
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert len(context.transfer_syntax) == 4
 
-        self.ae.remove_supported_context('1.2.840.10008.1.1', DEFAULT_TRANSFER_SYNTAXES[0])
+        self.ae.remove_supported_context(
+            "1.2.840.10008.1.1", DEFAULT_TRANSFER_SYNTAXES[0]
+        )
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
 
     def test_remove_supported_context_partial(self):
         """Tests for AE.remove_supported_context with partial transfers."""
         # Test singular
-        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context("1.2.840.10008.1.1")
 
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert len(context.transfer_syntax) == 4
 
-        self.ae.remove_supported_context('1.2.840.10008.1.1',
-                                         ['1.2.840.10008.1.2'])
+        self.ae.remove_supported_context("1.2.840.10008.1.1", ["1.2.840.10008.1.2"])
         assert len(self.ae.supported_contexts) == 1
         context = self.ae.supported_contexts[0]
         assert len(context.transfer_syntax) == 3
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
 
         # Test multiple
-        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context("1.2.840.10008.1.1")
         self.ae.add_supported_context(RTImageStorage)
 
-        self.ae.remove_supported_context('1.2.840.10008.1.1',
-                                         ['1.2.840.10008.1.2'])
+        self.ae.remove_supported_context("1.2.840.10008.1.1", ["1.2.840.10008.1.2"])
         assert len(self.ae.supported_contexts) == 2
         context = self.ae.supported_contexts[0]
         assert len(context.transfer_syntax) == 3
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
 
-        assert self.ae.supported_contexts[1].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert (
+            self.ae.supported_contexts[1].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        )
 
     def test_remove_supported_context_all(self):
         """Tests for AE.remove_supported_context with all transfers."""
-        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context("1.2.840.10008.1.1")
 
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert len(context.transfer_syntax) == 4
 
         # Test singular
-        self.ae.remove_supported_context('1.2.840.10008.1.1',
-                                         DEFAULT_TRANSFER_SYNTAXES)
+        self.ae.remove_supported_context("1.2.840.10008.1.1", DEFAULT_TRANSFER_SYNTAXES)
         assert len(self.ae.supported_contexts) == 0
 
         # Test multiple
-        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context("1.2.840.10008.1.1")
         self.ae.add_supported_context(RTImageStorage)
 
-        self.ae.remove_supported_context('1.2.840.10008.1.1',
-                                         DEFAULT_TRANSFER_SYNTAXES)
+        self.ae.remove_supported_context("1.2.840.10008.1.1", DEFAULT_TRANSFER_SYNTAXES)
 
         context = self.ae.supported_contexts[0]
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.481.1"
 
     def test_remove_supported_context_all_plus(self):
         """Test remove_supported_context with extra transfers"""
         tsyntax = DEFAULT_TRANSFER_SYNTAXES[:]
-        tsyntax.append('1.2.3')
-        self.ae.add_supported_context('1.2.840.10008.1.1')
+        tsyntax.append("1.2.3")
+        self.ae.add_supported_context("1.2.840.10008.1.1")
 
         context = self.ae.supported_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert len(context.transfer_syntax) == 4
 
-        self.ae.remove_supported_context('1.2.840.10008.1.1', tsyntax)
+        self.ae.remove_supported_context("1.2.840.10008.1.1", tsyntax)
         assert len(self.ae.supported_contexts) == 0
 
     def test_scu_role(self):
         """Test add_supported_context with scu_role parameter."""
-        self.ae.add_supported_context('1.2.3')
+        self.ae.add_supported_context("1.2.3")
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is None
 
         self.ae.supported_context = []
-        self.ae.add_supported_context('1.2.3', scu_role=None)
+        self.ae.add_supported_context("1.2.3", scu_role=None)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is None
 
         self.ae.supported_context = []
-        self.ae.add_supported_context('1.2.3', scu_role=True)
+        self.ae.add_supported_context("1.2.3", scu_role=True)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is True
         assert context.scp_role is None
 
         self.ae.supported_context = []
-        self.ae.add_supported_context('1.2.3', scu_role=False)
+        self.ae.add_supported_context("1.2.3", scu_role=False)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is False
         assert context.scp_role is None
 
     def test_scu_role_update(self):
         """Test updating add_supported_context with scu_role parameter."""
-        self.ae.add_supported_context('1.2.3')
+        self.ae.add_supported_context("1.2.3")
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is None
 
-        self.ae.add_supported_context('1.2.3', scu_role=None)
+        self.ae.add_supported_context("1.2.3", scu_role=None)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is None
 
-        self.ae.add_supported_context('1.2.3', scu_role=True)
+        self.ae.add_supported_context("1.2.3", scu_role=True)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is True
         assert context.scp_role is None
 
-        self.ae.add_supported_context('1.2.3', scu_role=False)
+        self.ae.add_supported_context("1.2.3", scu_role=False)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is False
         assert context.scp_role is None
@@ -1398,53 +1439,53 @@ class TestAESupportedPresentationContexts:
     def test_scu_role_raises(self):
         """Test add_supported_context raises if scu_role wrong type."""
         with pytest.raises(TypeError, match=""):
-            self.ae.add_supported_context('1.2.3', scu_role='abc')
+            self.ae.add_supported_context("1.2.3", scu_role="abc")
 
         assert self.ae.supported_contexts == []
 
     def test_scp_role(self):
         """Test add_supported_context with scu_role parameter."""
-        self.ae.add_supported_context('1.2.3')
+        self.ae.add_supported_context("1.2.3")
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is None
 
         self.ae.supported_context = []
-        self.ae.add_supported_context('1.2.3', scp_role=None)
+        self.ae.add_supported_context("1.2.3", scp_role=None)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is None
 
         self.ae.supported_context = []
-        self.ae.add_supported_context('1.2.3', scp_role=True)
+        self.ae.add_supported_context("1.2.3", scp_role=True)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is True
 
         self.ae.supported_context = []
-        self.ae.add_supported_context('1.2.3', scp_role=False)
+        self.ae.add_supported_context("1.2.3", scp_role=False)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is False
 
     def test_scp_role_update(self):
         """Test updating add_supported_context with scp_role parameter."""
-        self.ae.add_supported_context('1.2.3')
+        self.ae.add_supported_context("1.2.3")
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is None
 
-        self.ae.add_supported_context('1.2.3', scp_role=None)
+        self.ae.add_supported_context("1.2.3", scp_role=None)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is None
 
-        self.ae.add_supported_context('1.2.3', scp_role=True)
+        self.ae.add_supported_context("1.2.3", scp_role=True)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is True
 
-        self.ae.add_supported_context('1.2.3', scp_role=False)
+        self.ae.add_supported_context("1.2.3", scp_role=False)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
         assert context.scp_role is False
@@ -1452,22 +1493,23 @@ class TestAESupportedPresentationContexts:
     def test_scp_role_raises(self):
         """Test add_supported_context raises if scp_role wrong type."""
         with pytest.raises(TypeError, match=""):
-            self.ae.add_supported_context('1.2.3', scp_role='abc')
+            self.ae.add_supported_context("1.2.3", scp_role="abc")
 
         assert self.ae.supported_contexts == []
 
 
 class TestAERequestedPresentationContexts:
     """Tests for AE's presentation contexts when acting as an SCU"""
+
     def setup(self):
         self.ae = AE()
 
     def test_add_requested_context_str(self):
         """Tests for AE.add_requested_context using str."""
-        self.ae.add_requested_context('1.2.840.10008.1.1')
+        self.ae.add_requested_context("1.2.840.10008.1.1")
 
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert context.context_id is None
 
@@ -1476,84 +1518,84 @@ class TestAERequestedPresentationContexts:
         self.ae.add_requested_context(RTImageStorage)
 
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.481.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
     def test_add_requested_context_uid(self):
         """Tests for AE.add_requested_context using UID."""
-        self.ae.add_requested_context(UID('1.2.840.10008.1.1'))
+        self.ae.add_requested_context(UID("1.2.840.10008.1.1"))
 
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
     def test_add_requested_context_duplicate(self):
         """Test AE.add_requested_context using a duplicate UID."""
-        self.ae.add_requested_context(UID('1.2.840.10008.1.1'))
-        self.ae.add_requested_context(UID('1.2.840.10008.1.1'))
+        self.ae.add_requested_context(UID("1.2.840.10008.1.1"))
+        self.ae.add_requested_context(UID("1.2.840.10008.1.1"))
 
         contexts = self.ae.requested_contexts
         assert len(contexts) == 2
-        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.1.1"
         assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert contexts[1].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[1].abstract_syntax == "1.2.840.10008.1.1"
         assert contexts[1].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
     def test_add_requested_context_duplicate_multi(self):
         """Tests for AE.add_requested_context using a duplicate UID."""
-        self.ae.add_requested_context('1.2.840.10008.1.1',
-                                      [DEFAULT_TRANSFER_SYNTAXES[0]])
-        self.ae.add_requested_context('1.2.840.10008.1.1',
-                                      DEFAULT_TRANSFER_SYNTAXES[1:])
-
+        self.ae.add_requested_context(
+            "1.2.840.10008.1.1", [DEFAULT_TRANSFER_SYNTAXES[0]]
+        )
+        self.ae.add_requested_context(
+            "1.2.840.10008.1.1", DEFAULT_TRANSFER_SYNTAXES[1:]
+        )
 
         contexts = self.ae.requested_contexts
         assert len(contexts) == 2
-        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.1.1"
         assert contexts[0].transfer_syntax == [DEFAULT_TRANSFER_SYNTAXES[0]]
-        assert contexts[1].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[1].abstract_syntax == "1.2.840.10008.1.1"
         assert contexts[1].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
 
     def test_add_supported_context_transfer_single(self):
         """Test adding a single transfer syntax without a list"""
-        self.ae.add_requested_context('1.2', '1.3')
+        self.ae.add_requested_context("1.2", "1.3")
 
         contexts = self.ae.requested_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2'
-        assert contexts[0].transfer_syntax == ['1.3']
+        assert contexts[0].abstract_syntax == "1.2"
+        assert contexts[0].transfer_syntax == ["1.3"]
 
-        self.ae.add_requested_context('1.2', UID('1.4'))
+        self.ae.add_requested_context("1.2", UID("1.4"))
 
         contexts = self.ae.requested_contexts
         assert len(contexts) == 2
-        assert contexts[1].abstract_syntax == '1.2'
-        assert contexts[1].transfer_syntax == ['1.4']
+        assert contexts[1].abstract_syntax == "1.2"
+        assert contexts[1].transfer_syntax == ["1.4"]
 
     def test_add_requested_context_duplicate_transfer(self):
         """Test add_requested_context using duplicate transfer syntaxes"""
-        self.ae.add_requested_context('1.2', ['1.3', '1.3'])
+        self.ae.add_requested_context("1.2", ["1.3", "1.3"])
         contexts = self.ae.requested_contexts
-        assert contexts[0].transfer_syntax == ['1.3']
+        assert contexts[0].transfer_syntax == ["1.3"]
 
     def test_add_requested_context_private_abs(self):
         """Test AE.add_requested_context with a private abstract syntax"""
-        self.ae.add_requested_context('1.2.3.4')
+        self.ae.add_requested_context("1.2.3.4")
 
         contexts = self.ae.requested_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2.3.4'
+        assert contexts[0].abstract_syntax == "1.2.3.4"
         assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
     def test_add_requested_context_private_tran(self):
         """Test AE.add_requested_context with a private transfer syntax"""
-        self.ae.add_requested_context('1.2.3.4',
-                                      ['1.2.3', '1.2.840.10008.1.1'])
+        self.ae.add_requested_context("1.2.3.4", ["1.2.3", "1.2.840.10008.1.1"])
 
         contexts = self.ae.requested_contexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2.3.4'
-        assert contexts[0].transfer_syntax == ['1.2.3', '1.2.840.10008.1.1']
+        assert contexts[0].abstract_syntax == "1.2.3.4"
+        assert contexts[0].transfer_syntax == ["1.2.3", "1.2.840.10008.1.1"]
 
     def test_add_requested_context_more_128_raises(self):
         """Test adding more than 128 presentation contexts"""
@@ -1563,24 +1605,24 @@ class TestAERequestedPresentationContexts:
         assert len(self.ae.requested_contexts) == 128
 
         with pytest.raises(ValueError):
-            self.ae.add_requested_context('129')
+            self.ae.add_requested_context("129")
 
         assert len(self.ae.requested_contexts) == 128
 
     def test_requested_contexts_setter(self):
         """Test the AE.requested_contexts property setter."""
-        context = build_context('1.2.840.10008.1.1')
+        context = build_context("1.2.840.10008.1.1")
         self.ae.requested_contexts = [context]
 
         contexts = self.ae.requested_contexts
         assert len(contexts) == 1
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert context.context_id is None
 
     def test_requested_contexts_empty(self):
         """Test the setting requested_contexts to an empty list."""
-        context = build_context('1.2.840.10008.1.1')
+        context = build_context("1.2.840.10008.1.1")
         self.ae.requested_contexts = [context]
         assert len(self.ae.requested_contexts) == 1
 
@@ -1590,24 +1632,20 @@ class TestAERequestedPresentationContexts:
     def test_requested_contexts_setter_raises(self):
         """Test the AE.requested_contexts property raises if not context."""
         with pytest.raises(ValueError):
-            self.ae.requested_contexts = ['1.2.3']
+            self.ae.requested_contexts = ["1.2.3"]
 
     def test_requested_contexts_not_sorted(self):
         """Test that requested_contexts returns contexts in supplied order."""
-        self.ae.add_requested_context('1.2.3.4')
-        self.ae.add_requested_context('1.2.3.5')
+        self.ae.add_requested_context("1.2.3.4")
+        self.ae.add_requested_context("1.2.3.5")
 
-        asyntaxes = [
-            cntx.abstract_syntax for cntx in self.ae.requested_contexts
-        ]
-        assert asyntaxes == ['1.2.3.4', '1.2.3.5']
+        asyntaxes = [cntx.abstract_syntax for cntx in self.ae.requested_contexts]
+        assert asyntaxes == ["1.2.3.4", "1.2.3.5"]
 
-        self.ae.add_requested_context('0.1.2.3')
-        self.ae.add_requested_context('2.1.2.3')
-        asyntaxes = [
-            cntx.abstract_syntax for cntx in self.ae.requested_contexts
-        ]
-        assert asyntaxes == ['1.2.3.4', '1.2.3.5', '0.1.2.3', '2.1.2.3']
+        self.ae.add_requested_context("0.1.2.3")
+        self.ae.add_requested_context("2.1.2.3")
+        asyntaxes = [cntx.abstract_syntax for cntx in self.ae.requested_contexts]
+        assert asyntaxes == ["1.2.3.4", "1.2.3.5", "0.1.2.3", "2.1.2.3"]
 
     def test_requested_contexts_more_128(self):
         """Test setting requested_contexts with more than 128 contexts."""
@@ -1618,7 +1656,7 @@ class TestAERequestedPresentationContexts:
         self.ae.requested_contexts = contexts
         assert len(self.ae.requested_contexts) == 128
 
-        contexts.append(build_context('129'))
+        contexts.append(build_context("129"))
 
         with pytest.raises(ValueError):
             self.ae.requested_contexts = contexts
@@ -1626,36 +1664,36 @@ class TestAERequestedPresentationContexts:
     def test_remove_requested_context_str(self):
         """Tests for AE.remove_requested_context using str."""
         # Test singular
-        self.ae.add_requested_context('1.2.840.10008.1.1')
+        self.ae.add_requested_context("1.2.840.10008.1.1")
 
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
-        self.ae.remove_requested_context('1.2.840.10008.1.1')
+        self.ae.remove_requested_context("1.2.840.10008.1.1")
         assert len(self.ae.requested_contexts) == 0
 
         # Test multiple
-        self.ae.add_requested_context('1.2.840.10008.1.1')
-        self.ae.add_requested_context('1.2.840.10008.1.1', ['1.2.3.4'])
-        self.ae.add_requested_context('1.2.840.10008.1.4', ['1.2.3.4'])
+        self.ae.add_requested_context("1.2.840.10008.1.1")
+        self.ae.add_requested_context("1.2.840.10008.1.1", ["1.2.3.4"])
+        self.ae.add_requested_context("1.2.840.10008.1.4", ["1.2.3.4"])
 
         assert len(self.ae.requested_contexts) == 3
-        self.ae.remove_requested_context('1.2.840.10008.1.1')
+        self.ae.remove_requested_context("1.2.840.10008.1.1")
         assert len(self.ae.requested_contexts) == 1
 
         for context in self.ae.requested_contexts:
-            assert context.abstract_syntax != '1.2.840.10008.1.1'
+            assert context.abstract_syntax != "1.2.840.10008.1.1"
 
     def test_remove_requested_context_uid(self):
         """Tests for AE.remove_requested_context using UID."""
-        self.ae.add_requested_context('1.2.840.10008.1.1')
+        self.ae.add_requested_context("1.2.840.10008.1.1")
 
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
-        self.ae.remove_requested_context(UID('1.2.840.10008.1.1'))
+        self.ae.remove_requested_context(UID("1.2.840.10008.1.1"))
         assert len(self.ae.requested_contexts) == 0
 
     def test_remove_requested_context_sop_class(self):
@@ -1663,7 +1701,7 @@ class TestAERequestedPresentationContexts:
         self.ae.add_requested_context(RTImageStorage)
 
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.481.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
         self.ae.remove_requested_context(RTImageStorage)
@@ -1671,126 +1709,133 @@ class TestAERequestedPresentationContexts:
 
     def test_remove_requested_context_default(self):
         """Tests for AE.remove_requested_context with default transfers."""
-        self.ae.add_requested_context('1.2.840.10008.1.1')
+        self.ae.add_requested_context("1.2.840.10008.1.1")
 
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert len(context.transfer_syntax) == 4
 
-        self.ae.remove_requested_context('1.2.840.10008.1.1')
+        self.ae.remove_requested_context("1.2.840.10008.1.1")
         assert len(self.ae.requested_contexts) == 0
 
     def test_remove_requested_context_single(self):
         """Tests for AE.remove_requested_context with single transfer."""
-        self.ae.add_requested_context('1.2.840.10008.1.1')
+        self.ae.add_requested_context("1.2.840.10008.1.1")
 
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert len(context.transfer_syntax) == 4
 
-        self.ae.remove_requested_context('1.2.840.10008.1.1', DEFAULT_TRANSFER_SYNTAXES[0])
+        self.ae.remove_requested_context(
+            "1.2.840.10008.1.1", DEFAULT_TRANSFER_SYNTAXES[0]
+        )
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
 
     def test_remove_requested_context_partial(self):
         """Tests for AE.remove_supported_context with partial transfers."""
         # Test singular
-        self.ae.add_requested_context('1.2.840.10008.1.1')
+        self.ae.add_requested_context("1.2.840.10008.1.1")
 
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert len(context.transfer_syntax) == 4
 
-        self.ae.remove_requested_context('1.2.840.10008.1.1',
-                                         ['1.2.840.10008.1.2'])
+        self.ae.remove_requested_context("1.2.840.10008.1.1", ["1.2.840.10008.1.2"])
         assert len(self.ae.requested_contexts) == 1
         context = self.ae.requested_contexts[0]
         assert len(context.transfer_syntax) == 3
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
 
-        self.ae.remove_requested_context('1.2.840.10008.1.1')
+        self.ae.remove_requested_context("1.2.840.10008.1.1")
         assert len(self.ae.requested_contexts) == 0
 
         # Test multiple
-        self.ae.add_requested_context('1.2.840.10008.1.1')
+        self.ae.add_requested_context("1.2.840.10008.1.1")
         self.ae.add_requested_context(RTImageStorage)
-        self.ae.add_requested_context('1.2.840.10008.1.1', ['1.2.3.4'])
+        self.ae.add_requested_context("1.2.840.10008.1.1", ["1.2.3.4"])
 
-        self.ae.remove_requested_context('1.2.840.10008.1.1',
-                                         ['1.2.840.10008.1.2'])
+        self.ae.remove_requested_context("1.2.840.10008.1.1", ["1.2.840.10008.1.2"])
         assert len(self.ae.requested_contexts) == 3
         context = self.ae.requested_contexts[0]
         assert len(context.transfer_syntax) == 3
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
 
-        assert self.ae.requested_contexts[1].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert self.ae.requested_contexts[2].transfer_syntax == ['1.2.3.4']
-        assert self.ae.requested_contexts[2].abstract_syntax == '1.2.840.10008.1.1'
+        assert (
+            self.ae.requested_contexts[1].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        )
+        assert self.ae.requested_contexts[2].transfer_syntax == ["1.2.3.4"]
+        assert self.ae.requested_contexts[2].abstract_syntax == "1.2.840.10008.1.1"
 
-        self.ae.remove_requested_context('1.2.840.10008.1.1')
+        self.ae.remove_requested_context("1.2.840.10008.1.1")
         assert len(self.ae.requested_contexts) == 1
-        assert self.ae.requested_contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
+        assert (
+            self.ae.requested_contexts[0].abstract_syntax
+            == "1.2.840.10008.5.1.4.1.1.481.1"
+        )
 
     def test_remove_requested_context_all(self):
         """Tests for AE.remove_requested_context with all transfers."""
-        self.ae.add_requested_context('1.2.840.10008.1.1')
+        self.ae.add_requested_context("1.2.840.10008.1.1")
 
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert len(context.transfer_syntax) == 4
 
         # Test singular
-        self.ae.remove_requested_context('1.2.840.10008.1.1',
-                                         DEFAULT_TRANSFER_SYNTAXES)
+        self.ae.remove_requested_context("1.2.840.10008.1.1", DEFAULT_TRANSFER_SYNTAXES)
         assert len(self.ae.requested_contexts) == 0
 
         # Test multiple
-        self.ae.add_requested_context('1.2.840.10008.1.1',
-                                      [DEFAULT_TRANSFER_SYNTAXES[0]])
-        self.ae.add_requested_context('1.2.840.10008.1.1',
-                                      DEFAULT_TRANSFER_SYNTAXES[1:])
+        self.ae.add_requested_context(
+            "1.2.840.10008.1.1", [DEFAULT_TRANSFER_SYNTAXES[0]]
+        )
+        self.ae.add_requested_context(
+            "1.2.840.10008.1.1", DEFAULT_TRANSFER_SYNTAXES[1:]
+        )
         self.ae.add_requested_context(RTImageStorage)
 
-        self.ae.remove_requested_context('1.2.840.10008.1.1',
-                                         DEFAULT_TRANSFER_SYNTAXES)
+        self.ae.remove_requested_context("1.2.840.10008.1.1", DEFAULT_TRANSFER_SYNTAXES)
 
         assert len(self.ae.requested_contexts) == 1
         context = self.ae.requested_contexts[0]
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.481.1"
 
     def test_remove_requested_context_all_plus(self):
         """Test remove_requested_context with extra transfers"""
         tsyntax = DEFAULT_TRANSFER_SYNTAXES[:]
-        tsyntax.append('1.2.3')
+        tsyntax.append("1.2.3")
         # Test singular
-        self.ae.add_requested_context('1.2.840.10008.1.1')
+        self.ae.add_requested_context("1.2.840.10008.1.1")
 
         context = self.ae.requested_contexts[0]
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert len(context.transfer_syntax) == 4
 
-        self.ae.remove_requested_context('1.2.840.10008.1.1', tsyntax)
+        self.ae.remove_requested_context("1.2.840.10008.1.1", tsyntax)
         assert len(self.ae.requested_contexts) == 0
 
         # Test multiple
-        self.ae.add_requested_context('1.2.840.10008.1.1',
-                                      [DEFAULT_TRANSFER_SYNTAXES[0]])
-        self.ae.add_requested_context('1.2.840.10008.1.1',
-                                      DEFAULT_TRANSFER_SYNTAXES[1:])
+        self.ae.add_requested_context(
+            "1.2.840.10008.1.1", [DEFAULT_TRANSFER_SYNTAXES[0]]
+        )
+        self.ae.add_requested_context(
+            "1.2.840.10008.1.1", DEFAULT_TRANSFER_SYNTAXES[1:]
+        )
         self.ae.add_requested_context(RTImageStorage)
 
-        self.ae.remove_requested_context('1.2.840.10008.1.1', tsyntax)
+        self.ae.remove_requested_context("1.2.840.10008.1.1", tsyntax)
 
         assert len(self.ae.requested_contexts) == 1
         context = self.ae.requested_contexts[0]
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.481.1"

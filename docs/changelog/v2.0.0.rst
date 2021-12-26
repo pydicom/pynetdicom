@@ -3,6 +3,19 @@
 2.0.0
 =====
 
+The major breaking changes with the version 2.0 release are:
+
+  * Python 2 is no longer supported
+  * SOP class variable names now use their `new DICOM UID keywords
+    <https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html#table_A-1>`_
+    (for example, *VerificationSOPClass* becomes simply *Verification*)
+  * AE title values should be :class:`str` rather than :class:`bytes` and trailing
+    padding spaces are stripped from the raw value during decoding.
+  * Starting an SCP with an address of ``INADDR_ANY`` (such as ``""`` or ``"0.0.0.0"``)
+    is disallowed by default, use the actual IP address or the loopback ``"127.0.0.1"``
+    instead, or change :attr:`~pynetdicom._config.DISALLOWED_ADDRESSES`
+
+
 Fixes
 .....
 
@@ -22,19 +35,26 @@ Fixes
   :meth:`ServiceUser.supported_contexts
   <pynetdicom.association.ServiceUser.supported_contexts>` not returning the
   expected contexts (:issue:`636`)
+* Fixed `qrscp --clean` (:issue:`681`, :issue:`682`)
+* Fixed a memory leak when running :class:`~pynetdicom.transport.AssociationServer`
+  due to old Association threads not being garbage collected (:issue:`669`)
+* Fixed an exception in the state machine during association negotiation as the acceptor
+  when an A-ABORT-RQ PDU is received before the initial A-ASSOCIATE-RQ has been
+  processed (:issue:`721`)
+
 
 Enhancements
 ............
 
 * Added the ability to pass a file path to a dataset to
   :meth:`~pynetdicom.association.Association.send_c_store` (:issue:`517`)
-* Allow parsing of dimse command sets that contain elements with non-conformant
+* Allow parsing of DIMSE command sets that contain elements with non-conformant
   VMs (:issue:`554`)
 * Added a check when acting as a QR SCP that returns from the event handler
   if the association is aborted or released (:issue:`592`)
 * Added :attr:`AE.connection_timeout
   <pynetdicom.ae.ApplicationEntity.connection_timeout>` (:issue:`616`)
-* Updated to meet the 2021b version of the DICOM Standard
+* Updated to meet the 2021e version of the DICOM Standard
 * Added type hints
 * Handle non-conformant A-ASSOCIATE (RJ) 'Result', 'Source' and 'Diagnostic'
   values during ACSE negotiation (:issue:`633`)
@@ -60,17 +80,30 @@ Enhancements
     reducing the memory needed when receiving datasets (:issue:`517`)
   * :attr:`~pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE` to allow the
     use of the AE as an unrestricted Storage SCP (:issue:`505`)
+  * :attr:`~pynetdicom._config.DISALLOWED_ADDRESSES` to allow customising the
+    disallowed IP addresses when binding the networking socket
+
+* The DUL reactor should be more performant when processing multiple successive events
+  (:pr:`651`)
+
 
 Changes
 .......
 
-* Removed support for Python 2.7, 3.5 and 3.6, added it for Python 3.9
+* Removed support for Python 2.7, 3.5 and 3.6, added it for Python 3.9 and 3.10
 * Minimum *pydicom* version is 2.2
 * The *Failed SOP Instance UID List* sent with the final C-GET/C-MOVE SCP
-  failure or warning responses no longer includes the SOP Instances for
+  failure or warning responses no longer includes the SOP Instance UIDs for
   sub-operations that return a warning status
-* SOP Class and Instance variable names changed to match the new UID keywords
+* SOP Class and Instance variable names changed to match the new `UID keywords
+  <https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html#table_A-1>`_
   from the DICOM Standard. In particular ``VerificationSOPClass`` is now simply
   :attr:`~pynetdicom.sop_class.Verification`
 * All AE titles and DIMSE elements with a VR of **AE** should be set using an
   ASCII :class:`str` rather than :class:`bytes`
+* The default bind address used when making association requests has been changed to
+  ``("127.0.0.1", 0)`` and addresses that resolve to ``INADDR_ANY`` are disallowed by
+  default (:issue:`680`)
+* ``DULServiceProvider.primitive`` and ``DULServiceProvider.pdu`` have been removed
+* :meth:`AssociationSocket.connect<pynetdicom.transport.AssociationSocket.connect>`
+  now takes a :class:`~pynetdicom.transport.T_CONNECT` primitive

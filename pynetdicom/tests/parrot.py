@@ -1,18 +1,19 @@
 """The Parrot testing server."""
 
-import queue
+import gc
+import logging
 import select
 import socket
+from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 import struct
-try:
-    from SocketServer import TCPServer, ThreadingMixIn, BaseRequestHandler
-except ImportError:
-    from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 from struct import pack, unpack
 import threading
 import time
 
 from pynetdicom.transport import AssociationServer
+
+
+LOGGER = logging.getLogger("pynetdicom")
 
 
 class ParrotRequest(BaseRequestHandler):
@@ -34,16 +35,16 @@ class ParrotRequest(BaseRequestHandler):
         self.received = []
         self.sent = []
         for (cmd, data) in self.commands:
-            if cmd == 'recv':
+            if cmd == "recv":
                 self.kill_read = False
                 while not self.kill_read:
                     if self.ready:
                         self.received.append(bytes(self.read_data))
                         self.kill_read = True
-            elif cmd == 'send':
+            elif cmd == "send":
                 self.send(data)
                 self.sent.append(data)
-            elif cmd == 'wait':
+            elif cmd == "wait":
                 time.sleep(data)
 
         # Disconnects automatically when this method ends!
@@ -78,7 +79,7 @@ class ParrotRequest(BaseRequestHandler):
             # Byte 1 is always the PDU type
             # Byte 2 is always reserved
             # Bytes 3-6 are always the PDU length
-            pdu_type, _, pdu_length = unpack('>BBL', bytestream)
+            pdu_type, _, pdu_length = unpack(">BBL", bytestream)
         except struct.error:
             pass
 
@@ -174,32 +175,34 @@ class SteppingParrotRequest(ParrotRequest):
         self.received = []
         self.sent = []
         while True:
-            #print('Parrot: waiting on threading.Event')
+            LOGGER.debug("Parrot: waiting on event.wait()")
             self.event.wait()
-            #print('Parrot: wait ended')
+            LOGGER.debug("Parrot: event.wait() ended")
             cmd, data = self.commands.pop(0)
-            #print('Parrot: running command', cmd)
-            if cmd == 'exit':
-                #print('Parrot: exiting...')
-                return
+            LOGGER.debug(f"Parrot: running command '{cmd}'")
 
-            if cmd == 'recv':
-                #print('Parrot: receiving data')
+            if cmd == "exit":
+                LOGGER.debug("   Parrot: exiting...")
+                return
+            elif cmd == "recv":
+                LOGGER.debug("   Parrot: receiving data")
                 self.kill_read = False
                 while not self.kill_read:
                     if self.ready:
                         self.received.append(bytes(self.read_data))
                         self.kill_read = True
-            elif cmd == 'send':
-                #print('Parrot: sending data')
+                LOGGER.debug(f"  Parrot: received {len(self.received)} bytes")
+            elif cmd == "send":
+                LOGGER.debug("   Parrot: sending data")
                 self.send(data)
                 self.sent.append(data)
 
+            LOGGER.debug("Parrot: step ending, event.clear()")
             self.event.clear()
 
 
 def start_server(commands, handler=SteppingParrotRequest):
-    server = ThreadedParrot(('localhost', 11112), commands, handler)
+    server = ThreadedParrot(("localhost", 11112), commands, handler)
     thread = threading.Thread(target=server.serve_forever)
     thread.daemon = True
     thread.start()
@@ -228,12 +231,11 @@ class Parrot(AssociationServer):
         self.ssl_context = None
         self.allow_reuse_address = True
 
-        TCPServer.__init__(
-            self, address, handler, bind_and_activate=True
-        )
+        TCPServer.__init__(self, address, handler, bind_and_activate=True)
 
         self.timeout = 60
         self.handlers = []
+        self._gc = [0, 59]
 
     @property
     def received(self):
@@ -247,18 +249,27 @@ class Parrot(AssociationServer):
           None in which case it will be left unset.
         """
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.setsockopt(socket.SOL_SOCKET,
-                               socket.SO_RCVTIMEO,
-                               pack('ll', 2, 0))
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack("ll", 2, 0))
 
         self.socket.bind(self.server_address)
         self.server_address = self.socket.getsockname()
 
     def step(self):
         while self.event.is_set():
-            time.sleep(0.05)
+            time.sleep(0.0001)
 
         self.event.set()
+
+    def service_actions(self) -> None:
+        """Called by the serve_forever() loop"""
+        # For whatever reason dead Association threads aren't being garbage
+        #   collected so do it manually when a request is received
+        if self._gc[0] == self._gc[1]:
+            gc.collect()
+            self._gc[0] = 0
+            return
+
+        self._gc[0] += 1
 
     def finish_request(self, request, client_address):
         """Finish one request by instantiating RequestHandlerClass."""

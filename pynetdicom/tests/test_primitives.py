@@ -14,22 +14,27 @@ from pynetdicom.pdu_primitives import (
     MaximumLengthNotification,
     ImplementationClassUIDNotification,
     ImplementationVersionNameNotification,
-    P_DATA, A_RELEASE, A_ASSOCIATE, A_P_ABORT, A_ABORT,
+    P_DATA,
+    A_RELEASE,
+    A_ASSOCIATE,
+    A_P_ABORT,
+    A_ABORT,
     SCP_SCU_RoleSelectionNegotiation,
     AsynchronousOperationsWindowNegotiation,
-    UserIdentityNegotiation
+    UserIdentityNegotiation,
 )
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.utils import pretty_bytes
 
-LOGGER = logging.getLogger('pynetdicom')
+LOGGER = logging.getLogger("pynetdicom")
 LOGGER.setLevel(logging.CRITICAL)
 
 
 def print_nice_bytes(bytestream):
     """Nice output for bytestream."""
-    str_list = pretty_bytes(bytestream, prefix="b'\\x", delimiter='\\x',
-                            items_per_line=10)
+    str_list = pretty_bytes(
+        bytestream, prefix="b'\\x", delimiter="\\x", items_per_line=10
+    )
     for string in str_list:
         print(string)
 
@@ -54,10 +59,10 @@ class TestPrimitive_MaximumLengthNotification:
             primitive.maximum_length_received = -1
 
         with pytest.raises(TypeError):
-            primitive.maximum_length_received = 'abc'
+            primitive.maximum_length_received = "abc"
 
     def test_conversion(self):
-        """ Check converting to PDU item works correctly """
+        """Check converting to PDU item works correctly"""
         ## Check conversion to item using default value
         primitive = MaximumLengthNotification()
         item = primitive.from_primitive()
@@ -75,7 +80,7 @@ class TestPrimitive_MaximumLengthNotification:
     def test_string(self):
         """Check the string output."""
         primitive = MaximumLengthNotification()
-        assert '16382 bytes' in primitive.__str__()
+        assert "16382 bytes" in primitive.__str__()
 
 
 class TestPrimitive_ImplementationClassUIDNotification:
@@ -90,11 +95,11 @@ class TestPrimitive_ImplementationClassUIDNotification:
         _config.ENFORCE_UID_CONFORMANCE = False
         primitive = ImplementationClassUIDNotification()
 
-        primitive.implementation_class_uid = 'abc'
-        assert primitive.implementation_class_uid == 'abc'
+        primitive.implementation_class_uid = "abc"
+        assert primitive.implementation_class_uid == "abc"
 
         with pytest.raises(ValueError):
-            primitive.implementation_class_uid = 'abc' * 22
+            primitive.implementation_class_uid = "abc" * 22
 
     def test_uid_conformance_true(self):
         """Test UID conformance with ENFORCE_UID_CONFORMANCE = True"""
@@ -102,31 +107,25 @@ class TestPrimitive_ImplementationClassUIDNotification:
         primitive = ImplementationClassUIDNotification()
 
         with pytest.raises(ValueError):
-            primitive.implementation_class_uid = 'abc'
+            primitive.implementation_class_uid = "abc"
 
     def test_assignment_and_exceptions(self):
         """Check incorrect setter for implementation_class_uid raises"""
         primitive = ImplementationClassUIDNotification()
 
         ## Check assignment
-        reference_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
+        reference_uid = UID("1.2.826.0.1.3680043.9.3811.0.9.0")
 
         # bytes
-        primitive.implementation_class_uid = (
-            b'1.2.826.0.1.3680043.9.3811.0.9.0'
-        )
+        primitive.implementation_class_uid = b"1.2.826.0.1.3680043.9.3811.0.9.0"
         assert primitive.implementation_class_uid == reference_uid
 
         # str
-        primitive.implementation_class_uid = (
-            '1.2.826.0.1.3680043.9.3811.0.9.0'
-        )
+        primitive.implementation_class_uid = "1.2.826.0.1.3680043.9.3811.0.9.0"
         assert primitive.implementation_class_uid == reference_uid
 
         # UID
-        primitive.implementation_class_uid = UID(
-            '1.2.826.0.1.3680043.9.3811.0.9.0'
-        )
+        primitive.implementation_class_uid = UID("1.2.826.0.1.3680043.9.3811.0.9.0")
         assert primitive.implementation_class_uid == reference_uid
 
         ## Check exceptions
@@ -144,11 +143,9 @@ class TestPrimitive_ImplementationClassUIDNotification:
             primitive.implementation_class_uid = 100
 
     def test_conversion(self):
-        """ Check converting to PDU item works correctly """
+        """Check converting to PDU item works correctly"""
         primitive = ImplementationClassUIDNotification()
-        primitive.implementation_class_uid = UID(
-            '1.2.826.0.1.3680043.9.3811.0.9.0'
-        )
+        primitive.implementation_class_uid = UID("1.2.826.0.1.3680043.9.3811.0.9.0")
         item = primitive.from_primitive()
 
         assert item.encode() == (
@@ -160,10 +157,8 @@ class TestPrimitive_ImplementationClassUIDNotification:
     def test_string(self):
         """Check the string output."""
         primitive = ImplementationClassUIDNotification()
-        primitive.implementation_class_uid = UID(
-            '1.2.826.0.1.3680043.9.3811.0.9.0'
-        )
-        assert '1.2.826.0.1.3680043.9.3811.0.9.0' in primitive.__str__()
+        primitive.implementation_class_uid = UID("1.2.826.0.1.3680043.9.3811.0.9.0")
+        assert "1.2.826.0.1.3680043.9.3811.0.9.0" in primitive.__str__()
 
 
 class TestPrimitive_ImplementationVersionNameNotification:
@@ -172,22 +167,22 @@ class TestPrimitive_ImplementationVersionNameNotification:
         primitive = ImplementationVersionNameNotification()
 
         ## Check assignment
-        reference_name = 'PYNETDICOM_090'
+        reference_name = "PYNETDICOM_090"
 
         ## Check maximum length allowable
-        primitive.implementation_version_name = '1234567890ABCDEF'
-        assert primitive.implementation_version_name == '1234567890ABCDEF'
+        primitive.implementation_version_name = "1234567890ABCDEF"
+        assert primitive.implementation_version_name == "1234567890ABCDEF"
 
         # bytes
-        primitive.implementation_version_name = 'PYNETDICOM_090'
+        primitive.implementation_version_name = "PYNETDICOM_090"
         assert primitive.implementation_version_name == reference_name
 
         # str
-        primitive.implementation_version_name = 'PYNETDICOM_090'
+        primitive.implementation_version_name = "PYNETDICOM_090"
         assert primitive.implementation_version_name == reference_name
 
-        primitive.implementation_version_name = 'P'
-        assert primitive.implementation_version_name == 'P'
+        primitive.implementation_version_name = "P"
+        assert primitive.implementation_version_name == "P"
 
         ## Check exceptions
         primitive = ImplementationVersionNameNotification()
@@ -203,7 +198,7 @@ class TestPrimitive_ImplementationVersionNameNotification:
         with pytest.raises(TypeError):
             primitive.implementation_version_name = 100
 
-        bad = 'ABCD1234ABCD12345'
+        bad = "ABCD1234ABCD12345"
         msg = (
             f"Invalid 'Implementation Version Name' value '{bad}' - must not "
             "exceed 16 characters"
@@ -211,32 +206,32 @@ class TestPrimitive_ImplementationVersionNameNotification:
         with pytest.raises(ValueError, match=msg):
             primitive.implementation_version_name = bad
 
-        primitive.implementation_version_name = ''
-        assert primitive.implementation_version_name == ''
+        primitive.implementation_version_name = ""
+        assert primitive.implementation_version_name == ""
         primitive.implementation_version_name = None
         assert primitive.implementation_version_name is None
 
     def test_conversion(self):
-        """ Check converting to PDU item works correctly """
+        """Check converting to PDU item works correctly"""
         primitive = ImplementationVersionNameNotification()
-        primitive.implementation_version_name = 'PYNETDICOM_090'
+        primitive.implementation_version_name = "PYNETDICOM_090"
         item = primitive.from_primitive()
 
         assert item.encode() == (
-            b'\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49\x43\x4f\x4d\x5f'
-            b'\x30\x39\x30'
+            b"\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49\x43\x4f\x4d\x5f"
+            b"\x30\x39\x30"
         )
 
     def test_string(self):
         """Check the string output."""
         primitive = ImplementationVersionNameNotification()
-        primitive.implementation_version_name = 'PYNETDICOM3_090'
-        assert 'PYNETDICOM3_090' in primitive.__str__()
+        primitive.implementation_version_name = "PYNETDICOM3_090"
+        assert "PYNETDICOM3_090" in primitive.__str__()
 
 
 class TestPrimitive_AsynchronousOperationsWindowNegotiation:
     def test_assignment_and_exceptions(self):
-        """ Check incorrect types/values for properties raise exceptions """
+        """Check incorrect types/values for properties raise exceptions"""
         primitive = AsynchronousOperationsWindowNegotiation()
 
         ## Check default assignment
@@ -258,7 +253,7 @@ class TestPrimitive_AsynchronousOperationsWindowNegotiation:
             primitive.maximum_number_operations_invoked = -1
 
         with pytest.raises(TypeError):
-            primitive.maximum_number_operations_invoked = 'ABCD1234ABCD12345'
+            primitive.maximum_number_operations_invoked = "ABCD1234ABCD12345"
 
         with pytest.raises(TypeError):
             primitive.maximum_number_operations_performed = 45.2
@@ -267,24 +262,24 @@ class TestPrimitive_AsynchronousOperationsWindowNegotiation:
             primitive.maximum_number_operations_performed = -1
 
         with pytest.raises(TypeError):
-            primitive.maximum_number_operations_performed = 'ABCD1234ABCD12345'
+            primitive.maximum_number_operations_performed = "ABCD1234ABCD12345"
 
     def test_conversion(self):
-        """ Check converting to PDU item works correctly """
+        """Check converting to PDU item works correctly"""
         primitive = AsynchronousOperationsWindowNegotiation()
         primitive.maximum_number_operations_invoked = 10
         primitive.maximum_number_operations_performed = 0
         item = primitive.from_primitive()
 
-        assert item.encode() == b'\x53\x00\x00\x04\x00\x0a\x00\x00'
+        assert item.encode() == b"\x53\x00\x00\x04\x00\x0a\x00\x00"
 
     def test_string(self):
         """Check the string output."""
         primitive = AsynchronousOperationsWindowNegotiation()
         primitive.maximum_number_operations_invoked = 10
         primitive.maximum_number_operations_performed = 0
-        assert 'invoked: 10' in primitive.__str__()
-        assert 'performed: 0' in primitive.__str__()
+        assert "invoked: 10" in primitive.__str__()
+        assert "performed: 0" in primitive.__str__()
 
 
 class TestPrimitive_SCP_SCU_RoleSelectionNegotiation:
@@ -299,8 +294,8 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation:
         _config.ENFORCE_UID_CONFORMANCE = False
         primitive = SCP_SCU_RoleSelectionNegotiation()
 
-        primitive.sop_class_uid = 'abc'
-        assert primitive.sop_class_uid == 'abc'
+        primitive.sop_class_uid = "abc"
+        assert primitive.sop_class_uid == "abc"
 
     def test_uid_conformance_true(self):
         """Test UID conformance with ENFORCE_UID_CONFORMANCE = True"""
@@ -308,23 +303,23 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation:
         primitive = SCP_SCU_RoleSelectionNegotiation()
 
         with pytest.raises(ValueError):
-            primitive.sop_class_uid = 'abc'
+            primitive.sop_class_uid = "abc"
 
     def test_assignment_and_exceptions(self):
-        """ Check incorrect types/values for properties raise exceptions """
+        """Check incorrect types/values for properties raise exceptions"""
         primitive = SCP_SCU_RoleSelectionNegotiation()
 
         ## Check assignment
         # SOP Class UID
-        reference_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        reference_uid = UID("1.2.840.10008.5.1.4.1.1.2")
 
         primitive.sop_class_uid = None
         assert primitive.sop_class_uid is None
-        primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         assert primitive.sop_class_uid == reference_uid
-        primitive.sop_class_uid = '1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = "1.2.840.10008.5.1.4.1.1.2"
         assert primitive.sop_class_uid == reference_uid
-        primitive.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        primitive.sop_class_uid = UID("1.2.840.10008.5.1.4.1.1.2")
         assert primitive.sop_class_uid == reference_uid
 
         # SCP Role
@@ -350,20 +345,20 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation:
             primitive.scp_role = 1
 
         with pytest.raises(TypeError):
-            primitive.scp_role = 'abc'
+            primitive.scp_role = "abc"
 
         with pytest.raises(TypeError):
             primitive.scu_role = 1
 
         with pytest.raises(TypeError):
-            primitive.scu_role = 'abc'
+            primitive.scu_role = "abc"
 
         # No value set
         primitive = SCP_SCU_RoleSelectionNegotiation()
         with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
-        primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
@@ -372,7 +367,7 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation:
             item = primitive.from_primitive()
 
         primitive = SCP_SCU_RoleSelectionNegotiation()
-        primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         primitive.scu_role = True
         item = primitive.from_primitive()
         assert item.scu_role
@@ -385,21 +380,21 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation:
             item = primitive.from_primitive()
 
     def test_conversion(self):
-        """ Check converting to PDU item works correctly """
+        """Check converting to PDU item works correctly"""
         primitive = SCP_SCU_RoleSelectionNegotiation()
-        primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         primitive.scp_role = True
         primitive.scu_role = False
         item = primitive.from_primitive()
 
         assert item.encode() == (
-            b'\x54\x00\x00\x1d\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30'
-            b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32'
-            b'\x00\x01'
+            b"\x54\x00\x00\x1d\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30"
+            b"\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32"
+            b"\x00\x01"
         )
 
         primitive = SCP_SCU_RoleSelectionNegotiation()
-        primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         primitive.scp_role = False
         primitive.scu_role = False
         with pytest.raises(ValueError):
@@ -418,8 +413,8 @@ class TestPrimitive_SOPClassExtendedNegotiation:
         _config.ENFORCE_UID_CONFORMANCE = False
         primitive = SOPClassExtendedNegotiation()
 
-        primitive.sop_class_uid = 'abc'
-        assert primitive.sop_class_uid == 'abc'
+        primitive.sop_class_uid = "abc"
+        assert primitive.sop_class_uid == "abc"
 
     def test_uid_conformance_true(self):
         """Test UID conformance with ENFORCE_UID_CONFORMANCE = True"""
@@ -427,33 +422,31 @@ class TestPrimitive_SOPClassExtendedNegotiation:
         primitive = SOPClassExtendedNegotiation()
 
         with pytest.raises(ValueError):
-            primitive.sop_class_uid = 'abc'
+            primitive.sop_class_uid = "abc"
 
     def test_assignment_and_exceptions(self):
-        """ Check incorrect types/values for properties raise exceptions """
+        """Check incorrect types/values for properties raise exceptions"""
         primitive = SOPClassExtendedNegotiation()
 
         ## Check assignment
         # SOP Class UID
-        reference_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        reference_uid = UID("1.2.840.10008.5.1.4.1.1.2")
 
         primitive.sop_class_uid = None
         assert primitive.sop_class_uid is None
-        primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         assert primitive.sop_class_uid == reference_uid
-        primitive.sop_class_uid = '1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = "1.2.840.10008.5.1.4.1.1.2"
         assert primitive.sop_class_uid == reference_uid
-        primitive.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        primitive.sop_class_uid = UID("1.2.840.10008.5.1.4.1.1.2")
         assert primitive.sop_class_uid == reference_uid
 
         # Service Class Application Information
         primitive.service_class_application_information = None
         assert primitive.service_class_application_information is None
-        primitive.service_class_application_information = (
-            b'\x02\x00\x03\x00\x01\x00'
-        )
+        primitive.service_class_application_information = b"\x02\x00\x03\x00\x01\x00"
         assert primitive.service_class_application_information == (
-            b'\x02\x00\x03\x00\x01\x00'
+            b"\x02\x00\x03\x00\x01\x00"
         )
 
         ## Check exceptions
@@ -476,30 +469,26 @@ class TestPrimitive_SOPClassExtendedNegotiation:
         with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
-        primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         primitive = SOPClassExtendedNegotiation()
-        primitive.service_class_application_information = (
-            b'\x02\x00\x03\x00\x01\x00'
-        )
+        primitive.service_class_application_information = b"\x02\x00\x03\x00\x01\x00"
         with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
     def test_conversion(self):
-        """ Check converting to PDU item works correctly """
+        """Check converting to PDU item works correctly"""
         primitive = SOPClassExtendedNegotiation()
-        primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
-        primitive.service_class_application_information = (
-            b'\x02\x00\x03\x00\x01\x00'
-        )
+        primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
+        primitive.service_class_application_information = b"\x02\x00\x03\x00\x01\x00"
         item = primitive.from_primitive()
 
         assert item.encode() == (
-            b'\x56\x00\x00\x21\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30'
-            b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32'
-            b'\x02\x00\x03\x00\x01\x00'
+            b"\x56\x00\x00\x21\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30"
+            b"\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32"
+            b"\x02\x00\x03\x00\x01\x00"
         )
 
 
@@ -517,23 +506,23 @@ class TestPrimitive_SOPClassCommonExtendedNegotiation:
 
         primitive.sop_class_uid = None
         assert primitive.sop_class_uid is None
-        primitive.sop_class_uid = 'abc'
-        assert primitive.sop_class_uid == 'abc'
+        primitive.sop_class_uid = "abc"
+        assert primitive.sop_class_uid == "abc"
         primitive.service_class_uid = None
         assert primitive.service_class_uid is None
-        primitive.service_class_uid = 'abc'
-        assert primitive.service_class_uid == 'abc'
-        primitive.related_general_sop_class_identification = ['abc']
-        assert primitive.related_general_sop_class_identification == ['abc']
+        primitive.service_class_uid = "abc"
+        assert primitive.service_class_uid == "abc"
+        primitive.related_general_sop_class_identification = ["abc"]
+        assert primitive.related_general_sop_class_identification == ["abc"]
 
         with pytest.raises(ValueError):
-            primitive.sop_class_uid = 'abc' * 22
+            primitive.sop_class_uid = "abc" * 22
 
         with pytest.raises(ValueError):
-            primitive.service_class_uid = 'abc' * 22
+            primitive.service_class_uid = "abc" * 22
 
         with pytest.raises(ValueError):
-            primitive.related_general_sop_class_identification = ['abc'  * 22]
+            primitive.related_general_sop_class_identification = ["abc" * 22]
 
     def test_uid_conformance_true(self):
         """Test UID conformance with ENFORCE_UID_CONFORMANCE = True"""
@@ -541,57 +530,59 @@ class TestPrimitive_SOPClassCommonExtendedNegotiation:
         primitive = SOPClassCommonExtendedNegotiation()
 
         with pytest.raises(ValueError):
-            primitive.sop_class_uid = 'abc'
+            primitive.sop_class_uid = "abc"
 
         with pytest.raises(ValueError):
-            primitive.service_class_uid = 'abc'
+            primitive.service_class_uid = "abc"
 
         with pytest.raises(ValueError):
-            primitive.related_general_sop_class_identification = ['abc']
+            primitive.related_general_sop_class_identification = ["abc"]
 
     def test_assignment_and_exceptions(self):
-        """ Check incorrect types/values for properties raise exceptions """
+        """Check incorrect types/values for properties raise exceptions"""
         primitive = SOPClassCommonExtendedNegotiation()
 
         ## Check assignment
         # SOP Class UID
-        reference_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        reference_uid = UID("1.2.840.10008.5.1.4.1.1.2")
 
-        primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         assert primitive.sop_class_uid == reference_uid
-        primitive.sop_class_uid = 'abc'
-        assert primitive.sop_class_uid == 'abc'
-        primitive.sop_class_uid = '1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = "abc"
+        assert primitive.sop_class_uid == "abc"
+        primitive.sop_class_uid = "1.2.840.10008.5.1.4.1.1.2"
         assert primitive.sop_class_uid == reference_uid
-        primitive.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        primitive.sop_class_uid = UID("1.2.840.10008.5.1.4.1.1.2")
         assert primitive.sop_class_uid == reference_uid
 
         # Service Class UID
-        primitive.service_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        primitive.service_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         assert primitive.service_class_uid == reference_uid
-        primitive.service_class_uid = 'abc'
-        assert primitive.service_class_uid == 'abc'
-        primitive.service_class_uid = '1.2.840.10008.5.1.4.1.1.2'
+        primitive.service_class_uid = "abc"
+        assert primitive.service_class_uid == "abc"
+        primitive.service_class_uid = "1.2.840.10008.5.1.4.1.1.2"
         assert primitive.service_class_uid == reference_uid
-        primitive.service_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        primitive.service_class_uid = UID("1.2.840.10008.5.1.4.1.1.2")
         assert primitive.service_class_uid == reference_uid
 
         # Related General SOP Class Identification
-        ref_list = [UID('1.2.840.10008.5.1.4.1.1.2'),
-                    UID('1.2.840.10008.5.1.4.1.1.3'),
-                    UID('1.2.840.10008.5.1.4.1.1.4')]
+        ref_list = [
+            UID("1.2.840.10008.5.1.4.1.1.2"),
+            UID("1.2.840.10008.5.1.4.1.1.3"),
+            UID("1.2.840.10008.5.1.4.1.1.4"),
+        ]
 
         uid_list = []
-        uid_list.append(b'1.2.840.10008.5.1.4.1.1.2')
-        uid_list.append('1.2.840.10008.5.1.4.1.1.3')
-        uid_list.append(UID('1.2.840.10008.5.1.4.1.1.4'))
+        uid_list.append(b"1.2.840.10008.5.1.4.1.1.2")
+        uid_list.append("1.2.840.10008.5.1.4.1.1.3")
+        uid_list.append(UID("1.2.840.10008.5.1.4.1.1.4"))
         primitive.related_general_sop_class_identification = uid_list
         assert primitive.related_general_sop_class_identification == ref_list
-        primitive.related_general_sop_class_identification = ['abc']
-        assert primitive.related_general_sop_class_identification == ['abc']
+        primitive.related_general_sop_class_identification = ["abc"]
+        assert primitive.related_general_sop_class_identification == ["abc"]
 
         with pytest.raises(TypeError):
-            primitive.related_general_sop_class_identification = 'test'
+            primitive.related_general_sop_class_identification = "test"
 
         ## Check exceptions
         # SOP Class UID
@@ -620,38 +611,38 @@ class TestPrimitive_SOPClassCommonExtendedNegotiation:
         with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
-        primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         primitive = SOPClassCommonExtendedNegotiation()
-        primitive.service_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        primitive.service_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
     def test_conversion(self):
-        """ Check converting to PDU item works correctly """
+        """Check converting to PDU item works correctly"""
         primitive = SOPClassCommonExtendedNegotiation()
-        primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.4'
-        primitive.service_class_uid = b'1.2.840.10008.4.2'
+        primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.4"
+        primitive.service_class_uid = b"1.2.840.10008.4.2"
         primitive.related_general_sop_class_identification = [
-            '1.2.840.10008.5.1.4.1.1.88.22'
+            "1.2.840.10008.5.1.4.1.1.88.22"
         ]
         item = primitive.from_primitive()
 
         assert item.encode() == (
-            b'\x57\x00\x00\x4f\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30'
-            b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34\x00'
-            b'\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x34'
-            b'\x2e\x32\x00\x1f\x00\x1d\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30'
-            b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x38\x38'
-            b'\x2e\x32\x32'
+            b"\x57\x00\x00\x4f\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30"
+            b"\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34\x00"
+            b"\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x34"
+            b"\x2e\x32\x00\x1f\x00\x1d\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30"
+            b"\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x38\x38"
+            b"\x2e\x32\x32"
         )
 
 
 class TestPrimitive_UserIdentityNegotiation:
     def test_assignment_and_exceptions(self):
-        """ Check incorrect types/values for properties raise exceptions """
+        """Check incorrect types/values for properties raise exceptions"""
         primitive = UserIdentityNegotiation()
         for type_no in [1, 2, 3, 4, 5]:
             primitive.user_identity_type = type_no
@@ -661,33 +652,33 @@ class TestPrimitive_UserIdentityNegotiation:
             primitive.user_identity_type = 6
 
         with pytest.raises(TypeError):
-            primitive.user_identity_type = 'a'
+            primitive.user_identity_type = "a"
 
         primitive.positive_response_requested = True
         assert primitive.positive_response_requested
         with pytest.raises(TypeError):
-            primitive.positive_response_requested = 'test'
+            primitive.positive_response_requested = "test"
 
         primitive.primary_field = None
         assert primitive.primary_field is None
-        primitive.primary_field = b'\x00\x01'
-        assert primitive.primary_field == b'\x00\x01'
+        primitive.primary_field = b"\x00\x01"
+        assert primitive.primary_field == b"\x00\x01"
         with pytest.raises(TypeError):
-            primitive.primary_field = ['test']
+            primitive.primary_field = ["test"]
 
-        primitive.secondary_field = b'\x00\x21'
-        assert primitive.secondary_field == b'\x00\x21'
+        primitive.secondary_field = b"\x00\x21"
+        assert primitive.secondary_field == b"\x00\x21"
         primitive.secondary_field = None
         assert primitive.secondary_field is None
         with pytest.raises(TypeError):
-            primitive.secondary_field = ['test']
+            primitive.secondary_field = ["test"]
 
         primitive.server_response = None
         assert primitive.server_response is None
-        primitive.server_response = b'\x00\x31'
-        assert primitive.server_response == b'\x00\x31'
+        primitive.server_response = b"\x00\x31"
+        assert primitive.server_response == b"\x00\x31"
         with pytest.raises(TypeError):
-            primitive.server_response = ['test']
+            primitive.server_response = ["test"]
 
         primitive = UserIdentityNegotiation()
         with pytest.raises(ValueError):
@@ -704,34 +695,34 @@ class TestPrimitive_UserIdentityNegotiation:
         primitive = UserIdentityNegotiation()
         primitive.user_identity_type = 1
         primitive.positive_response_requested = True
-        primitive.primary_field = b'\x00\x01'
-        primitive.secondary_field = b'\x00\x21'
-        assert 'requested: True' in primitive.__str__()
-        assert 'type: 1' in primitive.__str__()
-        assert 'Primary' in primitive.__str__()
-        assert 'Secondary' in primitive.__str__()
+        primitive.primary_field = b"\x00\x01"
+        primitive.secondary_field = b"\x00\x21"
+        assert "requested: True" in primitive.__str__()
+        assert "type: 1" in primitive.__str__()
+        assert "Primary" in primitive.__str__()
+        assert "Secondary" in primitive.__str__()
 
-        primitive.server_response = b'\x00\x31'
-        assert 'Server response' in primitive.__str__()
+        primitive.server_response = b"\x00\x31"
+        assert "Server response" in primitive.__str__()
 
     def test_conversion(self):
-        """ Check converting to PDU item works correctly """
+        """Check converting to PDU item works correctly"""
         primitive = UserIdentityNegotiation()
         # -RQ
         primitive.user_identity_type = 1
-        primitive.primary_field = b'test'
+        primitive.primary_field = b"test"
         item = primitive.from_primitive()
 
         primitive.user_identity_type = 2
-        primitive.secondary_field = b''
+        primitive.secondary_field = b""
         with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         # -AC
         primitive = UserIdentityNegotiation()
-        primitive.server_response = b'Test'
+        primitive.server_response = b"Test"
         item = primitive.from_primitive()
-        assert item.encode() == b'\x59\x00\x00\x06\x00\x04\x54\x65\x73\x74'
+        assert item.encode() == b"\x59\x00\x00\x06\x00\x04\x54\x65\x73\x74"
 
 
 class TestPrimitive_A_ASSOCIATE:
@@ -746,8 +737,8 @@ class TestPrimitive_A_ASSOCIATE:
         _config.ENFORCE_UID_CONFORMANCE = False
         primitive = A_ASSOCIATE()
 
-        primitive.application_context_name = 'abc'
-        assert primitive.application_context_name == 'abc'
+        primitive.application_context_name = "abc"
+        assert primitive.application_context_name == "abc"
 
     def test_uid_conformance_true(self):
         """Test UID conformance with ENFORCE_UID_CONFORMANCE = True"""
@@ -755,10 +746,10 @@ class TestPrimitive_A_ASSOCIATE:
         primitive = A_ASSOCIATE()
 
         with pytest.raises(ValueError):
-            primitive.application_context_name = 'abc'
+            primitive.application_context_name = "abc"
 
     def test_assignment(self):
-        """ Check assignment works correctly """
+        """Check assignment works correctly"""
         assoc = A_ASSOCIATE()
 
         with pytest.raises(AttributeError):
@@ -773,27 +764,26 @@ class TestPrimitive_A_ASSOCIATE:
         assoc.application_context_name = None
         assert assoc.application_context_name is None
         assoc.application_context_name = "1.2.840.10008.3.1.1.1"
-        assert assoc.application_context_name == UID('1.2.840.10008.3.1.1.1')
+        assert assoc.application_context_name == UID("1.2.840.10008.3.1.1.1")
         assoc.application_context_name = b"1.2.840.10008.3.1.1.1"
-        assert assoc.application_context_name == UID('1.2.840.10008.3.1.1.1')
+        assert assoc.application_context_name == UID("1.2.840.10008.3.1.1.1")
         assoc.application_context_name = UID("1.2.840.10008.3.1.1.1")
-        assert assoc.application_context_name == UID('1.2.840.10008.3.1.1.1')
-
+        assert assoc.application_context_name == UID("1.2.840.10008.3.1.1.1")
 
         msg = "'Calling AE Title' must be str, not 'NoneType'"
         with pytest.raises(TypeError, match=msg):
             assoc.calling_ae_title = None
 
-        assoc.calling_ae_title = 'ABCDEF1234567890'
-        assert assoc.calling_ae_title == 'ABCDEF1234567890'
+        assoc.calling_ae_title = "ABCDEF1234567890"
+        assert assoc.calling_ae_title == "ABCDEF1234567890"
 
         msg = "'Called AE Title' must be str, not 'NoneType'"
         with pytest.raises(TypeError, match=msg):
             assoc.called_ae_title = None
 
         assert assoc.responding_ae_title == assoc.called_ae_title
-        assoc.called_ae_title = '1234567890ABCDEF'
-        assert assoc.called_ae_title == '1234567890ABCDEF'
+        assoc.called_ae_title = "1234567890ABCDEF"
+        assert assoc.called_ae_title == "1234567890ABCDEF"
         assert assoc.responding_ae_title == assoc.called_ae_title
 
         max_length = MaximumLengthNotification()
@@ -801,7 +791,7 @@ class TestPrimitive_A_ASSOCIATE:
         assoc.user_information.append(max_length)
         assert assoc.user_information[0].maximum_length_received == 31222
 
-        assoc.user_information = ['a', max_length]
+        assoc.user_information = ["a", max_length]
         assert assoc.user_information == [max_length]
 
         assoc.result = None
@@ -834,24 +824,24 @@ class TestPrimitive_A_ASSOCIATE:
 
         assoc.calling_presentation_address = None
         assert assoc.calling_presentation_address is None
-        assoc.calling_presentation_address = ('10.40.94.43', 105)
-        assert assoc.calling_presentation_address == ('10.40.94.43', 105)
+        assoc.calling_presentation_address = ("10.40.94.43", 105)
+        assert assoc.calling_presentation_address == ("10.40.94.43", 105)
 
         assoc.called_presentation_address = None
         assert assoc.called_presentation_address is None
-        assoc.called_presentation_address = ('10.40.94.44', 106)
-        assert assoc.called_presentation_address == ('10.40.94.44', 106)
+        assoc.called_presentation_address = ("10.40.94.44", 106)
+        assert assoc.called_presentation_address == ("10.40.94.44", 106)
 
         pc = PresentationContext()
         pc.context_id = 1
         assoc.presentation_context_definition_list = [pc]
         assert assoc.presentation_context_definition_list == [pc]
-        assoc.presentation_context_definition_list = ['a', pc]
+        assoc.presentation_context_definition_list = ["a", pc]
         assert assoc.presentation_context_definition_list == [pc]
 
         assoc.presentation_context_definition_results_list = [pc]
         assert assoc.presentation_context_definition_results_list == [pc]
-        assoc.presentation_context_definition_results_list = ['a', pc]
+        assoc.presentation_context_definition_results_list = ["a", pc]
         assert assoc.presentation_context_definition_results_list == [pc]
 
         assoc = A_ASSOCIATE()
@@ -868,18 +858,16 @@ class TestPrimitive_A_ASSOCIATE:
         assert assoc.maximum_length_received == 31224
 
         # No ImplementationClassUIDNotification present
-        assoc.implementation_class_uid = '1.1.2.3.4'
-        assert assoc.user_information[1].implementation_class_uid == UID(
-            '1.1.2.3.4'
-        )
-        assert assoc.implementation_class_uid == UID('1.1.2.3.4')
+        assoc.implementation_class_uid = "1.1.2.3.4"
+        assert assoc.user_information[1].implementation_class_uid == UID("1.1.2.3.4")
+        assert assoc.implementation_class_uid == UID("1.1.2.3.4")
 
         # ImplementationClassUIDNotification already present
-        assoc.implementation_class_uid = '1.1.2.3.4'
-        assert assoc.implementation_class_uid == UID('1.1.2.3.4')
+        assoc.implementation_class_uid = "1.1.2.3.4"
+        assert assoc.implementation_class_uid == UID("1.1.2.3.4")
 
     def test_exceptions(self):
-        """ Check incorrect types/values for properties raise exceptions """
+        """Check incorrect types/values for properties raise exceptions"""
         assoc = A_ASSOCIATE()
 
         # application_context_name
@@ -897,10 +885,10 @@ class TestPrimitive_A_ASSOCIATE:
             assoc.calling_ae_title = 100
 
         with pytest.raises(ValueError):
-            assoc.calling_ae_title = ''
+            assoc.calling_ae_title = ""
 
         with pytest.raises(ValueError):
-            assoc.calling_ae_title = '    '
+            assoc.calling_ae_title = "    "
 
         # called_ae_title
         with pytest.raises(TypeError):
@@ -910,10 +898,10 @@ class TestPrimitive_A_ASSOCIATE:
             assoc.called_ae_title = 100
 
         with pytest.raises(ValueError):
-            assoc.called_ae_title = ''
+            assoc.called_ae_title = ""
 
         with pytest.raises(ValueError):
-            assoc.called_ae_title = '    '
+            assoc.called_ae_title = "    "
 
         # user_information
         with pytest.raises(TypeError):
@@ -952,17 +940,17 @@ class TestPrimitive_A_ASSOCIATE:
 
         # calling_presentation_addresss
         with pytest.raises(TypeError):
-            assoc.calling_presentation_address = ['10.40.94.43', 105]
+            assoc.calling_presentation_address = ["10.40.94.43", 105]
 
         with pytest.raises(TypeError):
-            assoc.calling_presentation_address = (105, '10.40.94.43')
+            assoc.calling_presentation_address = (105, "10.40.94.43")
 
         # called_presentation_addresss
         with pytest.raises(TypeError):
-            assoc.called_presentation_address = ['10.40.94.43', 105]
+            assoc.called_presentation_address = ["10.40.94.43", 105]
 
         with pytest.raises(TypeError):
-            assoc.called_presentation_address = (105, '10.40.94.43')
+            assoc.called_presentation_address = (105, "10.40.94.43")
 
         # presentation_context_definition_list
         with pytest.raises(TypeError):
@@ -982,22 +970,22 @@ class TestPrimitive_A_ASSOCIATE:
             x = assoc.implementation_class_uid
 
     def test_conversion(self):
-        """ Check conversion to a PDU produces the correct output """
+        """Check conversion to a PDU produces the correct output"""
         assoc = A_ASSOCIATE()
         assoc.application_context_name = "1.2.840.10008.3.1.1.1"
-        assoc.calling_ae_title = 'ECHOSCU'
-        assoc.called_ae_title = 'ANY-SCP'
+        assoc.calling_ae_title = "ECHOSCU"
+        assoc.called_ae_title = "ANY-SCP"
         assoc.maximum_length_received = 16382
-        assoc.implementation_class_uid = '1.2.826.0.1.3680043.9.3811.0.9.0'
+        assoc.implementation_class_uid = "1.2.826.0.1.3680043.9.3811.0.9.0"
 
         imp_ver_name = ImplementationVersionNameNotification()
-        imp_ver_name.implementation_version_name = 'PYNETDICOM_090'
+        imp_ver_name.implementation_version_name = "PYNETDICOM_090"
         assoc.user_information.append(imp_ver_name)
 
         pc = PresentationContext()
         pc.context_id = 1
-        pc.abstract_syntax = '1.2.840.10008.1.1'
-        pc.transfer_syntax = ['1.2.840.10008.1.2']
+        pc.abstract_syntax = "1.2.840.10008.1.1"
+        pc.transfer_syntax = ["1.2.840.10008.1.2"]
         assoc.presentation_context_definition_list = [pc]
 
         pdu = A_ASSOCIATE_RQ()
@@ -1025,16 +1013,16 @@ class TestPrimitive_A_ASSOCIATE:
         """Test an invalid result value gets logged and doesn't raise."""
         pdu = A_ASSOCIATE()
         pdu.result = None
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            assert pdu.result_str == '(no value available)'
+        with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+            assert pdu.result_str == "(no value available)"
             assert "Invalid A-ASSOCIATE 'Result' None" in caplog.text
 
     def test_invalid_source_str(self, caplog):
         """Test an invalid source value gets logged and doesn't raise."""
         pdu = A_ASSOCIATE()
         pdu.result_source = None
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            assert pdu.source_str == '(no value available)'
+        with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+            assert pdu.source_str == "(no value available)"
             assert "Invalid A-ASSOCIATE 'Result Source' None" in caplog.text
 
     def test_invalid_reason_str(self, caplog):
@@ -1043,17 +1031,16 @@ class TestPrimitive_A_ASSOCIATE:
         pdu.result = 1
         pdu.result_source = 2
         pdu.diagnostic = 7
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            assert pdu.reason_str == '(no value available)'
+        with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+            assert pdu.reason_str == "(no value available)"
             assert (
-                "Invalid A-ASSOCIATE 'Result Source' 2 and/or "
-                "'Diagnostic' 7 values"
+                "Invalid A-ASSOCIATE 'Result Source' 2 and/or 'Diagnostic' 7 values"
             ) in caplog.text
 
 
 class TestPrimitive_A_RELEASE:
     def test_assignment(self):
-        """ Check assignment works correctly """
+        """Check assignment works correctly"""
         assoc = A_RELEASE()
         assert assoc.reason == "normal"
 
@@ -1061,7 +1048,7 @@ class TestPrimitive_A_RELEASE:
         assert assoc.result == "affirmative"
 
     def test_exceptions(self):
-        """ Check incorrect types/values for properties raise exceptions """
+        """Check incorrect types/values for properties raise exceptions"""
         assoc = A_RELEASE()
 
         with pytest.raises(AttributeError):
@@ -1073,7 +1060,7 @@ class TestPrimitive_A_RELEASE:
 
 class TestPrimitive_A_ABORT:
     def test_assignment(self):
-        """ Check assignment works correctly """
+        """Check assignment works correctly"""
         primitive = A_ABORT()
         primitive.abort_source = 0
         assert primitive.abort_source == 0
@@ -1083,7 +1070,7 @@ class TestPrimitive_A_ABORT:
         assert primitive.abort_source == 2
 
     def test_exceptions(self):
-        """ Check incorrect types/values for properties raise exceptions """
+        """Check incorrect types/values for properties raise exceptions"""
         primitive = A_ABORT()
 
         with pytest.raises(ValueError):
@@ -1093,7 +1080,7 @@ class TestPrimitive_A_ABORT:
             primitive.abort_source
 
     def test_conversion(self):
-        """ Check conversion to a PDU produces the correct output """
+        """Check conversion to a PDU produces the correct output"""
         primitive = A_ABORT()
         primitive.abort_source = 0
 
@@ -1106,7 +1093,7 @@ class TestPrimitive_A_ABORT:
 
 class TestPrimitive_A_P_ABORT:
     def test_assignment(self):
-        """ Check assignment works correctly """
+        """Check assignment works correctly"""
         primitive = A_P_ABORT()
         primitive.provider_reason = 0
         assert primitive.provider_reason == 0
@@ -1122,7 +1109,7 @@ class TestPrimitive_A_P_ABORT:
         assert primitive.provider_reason == 6
 
     def test_exceptions(self):
-        """ Check incorrect types/values for properties raise exceptions """
+        """Check incorrect types/values for properties raise exceptions"""
         primitive = A_P_ABORT()
 
         with pytest.raises(ValueError):
@@ -1131,7 +1118,7 @@ class TestPrimitive_A_P_ABORT:
             primitive.provider_reason
 
     def test_conversion(self):
-        """ Check conversion to a PDU produces the correct output """
+        """Check conversion to a PDU produces the correct output"""
         primitive = A_P_ABORT()
         primitive.provider_reason = 4
 
@@ -1144,29 +1131,29 @@ class TestPrimitive_A_P_ABORT:
 
 class TestPrimitive_P_DATA:
     def test_assignment(self):
-        """ Check assignment works correctly """
+        """Check assignment works correctly"""
         primitive = P_DATA()
-        primitive.presentation_data_value_list = [[1, b'\x00']]
-        assert primitive.presentation_data_value_list == [[1, b'\x00']]
+        primitive.presentation_data_value_list = [[1, b"\x00"]]
+        assert primitive.presentation_data_value_list == [[1, b"\x00"]]
 
     def test_exceptions(self):
-        """ Check incorrect types/values for properties raise exceptions """
+        """Check incorrect types/values for properties raise exceptions"""
         primitive = P_DATA()
 
         with pytest.raises(TypeError):
-            primitive.presentation_data_value_list = ([1, b'\x00'])
+            primitive.presentation_data_value_list = [1, b"\x00"]
 
         with pytest.raises(TypeError):
-            primitive.presentation_data_value_list = [1, b'\x00']
+            primitive.presentation_data_value_list = [1, b"\x00"]
 
         with pytest.raises(TypeError):
-            primitive.presentation_data_value_list = [[b'\x00', 1]]
+            primitive.presentation_data_value_list = [[b"\x00", 1]]
 
         with pytest.raises(TypeError):
-            primitive.presentation_data_value_list = 'test'
+            primitive.presentation_data_value_list = "test"
 
     def test_conversion(self):
-        """ Check conversion to a PDU produces the correct output """
+        """Check conversion to a PDU produces the correct output"""
         primitive = P_DATA()
         pdv = (
             b"\x03\x00\x00\x00\x00"
@@ -1185,16 +1172,16 @@ class TestPrimitive_P_DATA:
         assert data == b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01" + pdv
 
     def test_string(self):
-        """ Check the string output."""
+        """Check the string output."""
         primitive = P_DATA()
-        primitive.presentation_data_value_list = [[0, b'\x00\x00']]
-        assert 'Byte: 00000000' in primitive.__str__()
-        primitive.presentation_data_value_list = [[0, b'\x01\x00']]
-        assert 'Byte: 00000001' in primitive.__str__()
-        primitive.presentation_data_value_list = [[0, b'\x02\x00']]
-        assert 'Byte: 00000010' in primitive.__str__()
-        primitive.presentation_data_value_list = [[0, b'\x03\x00']]
-        assert 'Byte: 00000011' in primitive.__str__()
+        primitive.presentation_data_value_list = [[0, b"\x00\x00"]]
+        assert "Byte: 00000000" in primitive.__str__()
+        primitive.presentation_data_value_list = [[0, b"\x01\x00"]]
+        assert "Byte: 00000001" in primitive.__str__()
+        primitive.presentation_data_value_list = [[0, b"\x02\x00"]]
+        assert "Byte: 00000010" in primitive.__str__()
+        primitive.presentation_data_value_list = [[0, b"\x03\x00"]]
+        assert "Byte: 00000011" in primitive.__str__()
 
 
 class TestServiceParameter:
@@ -1203,7 +1190,7 @@ class TestServiceParameter:
         prim_a = MaximumLengthNotification()
         prim_b = MaximumLengthNotification()
         assert prim_a == prim_b
-        assert not prim_a == 'test'
+        assert not prim_a == "test"
         assert not prim_a != prim_b
         prim_b.maximum_length_received = 12
         assert not prim_a == prim_b
