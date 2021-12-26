@@ -296,8 +296,7 @@ class TestDUL:
             assert assoc.is_aborted
             assert "Unable to decode the received PDU data" in caplog.text
 
-    def test_unknown_pdu_aborts(self, caplog):
-        # with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+    def test_unknown_pdu_aborts(self):
         commands = [
             ("recv", None),  # recv a-associate-rq
             ("send", a_associate_ac),
@@ -330,7 +329,6 @@ class TestDUL:
         scp.shutdown()
 
         assert assoc.is_aborted
-        # assert "Unknown PDU type received '0x53'" in caplog.text
 
     def test_exception_in_reactor(self):
         """Test that an exception being raised in the DUL reactor kills the
@@ -403,3 +401,26 @@ class TestDUL:
         assoc.release()
 
         scp.shutdown()
+
+    def test_send_over_closed(self, caplog):
+        """Test attempting to send data over closed socket logs warning."""
+        with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+            self.ae = ae = AE()
+            ae.network_timeout = 5
+            ae.dimse_timeout = 5
+            ae.acse_timeout = 5
+            ae.add_supported_context(Verification)
+
+            scp = ae.start_server(("localhost", 11112), block=False)
+
+            ae.add_requested_context(Verification)
+            assoc = ae.associate("localhost", 11112)
+
+            assoc._kill = True
+            dul = assoc.dul
+            dul.socket = None
+            dul._send(None)
+            dul._kill_thread = True
+
+            scp.shutdown()
+            assert "Attempted to send data over closed connection" in caplog.text

@@ -456,6 +456,8 @@ class DULServiceProvider(Thread):
         if self.socket is not None:
             self.socket.send(pdu.encode())
             evt.trigger(self.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+        else:
+            LOGGER.warning("Attempted to send data over closed connection")
 
     def send_pdu(self, primitive: _PDUPrimitiveType) -> None:
         """Place a primitive in the provider queue to be sent to the peer.
