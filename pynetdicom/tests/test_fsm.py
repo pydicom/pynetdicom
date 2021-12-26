@@ -1310,13 +1310,14 @@ class TestState03(TestStateBase):
             pass
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
-
         self.move_to_state(assoc, scp)
 
         scp.step()
-        scp.step()
-        scp.step()
 
+        self.wait_on_state(assoc.dul.state_machine, "Sta13")
+
+        scp.step()
+        scp.step()
         scp.shutdown()
 
         # Check A-ABORT-RQ sent
@@ -1354,6 +1355,9 @@ class TestState03(TestStateBase):
         self.move_to_state(assoc, scp)
 
         scp.step()
+
+        self.wait_on_state(assoc.dul.state_machine, "Sta13")
+
         scp.step()
         scp.shutdown()
 
@@ -1386,10 +1390,12 @@ class TestState03(TestStateBase):
             pass
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
-
         self.move_to_state(assoc, scp)
 
         scp.step()
+
+        self.wait_on_state(assoc.dul.state_machine, "Sta13")
+
         scp.step()
         scp.shutdown()
 
@@ -1507,6 +1513,7 @@ class TestState03(TestStateBase):
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
+        self.wait_on_state(assoc.dul.state_machine, "Sta13")
 
         scp.step()
         scp.shutdown()
@@ -1572,6 +1579,7 @@ class TestState03(TestStateBase):
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
+        self.wait_on_state(assoc.dul.state_machine, "Sta13")
 
         scp.step()
         scp.shutdown()
@@ -1605,6 +1613,7 @@ class TestState03(TestStateBase):
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
+        self.wait_on_state(assoc.dul.state_machine, "Sta13")
 
         scp.step()
         scp.shutdown()
@@ -1668,6 +1677,8 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
 
+        self.wait_on_state(assoc.dul.state_machine, "Sta13")
+
         scp.step()
         scp.shutdown()
 
@@ -1700,6 +1711,7 @@ class TestState03(TestStateBase):
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
+        self.wait_on_state(assoc.dul.state_machine, "Sta1")
 
         scp.step()
         scp.shutdown()
@@ -1736,7 +1748,7 @@ class TestState03(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        time.sleep(0.5)
+        self.wait_on_state(assoc.dul.state_machine, "Sta1")
 
         assert fsm._transitions[:2] == ["Sta2", "Sta3"]
         assert fsm._changes[:3] == [
@@ -1807,6 +1819,7 @@ class TestState03(TestStateBase):
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
+        self.wait_on_state(assoc.dul.state_machine, "Sta13")
 
         scp.step()
         scp.shutdown()

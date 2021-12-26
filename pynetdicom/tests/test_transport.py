@@ -30,7 +30,7 @@ from pynetdicom.transport import (
     T_CONNECT,
 )
 from pynetdicom.sop_class import Verification, RTImageStorage
-from .encoded_pdu_items import p_data_tf_rq
+from .encoded_pdu_items import p_data_tf_rq, a_associate_rq
 from .hide_modules import hide_modules
 from .utils import wait_for_server_socket
 
@@ -364,6 +364,7 @@ class TestTLS:
 
     def test_tls_not_server_not_client(self):
         """Test associating with no TLS on either end."""
+
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         server = ae.start_server(("localhost", 11112), block=False)
@@ -400,23 +401,25 @@ class TestTLS:
 
         assert len(server.active_associations) == 0
 
-    def test_tls_yes_server_not_client(self, server_context):
+    def test_tls_yes_server_not_client(self, server_context, caplog):
         """Test wrapping the acceptor socket with TLS (and not client)."""
-        self.ae = ae = AE()
-        ae.add_supported_context("1.2.840.10008.1.1")
-        server = ae.start_server(
-            ("localhost", 11112),
-            block=False,
-            ssl_context=server_context,
-        )
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            self.ae = ae = AE()
+            ae.add_supported_context("1.2.840.10008.1.1")
+            server = ae.start_server(
+                ("localhost", 11112),
+                block=False,
+                ssl_context=server_context,
+            )
 
-        ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112)
-        assert assoc.is_aborted
+            ae.add_requested_context("1.2.840.10008.1.1")
+            assoc = ae.associate("localhost", 11112)
+            assert assoc.is_aborted
 
-        server.shutdown()
+            server.shutdown()
 
-        assert len(server.active_associations) == 0
+            assert len(server.active_associations) == 0
+            assert "Connection closed before the entire PDU was received" in caplog.text
 
     def test_tls_yes_server_yes_client(self, server_context, client_context):
         """Test associating with TLS on both ends."""
@@ -794,6 +797,62 @@ class TestAssociationServer:
         assert assoc.is_established
         assoc.release()
         ae.shutdown()
+
+    def test_split_pdu_windows(self):
+        """Regression test for #653"""
+
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        req_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        req_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        req_sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack("ll", 6000, 0))
+
+        req_sock.bind(("localhost", 0))
+
+        self.ae = ae = AE()
+        ae.network_timeout = 1
+        ae.add_supported_context("1.2.840.10008.1.1")
+        ae.add_requested_context("1.2.840.10008.1.1")
+
+        server = ae.start_server(
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_ECHO, handle_echo)],
+        )
+
+        # Set AE requestor connection timeout
+        req_sock.settimeout(30)
+        req_sock.connect(("localhost", 11112))
+        req_sock.settimeout(None)
+
+        # Send data directly to the acceptor
+        req_sock.send(a_associate_rq)
+
+        # Give the acceptor time to send the A-ASSOCIATE-AC
+        while not server.active_associations:
+            time.sleep(0.0001)
+
+        assoc = server.active_associations[0]
+        while not assoc.is_established:
+            time.sleep(0.0001)
+
+        # Forcibly split the P-DATA PDU into two TCP segments
+        req_sock.send(p_data_tf_rq[:12])
+        time.sleep(0.5)
+        req_sock.send(p_data_tf_rq[12:])
+
+        # Give the acceptor time to process the C-ECHO-RQ
+        while assoc.is_established and not events:
+            time.sleep(0.0001)
+
+        server.shutdown()
+        req_sock.close()
+
+        assert 1 == len(events)
 
     def test_gc(self):
         """Test garbage collection."""
