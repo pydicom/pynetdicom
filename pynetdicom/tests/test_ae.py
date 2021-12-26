@@ -58,7 +58,9 @@ def test_blocking_handler():
     handlers = [(evt.EVT_C_ECHO, handle_echo)]
 
     thread = threading.Thread(
-        target=ae.start_server, args=(("localhost", 11112),), kwargs={"evt_handlers": handlers}
+        target=ae.start_server,
+        args=(("localhost", 11112),),
+        kwargs={"evt_handlers": handlers},
     )
     thread.daemon = True
     thread.start()
@@ -107,7 +109,9 @@ class TestMakeServer:
             r"str instead"
         )
         with pytest.warns(DeprecationWarning, match=msg):
-            server = ae.start_server(("localhost", 11112), block=False, ae_title=b"BADAE2")
+            server = ae.start_server(
+                ("localhost", 11112), block=False, ae_title=b"BADAE2"
+            )
             assert server.ae_title == "BADAE2"
             server.shutdown()
 
@@ -945,9 +949,7 @@ class TestAEGoodMiscSetters:
         with pytest.raises(TypeError, match=msg):
             ae.implementation_version_name = 1234
 
-        msg = (
-            "Invalid 'implementation_version_name' value - must not be an empty str"
-        )
+        msg = "Invalid 'implementation_version_name' value - must not be an empty str"
         with pytest.raises(ValueError, match=msg):
             ae.implementation_version_name = ""
 

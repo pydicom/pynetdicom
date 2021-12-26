@@ -2452,7 +2452,9 @@ class TestAssociationSendCFind:
             ae.network_timeout = 5
             ae.add_supported_context("1.2.3.4")
             scp = ae.start_server(
-                ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+                ("localhost", 11112),
+                block=False,
+                evt_handlers=[(evt.EVT_C_FIND, handle)],
             )
 
             ae.add_requested_context("1.2.3.4")
@@ -2636,7 +2638,9 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -2752,7 +2756,9 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -2799,7 +2805,9 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
 
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=scp_handler)
+        scp = ae.start_server(
+            ("localhost", 11112), block=False, evt_handlers=scp_handler
+        )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
@@ -2852,7 +2860,9 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
 
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=scp_handler)
+        scp = ae.start_server(
+            ("localhost", 11112), block=False, evt_handlers=scp_handler
+        )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
@@ -2903,7 +2913,9 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -2957,7 +2969,9 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -3009,7 +3023,9 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -3054,7 +3070,9 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -3105,7 +3123,9 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -3354,7 +3374,9 @@ class TestAssociationSendCGet:
             ae.network_timeout = 5
             ae.add_supported_context("1.2.3.4")
             scp = ae.start_server(
-                ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle)]
+                ("localhost", 11112),
+                block=False,
+                evt_handlers=[(evt.EVT_C_GET, handle)],
             )
 
             ae.add_requested_context("1.2.3.4")
@@ -3400,7 +3422,9 @@ class TestAssociationSendCGet:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=scp_handler)
+        scp = ae.start_server(
+            ("localhost", 11112), block=False, evt_handlers=scp_handler
+        )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
@@ -3470,7 +3494,9 @@ class TestAssociationSendCGet:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=scp_handler)
+        scp = ae.start_server(
+            ("localhost", 11112), block=False, evt_handlers=scp_handler
+        )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
@@ -3645,7 +3671,9 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
@@ -3674,7 +3702,9 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
@@ -3708,12 +3738,16 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
@@ -3756,12 +3790,16 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
@@ -3803,12 +3841,16 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
@@ -3848,12 +3890,16 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
@@ -3900,12 +3946,16 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
@@ -3938,7 +3988,9 @@ class TestAssociationSendCMove:
         # Storage SCP
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         # Move SCP
@@ -3952,7 +4004,9 @@ class TestAssociationSendCMove:
         ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         # Move SCU
@@ -3999,12 +4053,16 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
@@ -4035,7 +4093,9 @@ class TestAssociationSendCMove:
         # Storage SCP
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         # Move SCP
@@ -4050,7 +4110,9 @@ class TestAssociationSendCMove:
         ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         # Move SCU
@@ -4264,7 +4326,9 @@ class TestAssociationSendCMove:
         # Storage SCP
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         # Move SCP
@@ -4278,7 +4342,9 @@ class TestAssociationSendCMove:
         ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         # Move SCU
@@ -4327,13 +4393,17 @@ class TestAssociationSendCMove:
             # Storage SCP
             ae.add_supported_context(CTImageStorage)
             store_scp = ae.start_server(
-                ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+                ("localhost", 11112),
+                block=False,
+                evt_handlers=[(evt.EVT_C_STORE, handle_store)],
             )
 
             ae.add_requested_context(CTImageStorage)
             ae.add_supported_context("1.2.3.4")
             move_scp = ae.start_server(
-                ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+                ("localhost", 11113),
+                block=False,
+                evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
             )
 
             # Move SCU
@@ -5484,9 +5554,7 @@ class TestEventHandlingAcceptor:
 
             scp.shutdown()
 
-            msg = (
-                "Exception raised in user's 'evt.EVT_ABORTED' event handler 'handle'"
-            )
+            msg = "Exception raised in user's 'evt.EVT_ABORTED' event handler 'handle'"
             assert msg in caplog.text
             assert "Exception description" in caplog.text
 
@@ -6693,9 +6761,7 @@ class TestEventHandlingRequestor:
 
             scp.shutdown()
 
-            msg = (
-                "Exception raised in user's 'evt.EVT_ABORTED' event handler 'handle'"
-            )
+            msg = "Exception raised in user's 'evt.EVT_ABORTED' event handler 'handle'"
             assert msg in caplog.text
             assert "Exception description" in caplog.text
 

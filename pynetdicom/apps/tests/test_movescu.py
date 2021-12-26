@@ -104,7 +104,9 @@ class MoveSCUBase:
         ae.requested_contexts = StoragePresentationContexts
         scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         store_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         p = self.func(["-k", "PatientName="])
@@ -204,7 +206,9 @@ class MoveSCUBase:
         scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.supported_contexts = StoragePresentationContexts
         store_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         p = self.func(["-v", "-k", "PatientName="])
@@ -246,7 +250,9 @@ class MoveSCUBase:
         scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
         ae.supported_contexts = StoragePresentationContexts
         store_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         p = self.func(["-d", "-k", "PatientName="])

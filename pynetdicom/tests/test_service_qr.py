@@ -1573,7 +1573,9 @@ class TestQRGetServiceClass:
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
 
         role = build_role(CTImageStorage, scp_role=True)
@@ -5712,7 +5714,9 @@ class TestQRMoveServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(CTImageStorage)
-        store_scp = ae.start_server(("localhost", 11113), block=False, evt_handlers=handlers)
+        store_scp = ae.start_server(
+            ("localhost", 11113), block=False, evt_handlers=handlers
+        )
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
         scp = ae.start_server(

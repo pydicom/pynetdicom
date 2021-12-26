@@ -2218,7 +2218,9 @@ class TestNEventReport:
             return 0x0000, ds
 
         scu_hh = [(evt.EVT_N_EVENT_REPORT, handle_ner)]
-        ner_scp = ae.start_server(("localhost", 11113), block=False, evt_handlers=scu_hh)
+        ner_scp = ae.start_server(
+            ("localhost", 11113), block=False, evt_handlers=scu_hh
+        )
 
         ae.add_requested_context(PrintJob)
         assoc = ae.associate("localhost", 11112)

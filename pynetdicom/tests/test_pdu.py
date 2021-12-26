@@ -295,9 +295,7 @@ class TestASSOC_RQ:
         with pytest.raises(ValueError, match=msg):
             pdu.calling_ae_title = ""
 
-        msg = (
-            "Invalid 'Calling AE Title' value - must not consist entirely of spaces"
-        )
+        msg = "Invalid 'Calling AE Title' value - must not consist entirely of spaces"
         with pytest.raises(ValueError, match=msg):
             pdu.calling_ae_title = "  "
 
@@ -370,9 +368,7 @@ class TestASSOC_RQ:
     def test_decode_calling_empty(self):
         """Check decoding empty called AE title."""
         pdu = A_ASSOCIATE_RQ()
-        msg = (
-            "Invalid 'Calling AE Title' value - must not consist entirely of spaces"
-        )
+        msg = "Invalid 'Calling AE Title' value - must not consist entirely of spaces"
         with pytest.raises(ValueError, match=msg):
             pdu.decode(a_associate_rq_calling)
 

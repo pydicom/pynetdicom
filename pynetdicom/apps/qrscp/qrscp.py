@@ -15,7 +15,7 @@ from pynetdicom import (
     _config,
     evt,
     AllStoragePresentationContexts,
-    ALL_TRANSFER_SYNTAXES
+    ALL_TRANSFER_SYNTAXES,
 )
 from pynetdicom import _config, _handlers
 from pynetdicom.apps.common import setup_logging
@@ -191,9 +191,7 @@ def _setup_argparser():
         "-ba",
         "--bind-address",
         metavar="[a]ddress",
-        help=(
-            "override the configured address of the network interface to listen on"
-        ),
+        help=("override the configured address of the network interface to listen on"),
     )
 
     db_opts = parser.add_argument_group("Database Options")

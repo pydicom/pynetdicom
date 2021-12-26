@@ -1338,9 +1338,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
             raise TypeError("Maximum Number Operations Invoked must be an int")
 
         if value < 0:
-            raise ValueError(
-                "Maximum Number Operations Invoked must be greater than 0"
-            )
+            raise ValueError("Maximum Number Operations Invoked must be greater than 0")
 
         self._maximum_number_operations_invoked = value
 
