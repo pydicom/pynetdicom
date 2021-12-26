@@ -191,7 +191,7 @@ def _setup_argparser():
         "-ba",
         "--bind-address",
         metavar="[a]ddress",
-        help=("override the configured address of the network interface to listen on"),
+        help="override the configured address of the network interface to listen on",
     )
 
     db_opts = parser.add_argument_group("Database Options")

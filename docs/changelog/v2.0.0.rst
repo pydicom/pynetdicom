@@ -11,8 +11,8 @@ The major breaking changes with the version 2.0 release are:
     (for example, *VerificationSOPClass* becomes simply *Verification*)
   * AE title values should be :class:`str` rather than :class:`bytes` and trailing
     padding spaces are stripped from the raw value during decoding.
-  * Starting an SCP on ``INADDR_ANY`` (such as ``""`` or ``"0.0.0.0"``) is disallowed
-    by default, use ``"localhost"`` instead, or change
+  * Starting an SCP with an address of ``INADDR_ANY`` (such as ``""`` or ``"0.0.0.0"``)
+    is disallowed by default, use ``"127.0.0.1"`` instead, or change
     :attr:`~pynetdicom._config.DISALLOWED_ADDRESSES`
 
 
@@ -81,7 +81,7 @@ Enhancements
   * :attr:`~pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE` to allow the
     use of the AE as an unrestricted Storage SCP (:issue:`505`)
   * :attr:`~pynetdicom._config.DISALLOWED_ADDRESSES` to allow customising the
-    disallowed IP addresses when binding the networking socket.
+    disallowed IP addresses when binding the networking socket
 
 * The DUL reactor should be more performant when processing multiple successive events
   (:pr:`651`)

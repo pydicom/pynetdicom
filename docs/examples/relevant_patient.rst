@@ -130,4 +130,4 @@ to see the requirements for the ``evt.EVT_C_FIND`` handler.
     ae.add_supported_context(GeneralRelevantPatientInformationQuery)
 
     # Start listening for incoming association requests
-    ae.start_server(("localhost", 11112), evt_handlers=handlers)
+    ae.start_server(("127.0.0.1", 11112), evt_handlers=handlers)

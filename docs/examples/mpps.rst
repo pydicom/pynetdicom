@@ -169,7 +169,7 @@ Procedure Step Status* of ``"COMPLETED"``.
     final_ds.PerformedProcedureStepEndTime = "1300"
 
     # Associate with peer again
-    assoc = ae.associate("localhost", 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
 
     if assoc.is_established:
         # Use the N-SET service to update the SOP Instance
@@ -290,4 +290,4 @@ handlers.
     ae.add_supported_context(ModalityPerformedProcedureStep)
 
     # Start listening for incoming association requests
-    ae.start_server(("localhost", 11112), evt_handlers=handlers)
+    ae.start_server(("127.0.0.1", 11112), evt_handlers=handlers)

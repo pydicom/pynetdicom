@@ -215,4 +215,4 @@ Check the
     ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 
     # Start listening for incoming association requests
-    ae.start_server(("localhost", 11112), evt_handlers=handlers)
+    ae.start_server(("127.0.0.1", 11112), evt_handlers=handlers)

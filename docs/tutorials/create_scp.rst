@@ -67,7 +67,7 @@ using the *Explicit VR Little Endian* transfer syntax. Create a new file
 
     ae = AE()
     ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
-    ae.start_server(("localhost", 11112), block=True)
+    ae.start_server(("127.0.0.1", 11112), block=True)
 
 Let's break this down
 
@@ -107,7 +107,7 @@ presentation context.
    :linenos:
    :lineno-start: 10
 
-    ae.start_server(("localhost", 11112), block=True)
+    ae.start_server(("127.0.0.1", 11112), block=True)
 
 The call to :meth:`~ae.ApplicationEntity.start_server` starts our SCP listening
 for association requests on port ``11112`` in *blocking* mode.
@@ -124,7 +124,7 @@ And in another terminal, run :doc:`storescu<../apps/storescu>` on
 
 .. code-block:: text
 
-    $ python -m pynetdicom storescu localhost 11112 CTImageStorage.dcm -v -cx
+    $ python -m pynetdicom storescu 127.0.0.1 11112 CTImageStorage.dcm -v -cx
 
 You should see the following output:
 
@@ -220,7 +220,7 @@ So we need to :func:`bind a handler<_handlers.doc_handle_store>` to
 
     ae = AE()
     ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
-    ae.start_server(("localhost", 11112), block=True, evt_handlers=handlers)
+    ae.start_server(("127.0.0.1", 11112), block=True, evt_handlers=handlers)
 
 We import ``evt``, which contains all the events, and add a function
 ``handle_store`` which will be our handler. All handlers must, at a minimum,
@@ -245,7 +245,7 @@ you should see:
 
 .. code-block:: text
 
-    $ python -m pynetdicom storescu localhost 11112 CTImageStorage.dcm -v -cx
+    $ python -m pynetdicom storescu 127.0.0.1 11112 CTImageStorage.dcm -v -cx
     I: Requesting Association
     I: Association Accepted
     I: Sending file: CTImageStorage.dcm
@@ -379,7 +379,7 @@ supported presentation contexts:
     for uid in storage_sop_classes:
         ae.add_supported_context(uid, ALL_TRANSFER_SYNTAXES)
 
-    ae.start_server(("localhost", 11112), block=True, evt_handlers=handlers)
+    ae.start_server(("127.0.0.1", 11112), block=True, evt_handlers=handlers)
 
 :attr:`~presentation.AllStoragePresentationContexts` is a list of pre-built
 presentation contexts, one for every SOP Class in the storage service. However,
@@ -440,7 +440,7 @@ complex code:
     for uid in storage_sop_classes:
         ae.add_supported_context(uid, ALL_TRANSFER_SYNTAXES)
 
-    ae.start_server(("localhost", 11112), block=True, evt_handlers=handlers)
+    ae.start_server(("127.0.0.1", 11112), block=True, evt_handlers=handlers)
 
 We've modified the handler to write the preamble and prefix to file,
 encode and write the file meta information elements using *pydicom's*

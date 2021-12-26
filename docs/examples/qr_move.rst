@@ -100,7 +100,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
     # Start our Storage SCP in non-blocking mode, listening on port 11120
     ae.ae_title = 'OUR_STORE_SCP'
-    scp = ae.start_server(("localhost", 11120), block=False, evt_handlers=handlers)
+    scp = ae.start_server(("127.0.0.1", 11120), block=False, evt_handlers=handlers)
 
     # Create out identifier (query) dataset
     ds = Dataset()

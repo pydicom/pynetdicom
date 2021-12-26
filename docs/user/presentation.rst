@@ -108,7 +108,7 @@ In *pynetdicom* this is accomplished through one of the following methods:
 
       ae = AE()
       ae.requested_contexts = [build_context(Verification)]
-      assoc = ae.associate("localhost", 11112)
+      assoc = ae.associate("127.0.0.1", 11112)
 
 2. Using the
    :meth:`AE.add_requested_context()
@@ -124,7 +124,7 @@ In *pynetdicom* this is accomplished through one of the following methods:
 
       ae = AE()
       ae.add_requested_context(Verification)
-      assoc = ae.associate("localhost", 11112)
+      assoc = ae.associate("127.0.0.1", 11112)
 
 3. Supplying a list of :class:`PresentationContext` items to
    :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
@@ -137,7 +137,7 @@ In *pynetdicom* this is accomplished through one of the following methods:
 
       ae = AE()
       requested = [build_context(Verification)]
-      assoc = ae.associate("localhost", 11112, contexts=requested)
+      assoc = ae.associate("127.0.0.1", 11112, contexts=requested)
 
 
 The abstract syntaxes you propose should match the SOP Class or Meta SOP Class
@@ -207,7 +207,7 @@ In *pynetdicom* this is accomplished through one of the following methods:
 
         ae = AE()
         ae.supported_contexts = [build_context(Verification)]
-        ae.start_server(("localhost", 11112))
+        ae.start_server(("127.0.0.1", 11112))
 
 
 2. Using the
@@ -224,7 +224,7 @@ In *pynetdicom* this is accomplished through one of the following methods:
 
         ae = AE()
         ae.add_supported_context(Verification)
-        ae.start_server(("localhost", 11112))
+        ae.start_server(("127.0.0.1", 11112))
 
 3. Supplying a list of :class:`PresentationContext` items to
    :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`
@@ -237,7 +237,7 @@ In *pynetdicom* this is accomplished through one of the following methods:
 
        ae = AE()
        supported = [build_context(Verification)]
-       ae.start_server(("localhost", 11112), contexts=supported)
+       ae.start_server(("127.0.0.1", 11112), contexts=supported)
 
 
 The abstract syntaxes you support should correspond to the service classes that
@@ -370,7 +370,7 @@ using the :func:`build_role` convenience function:
 
     role_b = build_role(MRImageStorage, scp_role=True)
 
-    assoc = ae.associate("localhost", 11112, ext_neg=[role_a, role_b])
+    assoc = ae.associate("127.0.0.1", 11112, ext_neg=[role_a, role_b])
 
 When acting as the *requestor* you can set **either or both** of *scu_role* and
 *scp_role*, with the non-specified role assumed to be ``False``.
@@ -387,7 +387,7 @@ and *scp_role* keyword parameters in :meth:`AE.add_supported_context()
 
     ae = AE()
     ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=False)
-    ae.start_server(("localhost", 11112))
+    ae.start_server(("127.0.0.1", 11112))
 
 When acting as the *acceptor* **both** *scu_role* and *scp_role* must be
 specified. A value of ``True`` indicates that the *acceptor* will accept the
