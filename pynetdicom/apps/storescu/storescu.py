@@ -18,12 +18,9 @@ from pydicom.uid import (
     DeflatedExplicitVRLittleEndian,
 )
 
-from pynetdicom import AE, _config, StoragePresentationContexts
+from pynetdicom import AE, StoragePresentationContexts
 from pynetdicom.apps.common import setup_logging, get_files
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
-
-
-_config.DISALLOWED_ADDRESSES.clear()
 
 
 __version__ = "0.3.0"

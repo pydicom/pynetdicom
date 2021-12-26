@@ -39,14 +39,6 @@ COMP_DATASET = read_file(
 )
 
 
-@pytest.fixture()
-def allow_all_addresses():
-    original = _config.DISALLOWED_ADDRESSES[:]
-    _config.DISALLOWED_ADDRESSES.clear()
-    yield
-    _config.DISALLOWED_ADDRESSES = original
-
-
 def test_blocking_handler():
     """Test binding events to the blocking AssociationServer."""
     ae = AE()
@@ -175,30 +167,6 @@ class TestStartServer:
         assert assoc.is_released
 
         server.shutdown()
-
-    def test_server_address_raises(self):
-        """Test binding to INADDR_ANY raises exception"""
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_supported_context(Verification)
-        msg = (
-            r"Binding a socket to '' is disallowed by default, see "
-            r"'_config.DISALLOWED_ADDRESSES' for details"
-        )
-        with pytest.raises(ValueError, match=msg):
-            ae.start_server(("", 11112), block=False)
-
-    def test_server_address_disallowed(self, allow_all_addresses):
-        """Test allowing bind to INADDR_ANY"""
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
-        scp.shutdown()
 
 
 class TestAEVerificationSCP:
@@ -620,7 +588,7 @@ class TestAEGoodAssociation:
 
         scp.shutdown()
 
-    def test_connection_timeout(self, caplog, allow_all_addresses):
+    def test_connection_timeout(self, caplog):
         # * ACSE timeout does not start until connection timeout completes
         # * Logs indicate that we hit the timeout case
         scu_ae = AE()

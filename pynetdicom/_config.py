@@ -329,27 +329,3 @@ part of the storage service.
 >>> from pynetdicom import _config
 >>> _config.UNRESTRICTED_STORAGE_SERVICE = True
 """
-
-
-DISALLOWED_ADDRESSES = ["", "0.0.0.0", "::", "::0"]
-"""Disallowed :meth:`socket.bind` IP addresses.
-
-.. versionadded:: 2.0
-
-For security reasons, binding a socket to ``INADDR_ANY`` is not recommended,
-so by default this is disallowed.
-
-For an explanation see `this Stack Overflow question
-<https://stackoverflow.com/questions/53808966/binding-with-inaddr-any-vs-inaddr-loopback-in-development>`_
-and CVE-2018-1281, CVE-2020-26262, CVE-2020-13872 and others.
-
-Default: ``["", "0.0.0.0", "::", "::0"]``
-
-Examples
---------
-
-Allow any bind address.
-
->>> from pynetdicom import _config
->>> _config.DISALLOWED_ADDRESSES.clear()
-"""
