@@ -351,9 +351,7 @@ class TestApplicationContext:
             item.application_context_name = "abc" * 22
 
         _config.ENFORCE_UID_CONFORMANCE = True
-        msg = (
-            f"Invalid 'Application Context Name' value 'abc' - UID is " "non-conformant"
-        )
+        msg = f"Invalid 'Application Context Name' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.application_context_name = "abc"
 
@@ -463,7 +461,7 @@ class TestApplicationContext:
         """Test encoding None raises an exception"""
         item = ApplicationContextItem()
 
-        msg = "'Application Context Name' must be str, bytes or UID, not " "'NoneType'"
+        msg = "'Application Context Name' must be str, bytes or UID, not 'NoneType'"
         with pytest.raises(TypeError, match=msg):
             item.application_context_name = None
 
@@ -526,7 +524,7 @@ class TestApplicationContext:
         item.application_context_name = b"1.2.840"
         assert item.application_context_name == "1.2.840"
 
-        msg = "'Application Context Name' must be str, bytes or UID, not " "'NoneType'"
+        msg = "'Application Context Name' must be str, bytes or UID, not 'NoneType'"
         with pytest.raises(TypeError, match=msg):
             item.application_context_name = None
 
@@ -548,7 +546,7 @@ class TestApplicationContext:
         item.application_context_name = b"1.2.840"
         assert item.application_context_name == "1.2.840"
 
-        msg = "'Application Context Name' must be str, bytes or UID, not " "'NoneType'"
+        msg = "'Application Context Name' must be str, bytes or UID, not 'NoneType'"
         with pytest.raises(TypeError, match=msg):
             item.application_context_name = None
 
@@ -835,7 +833,7 @@ class TestAbstractSyntax:
             item.abstract_syntax_name = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
-        msg = "Invalid 'Abstract Syntax Name' value 'abc' - UID is " "non-conformant"
+        msg = "Invalid 'Abstract Syntax Name' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.abstract_syntax_name = "abc"
 
@@ -977,7 +975,7 @@ class TestTransferSyntax:
             item.transfer_syntax_name = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
-        msg = "Invalid 'Transfer Syntax Name' value 'abc' - UID is " "non-conformant"
+        msg = "Invalid 'Transfer Syntax Name' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.transfer_syntax_name = "abc"
 
@@ -1423,9 +1421,7 @@ class TestUserInformation_ImplementationUID:
         item.implementation_class_uid = "1.2"
         assert item.implementation_class_uid == "1.2"
 
-        msg = (
-            "Invalid 'Implementation Class UID' value 'abc' - UID is " "non-conformant"
-        )
+        msg = "Invalid 'Implementation Class UID' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.implementation_class_uid = "abc"
 
@@ -1860,9 +1856,7 @@ class TestUserInformation_RoleSelection:
         assert item.sop_class_uid == "abc"
 
         bad = "abc" * 22
-        msg = (
-            f"Invalid 'SOP Class UID' value '{bad}' - must not exceed 64 " "characters"
-        )
+        msg = f"Invalid 'SOP Class UID' value '{bad}' - must not exceed 64 characters"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = bad
 
@@ -2383,9 +2377,7 @@ class TestUserInformation_ExtendedNegotiation:
         assert item.sop_class_uid == "abc"
 
         bad = "abc" * 22
-        msg = (
-            f"Invalid 'SOP Class UID' value '{bad}' - must not exceed 64 " "characters"
-        )
+        msg = f"Invalid 'SOP Class UID' value '{bad}' - must not exceed 64 characters"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = "abc" * 22
 

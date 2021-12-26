@@ -212,7 +212,7 @@ class TestStandardDIMSE:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -233,7 +233,7 @@ class TestStandardDIMSE:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -254,7 +254,7 @@ class TestStandardDIMSE:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -277,7 +277,7 @@ class TestStandardDIMSE:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -471,7 +471,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             pdu = A_ASSOCIATE_RQ()
@@ -515,7 +515,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_scp_scu_role(self.associate_rq)
@@ -546,7 +546,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_async_ops(self.associate_rq)
@@ -575,7 +575,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_sop_ext(self.associate_rq)
@@ -588,8 +588,8 @@ class TestStandardLogging:
                 "SOP Class: =1.2.3.4",
                 "00  01",
                 "SOP Class: =1.2.840.10008.1.1",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02" "  03",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02" "  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
                 "00  01  02  03  00  01  02  03",
                 "Requested Common Extended Negotiation: None",
                 "Requested Asynchronous Operations Window Negotiation: None",
@@ -608,7 +608,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_sop_common(self.associate_rq)
@@ -644,7 +644,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_user_identity(self.associate_rq, *info)
@@ -673,7 +673,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             pdu = A_ASSOCIATE_RQ()
@@ -718,7 +718,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_scp_scu_role(self.associate_rq)
@@ -749,7 +749,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_async_ops(self.associate_rq)
@@ -778,7 +778,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_sop_ext(self.associate_rq)
@@ -791,8 +791,8 @@ class TestStandardLogging:
                 "SOP Class: =1.2.3.4",
                 "00  01",
                 "SOP Class: =1.2.840.10008.1.1",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02" "  03",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02" "  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
                 "00  01  02  03  00  01  02  03",
                 "Requested Common Extended Negotiation: None",
                 "Requested Asynchronous Operations Window Negotiation: None",
@@ -811,7 +811,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_sop_common(self.associate_rq)
@@ -847,7 +847,7 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_user_identity(self.associate_rq, *info)
@@ -880,7 +880,7 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             pdu = A_ASSOCIATE_AC()
@@ -925,7 +925,7 @@ class TestStandardLogging:
             ae.add_requested_context("1.2.840.10008.1.4")
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
 
             ext_neg = []
             ext_neg.append(build_role("1.2.840.10008.1.2", scu_role=True))
@@ -972,7 +972,7 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_async_ops(self.associate_ac)
@@ -1004,7 +1004,7 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_sop_ext(self.associate_ac)
@@ -1017,8 +1017,8 @@ class TestStandardLogging:
                 "SOP Class: =1.2.3.4",
                 "00  01",
                 "SOP Class: =1.2.840.10008.1.1",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02" "  03",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02" "  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
                 "00  01  02  03  00  01  02  03",
                 "Accepted Asynchronous Operations Window Negotiation: None",
                 "User Identity Negotiation Response: None",
@@ -1040,7 +1040,7 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_user_identity_rsp(self.associate_ac)
@@ -1070,7 +1070,7 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             primitive = self.associate_ac
@@ -1108,7 +1108,7 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             pdu = A_ASSOCIATE_AC()
@@ -1153,7 +1153,7 @@ class TestStandardLogging:
             ae.add_requested_context("1.2.840.10008.1.4")
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
 
             ext_neg = []
             ext_neg.append(build_role("1.2.840.10008.1.2", scu_role=True))
@@ -1196,7 +1196,7 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_async_ops(self.associate_ac)
@@ -1228,7 +1228,7 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_sop_ext(self.associate_ac)
@@ -1241,8 +1241,8 @@ class TestStandardLogging:
                 "SOP Class: =1.2.3.4",
                 "00  01",
                 "SOP Class: =1.2.840.10008.1.1",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02" "  03",
-                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02" "  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
                 "00  01  02  03  00  01  02  03",
                 "Accepted Asynchronous Operations Window Negotiation: None",
                 "User Identity Negotiation Response: None",
@@ -1264,7 +1264,7 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
             assoc = ae.associate("localhost", 11112)
 
             self.add_user_identity_rsp(self.associate_ac)
@@ -1302,7 +1302,7 @@ class TestDebuggingLogging:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         hh = [(evt.EVT_FSM_TRANSITION, debug_fsm)]
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
@@ -1321,7 +1321,7 @@ class TestDebuggingLogging:
         ae.require_called_aet = True
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
@@ -1345,7 +1345,7 @@ class TestDebuggingLogging:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         hh = [
             (evt.EVT_DATA_SENT, debug_data, [7, True, True]),
@@ -1368,7 +1368,7 @@ class TestDebuggingLogging:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
@@ -1392,7 +1392,7 @@ class TestDebuggingLogging:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
@@ -1418,7 +1418,7 @@ class TestDebuggingLogging:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
@@ -1439,8 +1439,8 @@ class TestDebuggingLogging:
             " 74: 0x10 - Application Context (21 bytes)",
             " 99: 0x20 - Presentation Context RQ (118 bytes) - 1",
             "107: 0x30 - Abstract Syntax (17 bytes) - Verification SOP Class",
-            ("128: 0x40 - Transfer Syntax (17 bytes) - Implicit VR " "Little Endian"),
-            ("149: 0x40 - Transfer Syntax (19 bytes) - Explicit VR " "Little Endian"),
+            ("128: 0x40 - Transfer Syntax (17 bytes) - Implicit VR Little Endian"),
+            ("149: 0x40 - Transfer Syntax (19 bytes) - Explicit VR Little Endian"),
             (
                 "172: 0x40 - Transfer Syntax (22 bytes) - Deflated Explicit "
                 "VR Little Endian"

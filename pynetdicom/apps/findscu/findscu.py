@@ -13,11 +13,12 @@ from pydicom.uid import generate_uid
 
 from pynetdicom import (
     AE,
-    QueryRetrievePresentationContexts,
+    _config,
     BasicWorklistManagementPresentationContexts,
-    PYNETDICOM_UID_PREFIX,
+    QueryRetrievePresentationContexts,
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION,
+    PYNETDICOM_UID_PREFIX,
 )
 from pynetdicom.apps.common import create_dataset, setup_logging
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
@@ -28,6 +29,9 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelFind,
     PatientStudyOnlyQueryRetrieveInformationModelFind,
 )
+
+
+_config.DISALLOWED_ADDRESSES.clear()
 
 
 __version__ = "0.2.0"
@@ -89,7 +93,7 @@ def _setup_argparser():
         "-ll",
         "--log-level",
         metavar="[l]",
-        help=("use level l for the logger (fatal, error, warn, info, debug, " "trace)"),
+        help=("use level l for the logger (fatal, error, warn, info, debug, trace)"),
         type=str,
         choices=["fatal", "error", "warn", "info", "debug", "trace"],
     )

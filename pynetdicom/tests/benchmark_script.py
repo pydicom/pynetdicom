@@ -164,7 +164,7 @@ def receive_store(test_ds, nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     ae.add_supported_context(test_ds.SOPClassUID, ImplicitVRLittleEndian)
 
     server = ae.start_server(
-        ("", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
+        ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
     )
 
     time.sleep(0.5)
@@ -242,7 +242,7 @@ def receive_store_internal(
     ae.add_requested_context(test_ds.SOPClassUID, ImplicitVRLittleEndian)
 
     server = ae.start_server(
-        ("", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
+        ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
     )
 
     time.sleep(0.5)
@@ -345,7 +345,7 @@ def receive_store_simultaneous(test_ds, nr_assoc, ds_per_assoc, use_yappi=False)
     ae.add_supported_context(test_ds.SOPClassUID, ImplicitVRLittleEndian)
 
     server = ae.start_server(
-        ("", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
+        ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
     )
 
     time.sleep(0.5)

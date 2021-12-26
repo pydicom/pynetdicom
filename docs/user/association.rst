@@ -24,7 +24,7 @@ method, which returns an :class:`Association` thread:
     ae.add_requested_context(Verification)
 
     # Associate with the peer at IP address 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
 
     # Release the association
     if assoc.is_established:
@@ -50,7 +50,7 @@ keyword parameter:
 
 ::
 
-    assoc = ae.associate('127.0.0.1', 11112, ae_title='STORE_SCP')
+    assoc = ae.associate("127.0.0.1", 11112, ae_title='STORE_SCP')
 
 Specifying Presentation Contexts for each Association
 .....................................................
@@ -68,7 +68,7 @@ per-association basis you can use the *contexts* keyword parameter:
 
     ae = AE()
     requested_contexts = [build_context('1.2.840.10008.1.1')]
-    assoc = ae.associate('127.0.0.1', 11112, contexts=requested_contexts)
+    assoc = ae.associate("127.0.0.1", 11112, contexts=requested_contexts)
 
     if assoc.is_established:
         assoc.release()
@@ -115,7 +115,7 @@ also acting as a Storage SCP), plus a *User Identity Negotiation* item:
     negotiation_items.append(user_identity)
 
     # Associate with the peer at IP address 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112, ext_neg=negotiation_items)
+    assoc = ae.associate("127.0.0.1", 11112, ext_neg=negotiation_items)
 
     if assoc.is_established:
         assoc.release()
@@ -141,7 +141,7 @@ If you want to bind handlers to any
 :ref:`events <user_events>` within a new :class:`Association` you can
 use the *evt_handlers* keyword parameter:
 
-::
+.. code-block:: python
 
     import logging
 
@@ -169,7 +169,7 @@ use the *evt_handlers* keyword parameter:
 
     ae = AE()
     ae.add_requested_context(Verification)
-    assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+    assoc = ae.associate("127.0.0.1", 11112, evt_handlers=handlers)
 
     if assoc.is_established:
         assoc.release()
@@ -177,7 +177,7 @@ use the *evt_handlers* keyword parameter:
 Handlers can also be bound and unbound from events in an existing
 :class:`Association`:
 
-::
+.. code-block:: python
 
     import logging
 
@@ -201,7 +201,7 @@ Handlers can also be bound and unbound from events in an existing
 
     ae = AE()
     ae.add_requested_context(Verification)
-    assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+    assoc = ae.associate("127.0.0.1", 11112, evt_handlers=handlers)
 
     assoc.unbind(evt.EVT_CONN_OPEN, handle_open)
     assoc.bind(evt.EVT_CONN_CLOSE, handle_close)
@@ -221,7 +221,7 @@ The client socket used for the association can be wrapped in TLS by supplying
 the *tls_args* keyword parameter to
 :meth:`~pynetdicom.ae.ApplicationEntity.associate`:
 
-::
+.. code-block:: python
 
     import ssl
 
@@ -236,7 +236,7 @@ the *tls_args* keyword parameter to
     ssl_cx.verify_mode = ssl.CERT_REQUIRED
     ssl_cx.load_cert_chain(certfile='client.crt', keyfile='client.key')
 
-    assoc = ae.associate('127.0.0.1', 11112, tls_args=(ssl_cx, None))
+    assoc = ae.associate("127.0.0.1", 11112, tls_args=(ssl_cx, None))
 
     if assoc.is_established:
         assoc.release()
@@ -253,7 +253,7 @@ establishment, association rejection, association abort or a connection
 failure, so its a good idea to test for establishment before attempting to
 use the association:
 
-::
+.. code-block:: python
 
     from pynetdicom import AE
     from pynetdicom.sop_class import Verification
@@ -262,7 +262,7 @@ use the association:
     ae.add_requested_context(Verification)
 
     # Associate with the peer at IP address 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112)
+    assoc = ae.associate("127.0.0.1", 11112)
 
     if assoc.is_established:
         # Do something useful...
@@ -338,7 +338,7 @@ listening for association requests from peers with the
 :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`
 method:
 
-::
+.. code-block:: python
 
     from pynetdicom import AE
     from pynetdicom.sop_class import Verification
@@ -347,7 +347,7 @@ method:
     ae.add_supported_context(Verification)
 
     # Listen for association requests
-    ae.start_server(('', 11112))
+    ae.start_server(("127.0.0.1", 11112))
 
 The above is suitable as an implementation of the Verification Service
 Class, however other service classes will require that you implement and bind
@@ -356,7 +356,7 @@ one or more of the :ref:`intervention event handlers<events_intervention>`.
 The association server can be started in both blocking (default) and
 non-blocking modes:
 
-::
+.. code-block:: python
 
     from pynetdicom import AE
     from pynetdicom.sop_class import Verification
@@ -365,10 +365,10 @@ non-blocking modes:
     ae.add_supported_context(Verification)
 
     # Returns a ThreadedAssociationServer instance
-    server = ae.start_server(('', 11112), block=False)
+    server = ae.start_server(("127.0.0.1", 11112), block=False)
 
     # Blocks
-    ae.start_server(('', 11113), block=True)
+    ae.start_server(("127.0.0.1", 11113), block=True)
 
 The returned
 :class:`~pynetdicom.transport.ThreadedAssociationServer`
@@ -383,9 +383,9 @@ Specifying the AE Title
 The AE title for each SCP can be set using the *ae_title* keyword parameter.
 If no value is set then the AE title of the parent AE will be used instead:
 
-::
+.. code-block:: python
 
-    ae.start_server(('', 11112), ae_title='STORE_SCP')
+    ae.start_server(("127.0.0.1", 11112), ae_title='STORE_SCP')
 
 
 Specifying Presentation Contexts for each SCP
@@ -393,13 +393,13 @@ Specifying Presentation Contexts for each SCP
 To support presentation contexts on a per-SCP basis you can use the
 *contexts* keyword parameter:
 
-::
+.. code-block:: python
 
     from pynetdicom import AE, build_context
 
     ae = AE()
     supported_cx = [build_context('1.2.840.10008.1.1')]
-    ae.start_server(('', 11112), contexts=supported_cx)
+    ae.start_server(("127.0.0.1", 11112), contexts=supported_cx)
 
 
 Binding Event Handlers
@@ -409,7 +409,7 @@ If you want to bind handlers to any
 :ref:`events <user_events>` within any :class:`Association` instances
 generated by the SCP you can use the *evt_handlers* keyword parameter:
 
-::
+.. code-block:: python
 
     import logging
 
@@ -437,14 +437,14 @@ generated by the SCP you can use the *evt_handlers* keyword parameter:
 
     ae = AE()
     ae.add_supported_context(Verification)
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(("127.0.0.1", 11112), evt_handlers=handlers)
 
 
 Handlers can also be bound and unbound from events in an existing
 :class:`~pynetdicom.transport.ThreadedAssociationServer`, provided you run in
 non-blocking mode:
 
-::
+.. code-block:: python
 
     import logging
     import time
@@ -469,7 +469,7 @@ non-blocking mode:
 
     ae = AE()
     ae.add_supported_context(Verification)
-    scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+    scp = ae.start_server(("127.0.0.1", 11112), block=False, evt_handlers=handlers)
 
     time.sleep(20)
 
@@ -501,7 +501,7 @@ The client sockets generated by the association server can also be wrapped in
 TLS by  supplying a :class:`ssl.SSLContext` instance via the *ssl_context*
 keyword parameter:
 
-::
+.. code-block:: python
 
     import ssl
 
@@ -520,7 +520,7 @@ keyword parameter:
     #   method to set the TLS version - check the Python documentation
     ssl_cx.maximum_version = ssl.TLSVersion.TLSv1_2
 
-    server = ae.start_server(('', 11112), block=False, ssl_context=ssl_cx)
+    server = ae.start_server(("127.0.0.1", 11112), block=False, ssl_context=ssl_cx)
 
 
 Providing DIMSE Services (SCP)
@@ -561,7 +561,7 @@ For instance, if your SCP is to support the Storage Service then you would
 implement and bind a handler for the ``evt.EVT_C_STORE`` event in manner
 similar to:
 
-::
+.. code-block:: python
 
     from pynetdicom import AE, evt
     from pynetdicom.sop_class import CTImageStorage
@@ -578,7 +578,7 @@ similar to:
     handlers = [(evt.EVT_C_STORE, handle_store)]
 
     # Listen for association requests
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(("127.0.0.1", 11112), evt_handlers=handlers)
 
 For more detailed information on implementing the DIMSE service
 provider handlers please see the

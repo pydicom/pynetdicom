@@ -2302,7 +2302,7 @@ class Association(threading.Thread):
             if bytestream is not None:
                 req.ActionInformation = BytesIO(bytestream)
             else:
-                msg = "Failed to encode the supplied 'Action Information' " "dataset"
+                msg = "Failed to encode the supplied 'Action Information' dataset"
                 LOGGER.error(msg)
                 raise ValueError(msg)
 
@@ -2591,7 +2591,7 @@ class Association(threading.Thread):
                     )
                 except Exception as ex:
                     LOGGER.error(
-                        "Unable to decode the received 'Attribute List' " "dataset"
+                        "Unable to decode the received 'Attribute List' dataset"
                     )
                     LOGGER.exception(ex)
                     # Failure: Processing failure
@@ -3140,7 +3140,7 @@ class Association(threading.Thread):
                     )
                 except Exception as ex:
                     LOGGER.error(
-                        "Unable to decode the received 'Attribute List' " "dataset"
+                        "Unable to decode the received 'Attribute List' dataset"
                     )
                     LOGGER.exception(ex)
                     # Failure: Processing failure
@@ -3395,7 +3395,7 @@ class Association(threading.Thread):
                     )
                 except Exception as ex:
                     LOGGER.error(
-                        "Unable to decode the received 'Attribute List' " "dataset"
+                        "Unable to decode the received 'Attribute List' dataset"
                     )
                     LOGGER.exception(ex)
                     # Failure: Processing failure
@@ -3589,7 +3589,7 @@ class ServiceUser:
         """
         if not self.is_acceptor:
             raise RuntimeError(
-                "'accepted_common_extended' is only available for the " "'acceptor'"
+                "'accepted_common_extended' is only available for the 'acceptor'"
             )
 
         out = {}
@@ -3629,7 +3629,7 @@ class ServiceUser:
         """
         if not self.writeable:
             raise RuntimeError(
-                "Can't add extended negotiation items after negotiation " "has started"
+                "Can't add extended negotiation items after negotiation has started"
             )
 
         #
@@ -4035,7 +4035,7 @@ class ServiceUser:
 
         if not self.is_requestor:
             raise AttributeError(
-                "'requested_contexts' can only be set for the association " "requestor"
+                "'requested_contexts' can only be set for the association requestor"
             )
 
         self._contexts = value
@@ -4231,7 +4231,7 @@ class ServiceUser:
 
         if not self.is_acceptor:
             raise AttributeError(
-                "'supported_contexts' can only be set for the association " "acceptor"
+                "'supported_contexts' can only be set for the association acceptor"
             )
 
         self._contexts = value

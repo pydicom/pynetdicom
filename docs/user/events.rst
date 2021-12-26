@@ -155,7 +155,7 @@ with :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` and
     ae = AE()
     ae.add_supported_context(Verification)
     ae.add_supported_context(CTImageStorage)
-    ae.start_server(('localhost', 11112), evt_handlers=handlers)
+    ae.start_server(("127.0.0.1", 11112), evt_handlers=handlers)
 
 If using a 3-tuple then the third item should be a list of objects that will
 be passed to the handler as extra parameters.

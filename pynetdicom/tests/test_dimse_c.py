@@ -284,7 +284,7 @@ class TestPrimitive_C_STORE:
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = "1.2.840.10008.5.1.4.1.1.2"
         primitive.AffectedSOPInstanceUID = (
-            "1.2.392.200036.9116.2.6.1.48." "1215709044.1459316254.522441"
+            "1.2.392.200036.9116.2.6.1.48.1215709044.1459316254.522441"
         )
         primitive.Priority = 0x02
         primitive.MoveOriginatorApplicationEntityTitle = "UNITTEST_SCP"

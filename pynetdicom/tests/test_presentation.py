@@ -1286,7 +1286,7 @@ class TestNegotiateAsRequestorWithRoleSelection:
         ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1", scu_role=True, scp_role=True)
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         role = SCP_SCU_RoleSelectionNegotiation()
         role.sop_class_uid = "1.2.840.10008.1.1"
@@ -1306,7 +1306,7 @@ class TestNegotiateAsRequestorWithRoleSelection:
         ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1", scu_role=True, scp_role=True)
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         role = SCP_SCU_RoleSelectionNegotiation()
         role.sop_class_uid = "1.2.840.10008.1.1"

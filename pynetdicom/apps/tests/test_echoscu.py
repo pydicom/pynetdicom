@@ -71,7 +71,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([])
         p.wait()
@@ -126,7 +126,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         p = self.func(["-q"])
         p.wait()
@@ -144,7 +144,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         p = self.func(["-v"])
         p.wait()
@@ -167,7 +167,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         p = self.func(["-d"])
         p.wait()
@@ -208,7 +208,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-aet", "MYSCU"])
         p.wait()
@@ -239,7 +239,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-aec", "YOURSCP"])
         p.wait()
@@ -278,7 +278,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-ta", "0.05", "-d"])
         p.wait()
@@ -315,7 +315,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-td", "0.05", "-d"])
         p.wait()
@@ -353,7 +353,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["--max-pdu", "123456"])
         p.wait()
@@ -384,7 +384,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-xe"])
         p.wait()
@@ -418,7 +418,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-xb"])
         p.wait()
@@ -452,7 +452,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-xi"])
         p.wait()
@@ -486,7 +486,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["--repeat", "3"])
         p.wait()
@@ -524,7 +524,7 @@ class EchoSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["--abort"])
         p.wait()

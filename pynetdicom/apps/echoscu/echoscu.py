@@ -15,10 +15,13 @@ from pydicom.uid import (
     DeflatedExplicitVRLittleEndian,
 )
 
-from pynetdicom import AE
+from pynetdicom import AE, _config
 from pynetdicom.apps.common import setup_logging
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.sop_class import Verification
+
+
+_config.DISALLOWED_ADDRESSES.clear()
 
 
 __version__ = "0.7.0"

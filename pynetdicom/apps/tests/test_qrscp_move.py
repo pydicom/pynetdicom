@@ -118,7 +118,9 @@ class MoveSCPBase:
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(
-            ("", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         model = PatientRootQueryRetrieveInformationModelMove

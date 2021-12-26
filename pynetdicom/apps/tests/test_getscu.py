@@ -96,7 +96,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-k", "PatientName="])
         p.wait()
@@ -159,7 +159,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         p = self.func(["-q", "-k", "PatientName="])
         p.wait()
@@ -186,7 +186,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-v", "-k", "PatientName="])
         p.wait()
@@ -218,7 +218,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-d", "-k", "PatientName="])
         p.wait()
@@ -259,7 +259,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-aet", "MYSCU", "-k", "PatientName="])
         p.wait()
@@ -289,7 +289,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-aec", "YOURSCP", "-k", "PatientName="])
         p.wait()
@@ -328,7 +328,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-ta", "0.05", "-d", "-k", "PatientName="])
         p.wait()
@@ -366,7 +366,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-td", "0.05", "-d", "-k", "PatientName="])
         p.wait()
@@ -405,7 +405,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["--max-pdu", "123456", "-k", "PatientName="])
         p.wait()
@@ -436,7 +436,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-P", "-k", "PatientName="])
         p.wait()
@@ -466,7 +466,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-S", "-k", "PatientName="])
         p.wait()
@@ -496,7 +496,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["-O", "-k", "PatientName="])
         p.wait()
@@ -525,7 +525,7 @@ class GetSCUBase:
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         assert "test_dir" not in os.listdir()
 
@@ -555,7 +555,7 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func(["--ignore", "-k", "PatientName="])
         p.wait()

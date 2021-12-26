@@ -97,7 +97,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -136,7 +136,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -172,7 +172,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -207,7 +207,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -240,7 +240,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -271,7 +271,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -302,7 +302,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -334,7 +334,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -360,7 +360,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -395,7 +395,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -431,7 +431,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -463,7 +463,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -500,7 +500,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -537,7 +537,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -576,7 +576,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -621,7 +621,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -666,7 +666,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -710,7 +710,7 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -752,7 +752,7 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -792,7 +792,7 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -834,7 +834,7 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -878,7 +878,7 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -923,7 +923,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -955,7 +955,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -989,7 +989,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1024,7 +1024,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1060,7 +1060,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1101,7 +1101,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate("localhost", 11112, evt_handlers=scu_handlers)
         assert assoc.is_established
@@ -1147,7 +1147,7 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 1
@@ -1221,7 +1221,7 @@ class TestQRGetServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelGet, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1266,7 +1266,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
 
@@ -1305,7 +1305,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1350,7 +1350,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1393,7 +1393,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1434,7 +1434,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1471,7 +1471,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1507,7 +1507,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1537,7 +1537,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1573,7 +1573,9 @@ class TestQRGetServiceClass:
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
 
         role = build_role(CTImageStorage, scp_role=True)
@@ -1612,7 +1614,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1650,7 +1652,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1688,7 +1690,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1728,7 +1730,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1771,7 +1773,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1821,7 +1823,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1863,7 +1865,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1908,7 +1910,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -1956,7 +1958,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2004,7 +2006,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2049,7 +2051,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2093,7 +2095,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2140,7 +2142,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2193,7 +2195,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2246,7 +2248,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2297,7 +2299,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2341,7 +2343,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2386,7 +2388,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2432,7 +2434,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2476,7 +2478,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2526,7 +2528,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2577,7 +2579,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2626,7 +2628,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2676,7 +2678,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2725,7 +2727,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2776,7 +2778,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2825,7 +2827,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2875,7 +2877,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2919,7 +2921,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -2966,7 +2968,7 @@ class TestQRGetServiceClass:
             roles.append(build_role(cx.abstract_syntax, scp_role=True))
             ae.add_supported_context(cx.abstract_syntax, scu_role=False, scp_role=True)
 
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
@@ -3032,7 +3034,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -3095,7 +3097,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -3153,7 +3155,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -3206,7 +3208,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -3243,7 +3245,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -3282,7 +3284,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -3322,7 +3324,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -3365,7 +3367,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -3411,7 +3413,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         has_dataset = []
 
@@ -3468,7 +3470,7 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -3549,7 +3551,7 @@ class TestQRMoveServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelMove, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3589,7 +3591,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3621,7 +3623,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3654,7 +3656,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3688,7 +3690,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3719,7 +3721,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3756,7 +3758,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3799,7 +3801,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3840,7 +3842,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3878,7 +3880,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3912,7 +3914,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3946,7 +3948,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3975,7 +3977,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4011,7 +4013,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4046,7 +4048,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4081,7 +4083,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4116,7 +4118,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4151,7 +4153,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4188,7 +4190,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4228,7 +4230,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4275,7 +4277,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4318,7 +4320,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4364,7 +4366,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4404,7 +4406,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4449,7 +4451,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4491,7 +4493,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4533,7 +4535,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4577,7 +4579,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4627,7 +4629,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4677,7 +4679,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4725,7 +4727,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4766,7 +4768,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4809,7 +4811,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4850,7 +4852,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4891,7 +4893,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4932,7 +4934,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4981,7 +4983,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5032,7 +5034,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5087,7 +5089,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5136,7 +5138,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5187,7 +5189,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate("localhost", 11112)
         identifier = Dataset()
@@ -5244,7 +5246,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5299,7 +5301,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5352,7 +5354,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5394,7 +5396,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5436,7 +5438,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5478,7 +5480,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5512,7 +5514,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5549,7 +5551,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5586,7 +5588,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5624,7 +5626,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5665,7 +5667,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5712,11 +5714,13 @@ class TestQRMoveServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(CTImageStorage)
-        store_scp = ae.start_server(("", 11113), block=False, evt_handlers=handlers)
+        store_scp = ae.start_server(
+            ("localhost", 11113), block=False, evt_handlers=handlers
+        )
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle)]
         )
 
         ae.acse_timeout = 5
@@ -5755,7 +5759,7 @@ class TestQRMoveServiceClass:
 
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
@@ -5796,7 +5800,7 @@ class TestQRMoveServiceClass:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate("localhost", 11112)
@@ -5840,7 +5844,7 @@ class TestQRMoveServiceClass:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate("localhost", 11112)
@@ -5876,7 +5880,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         has_dataset = []
 
@@ -5931,7 +5935,7 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -6012,7 +6016,7 @@ class TestQRCompositeInstanceWithoutBulk:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -6072,7 +6076,7 @@ class TestQRCompositeInstanceWithoutBulk:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -6136,7 +6140,7 @@ class TestQRCompositeInstanceWithoutBulk:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
@@ -6205,7 +6209,7 @@ class TestBasicWorklistServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ModalityWorklistInformationFind)
         ae.add_requested_context(ModalityWorklistInformationFind)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5

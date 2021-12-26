@@ -83,7 +83,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE])
         p.wait()
@@ -140,7 +140,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         p = self.func([DATASET_FILE, "-q"])
         p.wait()
@@ -166,7 +166,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE, "-v"])
         p.wait()
@@ -197,7 +197,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE, "-d"])
         p.wait()
@@ -237,7 +237,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE, "-aet", "MYSCU"])
         p.wait()
@@ -266,7 +266,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE, "-aec", "YOURSCP"])
         p.wait()
@@ -304,7 +304,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE, "-ta", "0.05", "-d"])
         p.wait()
@@ -341,7 +341,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE, "-td", "0.05", "-d"])
         p.wait()
@@ -379,7 +379,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE, "--max-pdu", "123456"])
         p.wait()
@@ -410,7 +410,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE, "-xe"])
         p.wait()
@@ -446,7 +446,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(MRImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([BE_DATASET_FILE, "-xb"])
         p.wait()
@@ -483,7 +483,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE, "-xi"])
         p.wait()
@@ -520,7 +520,7 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE, "-cx"])
         p.wait()
@@ -564,7 +564,7 @@ class StoreSCUBase:
         ae.network_timeout = 5
         for cx in AllStoragePresentationContexts:
             ae.add_supported_context(cx.abstract_syntax, ALL_TRANSFER_SYNTAXES)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([LIB_DIR, "--recurse", "-cx"])
         p.wait()

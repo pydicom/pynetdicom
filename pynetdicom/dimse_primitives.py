@@ -348,7 +348,7 @@ class DIMSEPrimitive:
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            LOGGER.warning("Attempted to set Priority parameter to " "an invalid value")
+            LOGGER.warning("Attempted to set Priority parameter to an invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property

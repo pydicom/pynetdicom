@@ -1079,7 +1079,7 @@ ACTIONS = {
     "AR-1": ("Send A-RELEASE-RQ PDU", AR_1, "Sta7"),
     "AR-2": ("Issue A-RELEASE indication primitive", AR_2, "Sta8"),
     "AR-3": (
-        "Issue A-RELEASE confirmation primitive and close " "transport connection",
+        "Issue A-RELEASE confirmation primitive and close transport connection",
         AR_3,
         "Sta1",
     ),

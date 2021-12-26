@@ -63,7 +63,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
@@ -89,7 +91,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
@@ -120,7 +124,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(
@@ -155,7 +161,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
@@ -188,7 +196,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
@@ -243,7 +253,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
@@ -277,7 +289,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
@@ -311,7 +325,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
@@ -345,7 +361,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
@@ -381,7 +399,7 @@ class TestAssociationSendNEventReport:
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
 
         handlers = [(evt.EVT_N_EVENT_REPORT, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -421,7 +439,7 @@ class TestAssociationSendNEventReport:
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
 
         handlers = [(evt.EVT_N_EVENT_REPORT, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -493,7 +511,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
@@ -527,7 +547,7 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
@@ -570,7 +590,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
@@ -611,7 +633,9 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
@@ -667,7 +691,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(DisplaySystem)
@@ -694,7 +718,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(DisplaySystem)
@@ -728,7 +752,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(DisplaySystem)
@@ -759,7 +783,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(DisplaySystem)
@@ -808,7 +832,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(DisplaySystem)
@@ -841,7 +865,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(DisplaySystem)
@@ -878,7 +902,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(DisplaySystem)
@@ -915,7 +939,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(DisplaySystem)
@@ -946,7 +970,7 @@ class TestAssociationSendNGet:
         ae.add_supported_context(ModalityPerformedProcedureStepRetrieve)
 
         handlers = [(evt.EVT_N_GET, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -980,7 +1004,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(DisplaySystem)
@@ -1044,7 +1068,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(DisplaySystem)
@@ -1072,7 +1096,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
@@ -1118,7 +1142,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
@@ -1167,7 +1191,7 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
@@ -1221,7 +1245,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
@@ -1248,7 +1272,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
@@ -1282,7 +1306,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep, ExplicitVRLittleEndian)
@@ -1315,7 +1339,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
@@ -1348,7 +1372,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
@@ -1399,7 +1423,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
@@ -1430,7 +1454,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
@@ -1461,7 +1485,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
@@ -1492,7 +1516,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
@@ -1525,7 +1549,7 @@ class TestAssociationSendNSet:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_SET, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1560,7 +1584,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep, ExplicitVRLittleEndian)
@@ -1626,7 +1650,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
@@ -1656,7 +1680,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
@@ -1698,7 +1722,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
@@ -1746,7 +1770,7 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
@@ -1798,7 +1822,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(ProceduralEventLogging)
@@ -1825,7 +1849,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(ProceduralEventLogging)
@@ -1855,7 +1879,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(ProceduralEventLogging, ExplicitVRLittleEndian)
@@ -1885,7 +1909,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(ProceduralEventLogging)
@@ -1929,7 +1953,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(ProceduralEventLogging)
@@ -1979,7 +2003,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(ProceduralEventLogging)
@@ -2010,7 +2034,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(ProceduralEventLogging)
@@ -2041,7 +2065,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(ProceduralEventLogging)
@@ -2072,7 +2096,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(ProceduralEventLogging)
@@ -2103,7 +2127,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(PrintJob)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(PrintJob)
@@ -2164,7 +2188,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(PrintJob)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(PrintJob)
@@ -2191,7 +2215,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
@@ -2234,7 +2258,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
@@ -2279,7 +2303,7 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
@@ -2333,7 +2357,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate("localhost", 11112)
@@ -2360,7 +2384,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate("localhost", 11112)
@@ -2390,7 +2414,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(ModalityPerformedProcedureStep, ExplicitVRLittleEndian)
         assoc = ae.associate("localhost", 11112)
@@ -2420,7 +2444,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate("localhost", 11112)
@@ -2451,7 +2475,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate("localhost", 11112)
@@ -2501,7 +2525,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate("localhost", 11112)
@@ -2532,7 +2556,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate("localhost", 11112)
@@ -2563,7 +2587,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate("localhost", 11112)
@@ -2594,7 +2618,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate("localhost", 11112)
@@ -2626,7 +2650,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -2660,7 +2684,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate("localhost", 11112)
@@ -2726,7 +2750,7 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate("localhost", 11112)
@@ -2754,7 +2778,7 @@ class TestAssociationSendNCreate:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
@@ -2796,7 +2820,7 @@ class TestAssociationSendNCreate:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_CREATE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_CREATE, handle)]
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
@@ -2840,7 +2864,7 @@ class TestAssociationSendNCreate:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_CREATE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_CREATE, handle)]
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
@@ -2892,7 +2916,7 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
         ae.add_requested_context(BasicFilmSession)
@@ -2919,7 +2943,7 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
         ae.add_requested_context(BasicFilmSession)
@@ -2950,7 +2974,7 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
         ae.add_requested_context(BasicFilmSession)
@@ -2975,7 +2999,7 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
         ae.add_requested_context(BasicFilmSession)
@@ -3020,7 +3044,7 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
         ae.add_requested_context(BasicFilmSession)
@@ -3046,7 +3070,7 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
         ae.add_requested_context(BasicFilmSession)
@@ -3072,7 +3096,7 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
         ae.add_requested_context(BasicFilmSession)
@@ -3102,7 +3126,7 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
         ae.add_requested_context(BasicFilmSession)
@@ -3126,7 +3150,7 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
@@ -3167,7 +3191,7 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
@@ -3207,7 +3231,7 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)

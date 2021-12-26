@@ -337,7 +337,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -395,7 +395,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -450,7 +450,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -502,7 +502,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -554,7 +554,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -610,7 +610,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -662,7 +662,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -750,7 +750,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -802,7 +802,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -857,7 +857,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -912,7 +912,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -971,7 +971,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1030,7 +1030,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1058,7 +1058,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 0.5
@@ -1082,7 +1082,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(DisplaySystem)
         ae.add_requested_context(DisplaySystem)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1133,7 +1133,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1185,7 +1185,7 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1240,7 +1240,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -1277,7 +1277,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -1309,7 +1309,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1340,7 +1340,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1369,7 +1369,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1396,7 +1396,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1423,7 +1423,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1450,7 +1450,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1479,7 +1479,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1501,7 +1501,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False)
+        scp = ae.start_server(("localhost", 11112), block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1530,7 +1530,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1562,7 +1562,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1590,7 +1590,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1623,7 +1623,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1656,7 +1656,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1691,7 +1691,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1732,7 +1732,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1773,7 +1773,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1815,7 +1815,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1855,7 +1855,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1893,7 +1893,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1934,7 +1934,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1976,7 +1976,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -2019,7 +2019,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -2047,7 +2047,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -2077,7 +2077,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -2108,7 +2108,7 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -2161,7 +2161,7 @@ class TestNEventReport:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PrintJob)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=scp_hh)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=scp_hh)
 
         events = []
 
@@ -2207,7 +2207,7 @@ class TestNEventReport:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PrintJob)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=scp_hh)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=scp_hh)
 
         events = []
 
@@ -2218,7 +2218,9 @@ class TestNEventReport:
             return 0x0000, ds
 
         scu_hh = [(evt.EVT_N_EVENT_REPORT, handle_ner)]
-        ner_scp = ae.start_server(("", 11113), block=False, evt_handlers=scu_hh)
+        ner_scp = ae.start_server(
+            ("localhost", 11113), block=False, evt_handlers=scu_hh
+        )
 
         ae.add_requested_context(PrintJob)
         assoc = ae.associate("localhost", 11112)

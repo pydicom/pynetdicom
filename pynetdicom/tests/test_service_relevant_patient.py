@@ -56,7 +56,7 @@ class TestRelevantPatientServiceClass:
         ae.add_requested_context(
             GeneralRelevantPatientInformationQuery, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -95,7 +95,7 @@ class TestRelevantPatientServiceClass:
         ae.add_requested_context(
             GeneralRelevantPatientInformationQuery, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -125,7 +125,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -153,7 +153,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -179,7 +179,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -203,7 +203,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -227,7 +227,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -252,7 +252,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -276,7 +276,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -302,7 +302,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -332,7 +332,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -362,7 +362,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -391,7 +391,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -417,7 +417,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -443,7 +443,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -469,7 +469,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -500,7 +500,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -537,7 +537,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -572,7 +572,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -607,7 +607,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -638,7 +638,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -664,7 +664,7 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5

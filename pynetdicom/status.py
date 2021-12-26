@@ -112,7 +112,7 @@ QR_FIND_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 QR_MOVE_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA701: (
         STATUS_FAILURE,
-        "Refused: Out of resources, unable to calculate " "number of matches",
+        "Refused: Out of resources, unable to calculate number of matches",
     ),
     0xA702: (
         STATUS_FAILURE,
@@ -128,7 +128,7 @@ QR_MOVE_SERVICE_CLASS_STATUS: StatusDictType = {
     0xAA02: (STATUS_FAILURE, "Unable to extract frames"),
     0xAA03: (
         STATUS_FAILURE,
-        "Time-based request received for a non-time-based original " "SOP Instance",
+        "Time-based request received for a non-time-based original SOP Instance",
     ),
     0xAA04: (STATUS_FAILURE, "Invalid request"),
     0xFF00: (STATUS_PENDING, "Sub-operations are continuing"),
@@ -156,7 +156,7 @@ QR_MOVE_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 QR_GET_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA701: (
         STATUS_FAILURE,
-        "Refused: Out of resources, unable to calculate " "number of matches",
+        "Refused: Out of resources, unable to calculate number of matches",
     ),
     0xA702: (
         STATUS_FAILURE,
@@ -171,7 +171,7 @@ QR_GET_SERVICE_CLASS_STATUS: StatusDictType = {
     0xAA02: (STATUS_FAILURE, "Unable to extract frames"),
     0xAA03: (
         STATUS_FAILURE,
-        "Time-based request received for a non-time-based original " "SOP Instance",
+        "Time-based request received for a non-time-based original SOP Instance",
     ),
     0xAA04: (STATUS_FAILURE, "Invalid request"),
     0xFF00: (STATUS_PENDING, "Sub-operations are continuing"),
@@ -296,7 +296,7 @@ PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS: StatusDictType = {
     ),
     0xB604: (
         STATUS_WARNING,
-        "Image size is larger than image box size, the image has been " "demagnified",
+        "Image size is larger than image box size, the image has been demagnified",
     ),
     0xB605: (
         STATUS_WARNING,
@@ -367,17 +367,17 @@ APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS: StatusDictType = {
     ),
     0xC101: (
         STATUS_FAILURE,
-        "Procedural logging not available for specified Study " "Instance UID",
+        "Procedural logging not available for specified Study Instance UID",
     ),
     0xC102: (STATUS_FAILURE, "Event Information doesn't match template"),
     0xC103: (STATUS_FAILURE, "Cannot match event to a current study"),
     0xC104: (
         STATUS_FAILURE,
-        "IDs inconsistent in matching a current study; event not " "logged",
+        "IDs inconsistent in matching a current study; event not logged",
     ),
     0xC10E: (
         STATUS_FAILURE,
-        "Operator not authorised to add entry to Medication " "Administration Record",
+        "Operator not authorised to add entry to Medication Administration Record",
     ),
     0xC110: (
         STATUS_FAILURE,
@@ -400,7 +400,7 @@ MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS: StatusDictType = {
     0xC201: (STATUS_FAILURE, "Media creation request already completed"),
     0xC202: (
         STATUS_FAILURE,
-        "Media creation request already in progress and cannot be " "interrupted",
+        "Media creation request already in progress and cannot be interrupted",
     ),
     0xC203: (STATUS_FAILURE, "Cancellation denied for unspecified reason"),
 }
@@ -437,7 +437,7 @@ UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS.update(
         0xC302: (STATUS_FAILURE, "The UPS is already IN PROGRESS"),
         0xC303: (
             STATUS_FAILURE,
-            "The UPS may only become SCHEDULED via N-CREATE, not N-SET or " "N-ACTION",
+            "The UPS may only become SCHEDULED via N-CREATE, not N-SET or N-ACTION",
         ),
         0xC304: (
             STATUS_FAILURE,
@@ -486,21 +486,21 @@ RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS: StatusDictType = {
     ),
     0xC221: (
         STATUS_FAILURE,
-        "The Referenced Fraction Group Number does not exist in " "the referenced plan",
+        "The Referenced Fraction Group Number does not exist in the referenced plan",
     ),
     0xC222: (STATUS_FAILURE, "No beams exist within the referenced fraction group"),
     0xC223: (
         STATUS_FAILURE,
-        "SCU already verifying and cannot currently process this " "request",
+        "SCU already verifying and cannot currently process this request",
     ),
     0xC224: (
         STATUS_FAILURE,
-        "Referenced Beam Number not found within the referenced " "Fraction Group",
+        "Referenced Beam Number not found within the referenced Fraction Group",
     ),
     0xC225: (STATUS_FAILURE, "Referenced device or accessory not supported"),
     0xC226: (
         STATUS_FAILURE,
-        "Referenced device or accessory not found within the " "referenced beam",
+        "Referenced device or accessory not found within the referenced beam",
     ),
     0xC227: (STATUS_FAILURE, "No such object instance - Referenced RT Plan not found"),
 }
