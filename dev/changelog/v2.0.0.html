@@ -120,9 +120,6 @@
 (for example, <em>VerificationSOPClass</em> becomes simply <em>Verification</em>)</p></li>
 <li><p>AE title values should be <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> and trailing
 padding spaces are stripped from the raw value during decoding.</p></li>
-<li><p>Starting an SCP with an address of <code class="docutils literal notranslate"><span class="pre">INADDR_ANY</span></code> (such as <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;0.0.0.0&quot;</span></code>)
-is disallowed by default, use the actual IP address or the loopback <code class="docutils literal notranslate"><span class="pre">&quot;127.0.0.1&quot;</span></code>
-instead, or change <a class="reference internal" href="../reference/generated/pynetdicom._config.DISALLOWED_ADDRESSES.html#pynetdicom._config.DISALLOWED_ADDRESSES" title="pynetdicom._config.DISALLOWED_ADDRESSES"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DISALLOWED_ADDRESSES</span></code></a></p></li>
 </ul>
 </div></blockquote>
 <section id="fixes">
@@ -187,8 +184,6 @@ to allow storing received C-STORE datasets directly to file,
 reducing the memory needed when receiving datasets (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
 <li><p><a class="reference internal" href="../reference/generated/pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE.html#pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE" title="pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE"><code class="xref py py-attr docutils literal notranslate"><span class="pre">UNRESTRICTED_STORAGE_SERVICE</span></code></a> to allow the
 use of the AE as an unrestricted Storage SCP (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/505">#505</a>)</p></li>
-<li><p><a class="reference internal" href="../reference/generated/pynetdicom._config.DISALLOWED_ADDRESSES.html#pynetdicom._config.DISALLOWED_ADDRESSES" title="pynetdicom._config.DISALLOWED_ADDRESSES"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DISALLOWED_ADDRESSES</span></code></a> to allow customising the
-disallowed IP addresses when binding the networking socket</p></li>
 </ul>
 </li>
 <li><p>The DUL reactor should be more performant when processing multiple successive events
@@ -209,8 +204,7 @@ from the DICOM Standard. In particular <code class="docutils literal notranslate
 <li><p>All AE titles and DIMSE elements with a VR of <strong>AE</strong> should be set using an
 ASCII <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a></p></li>
 <li><p>The default bind address used when making association requests has been changed to
-<code class="docutils literal notranslate"><span class="pre">(&quot;127.0.0.1&quot;,</span> <span class="pre">0)</span></code> and addresses that resolve to <code class="docutils literal notranslate"><span class="pre">INADDR_ANY</span></code> are disallowed by
-default (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/680">#680</a>)</p></li>
+<code class="docutils literal notranslate"><span class="pre">(&quot;127.0.0.1&quot;,</span> <span class="pre">0)</span></code> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/680">#680</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DULServiceProvider.primitive</span></code> and <code class="docutils literal notranslate"><span class="pre">DULServiceProvider.pdu</span></code> have been removed</p></li>
 <li><p><a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.connect" title="pynetdicom.transport.AssociationSocket.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AssociationSocket.connect</span></code></a>
 now takes a <a class="reference internal" href="../reference/generated/pynetdicom.transport.T_CONNECT.html#pynetdicom.transport.T_CONNECT" title="pynetdicom.transport.T_CONNECT"><code class="xref py py-class docutils literal notranslate"><span class="pre">T_CONNECT</span></code></a> primitive</p></li>
