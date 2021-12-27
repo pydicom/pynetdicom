@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic Worklist Management Service Examples &mdash; pynetdicom 2.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Display System Management Service Examples" href="display.html" />
+    <link rel="prev" title="Code Examples" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Code Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Basic Worklist Management Service Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-worklist-management-scu">Basic Worklist Management SCU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basic-worklist-management-scp">Basic Worklist Management SCP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="display.html">Display System Management Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpps.html">Modality Performed Procedure Step Management Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_find.html">Query/Retrieve (Find) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_get.html">Query/Retrieve (Get) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_move.html">Query/Retrieve (Move) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="relevant_patient.html">Relevant Patient Information Query Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="print.html">Print Management Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification.html">Verification Service Examples</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Code Examples</a> &raquo;</li>
+      <li>Basic Worklist Management Service Examples</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="basic-worklist-management-service-examples">
+<h1>Basic Worklist Management Service Examples<a class="headerlink" href="#basic-worklist-management-service-examples" title="Permalink to this headline">¶</a></h1>
+<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_K.html">Basic Worklist Management Service</a>
+provides a mechanism for a service user to access worklists on another AE.
+Querying of the SCP for worklists is accomplished by utilising the DIMSE
+C-FIND service.</p>
+<section id="basic-worklist-management-scu">
+<h2>Basic Worklist Management SCU<a class="headerlink" href="#basic-worklist-management-scu" title="Permalink to this headline">¶</a></h2>
+<p>Associate with a peer DICOM Application Entity and request the
+worklist for the application with AE title <code class="docutils literal notranslate"><span class="pre">CTSCANNER</span></code> for the 5th October
+2018. You may need to change the <em>Identifier</em> to meet the requirements of the
+SCP so check it’s conformance statement. The approach is very similar to that
+of a Query/Retrieve (Find) SCU, however BWM uses a different
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_K.6.html#sect_K.6.1.2">set of attributes</a> for the
+<em>Identifier</em>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">ModalityWorklistInformationFind</span>
+
+<span class="n">debug_logger</span><span class="p">()</span>
+
+<span class="c1"># Initialise the Application Entity</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Add a requested presentation context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">ModalityWorklistInformationFind</span><span class="p">)</span>
+
+<span class="c1"># Create our Identifier (query) dataset</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">PatientName</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">ScheduledProcedureStepSequence</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dataset</span><span class="p">()]</span>
+<span class="n">item</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ScheduledProcedureStepSequence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">item</span><span class="o">.</span><span class="n">ScheduledStationAETitle</span> <span class="o">=</span> <span class="s1">&#39;CTSCANNER&#39;</span>
+<span class="n">item</span><span class="o">.</span><span class="n">ScheduledProcedureStepStartDate</span> <span class="o">=</span> <span class="s1">&#39;20181005&#39;</span>
+<span class="n">item</span><span class="o">.</span><span class="n">Modality</span> <span class="o">=</span> <span class="s1">&#39;CT&#39;</span>
+
+<span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="c1"># Use the C-FIND service to send the identifier</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ModalityWorklistInformationFind</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-FIND query status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="basic-worklist-management-scp">
+<h2>Basic Worklist Management SCP<a class="headerlink" href="#basic-worklist-management-scp" title="Permalink to this headline">¶</a></h2>
+<p>The approach will be similar to the
+<a class="reference internal" href="qr_find.html"><span class="doc">Query/Retrieve (Find) SCP example</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Code Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="display.html" class="btn btn-neutral float-right" title="Display System Management Service Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2021, pynetdicom contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

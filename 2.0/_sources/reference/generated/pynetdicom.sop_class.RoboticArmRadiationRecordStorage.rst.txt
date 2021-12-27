@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.RoboticArmRadiationRecordStorage
+======================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: RoboticArmRadiationRecordStorage

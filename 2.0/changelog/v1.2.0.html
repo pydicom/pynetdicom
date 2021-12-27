@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1.2.0 &mdash; pynetdicom 2.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="1.1.0" href="v1.1.0.html" />
+    <link rel="prev" title="1.3.0" href="v1.3.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="v2.0.0.html">2.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.7.html">1.5.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.6.html">1.5.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.5.html">1.5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.4.html">1.5.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.3.html">1.5.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.2.html">1.5.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.1.html">1.5.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.0.html">1.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.4.1.html">1.4.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.4.0.html">1.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.3.1.html">1.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.3.0.html">1.3.0</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.2.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fixes">Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enhancements">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changes">Changes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="v1.1.0.html">1.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.0.0.html">1.0.0</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Release Notes</a> &raquo;</li>
+      <li>1.2.0</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="v1-2-0">
+<span id="id1"></span><h1>1.2.0<a class="headerlink" href="#v1-2-0" title="Permalink to this headline">¶</a></h1>
+<section id="fixes">
+<h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Fixed <code class="docutils literal notranslate"><span class="pre">network_timeout</span></code> not working when acting as the association requestor
+and an A-ABORT not being sent when the timeout expired. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/286">#286</a>)</p></li>
+<li><p>Fixed changing <code class="docutils literal notranslate"><span class="pre">network_timeout</span></code> value not propagating to the actual timer.</p></li>
+<li><p>All DIMSE service requests should now properly abort the association if no
+response is received within the DIMSE timeout window and return/yield
+expected values. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/119">#119</a>)</p></li>
+<li><p>Any outgoing primitives are now sent to the peer before incoming PDUs are
+processed (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/120">#120</a>)</p></li>
+<li><p>Fixed not setting requestor presentation context roles to False when only
+one role is specified during Role Selection negotiation. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/293">#293</a>)</p></li>
+</ul>
+</section>
+<section id="enhancements">
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">_config</span></code> module and the ability to skip the dataset decoding step in
+C-STORE operations by setting <code class="docutils literal notranslate"><span class="pre">_config.DECODE_STORE_DATASETS</span></code> to False
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/282">#282</a>)</p></li>
+<li><p>Consolidated and improved the robustness of the transport related code
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/42">#42</a>):</p>
+<ul>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">transport</span></code> module</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">AssociationSocket</span></code> class that wraps a client <code class="docutils literal notranslate"><span class="pre">socket.socket</span></code> to
+provide integration with the Association state machine. In particular all
+receive and send operations should emit state machine event ‘Evt17’ when
+the connection is closed. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/204">#204</a>)</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code>, and <code class="docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code> classes
+to provide association acceptor services.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fsm.AE_1</span></code> is now properly implemented and state machine event ‘Evt2’ is
+now emitted in a non-trivial manner.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> which allows operation in both blocking and
+non-blocking modes.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code> which allows the user to shutdown all non-blocking
+association servers that may be running.</p></li>
+<li><p>Support for TLS added via the <code class="docutils literal notranslate"><span class="pre">tls_args</span></code> keyword parameter for
+<code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> and <code class="docutils literal notranslate"><span class="pre">ssl_context</span></code> keyword parameter for
+<code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/175">#175</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/71">#71</a>)</p></li>
+<li><p>It should now be possible to both request a C-MOVE operation and act as the
+destination for the request’s C-STORE sub-operations over a new association
+within the same AE instance by running a non-blocking Storage SCP.
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/5">#5</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/181">#181</a>)</p></li>
+</ul>
+</li>
+<li><p>Received P-DATA primitives are now processed when received rather than when
+processing is requested.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.get_msg()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.receive_primitive()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.peek_msg()</span></code> and <code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.msg_queue</span></code>
+to be used with the new P-DATA processing.</p></li>
+<li><p>Time required to start an association improved significantly.</p></li>
+<li><p>Implemented C-CANCEL support</p>
+<ul>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">ServiceClass.is_cancelled()</span></code> method to allow
+checking whether a C-CANCEL message corresponding to a message ID value
+has been received.</p></li>
+<li><p>Added ‘cancelled’ key to the <code class="docutils literal notranslate"><span class="pre">info</span></code> parameter passed to
+<code class="docutils literal notranslate"><span class="pre">AE.on_c_get()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_find()</span></code> and <code class="docutils literal notranslate"><span class="pre">AE.on_c_move()</span></code>. The
+corresponding value is a callable function (<code class="docutils literal notranslate"><span class="pre">is_cancelled()</span></code>) that
+takes a <em>Message ID</em> value and and returns True if a C-CANCEL message with
+a corresponding <em>Message ID Being Responded To</em> value has been received.</p></li>
+</ul>
+</li>
+<li><p>Added thread names (<a class="reference external" href="mailto:'threadtype&#37;&#52;&#48;timestamp">‘threadtype<span>&#64;</span>timestamp</a>’).</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">build_role()</span></code> to simplify creating SCP/SCU Role Selection
+Negotiation items.</p></li>
+</ul>
+</section>
+<section id="changes">
+<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AE.quit()</span></code>, <code class="docutils literal notranslate"><span class="pre">DIMSEMessage.ID</span></code>, <code class="docutils literal notranslate"><span class="pre">ACSE.is_released()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ACSE.release_association()</span></code> removed as per planned deprecation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AE.start()</span></code> is deprecated and will be removed in v1.3, use
+<code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> instead.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AE.stop()</span></code> is deprecated and will be removed in v1.3, use
+<code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code> instead.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">AE.port</span></code> property and <code class="docutils literal notranslate"><span class="pre">port</span></code> argument for <code class="docutils literal notranslate"><span class="pre">AE()</span></code> are deprecated
+and will be removed in v1.3. Use the <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter for
+<code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> and the <code class="docutils literal notranslate"><span class="pre">bind_address</span></code> keyword parameter for
+<code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> instead.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">AE.local_socket</span></code> attribute is deprecated and will be removed in v1.3.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">AE.address</span></code> attribute is deprecated and will be removed in v1.3.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">AE.bind_addr</span></code> attribute is deprecated and will be removed in v1.3. Use
+the <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter for <code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> and the <code class="docutils literal notranslate"><span class="pre">bind_address</span></code>
+keyword parameter for <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> instead.</p></li>
+<li><p>Changed the default DIMSE timeout to 30 s.</p></li>
+<li><p>Changed the default number of maximum associations to 10.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">acse_timeout</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">ACSE()</span></code> and <code class="docutils literal notranslate"><span class="pre">ACSE.acse_timeout</span></code>
+attribute removed, the <code class="docutils literal notranslate"><span class="pre">Association.acse_timeout</span></code> value is used instead.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AE.active_associations</span></code> changed from an attribute to a property and
+returns a list of all the AE’s active Association threads.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> is now synchronous until association negotiation has
+completed or the connection closed (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/108">#108</a>).</p></li>
+<li><p>Removed <code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.receive_msg()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Association.send_c_cancel_get()</span></code>, <code class="docutils literal notranslate"><span class="pre">send_c_cancel_find()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">send_c_cancel_move()</span></code> are deprecated and will be removed in v1.3. Use
+<code class="docutils literal notranslate"><span class="pre">Association.send_c_cancel()</span></code> instead.</p></li>
+<li><p>Removed <code class="docutils literal notranslate"><span class="pre">AE.on_c_get_cancel()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_find_cancel()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.on_c_move_cancel()</span></code>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="v1.3.0.html" class="btn btn-neutral float-left" title="1.3.0" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="v1.1.0.html" class="btn btn-neutral float-right" title="1.1.0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2021, pynetdicom contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

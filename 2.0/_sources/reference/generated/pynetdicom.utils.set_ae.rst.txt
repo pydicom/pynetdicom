@@ -1,0 +1,6 @@
+﻿pynetdicom.utils.set\_ae
+========================
+
+.. currentmodule:: pynetdicom.utils
+
+.. autofunction:: set_ae

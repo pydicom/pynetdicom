@@ -1,0 +1,6 @@
+﻿pynetdicom.\_config.VALIDATORS
+==============================
+
+.. currentmodule:: pynetdicom._config
+
+.. autodata:: VALIDATORS

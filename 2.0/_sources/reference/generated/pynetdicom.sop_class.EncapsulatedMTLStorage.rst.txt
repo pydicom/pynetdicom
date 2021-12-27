@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.EncapsulatedMTLStorage
+============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: EncapsulatedMTLStorage

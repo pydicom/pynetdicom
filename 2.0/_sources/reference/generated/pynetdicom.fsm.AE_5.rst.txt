@@ -1,0 +1,6 @@
+﻿pynetdicom.fsm.AE\_5
+====================
+
+.. currentmodule:: pynetdicom.fsm
+
+.. autofunction:: AE_5

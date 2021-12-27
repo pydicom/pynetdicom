@@ -1,0 +1,80 @@
+.. _v1.4.0:
+
+1.4.0
+=====
+
+.. currentmodule:: pynetdicom
+
+
+Fixes
+.....
+
+* Fixed Query Retrieve service class not responded with ``0x0000`` (Success)
+  if no matches were yielded by the C-FIND request handler.
+* Fixed association being aborted due to failure to decode a rejected
+  presentation context when the transfer syntax value is empty (:issue:`342`)
+* Checkpoint added to the reactor in :class:`~association.Association` to
+  prevent possible race conditions:
+
+  * When acting as the Acceptor and calling one of the ``Association.send_*()``
+    methods.
+  * During an A-RELEASE collision.
+
+
+Enhancements
+............
+
+* Added :attr:`Event.move_destination<events.Event.move_destination>` (for
+  ``evt.EVT_C_MOVE``), :attr:`Event.action_type<events.Event.action_type>`
+  (for ``evt.EVT_N_ACTION``), :attr:`Event.event_type<events.Event.event_type>`
+  (for ``evt.EVT_N_EVENT_REPORT``) and :attr:`Event.event<events.Event.event>`
+  properties (:issue:`353`)
+* Added ``meta_uid`` keyword parameters to the ``Association.send_n_*()``
+  methods to allow the use of Meta SOP Classes (such as those used in the
+  Print Management service class)
+* Added *Basic Grayscale Print Management Meta SOP Class* and *Basic Color
+  Print Management Meta SOP Class* to :mod:`~pynetdicom.sop_class`.
+* Added support for the following service classes:
+
+  * Protocol Approval Query Retrieve (:issue:`327`)
+  * Application Event Logging
+  * Instance Availability Notification
+  * Media Creation Management
+  * Print Management
+  * Unified Procedure Step
+  * RT Machine Verification
+  * Storage Commitment
+* Added handling of non-conformant Presentation Context AC (reject) PDUs which
+  contain no Transfer Syntax Sub-item (:issue:`361`)
+* ``ae_title`` and ``contexts`` keyword arguments added to
+  :meth:`~ae.ApplicationEntity.start_server`
+* Invalid (0000,1030) *Move Originator Application Entity Title* values
+  received in C-STORE service requests are now logged and ignored rather than
+  raising an exception and aborting the association.
+* Improved handling of DIMSE service messages with empty element values.
+* Added handling for DIMSE service requests when acting as the association
+  Requestor
+
+
+Changes
+.......
+
+* The following have been removed as per planned deprecation:
+
+  * ``AE.on_c_store()``, ``AE.on_c_echo()``, ``AE.on_c_find()``,
+    ``AE.on_c_get()``, ``AE.on_c_move()``, ``AE.on_n_get()``,
+    ``AE.on_async_ops_window()``, ``AE.on_sop_class_common_extended()``,
+    ``AE.on_sop_class_extended()``, ``AE.on_user_identity()``,
+    ``AE.on_association_accepted()``, ``AE.on_association_rejected()``,
+    ``AE.on_association_released()``, ``AE.on_association_aborted()``,
+  * ``_config.DECODE_STORE_DATASETS``
+  * ``DIMSEServiceProvider.on_send_dimse_message()``,
+    ``DIMSEServiceProvider.on_receive_dimse_message()``
+* :meth:`Association.send_c_find`, :meth:`Association.send_c_get` and
+  :meth:`Association.send_c_move` now require a `query_model` parameter that
+  is used to set the *Affected SOP Class UID* value. The parameter should
+  pass a pydicom :class:`pydicom.uid.UID` or UID string. Passing a key that
+  corresponds to a given UID is deprecated and will be removed in v1.5.
+  (:issue:`348`)
+* ``Event.name`` and ``Event.description`` properties removed, use
+  ``Event.event.name`` and ``Event.event.description`` instead.

@@ -1,0 +1,6 @@
+﻿pynetdicom.utils.decode\_bytes
+==============================
+
+.. currentmodule:: pynetdicom.utils
+
+.. autofunction:: decode_bytes

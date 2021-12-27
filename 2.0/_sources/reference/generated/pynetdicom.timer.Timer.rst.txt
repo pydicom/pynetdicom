@@ -1,0 +1,33 @@
+﻿pynetdicom.timer.Timer
+======================
+
+.. currentmodule:: pynetdicom.timer
+
+.. autoclass:: Timer
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Timer.__init__
+      ~Timer.restart
+      ~Timer.start
+      ~Timer.stop
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Timer.expired
+      ~Timer.remaining
+      ~Timer.timeout
+   
+   

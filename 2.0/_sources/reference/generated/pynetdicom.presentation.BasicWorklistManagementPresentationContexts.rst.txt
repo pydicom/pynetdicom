@@ -1,0 +1,6 @@
+﻿pynetdicom.presentation.BasicWorklistManagementPresentationContexts
+===================================================================
+
+.. currentmodule:: pynetdicom.presentation
+
+.. autodata:: BasicWorklistManagementPresentationContexts

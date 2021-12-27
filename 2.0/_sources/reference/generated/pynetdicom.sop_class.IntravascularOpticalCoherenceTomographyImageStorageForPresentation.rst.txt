@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.IntravascularOpticalCoherenceTomographyImageStorageForPresentation
+========================================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: IntravascularOpticalCoherenceTomographyImageStorageForPresentation

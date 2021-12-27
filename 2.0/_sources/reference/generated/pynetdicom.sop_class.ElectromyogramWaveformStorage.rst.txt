@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.ElectromyogramWaveformStorage
+===================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ElectromyogramWaveformStorage

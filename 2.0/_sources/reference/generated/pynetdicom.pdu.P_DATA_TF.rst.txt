@@ -1,0 +1,33 @@
+﻿pynetdicom.pdu.P\_DATA\_TF
+==========================
+
+.. currentmodule:: pynetdicom.pdu
+
+.. autoclass:: P_DATA_TF
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~P_DATA_TF.__init__
+      ~P_DATA_TF.decode
+      ~P_DATA_TF.encode
+      ~P_DATA_TF.from_primitive
+      ~P_DATA_TF.to_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~P_DATA_TF.pdu_length
+      ~P_DATA_TF.pdu_type
+   
+   

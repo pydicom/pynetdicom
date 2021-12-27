@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.ProceduralEventLogging
+============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ProceduralEventLogging

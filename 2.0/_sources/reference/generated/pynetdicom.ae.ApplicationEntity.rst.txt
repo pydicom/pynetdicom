@@ -1,0 +1,49 @@
+﻿pynetdicom.ae.ApplicationEntity
+===============================
+
+.. currentmodule:: pynetdicom.ae
+
+.. autoclass:: ApplicationEntity
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ApplicationEntity.__init__
+      ~ApplicationEntity.add_requested_context
+      ~ApplicationEntity.add_supported_context
+      ~ApplicationEntity.associate
+      ~ApplicationEntity.make_server
+      ~ApplicationEntity.remove_requested_context
+      ~ApplicationEntity.remove_supported_context
+      ~ApplicationEntity.shutdown
+      ~ApplicationEntity.start_server
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ApplicationEntity.acse_timeout
+      ~ApplicationEntity.active_associations
+      ~ApplicationEntity.ae_title
+      ~ApplicationEntity.connection_timeout
+      ~ApplicationEntity.dimse_timeout
+      ~ApplicationEntity.implementation_class_uid
+      ~ApplicationEntity.implementation_version_name
+      ~ApplicationEntity.maximum_associations
+      ~ApplicationEntity.maximum_pdu_size
+      ~ApplicationEntity.network_timeout
+      ~ApplicationEntity.requested_contexts
+      ~ApplicationEntity.require_called_aet
+      ~ApplicationEntity.require_calling_aet
+      ~ApplicationEntity.supported_contexts
+   
+   

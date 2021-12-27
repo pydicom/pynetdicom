@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.WideFieldOphthalmicPhotographyStereographicProjectionImageStorage
+=======================================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: WideFieldOphthalmicPhotographyStereographicProjectionImageStorage

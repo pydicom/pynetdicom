@@ -1,0 +1,34 @@
+﻿pynetdicom.pdu\_items.PresentationDataValueItem
+===============================================
+
+.. currentmodule:: pynetdicom.pdu_items
+
+.. autoclass:: PresentationDataValueItem
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PresentationDataValueItem.__init__
+      ~PresentationDataValueItem.decode
+      ~PresentationDataValueItem.encode
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PresentationDataValueItem.context_id
+      ~PresentationDataValueItem.data
+      ~PresentationDataValueItem.item_length
+      ~PresentationDataValueItem.item_type
+      ~PresentationDataValueItem.message_control_header_byte
+   
+   

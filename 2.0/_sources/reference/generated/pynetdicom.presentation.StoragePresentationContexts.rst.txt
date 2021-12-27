@@ -1,0 +1,6 @@
+﻿pynetdicom.presentation.StoragePresentationContexts
+===================================================
+
+.. currentmodule:: pynetdicom.presentation
+
+.. autodata:: StoragePresentationContexts

@@ -1,0 +1,42 @@
+﻿pynetdicom.events.Event
+=======================
+
+.. currentmodule:: pynetdicom.events
+
+.. autoclass:: Event
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Event.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Event.action_information
+      ~Event.action_type
+      ~Event.attribute_identifiers
+      ~Event.attribute_list
+      ~Event.dataset
+      ~Event.dataset_path
+      ~Event.event
+      ~Event.event_information
+      ~Event.event_type
+      ~Event.file_meta
+      ~Event.identifier
+      ~Event.is_cancelled
+      ~Event.message_id
+      ~Event.modification_list
+      ~Event.move_destination
+   
+   

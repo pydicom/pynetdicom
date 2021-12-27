@@ -1,0 +1,6 @@
+﻿pynetdicom.utils.make\_target
+=============================
+
+.. currentmodule:: pynetdicom.utils
+
+.. autofunction:: make_target

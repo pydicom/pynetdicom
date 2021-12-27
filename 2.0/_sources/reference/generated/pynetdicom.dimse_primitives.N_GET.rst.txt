@@ -1,0 +1,42 @@
+﻿pynetdicom.dimse\_primitives.N\_GET
+===================================
+
+.. currentmodule:: pynetdicom.dimse_primitives
+
+.. autoclass:: N_GET
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~N_GET.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~N_GET.AffectedSOPClassUID
+      ~N_GET.AffectedSOPInstanceUID
+      ~N_GET.AttributeIdentifierList
+      ~N_GET.AttributeList
+      ~N_GET.MessageID
+      ~N_GET.MessageIDBeingRespondedTo
+      ~N_GET.REQUEST_KEYWORDS
+      ~N_GET.RESPONSE_KEYWORDS
+      ~N_GET.RequestedSOPClassUID
+      ~N_GET.RequestedSOPInstanceUID
+      ~N_GET.STATUS_OPTIONAL_KEYWORDS
+      ~N_GET.Status
+      ~N_GET.is_valid_request
+      ~N_GET.is_valid_response
+      ~N_GET.msg_type
+   
+   

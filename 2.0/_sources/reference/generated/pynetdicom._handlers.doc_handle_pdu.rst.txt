@@ -1,0 +1,6 @@
+﻿pynetdicom.\_handlers.doc\_handle\_pdu
+======================================
+
+.. currentmodule:: pynetdicom._handlers
+
+.. autofunction:: doc_handle_pdu

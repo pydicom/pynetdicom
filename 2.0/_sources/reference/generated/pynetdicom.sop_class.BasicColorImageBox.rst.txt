@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.BasicColorImageBox
+========================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: BasicColorImageBox

@@ -1,0 +1,6 @@
+﻿pynetdicom.\_config.STORE\_RECV\_CHUNKED\_DATASET
+=================================================
+
+.. currentmodule:: pynetdicom._config
+
+.. autodata:: STORE_RECV_CHUNKED_DATASET

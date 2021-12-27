@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.ProductCharacteristicsQuery
+=================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ProductCharacteristicsQuery
