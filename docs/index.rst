@@ -119,6 +119,7 @@ Applications
 Release Notes
 =============
 
+* :doc:`v2.1.0 </changelog/v2.1.0>`
 * :doc:`v2.0.0 </changelog/v2.0.0>`
 * :doc:`v1.5.7 </changelog/v1.5.7>`
 * :doc:`v1.5.6 </changelog/v1.5.6>`
