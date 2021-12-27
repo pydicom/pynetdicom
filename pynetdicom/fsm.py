@@ -3,7 +3,7 @@ The DUL's finite state machine representation.
 """
 import logging
 import queue
-from typing import TYPE_CHECKING, cast, Tuple
+from typing import TYPE_CHECKING, cast
 
 from pynetdicom import evt
 from pynetdicom.pdu import (

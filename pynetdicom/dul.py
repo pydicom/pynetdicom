@@ -282,7 +282,7 @@ class DULServiceProvider(Thread):
             pdu_type, _, pdu_length = struct.unpack(">BBL", bytestream)
         except struct.error as exc:
             # READ_PDU_EXC_B
-            LOGGER.error("Insufficient data received to decode the PDU")
+            # LOGGER.error("Insufficient data received to decode the PDU")
             # Evt17: Transport connection closed
             self.event_queue.put("Evt17")
             return
