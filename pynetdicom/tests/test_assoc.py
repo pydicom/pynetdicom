@@ -584,6 +584,7 @@ class TestAssociation:
 
     def test_unknown_abort_source(self, caplog):
         """Test an unknown abort source handled correctly #561"""
+
         def handle_req(event):
             pdu = b"\x07\x00\x00\x00\x00\x04\x00\x00\x01\x00"
             event.assoc.dul.socket.send(pdu)
