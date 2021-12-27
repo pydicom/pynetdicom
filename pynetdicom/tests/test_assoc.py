@@ -584,33 +584,29 @@ class TestAssociation:
 
     def test_unknown_abort_source(self, caplog):
         """Test an unknown abort source handled correctly #561"""
-        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+        def handle_req(event):
+            pdu = b"\x07\x00\x00\x00\x00\x04\x00\x00\x01\x00"
+            event.assoc.dul.socket.send(pdu)
+            # Give the requestor time to process the message before killing
+            #   the connection
+            time.sleep(0.1)
 
-            def handle_req(event):
-                pdu = b"\x07\x00\x00\x00\x00\x04\x00\x00\x01\x00"
-                event.assoc.dul.socket.send(pdu)
-                # Give the requestor time to process the message before killing
-                #   the connection
-                time.sleep(0.1)
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(Verification)
 
-            self.ae = ae = AE()
-            ae.acse_timeout = 5
-            ae.dimse_timeout = 5
-            ae.network_timeout = 5
-            ae.add_supported_context(Verification)
+        hh = [(evt.EVT_REQUESTED, handle_req)]
 
-            hh = [(evt.EVT_REQUESTED, handle_req)]
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
 
-            scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        ae.add_requested_context(Verification)
+        assoc = ae.associate("localhost", 11112)
+        assert not assoc.is_established
+        assert assoc.is_aborted
 
-            ae.add_requested_context(Verification)
-            assoc = ae.associate("localhost", 11112)
-            assert not assoc.is_established
-            assert assoc.is_aborted
-
-            scp.shutdown()
-
-            assert "Insufficient data received to decode the PDU" in caplog.text
+        scp.shutdown()
 
 
 class TestCStoreSCP:
@@ -1194,7 +1190,7 @@ class TestAssociationSendCEcho:
 
         scp.shutdown()
 
-    def test_network_times_out_requestor(self, caplog):
+    def test_network_timeout_requestor(self, caplog):
         """Regression test for #286."""
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             self.ae = ae = AE()
@@ -1215,7 +1211,7 @@ class TestAssociationSendCEcho:
 
             assert "Network timeout reached" in caplog.text
 
-    def test_network_times_out_acceptor(self):
+    def test_network_timeout_acceptor(self):
         """Regression test for #286."""
         self.ae = ae = AE()
         ae.add_requested_context(Verification)
@@ -1231,6 +1227,28 @@ class TestAssociationSendCEcho:
         assert assoc.is_aborted
 
         scp.shutdown()
+
+    def test_network_timeout_release(self, caplog):
+        """Test releasing rather than aborting on network timeout"""
+        with caplog.at_level(logging.INFO, logger="pynetdicom"):
+            self.ae = ae = AE()
+            ae.add_requested_context(Verification)
+            ae.add_supported_context(Verification)
+            scp = ae.start_server(("localhost", 11112), block=False)
+
+            assoc = ae.associate("localhost", 11112)
+            assoc.network_timeout_response = "A-RELEASE"
+            assert assoc.is_established
+            assoc.network_timeout = 0.5
+            assert assoc.network_timeout == 0.5
+
+            while not assoc.is_released:
+                time.sleep(0.01)
+
+            scp.shutdown()
+
+            assert "Network timeout reached" in caplog.text
+            assert "Association Released" in caplog.text
 
 
 class TestAssociationSendCStore:

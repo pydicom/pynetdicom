@@ -81,6 +81,10 @@ Enhancements
 
 * The DUL reactor should be more performant when processing multiple successive events
   (:pr:`651`)
+* Added `Association.network_timeout_response
+  <pynetdicom.association.Association.network_timeout_response>` to allow normal
+  association release on network timeout expiry rather than an abort (:issue:`619`)
+
 
 
 Changes

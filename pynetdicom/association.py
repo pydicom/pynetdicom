@@ -118,6 +118,9 @@ class Association(threading.Thread):
         ``True`` if the association was rejected, ``False`` otherwise.
     is_released : bool
         ``True`` if the association has been released, ``False`` otherwise.
+    network_timeout_response : str
+        If ``"A-RELEASE"`` then initiate a normal association release on expiry of the
+        network timeout, otherwise issue an A-ABORT (default).
     requestor : association.ServiceUser
         Representation of the association's *requestor* AE.
     """
@@ -171,6 +174,9 @@ class Association(threading.Thread):
         self.connection_timeout: Optional[float] = self.ae.connection_timeout
         self.dimse_timeout: Optional[float] = self.ae.dimse_timeout
         self.network_timeout: Optional[float] = self.ae.network_timeout
+
+        # Allow customising the response to a network timeout
+        self.network_timeout_response = "A-ABORT"
 
         # Event handlers
         self._handlers: Dict[
@@ -741,10 +747,16 @@ class Association(threading.Thread):
                 self.kill()
                 return
 
-            # Check if idle timer has expired
+            # Check if network_timeout has expired
             if self.dul.idle_timer_expired():
                 LOGGER.error("Network timeout reached")
-                self.abort()
+                if self.network_timeout_response == "A-RELEASE":
+                    self._is_paused = True
+                    self._reactor_checkpoint.wait()
+                    self.release()
+                    self._is_paused = False
+                else:
+                    self.abort()
                 self.kill()
                 return
 
