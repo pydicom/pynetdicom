@@ -52,41 +52,64 @@ class T_CONNECT:
     """A TRANSPORT CONNECTION primitive
 
     .. versionadded:: 2.0
+
+    Attributes
+    ----------
+    request : pynetdicom.pdu_primitives.A_ASSOCIATE
+        The A-ASSOCIATE (request) primitive that generated the TRANSPORT CONNECTION
+        primitive.
     """
 
-    def __init__(self, address: Union[Tuple[str, int], "A_ASSOCIATE"]) -> None:
+    def __init__(self, request: "A_ASSOCIATE") -> None:
         """Create a new TRANSPORT CONNECTION primitive.
 
         Parameters
         ----------
-        address : Union[Tuple[str, int], pynetdicom.pdu_primitives.A_ASSOCIATE]
-            The ``(str: IP address, int: port)`` or A-ASSOCIATE (request) primitive to
-            use when making a connection with a peer.
+        request : pynetdicom.pdu_primitives.A_ASSOCIATE
+            The A-ASSOCIATE (request) primitive to use when making a connection with
+            a peer.
         """
-        self._request = None
-        self.result = ""
+        self._result = ""
+        self.request = request
 
-        if isinstance(address, tuple):
-            self._address = address
-        elif isinstance(address, A_ASSOCIATE):
-            self._address = cast(Tuple[str, int], address.called_presentation_address)
-            self._request = address
-        else:
+        if not isinstance(request, A_ASSOCIATE):
             raise TypeError(
-                f"'address' must be 'Tuple[str, int]' or "
-                "'pynetdicom.pdu_primitives.A_ASSOCIATE', not "
-                f"'{address.__class__.__name__}'"
+                f"'request' must be 'pynetdicom.pdu_primitives.A_ASSOCIATE', not "
+                f"'{request.__class__.__name__}'"
             )
 
     @property
     def address(self) -> Tuple[str, int]:
         """Return the peer's ``(str: IP address, int: port)``."""
-        return self._address
+        return cast(Tuple[str, int], self.request.called_presentation_address)
 
     @property
-    def request(self) -> Optional[A_ASSOCIATE]:
-        """Return the A-ASSOCIATE (request) primitive, or ``None`` if not available."""
-        return self._request
+    def result(self) -> str:
+        """Return the result of the connection attempt as :class:`str`.
+
+        Parameters
+        ----------
+        str
+            The result of the connection attempt, ``"Evt2"`` if the connection
+            succeeded, ``"Evt17"`` if it failed.
+
+        Returns
+        -------
+        str
+            The result of the connection attempt, ``"Evt2"`` if the connection
+            succeeded, ``"Evt17"`` if it failed.
+        """
+        if self._result == "":
+            raise ValueError("A connection attempt has not yet been made")
+
+        return self._result
+
+    @result.setter
+    def result(self, value: str) -> None:
+        if value not in ("Evt2", "Evt17"):
+            raise ValueError(f"Invalid connection result '{value}'")
+
+        self._result = value
 
 
 class AssociationSocket:

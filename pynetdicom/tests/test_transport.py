@@ -62,18 +62,10 @@ class TestTConnect:
     def test_bad_addr_raises(self):
         """Test a bad init parameter raises exception"""
         msg = (
-            r"'address' must be 'Tuple\[str, int\]' or "
-            r"'pynetdicom.pdu_primitives.A_ASSOCIATE', not 'NoneType'"
+            r"'request' must be 'pynetdicom.pdu_primitives.A_ASSOCIATE', not 'NoneType'"
         )
         with pytest.raises(TypeError, match=msg):
             T_CONNECT(None)
-
-    def test_address_tuple(self):
-        """Test init with a tuple"""
-        conn = T_CONNECT(("123", 12))
-        assert conn.address == ("123", 12)
-        assert conn.request is None
-        assert conn.result == ""
 
     def test_address_request(self):
         """Test init with an A-ASSOCIATE primitive"""
@@ -82,7 +74,26 @@ class TestTConnect:
         conn = T_CONNECT(request)
         assert conn.address == ("123", 12)
         assert conn.request is request
-        assert conn.result == ""
+
+        msg = r"A connection attempt has not yet been made"
+        with pytest.raises(ValueError, match=msg):
+            conn.result
+
+    def test_result_setter(self):
+        """Test setting the result value."""
+        request = A_ASSOCIATE()
+        request.called_presentation_address = ("123", 12)
+        conn = T_CONNECT(request)
+
+        msg = r"Invalid connection result 'foo'"
+        with pytest.raises(ValueError, match=msg):
+            conn.result = "foo"
+
+        assert conn._result == ""
+
+        for result in ("Evt2", "Evt17"):
+            conn.result = result
+            assert conn.result == result
 
 
 class TestAssociationSocket:
