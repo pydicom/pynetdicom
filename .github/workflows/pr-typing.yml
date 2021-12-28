@@ -2,8 +2,7 @@ name: pull-request-typing
 
 on:
   pull_request:
-    types: [ opened, synchronize ]
-    branches: [ master, v2.0.X ]
+    branches: [ master, 2.0.X ]
 
 jobs:
 
