@@ -172,7 +172,9 @@ class TestAssociationSocket:
         sock.close()
         assert sock.socket is None
         # Tries to connect, sets to None if fails
-        sock.connect(T_CONNECT(("localhost", 11112)))
+        request = A_ASSOCIATE()
+        request.called_presentation_address = ("localhost", 11112)
+        sock.connect(T_CONNECT(request))
         assert sock.event_queue.get() == "Evt17"
         assert sock.socket is None
 
