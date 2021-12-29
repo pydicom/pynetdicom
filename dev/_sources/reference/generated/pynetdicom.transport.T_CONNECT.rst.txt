@@ -24,6 +24,6 @@
    .. autosummary::
    
       ~T_CONNECT.address
-      ~T_CONNECT.request
+      ~T_CONNECT.result
    
    
