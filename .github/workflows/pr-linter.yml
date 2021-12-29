@@ -2,7 +2,7 @@ name: pull-request-linter
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ master, 2.0.X ]
 
 jobs:
 
