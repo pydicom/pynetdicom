@@ -1,0 +1,10 @@
+.. _v2.0.1:
+
+2.0.1
+=====
+
+Changes
+.......
+
+* Revert change to default bind address
+* Don't allow passing an address tuple to T_CONNECT initialisation
