@@ -495,7 +495,6 @@ class ApplicationEntity:
         .. versionchanged:: 2.0
 
             * `ae_title` should now be :class:`str`
-            * The default `bind_address` was changed to ``("127.0.0.1", 0)``
 
         Parameters
         ----------
@@ -526,7 +525,7 @@ class ApplicationEntity:
             * :class:`~UserIdentityNegotiation` (0 or 1 item)
         bind_address : 2-tuple, optional
             The (host, port) to bind the association's communication socket
-            to, default ``("127.0.0.1", 0)``.
+            to, default ``("", 0)``.
         tls_args : 2-tuple, optional
             If TLS is required then this should be a 2-tuple containing a
             (`ssl_context`, `server_hostname`), where `ssl_context` is the
