@@ -141,10 +141,6 @@ class AssociationSocket:
     ) -> None:
         """Create a new :class:`AssociationSocket`.
 
-        .. versionchanged:: 2.0
-
-            The default for *address* was changed to ``("127.0.0.1", 0)``
-
         Parameters
         ----------
         assoc : association.Association
@@ -156,7 +152,7 @@ class AssociationSocket:
         address : 2-tuple, optional
             If *client_socket* is ``None`` then this is the ``(host, port)`` to
             bind the newly created socket to, which by default will be
-            ``('127.0.0.1', 0)``.
+            ``("", 0)``.
         """
         self._assoc = assoc
 
@@ -288,7 +284,7 @@ class AssociationSocket:
         ----------
         address : 2-tuple, optional
             The ``(host: str, port: int)`` to bind the socket to. By default the socket
-            is bound to ``("127.0.0.1", 0)``, i.e. the first available port.
+            is bound to ``("", 0)``, i.e. the first available port.
 
         Returns
         -------
