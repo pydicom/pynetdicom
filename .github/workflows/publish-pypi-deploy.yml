@@ -44,6 +44,8 @@ jobs:
         pip install -i https://test.pypi.org/simple/ pynetdicom
 
     - name: Test with pytest
+      env:
+        PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
         cd ${HOME}
         python -m pynetdicom --version
