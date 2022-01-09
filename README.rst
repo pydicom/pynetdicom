@@ -260,7 +260,7 @@ Send a C-ECHO request to a Verification SCP (at TCP/IP address
 
         from pynetdicom import AE
 
-        ae = AE(ae_title=b'MY_ECHO_SCU')
+        ae = AE(ae_title='MY_ECHO_SCU')
         # Verification SOP Class has a UID of 1.2.840.10008.1.1
         #   we can use the UID str directly when adding the requested
         #   presentation context
@@ -290,7 +290,7 @@ other than an ``0x0000`` *Success* status):
 
         from pynetdicom import AE, VerificationPresentationContexts
 
-        ae = AE(ae_title=b'MY_ECHO_SCP')
+        ae = AE(ae_title='MY_ECHO_SCP')
         # Or we can use the inbuilt VerificationPresentationContexts list,
         #   there's one for each of the supported Service Classes
         # In this case, we are supporting any requests to use Verification SOP
@@ -313,13 +313,13 @@ requestor's address and port number and the timestamp for the event.
         import logging
 
         from pynetdicom import AE, evt, debug_logger
-        from pynetdicom.sop_class import VerificationSOPClass
+        from pynetdicom.sop_class import Verification
 
         # Setup logging to use the StreamHandler at the debug level
         debug_logger()
 
-        ae = AE(ae_title=b'MY_ECHO_SCP')
-        ae.add_supported_context(VerificationSOPClass)
+        ae = AE(ae_title='MY_ECHO_SCP')
+        ae.add_supported_context(Verification)
 
         # Implement the EVT_C_ECHO handler
         def handle_echo(event, logger):
@@ -363,7 +363,7 @@ requestor's address and port number and the timestamp for the event.
         scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         # Associate and send a C-ECHO request to our own Verification SCP
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assoc = ae.associate('localhost', 11112)
         if assoc.is_established:
             status = assoc.send_c_echo()
@@ -385,7 +385,7 @@ SCP (at TCP/IP address *addr*, listen port number *port*):
         from pynetdicom import AE, VerificationPresentationContexts
         from pynetdicom.sop_class import CTImageStorage, MRImageStorage
 
-        ae = AE(ae_title=b'MY_STORAGE_SCU')
+        ae = AE(ae_title='MY_STORAGE_SCU')
         # We can also do the same thing with the requested contexts
         ae.requested_contexts = VerificationPresentationContexts
         # Or we can use inbuilt objects like CTImageStorage.
