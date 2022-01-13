@@ -1548,7 +1548,7 @@ class P_DATA_TF(PDU):
         **Encoding**
         When encoded, a Presentation Data Value Item has the following
         structure, taken from Table 9-23 (offset shown with Python
-        indexing). The item is encoded using Big Endian, but the encoding of
+        indexing). The item is encoded using Big Endian, but the encoding
         of the presentation data message fragments is dependent on the
         negotiated transfer syntax.
 

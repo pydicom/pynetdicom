@@ -244,7 +244,7 @@ class DULServiceProvider(Thread):
         """Read PDU data sent by the peer from the socket.
 
         Receives the PDU, attempts to decode it, places the corresponding
-        event in the event queue and and converts it a primitive (if possible).
+        event in the event queue and converts it a primitive (if possible).
 
         If the decoding and conversion is successful then `pdu` and `primitive`
         are set to corresponding class instances.

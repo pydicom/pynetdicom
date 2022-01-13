@@ -183,9 +183,8 @@ Events and handlers
 *pynetdicom* uses an :doc:`event-handler system<../user/events>` to give
 access to data exchanged between AEs and as a way to customise the responses to
 service requests. Events come in two types: :ref:`notification events
-<events_notification>`, where
-where the user is notified some event has occurred, and
-:ref:`intervention events<events_intervention>`,
+<events_notification>`, where the user is notified some event has occurred,
+and :ref:`intervention events<events_intervention>`,
 where the user must intervene in some way. The idea is that you bind a
 callable function, the *handler*, to an event, and then when the event occurs
 the handler is called.

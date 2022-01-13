@@ -528,7 +528,7 @@ Providing DIMSE Services (SCP)
 
 If the association supports a service class that uses one or more of the
 DIMSE-C or -N services then a handler must be implemented and bound to the
-event corresponding the the service (excluding C-ECHO which has a default
+event corresponding to the service (excluding C-ECHO which has a default
 implementation that always returns a ``0x0000`` *Success* response):
 
 +----------------+----------------------------+
