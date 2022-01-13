@@ -61,7 +61,7 @@ Enhancements
   * Added 'cancelled' key to the ``info`` parameter passed to
     ``AE.on_c_get()``, ``AE.on_c_find()`` and ``AE.on_c_move()``. The
     corresponding value is a callable function (``is_cancelled()``) that
-    takes a *Message ID* value and and returns True if a C-CANCEL message with
+    takes a *Message ID* value and returns True if a C-CANCEL message with
     a corresponding *Message ID Being Responded To* value has been received.
 * Added thread names ('threadtype@timestamp').
 * Added ``build_role()`` to simplify creating SCP/SCU Role Selection
