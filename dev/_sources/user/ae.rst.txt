@@ -323,7 +323,7 @@ syntaxes are used by default for each context:
 +------------------------+------------------------------------+
 
 Specifying your own transfer syntax(es) can be done with the
-*transfer_syntax* keyword parameter parameter as either a single str/UID or a
+*transfer_syntax* keyword parameter as either a single str/UID or a
 list of str/UIDs:
 
 .. doctest::

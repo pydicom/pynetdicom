@@ -247,9 +247,8 @@ the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE
 <h2>Events and handlers<a class="headerlink" href="#events-and-handlers" title="Permalink to this headline">¶</a></h2>
 <p><em>pynetdicom</em> uses an <a class="reference internal" href="../user/events.html"><span class="doc">event-handler system</span></a> to give
 access to data exchanged between AEs and as a way to customise the responses to
-service requests. Events come in two types: <a class="reference internal" href="../user/events.html#events-notification"><span class="std std-ref">notification events</span></a>, where
-where the user is notified some event has occurred, and
-<a class="reference internal" href="../user/events.html#events-intervention"><span class="std std-ref">intervention events</span></a>,
+service requests. Events come in two types: <a class="reference internal" href="../user/events.html#events-notification"><span class="std std-ref">notification events</span></a>, where the user is notified some event has occurred,
+and <a class="reference internal" href="../user/events.html#events-intervention"><span class="std std-ref">intervention events</span></a>,
 where the user must intervene in some way. The idea is that you bind a
 callable function, the <em>handler</em>, to an event, and then when the event occurs
 the handler is called.</p>
