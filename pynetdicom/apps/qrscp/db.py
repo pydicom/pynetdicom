@@ -696,7 +696,7 @@ class Instance(Base):
     sop_class_uid = Column(String(64))
 
     patient_id = Column(String, ForeignKey("patient.patient_id"))
-    patient_name = Column(String, ForeignKey("patient.patient_id"))
+    patient_name = Column(String, ForeignKey("patient.patient_name"))
 
     study_instance_uid = Column(String, ForeignKey("study.study_instance_uid"))
     study_date = Column(String, ForeignKey("study.study_date"))
@@ -706,14 +706,14 @@ class Instance(Base):
 
     series_instance_uid = Column(String, ForeignKey("series.series_instance_uid"))
     modality = Column(String, ForeignKey("series.modality"))
-    series_number = Column(String, ForeignKey("series.series_number"))
+    series_number = Column(Integer, ForeignKey("series.series_number"))
 
     sop_instance_uid = Column(
         String,
         ForeignKey("image.sop_instance_uid"),
         primary_key=True,
     )
-    instance_number = Column(String, ForeignKey("image.instance_number"))
+    instance_number = Column(Integer, ForeignKey("image.instance_number"))
 
     def as_identifier(self, identifier, model):
         """Return an Identifier dataset matching the elements from a query.
