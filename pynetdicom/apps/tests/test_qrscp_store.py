@@ -75,6 +75,8 @@ class StoreSCPBase:
         self.db_location = self.tfile.name
         self.instance_location = tempfile.TemporaryDirectory()
 
+        self.startup = 1.0
+
     def teardown(self):
         """Clear any active threads"""
         if self.ae:
@@ -95,9 +97,9 @@ class StoreSCPBase:
                 "-d",
             ]
         )
-        time.sleep(1)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         assert 5 == len(os.listdir(self.instance_location.name))
 

@@ -78,6 +78,8 @@ class GetSCPBase:
         self.db_location = self.tfile.name
         self.instance_location = tempfile.TemporaryDirectory()
 
+        self.startup = 1.0
+
     def teardown(self):
         """Clear any active threads"""
         if self.ae:
@@ -98,9 +100,9 @@ class GetSCPBase:
                 "-d",
             ]
         )
-        time.sleep(1)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         query = Dataset()
         query.QueryRetrieveLevel = "PATIENT"

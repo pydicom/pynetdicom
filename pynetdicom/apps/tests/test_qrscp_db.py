@@ -1,6 +1,7 @@
 """Unit tests for the QRSCP app's database functions."""
 
 import os
+from pathlib import Path
 import sys
 import tempfile
 
@@ -9,7 +10,7 @@ import pytest
 try:
     from sqlalchemy import create_engine
     from sqlalchemy.schema import MetaData
-    from sqlalchemy.exc import IntegrityError
+    from sqlalchemy.exc import IntegrityError, SAWarning
     from sqlalchemy.orm import sessionmaker
 
     HAVE_SQLALCHEMY = True
@@ -30,8 +31,8 @@ if HAVE_SQLALCHEMY:
     from pynetdicom.apps.qrscp import db
 
 
-TEST_DIR = os.path.dirname(__file__)
-DATA_DIR = os.path.join(TEST_DIR, "../", "../", "tests", "dicom_files")
+TEST_DIR = Path(__file__).parent
+DATA_DIR = TEST_DIR.parent.parent / "tests" / "dicom_files"
 DATASETS = {
     "CTImageStorage.dcm": {
         "patient_id": "1CT1",
@@ -116,6 +117,13 @@ DATASETS = {
 }
 
 
+try:
+    pydicom.config.settings.writing_validation_mode = 0
+    pydicom.config.settings.reading_validation_mode = 0
+except AttributeError:
+    pass
+
+
 @pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestConnect:
     """Tests for db.connect()."""
@@ -173,8 +181,7 @@ class TestAddInstance:
 
     def test_add_instance(self):
         """Test adding to the instance database."""
-        fpath = os.path.join(DATA_DIR, "CTImageStorage.dcm")
-        ds = dcmread(fpath)
+        ds = dcmread(os.fspath(DATA_DIR / "CTImageStorage.dcm"))
         db.add_instance(ds, self.session)
 
         obj = self.session.query(db.Instance).all()
@@ -185,8 +192,7 @@ class TestAddInstance:
     def test_add_multiple_instances(self):
         """Test adding multiple data to the instance database."""
         for fname in DATASETS:
-            fpath = os.path.join(DATA_DIR, fname)
-            ds = dcmread(fpath)
+            ds = dcmread(os.fspath(DATA_DIR / fname))
             db.add_instance(ds, self.session)
 
         obj = self.session.query(db.Instance).all()
@@ -226,7 +232,7 @@ class TestAddInstance:
         """Test that instances with bad data aren't added."""
         keywords = [
             ("PatientID", 16),
-            ("PatientName", 64),
+            ("PatientName", 400),
             ("StudyInstanceUID", 64),
             ("StudyDate", 8),
             ("StudyTime", 14),
@@ -268,7 +274,9 @@ class TestAddInstance:
         ds.SeriesInstanceUID = None
         ds.SOPInstanceUID = None
         with pytest.raises(IntegrityError):
-            db.add_instance(ds, self.session)
+            msg = r"Column 'instance.sop_instance_uid' is marked as a"
+            with pytest.warns(SAWarning, match=msg):
+                db.add_instance(ds, self.session)
 
         self.session.rollback()
 
@@ -349,8 +357,7 @@ class TestClear:
 
         self.session = sessionmaker(bind=engine)()
         for fname in DATASETS:
-            fpath = os.path.join(DATA_DIR, fname)
-            ds = dcmread(fpath)
+            ds = dcmread(os.fspath(DATA_DIR / fname))
             db.add_instance(ds, self.session)
 
     def test_clear(self):
@@ -373,8 +380,7 @@ class TestSearch:
         self.session = sessionmaker(bind=engine)()
 
         for fname in DATASETS:
-            fpath = os.path.join(DATA_DIR, fname)
-            ds = dcmread(fpath)
+            ds = dcmread(os.fspath(DATA_DIR / fname))
             db.add_instance(ds, self.session)
 
     def test_search(self):
@@ -669,8 +675,7 @@ class TestSearchFind:
 
         self.session = sessionmaker(bind=engine)()
         for fname in DATASETS:
-            fpath = os.path.join(DATA_DIR, fname)
-            ds = dcmread(fpath)
+            ds = dcmread(DATA_DIR / fname)
             db.add_instance(ds, self.session)
 
     def test_no_attributes(self):

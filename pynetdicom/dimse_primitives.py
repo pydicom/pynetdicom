@@ -206,7 +206,7 @@ class DIMSEPrimitive:
     def MessageID(self, value: Optional[int]) -> None:
         """Set the *Message ID*."""
         if isinstance(value, int):
-            if 0 <= value < 2 ** 16:
+            if 0 <= value < 2**16:
                 self._message_id = value
             else:
                 raise ValueError("Message ID must be between 0 and 65535, inclusive")
@@ -230,7 +230,7 @@ class DIMSEPrimitive:
     def MessageIDBeingRespondedTo(self, value: Optional[int]) -> None:
         """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
-            if 0 <= value < 2 ** 16:
+            if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
                 raise ValueError(
@@ -591,7 +591,7 @@ class C_STORE(DIMSEPrimitive):
         """
         # Fix for peers sending a value consisting of nulls
         if isinstance(value, int):
-            if 0 <= value < 2 ** 16:
+            if 0 <= value < 2**16:
                 self._move_originator_message_id = value
             else:
                 raise ValueError(
@@ -1251,7 +1251,7 @@ class C_CANCEL:
     def MessageIDBeingRespondedTo(self, value: Optional[int]) -> None:
         """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
-            if 0 <= value < 2 ** 16:
+            if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
                 raise ValueError(

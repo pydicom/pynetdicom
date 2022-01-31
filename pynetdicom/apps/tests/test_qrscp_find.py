@@ -100,6 +100,8 @@ class FindSCPBase:
         ds.SeriesInstanceUID = None
         ds.SOPInstanceUID = None
 
+        self.startup = 1.0
+
     def teardown(self):
         """Clear any active threads"""
         if self.ae:
@@ -120,9 +122,9 @@ class FindSCPBase:
                 "-d",
             ]
         )
-        time.sleep(1)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -169,9 +171,9 @@ class FindSCPBase:
                 "-d",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -205,9 +207,9 @@ class FindSCPBase:
                 "-d",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -250,9 +252,9 @@ class FindSCPBase:
                 "-d",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -294,9 +296,9 @@ class FindSCPBase:
                 "-d",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -340,9 +342,9 @@ class FindSCPBase:
                 "-d",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -385,9 +387,9 @@ class FindSCPBase:
                 "-d",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -432,9 +434,9 @@ class FindSCPBase:
                 "-d",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -478,9 +480,9 @@ class FindSCPBase:
                 "-d",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -526,9 +528,9 @@ class FindSCPBase:
                 "-d",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         ds = Dataset()
         ds.QueryRetrieveLevel = "PATIENT"
@@ -573,9 +575,9 @@ class FindSCPBase:
                 "-d",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
         _send_datasets()
-        time.sleep(1)
+        time.sleep(self.startup)
 
         ds = Dataset()
         ds.QueryRetrieveLevel = "STUDY"
