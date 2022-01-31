@@ -186,7 +186,6 @@ class TestAddInstance:
 
         obj = self.session.query(db.Instance).all()
         assert 1 == len(obj)
-        print(obj[0])
         for kk, vv in DATASETS["CTImageStorage.dcm"].items():
             assert vv == getattr(obj[0], kk)
 
