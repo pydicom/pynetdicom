@@ -318,6 +318,12 @@ class TestUIDToServiceClass:
 class TestSOPClass:
     """Tests for sop_class.SOPClass."""
 
+    def test_class_type(self):
+        """Test the class type is correct."""
+        sop = SOPClass("1.2.840.10008.5.1.4.1.1.2")
+        assert isinstance(sop, SOPClass)
+        assert isinstance(SOPClass(sop), SOPClass)
+
     def test_app_logging_sop(self):
         assert ProceduralEventLogging == "1.2.840.10008.1.40"
         assert (
