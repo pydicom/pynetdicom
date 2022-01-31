@@ -2,6 +2,7 @@
 
 import logging
 import os
+from pathlib import Path
 import subprocess
 import sys
 import tempfile
@@ -11,7 +12,6 @@ import pytest
 
 try:
     import sqlalchemy
-
     HAVE_SQLALCHEMY = True
 except ImportError:
     HAVE_SQLALCHEMY = False
@@ -31,15 +31,13 @@ from pynetdicom.sop_class import Verification, CTImageStorage
 # debug_logger()
 
 
-APP_DIR = os.path.join(os.path.dirname(__file__), "../")
-APP_FILE = os.path.join(APP_DIR, "qrscp", "qrscp.py")
-DATA_DIR = os.path.join(APP_DIR, "../", "tests", "dicom_files")
-DATASET_FILE = os.path.join(DATA_DIR, "CTImageStorage.dcm")
+APP_DIR = Path(__file__).parent.parent
+APP_FILE = APP_DIR / "qrscp" / "qrscp.py"
 
 
 def start_qrscp(args):
     """Start the qrscp.py app and return the process."""
-    pargs = [sys.executable, APP_FILE] + [*args]
+    pargs = [sys.executable, os.fspath(APP_FILE)] + [*args]
     return subprocess.Popen(pargs)
 
 
@@ -61,6 +59,8 @@ class EchoSCPBase:
         self.tfile = tempfile.NamedTemporaryFile()
         self.db_location = self.tfile.name
         self.instance_location = tempfile.TemporaryDirectory()
+
+        self.startup = 1.0
 
     def teardown(self):
         """Clear any active threads"""
@@ -87,7 +87,7 @@ class EchoSCPBase:
                 self.instance_location.name,
             ]
         )
-        time.sleep(1)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -137,7 +137,7 @@ class EchoSCPBase:
                 "-q",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -170,7 +170,7 @@ class EchoSCPBase:
                 "-v",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
@@ -203,7 +203,7 @@ class EchoSCPBase:
                 "-d",
             ]
         )
-        time.sleep(0.5)
+        time.sleep(self.startup)
 
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established

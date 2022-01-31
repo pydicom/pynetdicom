@@ -696,7 +696,7 @@ class Instance(Base):
     sop_class_uid = Column(String(64))
 
     patient_id = Column(String, ForeignKey("patient.patient_id"))
-    patient_name = Column(String, ForeignKey("patient.patient_id"))
+    patient_name = Column(String, ForeignKey("patient.patient_name"))
 
     study_instance_uid = Column(String, ForeignKey("study.study_instance_uid"))
     study_date = Column(String, ForeignKey("study.study_date"))
@@ -782,7 +782,7 @@ class Patient(Base):
     # (0010,0020) Patient ID | VR LO, VM 1, U
     patient_id = Column(String(16), primary_key=True)
     # (0010,0010) Patient's Name | VR PN, VM 1, R
-    patient_name = Column(String(64))
+    patient_name = Column(String(400))
 
 
 class Series(Base):
