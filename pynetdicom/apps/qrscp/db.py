@@ -205,7 +205,7 @@ def add_instance(ds, session, fpath=None):
 
                 assert len(value) <= max_len
             else:
-                assert -(2 ** 31) <= value <= 2 ** 31 - 1
+                assert -(2**31) <= value <= 2**31 - 1
 
         setattr(instance, attr, value)
 
