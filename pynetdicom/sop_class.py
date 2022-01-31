@@ -117,7 +117,7 @@ class SOPClass(UID):
         if isinstance(val, SOPClass):
             return val
 
-        return super().__new__(cls, val)
+        return cast("SOPClass", super().__new__(cls, val))
 
     @property
     def service_class(self) -> ServiceClass:
