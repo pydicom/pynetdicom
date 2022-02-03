@@ -10,25 +10,25 @@ Fixes
 .....
 
 * Fixed the :class:`~pynetdicom.transport.AssociationServer` not properly
-  closing its sockets (:gh:`pynetdicom/issues/382`)
-* Improved the robustness of determining the local IP address (:gh:`pynetdicom/issues/394`)
+  closing its sockets (:issue:`382`)
+* Improved the robustness of determining the local IP address (:issue:`394`)
 * Fixed not being able to set an *Implementation Version Name* of length 1
-  (:gh:`pynetdicom/issues/414`)
+  (:issue:`414`)
 * Changed ``ImplantationPlanSRDocumentStorage`` to
   :attr:`~pynetdicom.sop_class.ImplantationPlanSRStorage` to match the name
   from Part 6 of the DICOM Standard rather than Part 4.
 * Stopped the QR Move SCP from associating with the move destination when no
-  sub-operations were required (:gh:`pynetdicom/issues/436`)
-* Fixed a possible race condition during DIMSE message exchange (:gh:`pynetdicom/issues/435`)
+  sub-operations were required (:issue:`436`)
+* Fixed a possible race condition during DIMSE message exchange (:issue:`435`)
 * Fixed the association acceptor selecting the first matching proposed
   transfer syntax rather than the first matching supported transfer syntax
-  during presentation context negotiation (:gh:`pynetdicom/issues/445`)
-* Fixed incorrect Pending status value for Modality Worklist (:gh:`pynetdicom/issues/462`)
+  during presentation context negotiation (:issue:`445`)
+* Fixed incorrect Pending status value for Modality Worklist (:issue:`462`)
 * Fixed an ``InvalidEventError`` due to two A-ABORT messages being sent. Issue
   is triggered when the DIMSE and network timeouts have the same value and
-  both expire while sending a DIMSE request. (:gh:`pynetdicom/issues/460`)
+  both expire while sending a DIMSE request. (:issue:`460`)
 * Fixed datasets encoding using *Deflated Explicit VR Little Endian* not
-  transferring correctly (:gh:`pynetdicom/issues/482`)
+  transferring correctly (:issue:`482`)
 
 
 Enhancements
@@ -37,10 +37,10 @@ Enhancements
 * Added configuration option :attr:`_config.USE_SHORT_DIMSE_AET
   <pynetdicom._config.USE_SHORT_DIMSE_AET>` so elements with a VR of **AE** in
   DIMSE messages are no longer padded to the maximum 16 characters.
-  (:gh:`pynetdicom/issues/403`)
+  (:issue:`403`)
 * When acting as the association Acceptor check that the user hasn't sent
   an A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
-  (:gh:`pynetdicom/issues/408`)
+  (:issue:`408`)
 * Added :attr:`~pynetdicom.events.Event.message_id` to
   :class:`~pynetdicom.events.Event` for use when receiving a DIMSE service
   request
@@ -48,7 +48,7 @@ Enhancements
   :mod:`~pynetdicom.sop_class`.
 * Added support for the DIMSE intervention event handlers aborting or releasing
   the association during service class operation.
-* Add new SOP classes up to 2019e version of the standard (:gh:`pynetdicom/issues/424`)
+* Add new SOP classes up to 2019e version of the standard (:issue:`424`)
 * Added :attr:`~pynetdicom.presentation.AllStoragePresentationContexts` which
   contains all of the Storage Service Class' SOP Class UIDs rather than just
   the first 128 as in
@@ -65,20 +65,20 @@ Enhancements
   ``python -m pynetdicom [appname] [options]``, e.g. ``python -m pynetdicom
   echoscu 127.0.0.1 11112 -d``
 * Added ability to pass optional extra arguments to event handlers by using
-  ``(evt.EVT_NAME, handler, ['list', 'of', 'args'])`` (:gh:`pynetdicom/issues/447`)
+  ``(evt.EVT_NAME, handler, ['list', 'of', 'args'])`` (:issue:`447`)
 * Added :func:`AE.make_server()<pynetdicom.ae.ApplicationEntity.make_server>`
-  (:gh:`pynetdicom/issues/453`)
+  (:issue:`453`)
 * Added `request_handler` keyword parameter to
-  :class:`~pynetdicom.transport.AssociationServer` (:gh:`pynetdicom/issues/453`)
+  :class:`~pynetdicom.transport.AssociationServer` (:issue:`453`)
 * Added hook in :class:`AE<pynetdicom.ae.ApplicationEntity>` for creating
-  :class:`~pynetdicom.transport.AssociationSocket` objects (:gh:`pynetdicom/issues/455`)
+  :class:`~pynetdicom.transport.AssociationSocket` objects (:issue:`455`)
 * Added a customisable :class:`~pynetdicom.status.Status`
   convenience class for comparing, returning and yielding status values
-  (:gh:`pynetdicom/issues/454`)
+  (:issue:`454`)
 * Added hook in :class:`~pynetdicom.transport.RequestHandler` for creating
-  :class:`~pynetdicom.association.Association` objects (:gh:`pynetdicom/issues/455`)
+  :class:`~pynetdicom.association.Association` objects (:issue:`455`)
 * Prefer an exact match when selecting a valid presentation context over
-  a convertible one (:gh:`pynetdicom/issues/472`)
+  a convertible one (:issue:`472`)
 * Added configuration options :attr:`_config.LOG_REQUEST_IDENTIFIERS
   <pynetdicom._config.LOG_REQUEST_IDENTIFIERS>` and
   :attr:`_config.LOG_RESPONSE_IDENTIFIERS
@@ -111,7 +111,7 @@ Changes
   officially supported
 * If an A-ABORT is received while waiting for a DIMSE message the
   ``Association.send_*`` methods will now return immediately rather than
-  waiting for the DIMSE timeout. (:gh:`pynetdicom/issues/430`)
+  waiting for the DIMSE timeout. (:issue:`430`)
 * Added `abort_type` keyword parameter to :meth:`ACSE.is_aborted()
   <pynetdicom.acse.ACSE.is_aborted>`
 * Added `args` keyword parameter to
@@ -133,4 +133,4 @@ Known Issues
 ............
 
 * TLS v1.3 (with OpenSSL 1.1.1 or higher) is not currently supported
-  (:gh:`pynetdicom/issues/364`)
+  (:issue:`364`)

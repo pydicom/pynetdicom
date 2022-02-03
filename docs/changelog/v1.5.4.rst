@@ -7,4 +7,4 @@ Fixes
 .....
 
 * Fixed not handling an A-ABORT with a reserved (``0x01``) 'source' value
-  (:gh:`pynetdicom/issues/561`)
+  (:issue:`561`)

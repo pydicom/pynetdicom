@@ -7,4 +7,4 @@ Fixes
 .....
 
 * Fixed not processing multiple PDUs received when acting as the association
-  requestor with SSL/TLS (:gh:`pynetdicom/pull/528`)
+  requestor with SSL/TLS (:pr:`528`)

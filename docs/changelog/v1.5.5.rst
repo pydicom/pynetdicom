@@ -7,4 +7,4 @@ Fixes
 .....
 
 * Fixed C-FIND SCPs sending the previous pending Identifier with the final
-  success response (:gh:`pynetdicom/issues/571`)
+  success response (#571)

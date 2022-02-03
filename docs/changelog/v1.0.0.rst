@@ -7,7 +7,7 @@ Fixes
 .....
 
 * Fixed upstream pydicom changes to AE elements breaking logging
-  (:gh:`pynetdicom/issues/195`)
+  (:issue:`195`)
 * Fixed typos in SOP class names, fix bad UID
 * Fixed SCP/SCU Role Negotiation requiring both SCP and SCU role values to be
   set (as association requestor)
@@ -70,9 +70,9 @@ Changes
 Enhancements
 ............
 
-* Add ``context`` and ``info`` parameters to on_c_* callbacks (:gh:`pynetdicom/issues/45`,
-  :gh:`pynetdicom/issues/54`, :gh:`pynetdicom/issues/65`, :gh:`pynetdicom/issues/106`)
-* Added contribution, issue and PR guides (:gh:`pynetdicom/issues/66`)
+* Add ``context`` and ``info`` parameters to on_c_* callbacks (:issue:`45`,
+  :issue:`54`, :issue:`65`, :issue:`106`)
+* Added contribution, issue and PR guides (:issue:`66`)
 * Added PEP8 conformant ``PYNETDICOM_IMPLEMENTATION_VERSION`` and
   ``PYNETDICOM_IMPLEMENTATION_UID`` variables. The old ones will be removed in
   v1.0
@@ -81,8 +81,8 @@ Enhancements
   negotiation.
 * Allow per-association presentation context requests (SCU)
 * Allow more than 128 supported presentation contexts (SCP)
-* Documentation added: user guide, examples, API reference (:gh:`pynetdicom/issues/1`,
-  :gh:`pynetdicom/issues/45`, :gh:`pynetdicom/issues/49`, :gh:`pynetdicom/issues/50`)
+* Documentation added: user guide, examples, API reference (:issue:`1`,
+  :issue:`45`, :issue:`49`, :issue:`50`)
 * Add support for QR Instance and Frame Level Retrieve
 * Add support for QR Composite Instance Root Retrieval
 * Add support for the Relevant Patient Information Query service

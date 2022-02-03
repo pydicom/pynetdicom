@@ -34,10 +34,6 @@ You may need to use this instead::
 
   python -m pip install -U pynetdicom
 
-If you intend to use the :doc:`qrscp<../apps/qrscp>` application then you can use::
-
-  pip install -U pynetdicom[apps]
-
 
 Install using conda
 -------------------

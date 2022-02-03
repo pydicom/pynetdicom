@@ -13,4 +13,4 @@ Changes
   <pynetdicom.sop_class.UnifiedProcedureStepWatchSOPClass>`, :class:`Event
   <pynetdicom.sop_class.UnifiedProcedureStepEventSOPClass>`, or :class:`Query
   <pynetdicom.sop_class.UnifiedProcedureStepQuerySOPClass>` has been
-  accepted in a presentation context by the peer (:gh:`pynetdicom/issues/509`)
+  accepted in a presentation context by the peer (:issue:`509`)

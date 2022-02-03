@@ -8,4 +8,4 @@ Fixes
 .....
 
 * Fixed association being aborted due to a rejected presentation context
-  performing a validation check on the transfer syntax value (:gh:`pynetdicom/issues/342`)
+  performing a validation check on the transfer syntax value (:issue:`342`)
