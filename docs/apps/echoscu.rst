@@ -14,8 +14,8 @@ association with a peer Application Entity (AE), sends a
 :dcm:`C-ECHO<part07/sect_9.3.5.html#sect_9.3.5.1>` request and waits for a
 response. The application can be used to verify basic DICOM connectivity.
 
-The source code for the application can be found `here
-<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/echoscu>`_
+The source code for the application can be found :gh:`here
+<pynetdicom/tree/master/pynetdicom/apps/echoscu>`
 
 Usage
 =====

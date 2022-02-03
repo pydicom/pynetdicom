@@ -19,8 +19,8 @@ the Query/Retrieve SCP's managed SOP Instances. The QR SCP then responds by
 sending a copy of the matching SOP Instances to the Storage SCP specified
 using the C-MOVE query's *Move Destination* AE title.
 
-The source code for the application can be found `here
-<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/movescu>`_
+The source code for the application can be found :gh:`here
+<pynetdicom/tree/master/pynetdicom/apps/movescu>`
 
 Usage
 =====

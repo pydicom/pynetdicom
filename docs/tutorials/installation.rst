@@ -65,7 +65,7 @@ Install the development version
 ===============================
 
 To install a snapshot of the latest code (the ``master`` branch) from
-`GitHub <https://github.com/pydicom/pynetdicom>`_::
+:gh:`GitHub <pynetdicom>`::
 
   pip install git+https://github.com/pydicom/pynetdicom
 

@@ -3,10 +3,10 @@
 *pynetdicom*
 ============
 
-`pynetdicom <https://github.com/pydicom/pynetdicom>`_ is a pure Python package
+:gh:`pynetdicom <pynetdicom>` is a pure Python package
 that implements the `DICOM <http://dicom.nema.org/>`_ networking protocol.
 Working with
-`pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
+:gh:`pydicom <pydicom>`, it allows the easy creation
 of DICOM Application Entities (AEs), which can then act as *Service Class
 Users* (SCUs) and *Service Class Providers* (SCPs) by associating with other
 AEs and using or providing the services available to the association.
@@ -65,8 +65,8 @@ functions, classes and other objects.
 
 Supported Service Classes
 =========================
-*pynetdicom* currently supports the following `DICOM service classes
-<http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html>`_:
+*pynetdicom* currently supports the following :dcm:`DICOM service classes
+<part04/PS3.4.html>`:
 
 * :doc:`Application Event Logging <service_classes/application_event>`
 * :doc:`Basic Worklist Management<service_classes/basic_worklist_service_class>`

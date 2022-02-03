@@ -7,5 +7,5 @@ Fixes
 .....
 
 * Fixes for the C-STORE handler used by the `storescp`, `qrscp` and `movescu`
-  apps (:pr:`579`, :pr:`581`)
-* Fixed the `qrscp` app's missing `default.ini` file (:issue:`583`)
+  apps (:gh:`pynetdicom/pull/579`, :gh:`pynetdicom/pull/581`)
+* Fixed the `qrscp` app's missing `default.ini` file (:gh:`pynetdicom/issues/583`)

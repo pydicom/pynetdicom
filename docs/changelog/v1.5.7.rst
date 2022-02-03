@@ -7,9 +7,9 @@ Fixes
 .....
 
 * Fixed not sending a failure response if all C-GET or C-MOVE sub-operations
-  failed when acting as an Query/Retrieve SCP (:issue:`577`)
+  failed when acting as an Query/Retrieve SCP (:gh:`pynetdicom/issues/577`)
 * Fixed not using the correct *Move Originator Message ID* when sending
-  C-STORE-RQs when acting as a Move SCP (:issue:`541`)
+  C-STORE-RQs when acting as a Move SCP (:gh:`pynetdicom/issues/541`)
 
 Changes
 .......

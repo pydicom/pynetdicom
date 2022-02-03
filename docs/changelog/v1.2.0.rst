@@ -6,15 +6,15 @@
 Fixes
 .....
 * Fixed ``network_timeout`` not working when acting as the association requestor
-  and an A-ABORT not being sent when the timeout expired. (:issue:`286`)
+  and an A-ABORT not being sent when the timeout expired. (:gh:`pynetdicom/issues/286`)
 * Fixed changing ``network_timeout`` value not propagating to the actual timer.
 * All DIMSE service requests should now properly abort the association if no
   response is received within the DIMSE timeout window and return/yield
-  expected values. (:issue:`119`)
+  expected values. (:gh:`pynetdicom/issues/119`)
 * Any outgoing primitives are now sent to the peer before incoming PDUs are
-  processed (:issue:`120`)
+  processed (:gh:`pynetdicom/issues/120`)
 * Fixed not setting requestor presentation context roles to False when only
-  one role is specified during Role Selection negotiation. (:issue:`293`)
+  one role is specified during Role Selection negotiation. (:gh:`pynetdicom/issues/293`)
 
 
 Enhancements
@@ -22,15 +22,15 @@ Enhancements
 
 * Added ``_config`` module and the ability to skip the dataset decoding step in
   C-STORE operations by setting ``_config.DECODE_STORE_DATASETS`` to False
-  (:issue:`282`)
+  (:gh:`pynetdicom/issues/282`)
 * Consolidated and improved the robustness of the transport related code
-  (:issue:`42`):
+  (:gh:`pynetdicom/issues/42`):
 
   * Added ``transport`` module
   * Added ``AssociationSocket`` class that wraps a client ``socket.socket`` to
     provide integration with the Association state machine. In particular all
     receive and send operations should emit state machine event 'Evt17' when
-    the connection is closed. (:issue:`204`)
+    the connection is closed. (:gh:`pynetdicom/issues/204`)
   * Added ``AssociationServer``, and ``ThreadedAssociationServer`` classes
     to provide association acceptor services.
   * ``fsm.AE_1`` is now properly implemented and state machine event 'Evt2' is
@@ -41,11 +41,11 @@ Enhancements
     association servers that may be running.
   * Support for TLS added via the ``tls_args`` keyword parameter for
     ``AE.associate()`` and ``ssl_context`` keyword parameter for
-    ``AE.start_server()`` (:pr:`175`, :pr:`71`)
+    ``AE.start_server()`` (:gh:`pynetdicom/pull/175`, :gh:`pynetdicom/pull/71`)
   * It should now be possible to both request a C-MOVE operation and act as the
     destination for the request's C-STORE sub-operations over a new association
     within the same AE instance by running a non-blocking Storage SCP.
-    (:issue:`5`, :issue:`181`)
+    (:gh:`pynetdicom/issues/5`, :gh:`pynetdicom/issues/181`)
 * Received P-DATA primitives are now processed when received rather than when
   processing is requested.
 * Added ``DIMSEServiceProvider.get_msg()``,
@@ -93,7 +93,7 @@ Changes
 * ``AE.active_associations`` changed from an attribute to a property and
   returns a list of all the AE's active Association threads.
 * ``AE.associate()`` is now synchronous until association negotiation has
-  completed or the connection closed (:issue:`108`).
+  completed or the connection closed (:gh:`pynetdicom/issues/108`).
 * Removed ``DIMSEServiceProvider.receive_msg()``.
 * ``Association.send_c_cancel_get()``, ``send_c_cancel_find()`` and
   ``send_c_cancel_move()`` are deprecated and will be removed in v1.3. Use

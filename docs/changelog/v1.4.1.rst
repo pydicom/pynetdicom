@@ -8,4 +8,4 @@ Fixes
 .....
 
 * Fixed server socket not closing properly after association release
-  (:issue:`382`)
+  (:gh:`pynetdicom/issues/382`)

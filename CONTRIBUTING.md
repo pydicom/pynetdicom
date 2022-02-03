@@ -33,15 +33,10 @@ Pull Requests
 -------------
 
 - Please prefix the title of your pull request with `[WIP]` if its in progress and `[MRG]` when you consider it complete and ready for review.
-
 - When fixing bugs your first commit should be the addition of tests that reproduce the original issue and any related issues.
-
 - Use pytest to run the unit tests.
-
 - When adding features you should have complete documentation and 100% unit test coverage that covers not just the lines of code but ensure that the feature works as intended.
-
 - When writing documentation please reference the DICOM Standard where possible. When dealing with significant parts of the code base (`DIMSEMessage.decode_msg()` for example) you should have inline comments that reference both the DICOM Standard and explain in detail what the code is doing and why.
-
 - Docstrings should use UK English and follow the [numpy  docstring](https://numpydoc.readthedocs.io/en/latest/) style.
 
 
@@ -49,14 +44,14 @@ Code Style
 ----------
 - [Black](https://github.com/psf/black) is required
 - Type hints should pass using the current [mypy](http://mypy-lang.org/) release
-- There are a handful of project specific styles that should be used:
- - `ae` for an ApplicationEntity object
- - `acse` for the ACSE object
- - `assoc` for an Association object
- - `dimse` for the DIMSE object
- - `ds` for a pydicom Dataset object
- - Variable and function names should be `lower_case_underscore`, including acronyms such as `context_id` and `uid`.
- - Where a variable corresponds directly to a DICOM Data Element then use a name that is identical to the element keyword (i.e. the DIMSE command set elements such as MessageID and AffectedSOPClassUID correspond to attributes such as `C_STORE.MessageID` and `C_STORE.AffectedSOPClassUID`).
+- There are a handful of project-specific styles that should be used:
+  - `ae` for an ApplicationEntity object
+  - `acse` for the ACSE object
+  - `assoc` for an Association object
+  - `dimse` for the DIMSE object
+  - `ds` for a pydicom Dataset object
+  - Variable and function names should be `lower_case_underscore`, including acronyms such as `context_id` and `uid`.
+  - Where a variable corresponds directly to a DICOM Data Element use a name that is identical to the element keyword (i.e. the DIMSE command set elements such as MessageID and AffectedSOPClassUID correspond to attributes such as `C_STORE.MessageID` and `C_STORE.AffectedSOPClassUID`).
 
 
 Testing
@@ -68,12 +63,14 @@ To install the test requirements use:
   pip install -e .[tests]
   ```
 
-  Then run:
+Then to run the core tests:
 
   ```bash
   cd pynetdicom/tests
   pytest
   ```
+
+The application tests are in `pynetdicom/apps/tests`
 
 
 Documentation
@@ -84,9 +81,11 @@ To install the documentation build requirements use:
   pip install -e .[docs]
   ```
 
-Then run:
+To build the documentation run:
 
   ```bash
   cd docs
   make html
   ```
+
+The built documentation should be visible in the `docs/_build` directory and can be viewed locally using a web browser.

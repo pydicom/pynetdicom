@@ -17,8 +17,8 @@ requests an association with a peer Application Entity and once established,
 sends a C-FIND query to be matched against the SCP's managed SOP Instances.
 The SCP then responds with the matching query keys.
 
-The source code for the application can be found `here
-<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/findscu>`_
+The source code for the application can be found :gh:`here
+<pynetdicom/tree/master/pynetdicom/apps/findscu>`
 
 Usage
 =====

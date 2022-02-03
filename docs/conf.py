@@ -125,7 +125,7 @@ master_doc = "index"
 # General information about the project.
 project = "pynetdicom"
 year = datetime.now().strftime("%Y")
-copyright = "2018-{}, pynetdicom contributors".format(year)
+copyright = f"2018-{year}, pynetdicom contributors"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

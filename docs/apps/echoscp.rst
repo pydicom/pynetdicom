@@ -14,8 +14,8 @@ incoming association requests on the specified *port*, and once an association
 is established, responds to incoming C-ECHO requests. The application can be
 used to verify basic DICOM connectivity.
 
-The source code for the application can be found `here
-<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/echoscp>`_
+The source code for the application can be found :gh:`here
+<pynetdicom/tree/master/pynetdicom/apps/echoscp>`
 
 Usage
 =====

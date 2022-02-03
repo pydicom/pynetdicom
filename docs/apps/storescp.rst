@@ -13,8 +13,8 @@ the :dcm:`Storage<part04/chapter_B.html>` service class. It listens for
 incoming association requests on the specified *port*, and once an association
 is established, allows Storage SCUs to transfer SOP Instances.
 
-The source code for the application can be found `here
-<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/storescp>`_
+The source code for the application can be found :gh:`here
+<pynetdicom/tree/master/pynetdicom/apps/storescp>`
 
 Usage
 =====
