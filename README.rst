@@ -89,20 +89,17 @@ Using pip:
 
 .. code-block:: sh
 
-    $ pip install pynetdicom
+    pip install -U pynetdicom
 
 Using conda:
 
 .. code-block:: sh
 
-    $ conda install -c conda-forge pynetdicom
+    conda install -c conda-forge pynetdicom
 
-
-Installing development version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: sh
-
-    $ pip install git+https://github.com/pydicom/pynetdicom.git
+For more detailed instructions, including how to install the
+current development version, please see the `installation guide
+<https://pydicom.github.io/pynetdicom/stable/tutorials/installation.html>`_.
 
 
 Supported DIMSE Services
@@ -240,6 +237,7 @@ Some basic DICOM applications are included with *pynetdicom*:
 * `findscu <https://pydicom.github.io/pynetdicom/stable/apps/findscu.html>`_
 * `getscu <https://pydicom.github.io/pynetdicom/stable/apps/getscu.html>`_
 * `qrscp <https://pydicom.github.io/pynetdicom/stable/apps/qrscp.html>`_
+  (requires `sqlalchemy <https://www.sqlalchemy.org/>`_)
 * `movescu <https://pydicom.github.io/pynetdicom/stable/apps/movescu.html>`_
 * `storescp <https://pydicom.github.io/pynetdicom/stable/apps/storescp.html>`_
 * `storescu <https://pydicom.github.io/pynetdicom/stable/apps/storescu.html>`_

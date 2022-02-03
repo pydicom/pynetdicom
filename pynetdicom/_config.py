@@ -33,7 +33,7 @@ DICOM Standard and if not then an appropriate response sent, otherwise
 UIDs will only be checked to ensure they're no longer then 64 characters and
 if not then an appropriate response sent.
 
-Default: ``True``
+Default: ``False``
 
 Examples
 --------

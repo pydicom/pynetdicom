@@ -7,10 +7,7 @@ How to install pynetdicom
    We recommend installing into a
    `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_,
    which is an isolated Python environment that allows you to install
-   packages without admin privileges. See the `pydicom virtual environments
-   tutorial
-   <https://pydicom.github.io/pydicom/stable/tutorials/virtualenvs.html>`_ on
-   how to create and manage virtual environments.
+   packages without admin privileges.
 
 
 .. _tut_install:
@@ -19,7 +16,9 @@ Install the official release
 ============================
 
 *pynetdicom* requires `Python <https://www.python.org/>`_ and `pydicom
-<https://pydicom.github.io/pydicom/stable/tutorials/installation.html>`_.
+<https://pydicom.github.io/pydicom/stable/tutorials/installation.html>`_. In
+addition, if you want to use the :doc:`qrscp<../apps/qrscp>` application then
+`sqlalchemy <https://www.sqlalchemy.org/>`_ is also required.
 
 Install using pip
 -----------------
@@ -29,11 +28,15 @@ the official third-party Python software repository. The simplest way to
 install (or upgrade) from PyPi is using `pip <https://pip.pypa.io/>`_ with the
 command::
 
-  $ pip install -U pynetdicom
+  pip install -U pynetdicom
 
 You may need to use this instead::
 
-  $ python -m pip install -U pynetdicom
+  python -m pip install -U pynetdicom
+
+If you intend to use the :doc:`qrscp<../apps/qrscp>` application then you can use::
+
+  pip install -U pynetdicom[apps]
 
 
 Install using conda
@@ -42,11 +45,11 @@ Install using conda
 *pynetdicom* is also available for `conda <https://docs.conda.io/>`_ on
 `conda-forge <https://anaconda.org/conda-forge/pynetdicom>`_::
 
-  $ conda install -c conda-forge pynetdicom
+  conda install -c conda-forge pynetdicom
 
 To upgrade the installed version on conda do::
 
-  $ conda update pynetdicom
+  conda update pynetdicom
 
 
 After installation
@@ -64,7 +67,7 @@ Install the development version
 To install a snapshot of the latest code (the ``master`` branch) from
 `GitHub <https://github.com/pydicom/pynetdicom>`_::
 
-  $ pip install git+https://github.com/pydicom/pynetdicom.git
+  pip install git+https://github.com/pydicom/pynetdicom
 
 The ``master`` branch is under active development, and while it's usually
 stable it may have undocumented changes or bugs.
@@ -73,11 +76,11 @@ If you want to keep up-to-date with the latest code, make sure you have
 `Git <https://git-scm.com/>`_ installed and then clone the ``master``
 branch (this will create a ``pynetdicom`` directory in your current directory)::
 
-  $ git clone https://github.com/pydicom/pynetdicom.git
+  git clone https://github.com/pydicom/pynetdicom
 
 Then install using pip in editable (``-e``) mode::
 
-  $ pip install -e pynetdicom/
+  pip install -e pynetdicom/
 
 When you want to update your copy of the source code, run ``git pull`` from
 within the ``pynetdicom`` directory and Git will download and apply any
