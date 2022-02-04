@@ -137,14 +137,14 @@ editor and add the following:
     from pynetdicom import AE
 
     ae = AE()
-    ae.add_requested_context('1.2.840.10008.1.1')
+    ae.add_requested_context("1.2.840.10008.1.1")
     assoc = ae.associate("127.0.0.1", 11112)
     if assoc.is_established:
-        print('Association established with Echo SCP!')
+        print("Association established with Echo SCP!")
         assoc.release()
     else:
         # Association rejected, aborted or never connected
-        print('Failed to associate')
+        print("Failed to associate")
 
 There's a lot going on in these few lines, so let's split it up a bit:
 
@@ -155,16 +155,16 @@ There's a lot going on in these few lines, so let's split it up a bit:
     from pynetdicom import AE
 
     ae = AE()
-    ae.add_requested_context('1.2.840.10008.1.1')
+    ae.add_requested_context("1.2.840.10008.1.1")
 
 This imports the :class:`AE<ae.ApplicationEntity>` class, creates a new
 ``AE`` instance, `ae`, then adds a single
-:doc:`presentation context<../user/presentation>` to it using the
-:meth:`~ae.ApplicationEntity.add_requested_context` method.  All association
-requests must contain at least one presentation context, and in this case we've
-added one that proposes the use of the verification service. We'll go into
-presentation contexts and how they're used to define an association's services
-a bit more later on.
+:doc:`presentation context<../user/presentation>` with an abstract syntax of
+``"1.2.840.10008.1.1"`` using the :meth:`~ae.ApplicationEntity.add_requested_context`
+method.  All association requests must contain at least one presentation context,
+and in this case we've proposed one with the abstract syntax for the verification service.
+We'll go into presentation contexts and how they're used to define an
+association's services a bit more later on.
 
 .. code-block:: python
    :linenos:
@@ -177,9 +177,15 @@ Here we initiate the association negotiation by connecting to the IP address
 ``"127.0.0.1"`` (also known as ``"localhost"``) is a `special IP address
 <https://en.wikipedia.org/wiki/Localhost>`_ that means *this computer*. This
 should be the same IP address and port that you started the
-:doc:`echoscp<../apps/echoscp>`
-application on earlier, so if you used a different port you should change this
-value accordingly.
+:doc:`echoscp<../apps/echoscp>` application on earlier, so if you used a
+different port you should change this value accordingly.
+
+.. note::
+
+    If the SCP isn't running on your local computer, you call
+    :meth:`AE.associate()<ae.ApplicationEntity.associate>` using
+    the actual IP address and listen port of the SCP, for example
+    ``ae.associate("148.60.155.4", 104)``.
 
 The :meth:`AE.associate()<ae.ApplicationEntity.associate>` method returns an
 :class:`~association.Association` instance `assoc`, which is a subclass of
@@ -191,11 +197,11 @@ association while *pynetdicom* monitors the connection behind the scenes.
    :lineno-start: 6
 
     if assoc.is_established:
-        print('Association established with Echo SCP!')
+        print("Association established with Echo SCP!")
         assoc.release()
     else:
         # Association rejected, aborted or never connected
-        print('Failed to associate')
+        print("Failed to associate")
 
 As mentioned earlier, an *acceptor* may do a couple of things in response to an
 association request; accept it, reject it or abort the negotiation entirely.
@@ -258,7 +264,7 @@ sent to the terminal by calling :func:`~debug_logger`:
     debug_logger()
 
     ae = AE()
-    ae.add_requested_context('1.2.840.10008.1.1')
+    ae.add_requested_context("1.2.840.10008.1.1")
     assoc = ae.associate("127.0.0.1", 11112)
     if assoc.is_established:
         assoc.release()
@@ -367,7 +373,7 @@ Presentation Contexts
     :doc:`presentation contexts<../user/presentation>` section of the User
     Guide.
 
-We've cheated a bit in our code by including a presentation context
+We've cheated a little bit in our code by including a presentation context
 used to propose the use of the verification service;
 ``1.2.840.10008.1.1`` - *Verification SOP Class*. This is visible in the
 debug output in the A-ASSOCIATE-RQ section as::
@@ -419,6 +425,7 @@ similar to:
 
     No presentation context for 'CT Image Storage' has been accepted by the peer with 'Implicit VR Little Endian' transfer syntax for the SCU role
 
+
 Turning our AE into an Echo SCU
 -------------------------------
 
@@ -435,7 +442,7 @@ request:
     debug_logger()
 
     ae = AE()
-    ae.add_requested_context('1.2.840.10008.1.1')
+    ae.add_requested_context("1.2.840.10008.1.1")
     assoc = ae.associate("127.0.0.1", 11112)
     if assoc.is_established:
         status = assoc.send_c_echo()

@@ -50,7 +50,6 @@ setup(
             "sphinx",
             "sphinx_rtd_theme",
             "sphinx-copybutton",
-            "sphinx-issues",
             "sphinxcontrib-napoleon",
             "numpydoc",
         ],
