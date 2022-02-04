@@ -33,8 +33,8 @@ for the Query/Retrieve service.
     application requires the `sqlalchemy <https://www.sqlalchemy.org/>`_
     package
 
-The source code for the application can be found `here
-<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/qrscp>`_
+The source code for the application can be found :gh:`here
+<pynetdicom/tree/master/pynetdicom/apps/qrscp>`
 
 Usage
 =====
