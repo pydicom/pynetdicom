@@ -13,8 +13,8 @@ the :dcm:`Storage<part04/chapter_B.html>` service class. It requests an
 association with a peer Application Entity and once established requests the
 transfer of one or more SOP Instances.
 
-The source code for the application can be found `here
-<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/storescu>`_
+The source code for the application can be found :gh:`here
+<pynetdicom/tree/master/pynetdicom/apps/storescu>`
 
 Usage
 =====

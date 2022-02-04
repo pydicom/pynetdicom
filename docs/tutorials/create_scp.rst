@@ -41,7 +41,7 @@ part of the networking protocol and in service provision.
 .. note::
 
   While it's not required for this tutorial, you should be comfortable using
-  `pydicom <https://github.com/pydicom/pydicom>`_ to create new datasets and
+  :gh:`pydicom <pydicom>` to create new datasets and
   read, write or modify existing ones. If you're new to *pydicom* then you
   should start with the `Dataset Basics
   <https://pydicom.github.io/pydicom/stable/tutorials/dataset_basics.html>`_

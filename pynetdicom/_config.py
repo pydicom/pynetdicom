@@ -33,7 +33,7 @@ DICOM Standard and if not then an appropriate response sent, otherwise
 UIDs will only be checked to ensure they're no longer then 64 characters and
 if not then an appropriate response sent.
 
-Default: ``True``
+Default: ``False``
 
 Examples
 --------
@@ -288,8 +288,8 @@ VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
   then `msg` is ignored, otherwise `msg` will be used to provide feedback
   about why validation has failed.
 
-The default validation functions can be found `here
-<https://github.com/pydicom/pynetdicom/blob/master/pynetdicom/_validators.py>`_
+The default validation functions can be found :gh:`here
+<pynetdicom/blob/master/pynetdicom/_validators.py>`
 .
 
 Examples
