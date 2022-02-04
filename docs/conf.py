@@ -77,9 +77,8 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.linkcode",
     "sphinx.ext.extlinks",
-    "sphinx_copybutton",
     # Custom
-    "sphinx_issues",
+    "sphinx_copybutton",
 ]
 
 autosummary_generate = True
@@ -99,6 +98,8 @@ extlinks = {
     # Usage :dcm:`link text <part05/sect_6.2.html>`
     "dcm": ("http://dicom.nema.org/medical/dicom/current/output/chtml/%s", None),
     "gh": ("https://github.com/pydicom/%s", None),
+    "issue": ("https://github.com/pydicom/pynetdicom/issues/%s", "#"),
+    "pr": ("https://github.com/pydicom/pynetdicom/pull/%s", "#"),
 }
 
 # intersphinx configuration
@@ -293,18 +294,13 @@ latex_documents = [
 def generate_example_rst(app, what, name, obj, options, lines):
     # generate empty examples files, so that we don't get
     # inclusion errors if there are no examples for a class / module
-    examples_path = os.path.join(app.srcdir, "generated", "%s.examples" % name)
+    examples_path = os.path.join(app.srcdir, "generated", f"{name}.examples")
     if not os.path.exists(examples_path):
         # touch file
         open(examples_path, "w").close()
 
 
-# Config for sphinx_issues
-issues_github_path = "pydicom/pynetdicom"
-
-
 def setup(app):
-    # app.connect('autodoc-process-docstring', generate_example_rst)
     app.add_css_file("css/pynetdicom.css")
 
 

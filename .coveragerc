@@ -1,6 +1,0 @@
-[run]
-omit =
-    pynetdicom/tests/*
-    pynetdicom/apps/*
-    pydicom/*
-    pydicom-master/*

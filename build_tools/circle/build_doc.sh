@@ -96,11 +96,7 @@ python3 -m venv venv
 . venv/bin/activate
 
 pip install -U pip
-pip install sphinx sphinx_rtd_theme sphinx-copybutton sphinx-issues sphinxcontrib-napoleon numpydoc
-pip install pydicom
-
-# Install pynetdicom in dev mode
-pip install -e .
+pip install -e .[docs]
 
 # The pipefail is requested to propagate exit code
 set -o pipefail && cd docs && make $MAKE_TARGET 2>&1 | tee ~/log.txt
