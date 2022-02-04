@@ -217,31 +217,31 @@ editor and add the following:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="linenos"> 2</span>
 <span class="linenos"> 3</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="linenos"> 4</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="linenos"> 4</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s2">&quot;1.2.840.10008.1.1&quot;</span><span class="p">)</span>
 <span class="linenos"> 5</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 <span class="linenos"> 6</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-<span class="linenos"> 7</span>     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association established with Echo SCP!&#39;</span><span class="p">)</span>
+<span class="linenos"> 7</span>     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Association established with Echo SCP!&quot;</span><span class="p">)</span>
 <span class="linenos"> 8</span>     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="linenos"> 9</span> <span class="k">else</span><span class="p">:</span>
 <span class="linenos">10</span>     <span class="c1"># Association rejected, aborted or never connected</span>
-<span class="linenos">11</span>     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Failed to associate&#39;</span><span class="p">)</span>
+<span class="linenos">11</span>     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to associate&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>There’s a lot going on in these few lines, so let’s split it up a bit:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="linenos">2</span>
 <span class="linenos">3</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="linenos">4</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="linenos">4</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s2">&quot;1.2.840.10008.1.1&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This imports the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> class, creates a new
 <code class="docutils literal notranslate"><span class="pre">AE</span></code> instance, <cite>ae</cite>, then adds a single
-<a class="reference internal" href="../user/presentation.html"><span class="doc">presentation context</span></a> to it using the
-<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_requested_context" title="pynetdicom.ae.ApplicationEntity.add_requested_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_requested_context()</span></code></a> method.  All association
-requests must contain at least one presentation context, and in this case we’ve
-added one that proposes the use of the verification service. We’ll go into
-presentation contexts and how they’re used to define an association’s services
-a bit more later on.</p>
+<a class="reference internal" href="../user/presentation.html"><span class="doc">presentation context</span></a> with an abstract syntax of
+<code class="docutils literal notranslate"><span class="pre">&quot;1.2.840.10008.1.1&quot;</span></code> using the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_requested_context" title="pynetdicom.ae.ApplicationEntity.add_requested_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_requested_context()</span></code></a>
+method.  All association requests must contain at least one presentation context,
+and in this case we’ve proposed one with the abstract syntax for the verification service.
+We’ll go into presentation contexts and how they’re used to define an
+association’s services a bit more later on.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">5</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -249,19 +249,25 @@ a bit more later on.</p>
 <code class="docutils literal notranslate"><span class="pre">&quot;127.0.0.1&quot;</span></code> on port <code class="docutils literal notranslate"><span class="pre">11112</span></code> and sending an association request.
 <code class="docutils literal notranslate"><span class="pre">&quot;127.0.0.1&quot;</span></code> (also known as <code class="docutils literal notranslate"><span class="pre">&quot;localhost&quot;</span></code>) is a <a class="reference external" href="https://en.wikipedia.org/wiki/Localhost">special IP address</a> that means <em>this computer</em>. This
 should be the same IP address and port that you started the
-<a class="reference internal" href="../apps/echoscp.html"><span class="doc">echoscp</span></a>
-application on earlier, so if you used a different port you should change this
-value accordingly.</p>
+<a class="reference internal" href="../apps/echoscp.html"><span class="doc">echoscp</span></a> application on earlier, so if you used a
+different port you should change this value accordingly.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the SCP isn’t running on your local computer, you call
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a> using
+the actual IP address and listen port of the SCP, for example
+<code class="docutils literal notranslate"><span class="pre">ae.associate(&quot;148.60.155.4&quot;,</span> <span class="pre">104)</span></code>.</p>
+</div>
 <p>The <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a> method returns an
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> instance <cite>assoc</cite>, which is a subclass of
 <a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Thread" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">threading.Thread</span></code></a>. This allows us to make use of the
 association while <em>pynetdicom</em> monitors the connection behind the scenes.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 6</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-<span class="linenos"> 7</span>     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association established with Echo SCP!&#39;</span><span class="p">)</span>
+<span class="linenos"> 7</span>     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Association established with Echo SCP!&quot;</span><span class="p">)</span>
 <span class="linenos"> 8</span>     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="linenos"> 9</span> <span class="k">else</span><span class="p">:</span>
 <span class="linenos">10</span>     <span class="c1"># Association rejected, aborted or never connected</span>
-<span class="linenos">11</span>     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Failed to associate&#39;</span><span class="p">)</span>
+<span class="linenos">11</span>     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to associate&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>As mentioned earlier, an <em>acceptor</em> may do a couple of things in response to an
@@ -309,7 +315,7 @@ sent to the terminal by calling <a class="reference internal" href="../reference
 <span class="hll"><span class="linenos">3</span> <span class="n">debug_logger</span><span class="p">()</span>
 </span><span class="linenos">4</span>
 <span class="linenos">5</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="linenos">6</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="linenos">6</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s2">&quot;1.2.840.10008.1.1&quot;</span><span class="p">)</span>
 <span class="linenos">7</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 <span class="linenos">8</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
 <span class="linenos">9</span>     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
@@ -415,7 +421,7 @@ information is available in the
 <a class="reference internal" href="../user/presentation.html"><span class="doc">presentation contexts</span></a> section of the User
 Guide.</p>
 </div>
-<p>We’ve cheated a bit in our code by including a presentation context
+<p>We’ve cheated a little bit in our code by including a presentation context
 used to propose the use of the verification service;
 <code class="docutils literal notranslate"><span class="pre">1.2.840.10008.1.1</span></code> - <em>Verification SOP Class</em>. This is visible in the
 debug output in the A-ASSOCIATE-RQ section as:</p>
@@ -472,7 +478,7 @@ request:</p>
 <span class="linenos"> 3</span> <span class="n">debug_logger</span><span class="p">()</span>
 <span class="linenos"> 4</span>
 <span class="linenos"> 5</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="linenos"> 6</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="linenos"> 6</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s2">&quot;1.2.840.10008.1.1&quot;</span><span class="p">)</span>
 <span class="linenos"> 7</span> <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 <span class="linenos"> 8</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
 <span class="hll"><span class="linenos"> 9</span>     <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_echo</span><span class="p">()</span>
