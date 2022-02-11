@@ -734,6 +734,24 @@ class TestASSOC_AC:
         assert primitive.presentation_requirements == "Presentation Kernel"
         assert primitive.session_requirements == ""
 
+    def test_to_primitive_bad_reserved_aet(self):
+        """Test conversion with a non-conformant reserved ae title."""
+        pdu = A_ASSOCIATE_AC()
+        pdu.decode(a_associate_ac)
+        aec = (
+            b"\x4c\x57\x50\x41\x43\x53" b"\x00\x00\x00\x00\x00\x00\x0f\x00\x00\x00\x00"
+        )
+        pdu.reserved_aec = aec.decode("ascii")
+        pdu.reserved_aet = aec.decode("ascii")
+
+        primitive = pdu.to_primitive()
+        assert primitive.calling_ae_title == (
+            "LWPACS\x00\x00\x00\x00\x00\x00\x0f\x00\x00\x00\x00"
+        )
+        assert primitive.called_ae_title == (
+            "LWPACS\x00\x00\x00\x00\x00\x00\x0f\x00\x00\x00\x00"
+        )
+
     def test_from_primitive(self):
         """Check converting PDU to primitive"""
         orig = A_ASSOCIATE_AC()
