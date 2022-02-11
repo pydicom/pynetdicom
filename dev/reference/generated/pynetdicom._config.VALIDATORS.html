@@ -151,7 +151,9 @@ about why validation has failed.</p>
 <p class="rubric">Examples</p>
 <p>Perform no validation of <strong>AE</strong> DIMSE elements and AE title PDU parameters:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">_config</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_config</span><span class="o">.</span><span class="n">VALIDATORS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">def</span> <span class="nf">my_validator</span><span class="p">(</span><span class="n">value</span><span class="p">):</span> <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_validator</span><span class="p">(</span><span class="n">value</span><span class="p">):</span> <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_config</span><span class="o">.</span><span class="n">VALIDATORS</span><span class="p">[</span><span class="s1">&#39;AE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_validator</span>
 </pre></div>
 </div>
 </dd></dl>

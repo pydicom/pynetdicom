@@ -6,6 +6,8 @@
 Fixes
 .....
 
+* Fixed reserved A-ASSOCIATE-AC parameters being tested (:issue:`746`)
+
 Enhancements
 ............
 
