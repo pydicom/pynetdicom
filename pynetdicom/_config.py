@@ -298,7 +298,9 @@ Examples
 Perform no validation of **AE** DIMSE elements and AE title PDU parameters:
 
 >>> from pynetdicom import _config
->>> _config.VALIDATORS['AE'] = def my_validator(value): return (True, "")
+>>> def my_validator(value): return (True, "")
+...
+>>> _config.VALIDATORS['AE'] = my_validator
 """
 
 

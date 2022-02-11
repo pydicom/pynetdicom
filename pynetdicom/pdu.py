@@ -275,31 +275,30 @@ class PDU:
     def _wrap_encode_str(value: str, pad: int = 0) -> bytes:
         """Return `value` as ASCII encoded :class:`bytes`.
 
-         Each component of Application Context, Abstract Syntax and Transfer
-         Syntax UIDs should be encoded as a ISO 646:1990-Basic G0 Set Numeric
-         String (characters 0-9), with each component separated by '.' (0x2e)
-        .
+        Each component of Application Context, Abstract Syntax and Transfer
+        Syntax UIDs should be encoded as a ISO 646:1990-Basic G0 Set Numeric
+        String (characters 0-9), with each component separated by '.' (0x2e).
 
-         'ascii' is chosen because this is the codec Python uses for ISO 646
-         [3]_.
+        'ascii' is chosen because this is the `codec Python uses
+        <https://docs.python.org/3/library/codecs.html>`_ for ISO 646.
 
-         Parameters
-         ----------
-         value : str
-             The ASCII string to be encoded.
-         pad : int, optional
-             The amount of trailing padding to be used (default ``0``).
+        Parameters
+        ----------
+        value : str
+            The ASCII string to be encoded.
+        pad : int, optional
+            The maximum amount of trailing padding to be used (default ``0``).
 
-         Returns
-         -------
-         bytes
-             The encoded `value`.
+        Returns
+        -------
+        bytes
+            The encoded `value`.
 
-         References
-         ----------
-         * DICOM Standard, Part 8, :dcm:`Annex F <part08/chapter_F.html>`
-         * `Python 3 codecs module
-           <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
+        References
+        ----------
+        * DICOM Standard, Part 8, :dcm:`Annex F <part08/chapter_F.html>`
+        * `Python codecs module
+           <https://docs.python.org/3/library/codecs.html>`_
         """
         return value.ljust(pad).encode("ascii", errors="strict")
 
@@ -896,8 +895,8 @@ class A_ASSOCIATE_AC(PDU):
         # The two reserved parameters at byte offsets 11 and 27 shall be set
         #    to called and calling AET byte the value shall not be
         #   tested when received (PS3.8 Table 9-17)
-        primitive.called_ae_title = self.reserved_aet
-        primitive.calling_ae_title = self.reserved_aec
+        primitive._called_ae_title = self.reserved_aet
+        primitive._calling_ae_title = self.reserved_aec
 
         for item in self.variable_items:
             # Add application context
