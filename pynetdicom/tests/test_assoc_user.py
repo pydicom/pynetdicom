@@ -164,7 +164,7 @@ class TestServiceUserAcceptor:
         """Test that assigning mode after init raises exception."""
         user = ServiceUser(self.assoc, mode="acceptor")
         assert user.mode == "acceptor"
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.mode = "requestor"
 
         assert user.mode == "acceptor"
@@ -297,22 +297,22 @@ class TestServiceUserAcceptor:
         with pytest.raises(RuntimeError, match=msg):
             user.implementation_version_name = "1.2.3"
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.asynchronous_operations = (1, 1)
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.role_selection = {}
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.sop_class_common_extended = {}
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.sop_class_extended = {}
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.user_identity = "test"
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.extended_negotiation = []
 
     def test_add_neg_pre(self):
@@ -1477,7 +1477,7 @@ class TestServiceUserRequestor:
         """Test that assigning mode after init raises exception."""
         user = ServiceUser(self.assoc, mode="requestor")
         assert user.mode == "requestor"
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.mode = "acceptor"
 
         assert user.mode == "requestor"
@@ -1601,22 +1601,22 @@ class TestServiceUserRequestor:
         with pytest.raises(RuntimeError, match=msg):
             user.implementation_version_name = "1.2.3"
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.asynchronous_operations = (1, 1)
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.role_selection = {}
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.sop_class_common_extended = {}
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.sop_class_extended = {}
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.user_identity = "test"
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             user.extended_negotiation = []
 
     def test_accepted_common_raises(self):
