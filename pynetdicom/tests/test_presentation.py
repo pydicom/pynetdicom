@@ -374,7 +374,7 @@ class TestPresentationContext:
         context = build_context("1.2.3")
         assert context.as_scp is None
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             context.as_scp = True
 
         context._as_scp = True
@@ -387,7 +387,7 @@ class TestPresentationContext:
         context = build_context("1.2.3")
         assert context.as_scu is None
 
-        with pytest.raises(AttributeError, match=r"can't set attribute"):
+        with pytest.raises(AttributeError, match=r"can't set attribute|has no setter"):
             context.as_scu = True
 
         context._as_scu = True
