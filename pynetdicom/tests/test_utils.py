@@ -1,5 +1,6 @@
 """Unit tests for the pynetdicom.utils module."""
 
+from codecs import BOM_UTF32_LE
 from io import BytesIO
 from threading import Thread
 import logging
@@ -230,7 +231,7 @@ class TestSetUID:
 
     def test_bytes_decoding_error(self, caplog):
         """Test invalid bytes raises exception"""
-        b = "1.2.3".encode("utf_32")
+        b = BOM_UTF32_LE + "1.2.3".encode("utf_32_le")
         assert isinstance(b, bytes)
         msg = (
             r"Unable to decode 'FF FE 00 00 31 00 00 00 2E 00 00 00 32 00 00 "
@@ -312,7 +313,7 @@ class TestDecodeBytes:
 
     def test_decoding_error(self, caplog):
         """Test decoding error raises and logs"""
-        b = "1.2.3".encode("utf_32")
+        b = BOM_UTF32_LE + "1.2.3".encode("utf_32_le")
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             msg = (
                 r"Unable to decode 'FF FE 00 00 31 00 00 00 2E 00 00 00 32 "
@@ -325,7 +326,7 @@ class TestDecodeBytes:
 
     def test_decoding_error_fallback(self, caplog, utf8):
         """Test decoding error raises and logs"""
-        b = "1.2.3".encode("utf_32")
+        b = BOM_UTF32_LE + "1.2.3".encode("utf_32_le")
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             msg = (
                 r"Unable to decode 'FF FE 00 00 31 00 00 00 2E 00 00 00 32 "
