@@ -610,6 +610,7 @@ class TestAEGoodAssociation:
             msgs = [
                 "TCP Initialisation Error: timed out",
                 "TCP Initialisation Error: [Errno -2] Name or service not known",
+                # "TCP Initialisation Error: [Errno 113] No route to host",
             ]
             assert len([m for m in msgs if m in caplog.text]) == 1
 
