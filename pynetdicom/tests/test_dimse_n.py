@@ -11,7 +11,7 @@ import pytest
 
 from pydicom.dataset import Dataset
 from pydicom.dataelem import DataElement
-from pydicom.tag import Tag
+from pydicom.tag import Tag, BaseTag
 from pydicom.uid import UID
 
 from pynetdicom import _config
@@ -379,8 +379,8 @@ class TestPrimitive_N_GET:
         primitive.AttributeIdentifierList = (0x7FE0, 0x0010)
         assert [Tag(0x7FE0, 0x0010)] == primitive.AttributeIdentifierList
 
-        elem = DataElement((0x0000, 0x0005), "AT", [Tag(0x0000, 0x1000)])
-        assert isinstance(elem.value, MutableSequence)
+        elem = DataElement((0x0000, 0x0005), "AT", Tag(0x0000, 0x1000))
+        assert isinstance(elem.value, BaseTag)
         primitive.AttributeIdentifierList = elem.value
         assert [Tag(0x0000, 0x1000)] == primitive.AttributeIdentifierList
 

@@ -11,5 +11,9 @@ Fixes
 Enhancements
 ............
 
+
 Changes
 .......
+
+* Due to upstream pydicom changes around elements with a VR of **AT** it's
+  no longer necessary for N-SET and N-GET something...
