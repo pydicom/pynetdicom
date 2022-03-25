@@ -9,6 +9,7 @@ import logging
 
 import pytest
 
+from pydicom import config as PYD_CONFIG
 from pydicom.dataset import Dataset
 from pydicom.dataelem import DataElement
 from pydicom.tag import Tag, BaseTag
@@ -62,6 +63,11 @@ from .encoded_dimse_n_msg import (
     n_create_rsp_cmd,
     n_create_rsp_ds,
 )
+
+
+if hasattr(PYD_CONFIG, "settings"):
+    PYD_CONFIG.settings.reading_validation_mode = 0
+
 
 LOGGER = logging.getLogger("pynetdicom")
 LOGGER.setLevel(logging.CRITICAL)
@@ -375,14 +381,14 @@ class TestPrimitive_N_GET:
             Tag(0x7FE0, 0x0010),
         ] == primitive.AttributeIdentifierList
         primitive.AttributeIdentifierList = [(0x7FE0, 0x0010)]
-        assert [Tag(0x7FE0, 0x0010)] == primitive.AttributeIdentifierList
+        assert Tag(0x7FE0, 0x0010) == primitive.AttributeIdentifierList
         primitive.AttributeIdentifierList = (0x7FE0, 0x0010)
-        assert [Tag(0x7FE0, 0x0010)] == primitive.AttributeIdentifierList
+        assert Tag(0x7FE0, 0x0010) == primitive.AttributeIdentifierList
 
         elem = DataElement((0x0000, 0x0005), "AT", Tag(0x0000, 0x1000))
         assert isinstance(elem.value, BaseTag)
         primitive.AttributeIdentifierList = elem.value
-        assert [Tag(0x0000, 0x1000)] == primitive.AttributeIdentifierList
+        assert Tag(0x0000, 0x1000) == primitive.AttributeIdentifierList
 
         # MessageID
         primitive.MessageID = 11
