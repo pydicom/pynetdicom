@@ -67,7 +67,7 @@ class DIMSEPrimitive:
     _action_type_id: Optional[int] = None
     _affected_sop_class_uid: Optional[UID] = None
     _affected_sop_instance_uid: Optional[UID] = None
-    _attribute_identifier_list: Optional[List[BaseTag]] = None
+    _attribute_identifier_list: Union[None, BaseTag, List[BaseTag]] = None
     _dataset: Optional[BytesIO] = None
     _event_type_id: Optional[int] = None
     _message_id: Optional[int] = None
@@ -1518,7 +1518,7 @@ class N_GET(DIMSEPrimitive):
 
     @AttributeIdentifierList.setter
     def AttributeIdentifierList(
-        self, value: Optional[Union[BaseTag, Sequence[BaseTag]]]
+        self, value: Optional[Union[BaseTag, List[BaseTag]]]
     ) -> None:
         """Set the *Attribute Identifier List*."""
         # Be careful as a tag value of 0x00000000 is possible (though unlikely)
