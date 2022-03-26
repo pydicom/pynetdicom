@@ -4,6 +4,7 @@ import logging
 
 import pytest
 
+from pydicom import config as PYD_CONFIG
 from pydicom.uid import UID
 
 from pynetdicom import _config
@@ -25,6 +26,11 @@ from pynetdicom.pdu_primitives import (
 )
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.utils import pretty_bytes
+
+
+if hasattr(PYD_CONFIG, "settings"):
+    PYD_CONFIG.settings.reading_validation_mode = 0
+
 
 LOGGER = logging.getLogger("pynetdicom")
 LOGGER.setLevel(logging.CRITICAL)

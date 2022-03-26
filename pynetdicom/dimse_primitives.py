@@ -6,7 +6,7 @@ Notes:
     in order for the DIMSE messages/primitives to be created correctly.
 """
 
-from collections.abc import MutableSequence
+from collections.abc import Sequence
 from io import BytesIO
 import logging
 from pathlib import Path
@@ -67,7 +67,7 @@ class DIMSEPrimitive:
     _action_type_id: Optional[int] = None
     _affected_sop_class_uid: Optional[UID] = None
     _affected_sop_instance_uid: Optional[UID] = None
-    _attribute_identifier_list: Optional[List[BaseTag]] = None
+    _attribute_identifier_list: Union[None, BaseTag, List[BaseTag]] = None
     _dataset: Optional[BytesIO] = None
     _event_type_id: Optional[int] = None
     _message_id: Optional[int] = None
@@ -1502,16 +1502,17 @@ class N_GET(DIMSEPrimitive):
         self._AffectedSOPInstanceUID = value  # type: ignore
 
     @property
-    def AttributeIdentifierList(self) -> Optional[List[BaseTag]]:
+    def AttributeIdentifierList(self) -> Optional[Union[BaseTag, List[BaseTag]]]:
         """Get or set the *Attribute Identifier List* as a :class:`list` of
         :class:`~pydicom.tag.BaseTag`.
 
         Parameters
         ----------
-        list of pydicom.tag.BaseTag
+        pydicom.tag.BaseTag or list of pydicom.tag.BaseTag
             The value to use for the *Attribute Identifier List* parameter.
-            A list of pydicom :class:`pydicom.tag.BaseTag` instances or any
-            values acceptable for creating them.
+            A pydicom :class:`pydicom.tag.BaseTag` or list of
+            :class:`pydicom.tag.BaseTag` or any values acceptable for creating
+            them.
         """
         return self._attribute_identifier_list
 
@@ -1520,24 +1521,28 @@ class N_GET(DIMSEPrimitive):
         self, value: Optional[Union[BaseTag, List[BaseTag]]]
     ) -> None:
         """Set the *Attribute Identifier List*."""
+        # Be careful as a tag value of 0x00000000 is possible (though unlikely)
         if value is None:
             self._attribute_identifier_list = None
             return
 
-        # Singleton tags get put in a list
-        if not isinstance(value, (list, MutableSequence)):
-            value = [value]
-
-        # Empty list -> None
-        if not value:
-            self._attribute_identifier_list = None
-            return
-
         try:
-            # Convert each item in list to pydicom Tag
-            self._attribute_identifier_list = [Tag(tag) for tag in value]
+            if isinstance(value, Sequence):
+                if not value:
+                    self._attribute_identifier_list = None
+
+                if len(value) == 1:
+                    # Force to a single value - workaround for pydicom #757
+                    self._attribute_identifier_list = Tag(value[0])
+                else:
+                    self._attribute_identifier_list = [Tag(tag) for tag in value]
+            else:
+                self._attribute_identifier_list = Tag(value)
         except (TypeError, ValueError):
-            raise ValueError("Attribute Identifier List must be a list of pydicom Tags")
+            raise ValueError(
+                "Attribute Identifier List must be convertible to a pydicom "
+                "BaseTag or list of BaseTag"
+            )
 
     @property
     def AttributeList(self) -> Optional[BytesIO]:

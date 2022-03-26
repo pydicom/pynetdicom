@@ -549,6 +549,9 @@ class Event:
             if attr_list is None:
                 return []
 
+            if not isinstance(attr_list, list):
+                return [attr_list]
+
             return attr_list
         except AttributeError:
             pass

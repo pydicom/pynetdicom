@@ -605,6 +605,9 @@ def _search_uid_list(elem, session, query=None):
     if not query:
         query = session.query(Instance)
 
+    if elem.VM == 1:
+        return query.filter(attr == elem.value)
+
     return query.filter(attr.in_(elem.value))
 
 
