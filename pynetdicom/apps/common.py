@@ -505,13 +505,19 @@ def setup_logging(args, app_name):
 
     # Setup pynetdicom library's logging
     pynd_logger = logging.getLogger("pynetdicom")
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
-    pynd_logger.addHandler(handler)
-    pynd_logger.setLevel(logging.ERROR)
+    _hasStreamHandler = False
+    for _handler in pynd_logger.handlers:
+        _hasStreamHandler = _hasStreamHandler or isinstance(_handler, logging.StreamHandler)
+    if not _hasStreamHandler: 
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        pynd_logger.addHandler(handler)
+        pynd_logger.setLevel(logging.ERROR)
 
     # Setup application's logging
-    app_logger = logging.Logger(app_name)
+    app_logger = logging.getLogger(app_name)
+    if app_logger.hasHandlers():
+        return app_logger
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     app_logger.addHandler(handler)
