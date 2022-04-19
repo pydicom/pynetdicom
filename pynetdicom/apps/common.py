@@ -505,10 +505,7 @@ def setup_logging(args, app_name):
 
     # Setup pynetdicom library's logging
     pynd_logger = logging.getLogger("pynetdicom")
-    _hasStreamHandler = False
-    for _handler in pynd_logger.handlers:
-        _hasStreamHandler = _hasStreamHandler or isinstance(_handler, logging.StreamHandler)
-    if not _hasStreamHandler: 
+    if not any(isinstance(h, logging.StreamHandler) for h in pynd_logger.handlers):
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
         pynd_logger.addHandler(handler)
