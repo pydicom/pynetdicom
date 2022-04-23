@@ -1,0 +1,10 @@
+.. _v2.0.2:
+
+2.0.2
+=====
+
+Fixes
+.....
+
+* Fixed datasets not transferring correctly when using
+  :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` (:issue:`765`)

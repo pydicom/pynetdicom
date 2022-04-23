@@ -6,7 +6,7 @@ Notes:
     in order for the DIMSE messages/primitives to be created correctly.
 """
 
-from collections.abc import MutableSequence
+from collections.abc import Sequence
 from io import BytesIO
 import logging
 from pathlib import Path
@@ -21,11 +21,13 @@ from pynetdicom.utils import set_ae, decode_bytes, set_uid
 
 
 if TYPE_CHECKING:  # pragma: no cover
+    from io import BufferedWriter
     from typing import Protocol  # Python 3.8+
 
     class NTF(Protocol):
         # Protocol for a NamedTemporaryFile
         name: str
+        file: BufferedWriter
 
         def write(self, data: bytes) -> bytes:
             ...
@@ -67,7 +69,7 @@ class DIMSEPrimitive:
     _action_type_id: Optional[int] = None
     _affected_sop_class_uid: Optional[UID] = None
     _affected_sop_instance_uid: Optional[UID] = None
-    _attribute_identifier_list: Optional[List[BaseTag]] = None
+    _attribute_identifier_list: Union[None, BaseTag, List[BaseTag]] = None
     _dataset: Optional[BytesIO] = None
     _event_type_id: Optional[int] = None
     _message_id: Optional[int] = None
@@ -206,7 +208,7 @@ class DIMSEPrimitive:
     def MessageID(self, value: Optional[int]) -> None:
         """Set the *Message ID*."""
         if isinstance(value, int):
-            if 0 <= value < 2 ** 16:
+            if 0 <= value < 2**16:
                 self._message_id = value
             else:
                 raise ValueError("Message ID must be between 0 and 65535, inclusive")
@@ -230,7 +232,7 @@ class DIMSEPrimitive:
     def MessageIDBeingRespondedTo(self, value: Optional[int]) -> None:
         """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
-            if 0 <= value < 2 ** 16:
+            if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
                 raise ValueError(
@@ -591,7 +593,7 @@ class C_STORE(DIMSEPrimitive):
         """
         # Fix for peers sending a value consisting of nulls
         if isinstance(value, int):
-            if 0 <= value < 2 ** 16:
+            if 0 <= value < 2**16:
                 self._move_originator_message_id = value
             else:
                 raise ValueError(
@@ -1251,7 +1253,7 @@ class C_CANCEL:
     def MessageIDBeingRespondedTo(self, value: Optional[int]) -> None:
         """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
-            if 0 <= value < 2 ** 16:
+            if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
                 raise ValueError(
@@ -1502,13 +1504,13 @@ class N_GET(DIMSEPrimitive):
         self._AffectedSOPInstanceUID = value  # type: ignore
 
     @property
-    def AttributeIdentifierList(self) -> Optional[List[BaseTag]]:
+    def AttributeIdentifierList(self) -> Optional[Union[BaseTag, List[BaseTag]]]:
         """Get or set the *Attribute Identifier List* as a :class:`list` of
         :class:`~pydicom.tag.BaseTag`.
 
         Parameters
         ----------
-        list of pydicom.tag.BaseTag
+        pydicom.tag.BaseTag or list of pydicom.tag.BaseTag
             The value to use for the *Attribute Identifier List* parameter.
             A list of pydicom :class:`pydicom.tag.BaseTag` instances or any
             values acceptable for creating them.
@@ -1524,20 +1526,22 @@ class N_GET(DIMSEPrimitive):
             self._attribute_identifier_list = None
             return
 
-        # Singleton tags get put in a list
-        if not isinstance(value, (list, MutableSequence)):
-            value = [value]
-
-        # Empty list -> None
-        if not value:
-            self._attribute_identifier_list = None
-            return
-
         try:
-            # Convert each item in list to pydicom Tag
-            self._attribute_identifier_list = [Tag(tag) for tag in value]
+            if isinstance(value, Sequence):
+                if not value:
+                    self._attribute_identifier_list = None
+
+                if len(value) == 1:
+                    self._attribute_identifier_list = Tag(value[0])
+                else:
+                    self._attribute_identifier_list = [Tag(tag) for tag in value]
+            else:
+                self._attribute_identifier_list = Tag(value)
         except (TypeError, ValueError):
-            raise ValueError("Attribute Identifier List must be a list of pydicom Tags")
+            raise ValueError(
+                "Attribute Identifier List must be convertible to a pydicom "
+                "BaseTag or list of BaseTag"
+            )
 
     @property
     def AttributeList(self) -> Optional[BytesIO]:

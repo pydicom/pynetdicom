@@ -479,6 +479,13 @@ class TestEvent:
         assert isinstance(tags[1], BaseTag)
         assert tags[1] == 0x00100020
 
+        request.AttributeIdentifierList = 0x00100010
+        event = Event(
+            None, evt.EVT_N_GET, {"request": request, "context": self.context.as_tuple}
+        )
+        tags = event.attribute_identifiers
+        assert tags == [0x00100010]
+
     def test_action_type(self):
         """Test with action_type."""
         request = N_ACTION()

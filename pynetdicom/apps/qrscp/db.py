@@ -205,7 +205,7 @@ def add_instance(ds, session, fpath=None):
 
                 assert len(value) <= max_len
             else:
-                assert -(2 ** 31) <= value <= 2 ** 31 - 1
+                assert -(2**31) <= value <= 2**31 - 1
 
         setattr(instance, attr, value)
 
@@ -604,6 +604,9 @@ def _search_uid_list(elem, session, query=None):
     attr = getattr(Instance, _TRANSLATION[elem.keyword])
     if not query:
         query = session.query(Instance)
+
+    if elem.VM == 1:
+        return query.filter(attr == elem.value)
 
     return query.filter(attr.in_(elem.value))
 

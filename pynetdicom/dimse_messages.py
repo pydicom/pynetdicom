@@ -497,6 +497,7 @@ class DIMSEMessage:
                 #   number of P-DATA primitives.
                 if self._data_set_file:
                     self._data_set_file.write(data[1:])
+                    self._data_set_file.file.flush()
                 else:
                     cast(BytesIO, self.data_set).write(data[1:])
 

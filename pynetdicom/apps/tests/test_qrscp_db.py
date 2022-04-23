@@ -16,7 +16,7 @@ try:
 except ImportError:
     HAVE_SQLALCHEMY = False
 
-from pydicom import dcmread
+from pydicom import dcmread, config as PYD_CONFIG
 import pydicom.config
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
@@ -28,6 +28,10 @@ from pynetdicom.sop_class import (
 
 if HAVE_SQLALCHEMY:
     from pynetdicom.apps.qrscp import db
+
+
+if hasattr(PYD_CONFIG, "settings"):
+    PYD_CONFIG.settings.reading_validation_mode = 0
 
 
 TEST_DIR = os.path.dirname(__file__)
