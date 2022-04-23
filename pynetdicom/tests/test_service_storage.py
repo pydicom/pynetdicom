@@ -472,6 +472,7 @@ class TestStorageServiceClass:
         handlers = [(evt.EVT_C_STORE, handle)]
 
         self.ae = ae = AE()
+        ae.maximum_pdu_size = 256
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
         scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
@@ -492,6 +493,8 @@ class TestStorageServiceClass:
 
         ds = attrs["dataset"]
         assert "CompressedSamples^CT1" == ds.PatientName
+        assert "DataSetTrailingPadding" in ds
+        assert len(ds.DataSetTrailingPadding) == 126
 
         scp.shutdown()
 
