@@ -364,7 +364,6 @@ class DIMSEMessage:
         for keyword in _COMMAND_SET_KEYWORDS[cls_name.replace("_", "-")]:
             setattr(self.command_set, keyword, None)
 
-
     def decode_msg(
         self, primitive: P_DATA, assoc: Optional["Association"] = None
     ) -> bool:
