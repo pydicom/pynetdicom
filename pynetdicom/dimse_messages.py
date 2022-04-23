@@ -418,9 +418,6 @@ class DIMSEMessage:
             # xxxxxx11 - Command information, the last fragment
             control_header_byte = data[0]
 
-            # LOGGER.debug('Control header byte %s', control_header_byte)
-            # print(f'Control header byte {control_header_byte}')
-
             # COMMAND SET
             # P-DATA fragment contains Command Set information
             #   (control_header_byte is xxxxxx01 or xxxxxx11)
@@ -497,6 +494,7 @@ class DIMSEMessage:
                 #   number of P-DATA primitives.
                 if self._data_set_file:
                     self._data_set_file.write(data[1:])
+                    self._data_set_file.file.flush()
                 else:
                     cast(BytesIO, self.data_set).write(data[1:])
 

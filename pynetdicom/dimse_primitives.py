@@ -21,11 +21,13 @@ from pynetdicom.utils import set_ae, decode_bytes, set_uid
 
 
 if TYPE_CHECKING:  # pragma: no cover
+    from io import BufferedWriter
     from typing import Protocol  # Python 3.8+
 
     class NTF(Protocol):
         # Protocol for a NamedTemporaryFile
         name: str
+        file: BufferedWriter
 
         def write(self, data: bytes) -> bytes:
             ...
