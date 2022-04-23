@@ -7,9 +7,12 @@ Fixes
 .....
 
 * Fixed reserved A-ASSOCIATE-AC parameters being tested (:issue:`746`)
+* Fixed datasets not transferring correctly when using
+  :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` (:issue:`756`)
 
 Enhancements
 ............
+
 
 Changes
 .......

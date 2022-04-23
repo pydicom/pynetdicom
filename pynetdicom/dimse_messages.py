@@ -364,6 +364,7 @@ class DIMSEMessage:
         for keyword in _COMMAND_SET_KEYWORDS[cls_name.replace("_", "-")]:
             setattr(self.command_set, keyword, None)
 
+
     def decode_msg(
         self, primitive: P_DATA, assoc: Optional["Association"] = None
     ) -> bool:
@@ -417,9 +418,6 @@ class DIMSEMessage:
             # xxxxxx10 - Message Dataset information, the last fragment
             # xxxxxx11 - Command information, the last fragment
             control_header_byte = data[0]
-
-            # LOGGER.debug('Control header byte %s', control_header_byte)
-            # print(f'Control header byte {control_header_byte}')
 
             # COMMAND SET
             # P-DATA fragment contains Command Set information
@@ -497,6 +495,7 @@ class DIMSEMessage:
                 #   number of P-DATA primitives.
                 if self._data_set_file:
                     self._data_set_file.write(data[1:])
+                    self._data_set_file.file.flush()
                 else:
                     cast(BytesIO, self.data_set).write(data[1:])
 

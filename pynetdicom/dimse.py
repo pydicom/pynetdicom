@@ -324,6 +324,8 @@ class DIMSEServiceProvider:
             #   Reset the DIMSE message, ready for the next one
             self.message.encoded_command_set = BytesIO()
             self.message.data_set = BytesIO()
+            self.message._data_set_file = None
+            self.message._data_set_path = None
             self.message = None
 
     def send_msg(self, primitive: DimsePrimitiveType, context_id: int) -> None:
