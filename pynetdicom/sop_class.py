@@ -117,7 +117,7 @@ class SOPClass(UID):
         if isinstance(val, SOPClass):
             return val
 
-        return super(SOPClass, cls).__new__(cls, val)
+        return cast("SOPClass", super().__new__(cls, val))
 
     def __getattribute__(self, name: str) -> Any:
         return super(SOPClass, self).__getattribute__(name)

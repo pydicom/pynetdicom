@@ -123,9 +123,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"pynetdicom"
+project = "pynetdicom"
 year = datetime.now().strftime("%Y")
-copyright = u"2018-{}, pynetdicom contributors".format(year)
+copyright = "2018-{}, pynetdicom contributors".format(year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -266,8 +266,8 @@ latex_documents = [
     (
         "index",
         "pynetdicom.tex",
-        u"pynetdicom Documentation",
-        u"pynetdicom contributors",
+        "pynetdicom Documentation",
+        "pynetdicom contributors",
         "manual",
     ),
 ]
@@ -316,5 +316,5 @@ def setup(app):
 # The following is used by sphinx.ext.linkcode to provide links to github
 linkcode_resolve = make_linkcode_resolve(
     "pynetdicom",
-    u"https://github.com/pydicom/pynetdicom/blob/{revision}/{package}/{path}#L{lineno}",
+    "https://github.com/pydicom/pynetdicom/blob/{revision}/{package}/{path}#L{lineno}",
 )
