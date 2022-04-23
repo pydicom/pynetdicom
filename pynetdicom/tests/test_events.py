@@ -481,7 +481,7 @@ class TestEvent:
 
         request.AttributeIdentifierList = 0x00100010
         event = Event(
-            Non, evt.EVT_N_GET, {"request": request, "context": self.context.as_tuple}
+            None, evt.EVT_N_GET, {"request": request, "context": self.context.as_tuple}
         )
         tags = event.attribute_identifiers
         assert tags == [0x00100010]
