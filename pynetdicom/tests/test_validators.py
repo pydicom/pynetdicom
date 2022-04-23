@@ -2,9 +2,14 @@
 
 import pytest
 
+from pydicom import config as PYD_CONFIG
 
 from pynetdicom import _config
 from pynetdicom._validators import validate_ae, validate_ui
+
+
+if hasattr(PYD_CONFIG, "settings"):
+    PYD_CONFIG.settings.reading_validation_mode = 0
 
 
 AE_REFERENCE = [

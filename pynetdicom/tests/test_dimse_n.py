@@ -9,6 +9,7 @@ import logging
 
 import pytest
 
+from pydicom import config as PYD_CONFIG
 from pydicom.dataset import Dataset
 from pydicom.dataelem import DataElement
 from pydicom.tag import Tag, BaseTag
@@ -62,6 +63,11 @@ from .encoded_dimse_n_msg import (
     n_create_rsp_cmd,
     n_create_rsp_ds,
 )
+
+
+if hasattr(PYD_CONFIG, "settings"):
+    PYD_CONFIG.settings.reading_validation_mode = 0
+
 
 LOGGER = logging.getLogger("pynetdicom")
 LOGGER.setLevel(logging.CRITICAL)

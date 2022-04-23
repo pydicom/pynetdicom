@@ -6,6 +6,7 @@ import sys
 
 import pytest
 
+from pydicom import config as PYD_CONFIG
 from pydicom.uid import UID
 
 from pynetdicom import _config, debug_logger
@@ -83,6 +84,10 @@ from .encoded_pdu_items import (
     implementation_class_uid_empty,
     implementation_version_name_empty,
 )
+
+
+if hasattr(PYD_CONFIG, "settings"):
+    PYD_CONFIG.settings.reading_validation_mode = 0
 
 
 # debug_logger()

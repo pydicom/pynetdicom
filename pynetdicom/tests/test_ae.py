@@ -8,7 +8,7 @@ import time
 
 import pytest
 
-from pydicom import read_file
+from pydicom import read_file, config as PYD_CONFIG
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
@@ -27,6 +27,10 @@ from pynetdicom import (
 from pynetdicom.presentation import build_context
 from pynetdicom.sop_class import RTImageStorage, Verification
 from pynetdicom.transport import AssociationServer, RequestHandler
+
+
+if hasattr(PYD_CONFIG, "settings"):
+    PYD_CONFIG.settings.reading_validation_mode = 0
 
 
 # debug_logger()
