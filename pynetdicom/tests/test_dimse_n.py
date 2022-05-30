@@ -385,7 +385,7 @@ class TestPrimitive_N_GET:
         primitive.AttributeIdentifierList = (0x7FE0, 0x0010)
         assert Tag(0x7FE0, 0x0010) == primitive.AttributeIdentifierList
 
-        elem = DataElement((0x0000, 0x0005), "AT", [Tag(0x0000, 0x1000)])
+        elem = DataElement((0x0000, 0x0005), "AT", Tag(0x0000, 0x1000))
         assert isinstance(elem.value, BaseTag)
         primitive.AttributeIdentifierList = elem.value
         assert Tag(0x0000, 0x1000) == primitive.AttributeIdentifierList
