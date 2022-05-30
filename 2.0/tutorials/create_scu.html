@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Writing your first SCU &mdash; pynetdicom 2.0.2 documentation</title>
+  <title>Writing your first SCU &mdash; pynetdicom 2.0.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -36,7 +37,7 @@
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.0.2
+                2.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -110,7 +111,7 @@
            <div itemprop="articleBody">
              
   <section id="writing-your-first-scu">
-<h1>Writing your first SCU<a class="headerlink" href="#writing-your-first-scu" title="Permalink to this headline">¶</a></h1>
+<h1>Writing your first SCU<a class="headerlink" href="#writing-your-first-scu" title="Permalink to this heading">¶</a></h1>
 <p>This tutorial is intended for people who are new to <em>pynetdicom</em>. In it you’ll:</p>
 <ul class="simple">
 <li><p>Learn a bit about the basics of DICOM networking</p></li>
@@ -132,7 +133,7 @@ upgrade <em>pynetdicom</em> by following the instructions in the
 this tutorial we’ll also be using the <a class="reference internal" href="../apps/echoscp.html"><span class="doc">echoscp</span></a>
 application that comes with <em>pynetdicom</em>.</p>
 <section id="dicom-networking">
-<h2>DICOM networking<a class="headerlink" href="#dicom-networking" title="Permalink to this headline">¶</a></h2>
+<h2>DICOM networking<a class="headerlink" href="#dicom-networking" title="Permalink to this heading">¶</a></h2>
 <p><em>pynetdicom</em> is an implementation of the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_9.html">DICOM Upper Layer Protocol for
 TCP/IP</a>, which is used to facilitate communication
 between DICOM <em>Application Entities</em> (AEs) over a <a class="reference external" href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">TCP connection</a>. Communication
@@ -161,7 +162,7 @@ also be aborted at any time when either AE sends an A-ABORT message. Once
 the association has been aborted or released, the TCP connection is closed
 (if still open) and communication between the two AEs ends.</p>
 <section id="what-is-an-scu">
-<h3>What <em>is</em> an SCU?<a class="headerlink" href="#what-is-an-scu" title="Permalink to this headline">¶</a></h3>
+<h3>What <em>is</em> an SCU?<a class="headerlink" href="#what-is-an-scu" title="Permalink to this heading">¶</a></h3>
 <p>If you’re new to DICOM, you might be wondering what an Echo SCU or SCP actually
 <em>are</em>. The answer lies in the DICOM services that are available to an
 association; if an AE <em>provides</em> a service then it’s referred to as a <em>Service
@@ -183,7 +184,7 @@ firewall or anything else.</p>
 </section>
 </section>
 <section id="start-the-echo-scp">
-<h2>Start the Echo SCP<a class="headerlink" href="#start-the-echo-scp" title="Permalink to this headline">¶</a></h2>
+<h2>Start the Echo SCP<a class="headerlink" href="#start-the-echo-scp" title="Permalink to this heading">¶</a></h2>
 <p>For this tutorial we need an Echo SCP. To make things simpler we’ll use the
 <a class="reference internal" href="../apps/echoscp.html"><span class="doc">echoscp</span></a> application that comes with
 <em>pynetdicom</em>, but you could also use any third-party application that supports
@@ -210,7 +211,7 @@ output every now and then to get a feel for what’s happening at the other
 end of the association.</p>
 </section>
 <section id="create-an-application-entity-and-associate">
-<h2>Create an Application Entity and associate<a class="headerlink" href="#create-an-application-entity-and-associate" title="Permalink to this headline">¶</a></h2>
+<h2>Create an Application Entity and associate<a class="headerlink" href="#create-an-application-entity-and-associate" title="Permalink to this heading">¶</a></h2>
 <p>Next we’re going to make a new application entity and request an association
 with the Echo SCP. Create a new file <code class="docutils literal notranslate"><span class="pre">my_scu.py</span></code>, open it in a text
 editor and add the following:</p>
@@ -300,7 +301,7 @@ I: Association Released
 Echo SCP is running and your code is correct. If you still can’t
 associate, move on to the next section on troubleshooting associations.</p>
 <section id="troubleshooting-associations">
-<h3>Troubleshooting associations<a class="headerlink" href="#troubleshooting-associations" title="Permalink to this headline">¶</a></h3>
+<h3>Troubleshooting associations<a class="headerlink" href="#troubleshooting-associations" title="Permalink to this heading">¶</a></h3>
 <p>By itself our output isn’t very helpful in understanding what’s going on.
 Fortunately, by default <em>pynetdicom</em> has lots of logging output, which can be
 sent to the terminal by calling <a class="reference internal" href="../reference/generated/pynetdicom.debug_logger.html#pynetdicom.debug_logger" title="pynetdicom.debug_logger"><code class="xref py py-func docutils literal notranslate"><span class="pre">debug_logger()</span></code></a>:</p>
@@ -405,9 +406,9 @@ so let’s turn it into an Echo SCU.</p>
 </section>
 </section>
 <section id="creating-the-echo-scu">
-<h2>Creating the Echo SCU<a class="headerlink" href="#creating-the-echo-scu" title="Permalink to this headline">¶</a></h2>
+<h2>Creating the Echo SCU<a class="headerlink" href="#creating-the-echo-scu" title="Permalink to this heading">¶</a></h2>
 <section id="presentation-contexts">
-<h3>Presentation Contexts<a class="headerlink" href="#presentation-contexts" title="Permalink to this headline">¶</a></h3>
+<h3>Presentation Contexts<a class="headerlink" href="#presentation-contexts" title="Permalink to this heading">¶</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>What follows is a basic introduction to presentation contexts. More
@@ -463,7 +464,7 @@ similar to:</p>
 </div>
 </section>
 <section id="turning-our-ae-into-an-echo-scu">
-<h3>Turning our AE into an Echo SCU<a class="headerlink" href="#turning-our-ae-into-an-echo-scu" title="Permalink to this headline">¶</a></h3>
+<h3>Turning our AE into an Echo SCU<a class="headerlink" href="#turning-our-ae-into-an-echo-scu" title="Permalink to this heading">¶</a></h3>
 <p>Since we’re able to associate with the Echo SCP, our next step is to request
 the use of it’s verification service. We do this by sending a DIMSE C-ECHO
 request:</p>
@@ -520,7 +521,7 @@ written your first DICOM application using <em>pynetdicom</em>.</p>
 </section>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">¶</a></h2>
 <p>We recommend that you move on to <a class="reference internal" href="create_scp.html"><span class="doc">writing your first SCP</span></a>
 next. However, you might also be interested in the
 <a class="reference internal" href="../examples/index.html"><span class="doc">SCU examples</span></a> available in the documentation, or the

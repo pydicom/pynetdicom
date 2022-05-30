@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>getscu &mdash; pynetdicom 2.0.2 documentation</title>
+  <title>getscu &mdash; pynetdicom 2.0.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -36,7 +37,7 @@
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.0.2
+                2.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -120,7 +121,7 @@
            <div itemprop="articleBody">
              
   <section id="getscu">
-<h1>getscu<a class="headerlink" href="#getscu" title="Permalink to this headline">¶</a></h1>
+<h1>getscu<a class="headerlink" href="#getscu" title="Permalink to this heading">¶</a></h1>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.5.</span></p>
 </div>
@@ -128,7 +129,7 @@
 </pre></div>
 </div>
 <section id="description">
-<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">getscu</span></code> application implements a Service Class User (SCU) for
 the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve</a> service class. It requests an
 association with a peer Application Entity and once established, sends a C-GET
@@ -138,7 +139,7 @@ the peer acts as a Storage SCU with <code class="docutils literal notranslate"><
 <p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/getscu">here</a></p>
 </section>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <p>The following example shows what happens when it is successfully run on
 an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the
 Query/Retrieve (Get) service:</p>
@@ -162,7 +163,7 @@ I: Releasing Association
 </div>
 </section>
 <section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h2>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">addr</span></code></dt><dd><p>TCP/IP address or hostname of DICOM peer</p>
 </dd>
@@ -171,9 +172,9 @@ I: Releasing Association
 </dl>
 </section>
 <section id="options">
-<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this heading">¶</a></h2>
 <section id="general-options">
-<h3>General Options<a class="headerlink" href="#general-options" title="Permalink to this headline">¶</a></h3>
+<h3>General Options<a class="headerlink" href="#general-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-q</span>&#160;&#160;&#160; <span class="pre">--quiet</span></code></dt><dd><p>quiet mode, prints no warnings or errors</p>
 </dd>
@@ -188,7 +189,7 @@ or higher</p>
 </dl>
 </section>
 <section id="network-options">
-<h3>Network Options<a class="headerlink" href="#network-options" title="Permalink to this headline">¶</a></h3>
+<h3>Network Options<a class="headerlink" href="#network-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-aet</span>&#160; <span class="pre">--calling-aet</span> <span class="pre">[a]etitle</span> <span class="pre">(str)</span></code></dt><dd><p>set the local AE title (default: GETSCU)</p>
 </dd>
@@ -205,7 +206,7 @@ or higher</p>
 </dl>
 </section>
 <section id="query-information-model-options">
-<h3>Query Information Model Options<a class="headerlink" href="#query-information-model-options" title="Permalink to this headline">¶</a></h3>
+<h3>Query Information Model Options<a class="headerlink" href="#query-information-model-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-P</span>&#160;&#160;&#160; <span class="pre">--patient</span></code></dt><dd><p>use patient root information model (default)</p>
 </dd>
@@ -216,7 +217,7 @@ or higher</p>
 </dl>
 </section>
 <section id="query-options">
-<h3>Query Options<a class="headerlink" href="#query-options" title="Permalink to this headline">¶</a></h3>
+<h3>Query Options<a class="headerlink" href="#query-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-k</span> <span class="pre">[k]eyword:</span> <span class="pre">(gggg,eeee)=str,</span> <span class="pre">keyword=str</span></code></dt><dd><p>add or override a query element using either an element tag as
 (group,element) or the element’s keyword (such as PatientName).
@@ -229,7 +230,7 @@ present in the file</p>
 </dl>
 </section>
 <section id="extended-negotiation-options">
-<h3>Extended Negotiation Options<a class="headerlink" href="#extended-negotiation-options" title="Permalink to this headline">¶</a></h3>
+<h3>Extended Negotiation Options<a class="headerlink" href="#extended-negotiation-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">--relational-retrieval</span></code></dt><dd><p>request the use of relational retrieval</p>
 </dd>
@@ -238,7 +239,7 @@ present in the file</p>
 </dl>
 </section>
 <section id="output-options">
-<h3>Output Options<a class="headerlink" href="#output-options" title="Permalink to this headline">¶</a></h3>
+<h3>Output Options<a class="headerlink" href="#output-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-od</span> <span class="pre">[d]irectory,</span> <span class="pre">--output-directory</span> <span class="pre">[d]irectory</span> <span class="pre">(str)</span></code></dt><dd><p>write received objects to directory <code class="docutils literal notranslate"><span class="pre">d</span></code></p>
 </dd>
@@ -248,7 +249,7 @@ present in the file</p>
 </section>
 </section>
 <section id="keyword-pathing">
-<h2>Keyword pathing<a class="headerlink" href="#keyword-pathing" title="Permalink to this headline">¶</a></h2>
+<h2>Keyword pathing<a class="headerlink" href="#keyword-pathing" title="Permalink to this heading">¶</a></h2>
 <p>When using the <cite>-k keyword</cite> option it becomes possible to specify the
 query dataset (the <em>Identifier</em>) without needing to create a DICOM file.
 Multiple instances of <cite>-k</cite> can be used to build up the <em>Identifier</em>. For
@@ -273,7 +274,7 @@ an incorrect element value. <code class="docutils literal notranslate"><span cla
 <p>When both the <cite>-f file</cite> and <cite>-k keyword</cite> options are used then the keywords
 will be used to update the elements in the file.</p>
 <section id="examples">
-<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h3>
 <p>Empty (0010,0010) <em>Patient Name</em> element:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k PatientName=
 -k (0010,0010)=
@@ -357,13 +358,13 @@ or <a class="reference external" href="https://docs.python.org/3/library/functio
 </section>
 </section>
 <section id="dicom-conformance">
-<h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
+<h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">getscu</span></code> application supports the Query/Retrieve service classes as an
 SCU. The following SOP classes are supported:</p>
 <section id="query-retrieve-service">
-<h3>Query/Retrieve Service<a class="headerlink" href="#query-retrieve-service" title="Permalink to this headline">¶</a></h3>
+<h3>Query/Retrieve Service<a class="headerlink" href="#query-retrieve-service" title="Permalink to this heading">¶</a></h3>
 <section id="sop-classes">
-<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h4>
+<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 38%" />
@@ -391,7 +392,7 @@ SCU. The following SOP classes are supported:</p>
 </table>
 </section>
 <section id="transfer-syntaxes">
-<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this headline">¶</a></h4>
+<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 32%" />
@@ -421,7 +422,7 @@ SCU. The following SOP classes are supported:</p>
 supports the following SOP classes as an SCP:</p>
 </section>
 <section id="id1">
-<h4>SOP Classes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<h4>SOP Classes<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 45%" />
@@ -859,7 +860,7 @@ Storage</p></td>
 </table>
 </section>
 <section id="id2">
-<h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 32%" />

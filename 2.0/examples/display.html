@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Display System Management Service Examples &mdash; pynetdicom 2.0.2 documentation</title>
+  <title>Display System Management Service Examples &mdash; pynetdicom 2.0.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -36,7 +37,7 @@
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.0.2
+                2.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -104,13 +105,13 @@
            <div itemprop="articleBody">
              
   <section id="display-system-management-service-examples">
-<h1>Display System Management Service Examples<a class="headerlink" href="#display-system-management-service-examples" title="Permalink to this headline">¶</a></h1>
+<h1>Display System Management Service Examples<a class="headerlink" href="#display-system-management-service-examples" title="Permalink to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_EE.html">Display System Management Service</a>
 allows an Application Entity to retrieve Display Subsystem parameters from a
 peer by using the N-GET service. It only has a single
 <a class="reference internal" href="../service_classes/display_system_service_class.html#display-sops"><span class="std std-ref">supported SOP Class</span></a>.</p>
 <section id="display-system-management-scu">
-<h2>Display System Management SCU<a class="headerlink" href="#display-system-management-scu" title="Permalink to this headline">¶</a></h2>
+<h2>Display System Management SCU<a class="headerlink" href="#display-system-management-scu" title="Permalink to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the use of the
 Display System Management Service.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
@@ -160,7 +161,7 @@ Display System Management Service.</p>
 </div>
 </section>
 <section id="display-system-management-scp">
-<span id="example-nget-scp"></span><h2>Display System Management SCP<a class="headerlink" href="#display-system-management-scp" title="Permalink to this headline">¶</a></h2>
+<span id="example-nget-scp"></span><h2>Display System Management SCP<a class="headerlink" href="#display-system-management-scp" title="Permalink to this heading">¶</a></h2>
 <p>The following represents a toy implementation of a Display System Management
 SCP, where the SCU has sent a request with an <em>Attribute Identifier List</em>
 containing the single tag (0008,0070).</p>

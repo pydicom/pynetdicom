@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Important Concepts &mdash; pynetdicom 2.0.2 documentation</title>
+  <title>Important Concepts &mdash; pynetdicom 2.0.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -36,7 +37,7 @@
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.0.2
+                2.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -114,9 +115,9 @@
            <div itemprop="articleBody">
              
   <section id="important-concepts">
-<h1>Important Concepts<a class="headerlink" href="#important-concepts" title="Permalink to this headline">¶</a></h1>
+<h1>Important Concepts<a class="headerlink" href="#important-concepts" title="Permalink to this heading">¶</a></h1>
 <section id="uids">
-<span id="concepts-uids"></span><h2>UIDs<a class="headerlink" href="#uids" title="Permalink to this headline">¶</a></h2>
+<span id="concepts-uids"></span><h2>UIDs<a class="headerlink" href="#uids" title="Permalink to this heading">¶</a></h2>
 <p>Unique identifiers (UIDs) are a way of identifying a wide variety
 of items in a way that guarantees uniqueness across multiple countries, sites,
 vendors and equipment. The UID identification scheme used by DICOM is based on
@@ -145,9 +146,9 @@ UID is 64 total characters.</p>
 of the DICOM Standard.</p>
 </section>
 <section id="dicom-information-model">
-<h2>DICOM Information Model<a class="headerlink" href="#dicom-information-model" title="Permalink to this headline">¶</a></h2>
+<h2>DICOM Information Model<a class="headerlink" href="#dicom-information-model" title="Permalink to this heading">¶</a></h2>
 <section id="information-object-definition-iod">
-<span id="concepts-iods"></span><h3>Information Object Definition (IOD)<a class="headerlink" href="#information-object-definition-iod" title="Permalink to this headline">¶</a></h3>
+<span id="concepts-iods"></span><h3>Information Object Definition (IOD)<a class="headerlink" href="#information-object-definition-iod" title="Permalink to this heading">¶</a></h3>
 <p>An IOD is an object-orientated abstract data model used to specify information
 about a class of real-world objects that share the same properties.
 For example, a <em>Patient</em>, a <em>Study</em>, an imaging <em>Series</em> and a piece of imaging
@@ -165,7 +166,7 @@ information about related real-world objects (such as the
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03.html">Part 3</a> of the DICOM Standard.</p>
 </section>
 <section id="sop-classes">
-<span id="concepts-sop-classes"></span><h3>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h3>
+<span id="concepts-sop-classes"></span><h3>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this heading">¶</a></h3>
 <p>A Service-Object Pair (SOP) Class is defined by the union of an IOD and a
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/PS3.7.html">DICOM Message Service Element</a>
 (DIMSE) service group:</p>
@@ -190,7 +191,7 @@ the DICOM Standard. Every DICOM SOP class has its own UID that can be found in
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html">Part 6</a>.</p>
 </section>
 <section id="service-classes">
-<span id="concepts-service-classes"></span><h3>Service Classes<a class="headerlink" href="#service-classes" title="Permalink to this headline">¶</a></h3>
+<span id="concepts-service-classes"></span><h3>Service Classes<a class="headerlink" href="#service-classes" title="Permalink to this heading">¶</a></h3>
 <p>A DICOM Service Class defines a group of one or more SOP Classes related to a
 service that is to be used by communicating application  entities, as well as
 the rules that are to govern the provision of the service. Services
@@ -205,14 +206,14 @@ Standard.</p>
 </section>
 </section>
 <section id="application-entities">
-<span id="concepts-ae"></span><h2>Application Entities<a class="headerlink" href="#application-entities" title="Permalink to this headline">¶</a></h2>
+<span id="concepts-ae"></span><h2>Application Entities<a class="headerlink" href="#application-entities" title="Permalink to this heading">¶</a></h2>
 <p>A DICOM <em>Application Entity</em> (AE) is an application that supports the DICOM
 standard in general, and especially IODs, service classes and dataset
 encoding/decoding.</p>
 <p>In DICOM networking, AEs are identified by their <em>AE Title</em>.</p>
 </section>
 <section id="presentation-contexts">
-<span id="concepts-presentation-contexts"></span><h2>Presentation Contexts<a class="headerlink" href="#presentation-contexts" title="Permalink to this headline">¶</a></h2>
+<span id="concepts-presentation-contexts"></span><h2>Presentation Contexts<a class="headerlink" href="#presentation-contexts" title="Permalink to this heading">¶</a></h2>
 <p>Presentation Contexts are used during the negotiation of an association to
 provide a method for communicating AEs to agree on a set of supported services.
 Each Presentation Context consists of an Abstract Syntax and one or more
@@ -232,7 +233,7 @@ presentation context.</p></li>
 <p>A more detailed guide to presentation contexts and how to use them with
 <em>pynetdicom</em> is available <a class="reference internal" href="presentation.html#user-presentation"><span class="std std-ref">here</span></a>.</p>
 <section id="abstract-syntax">
-<span id="concepts-abstract-syntax"></span><h3>Abstract Syntax<a class="headerlink" href="#abstract-syntax" title="Permalink to this headline">¶</a></h3>
+<span id="concepts-abstract-syntax"></span><h3>Abstract Syntax<a class="headerlink" href="#abstract-syntax" title="Permalink to this heading">¶</a></h3>
 <p>An <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_B.html">Abstract Syntax</a>
 is a specification of a set of data elements and their associated semantics.
 Each Abstract Syntax is identified by an <em>Abstract Syntax Name</em> in the form
@@ -244,7 +245,7 @@ containing private abstract syntaxes the implementation of the associated
 services/semantics is up to the end user.</p>
 </section>
 <section id="transfer-syntax">
-<span id="concepts-transfer-syntax"></span><h3>Transfer Syntax<a class="headerlink" href="#transfer-syntax" title="Permalink to this headline">¶</a></h3>
+<span id="concepts-transfer-syntax"></span><h3>Transfer Syntax<a class="headerlink" href="#transfer-syntax" title="Permalink to this heading">¶</a></h3>
 <p>A <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_B.2.html">Transfer Syntax</a>
 defines a set of encoding rules able to unambiguously
 represent the data elements defined by one or more Abstract Syntaxes. In
@@ -260,7 +261,7 @@ responsibility of the end user.</p>
 </section>
 </section>
 <section id="association">
-<span id="concepts-association"></span><h2>Association<a class="headerlink" href="#association" title="Permalink to this headline">¶</a></h2>
+<span id="concepts-association"></span><h2>Association<a class="headerlink" href="#association" title="Permalink to this heading">¶</a></h2>
 <p>When peer AEs want to communicate they must first establish an Association.</p>
 <ul class="simple">
 <li><p>The AE that is initiating the association (the <em>Requestor</em>) sends
@@ -280,7 +281,7 @@ correctly or for a <a class="reference external" href="http://dicom.nema.org/med
 <p>The full service procedure for an association is found in
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.2">Part 8</a> of the DICOM Standard.</p>
 <section id="association-negotiation-and-extended-negotiation">
-<span id="concepts-negotiation"></span><h3>Association Negotiation and Extended Negotiation<a class="headerlink" href="#association-negotiation-and-extended-negotiation" title="Permalink to this headline">¶</a></h3>
+<span id="concepts-negotiation"></span><h3>Association Negotiation and Extended Negotiation<a class="headerlink" href="#association-negotiation-and-extended-negotiation" title="Permalink to this heading">¶</a></h3>
 <p>Standard association negotiation usually involves the peer AEs agreeing on a
 set of abstract syntax/transfer syntax combinations through the mechanism
 provided by presentation contexts. In some cases it may be necessary for

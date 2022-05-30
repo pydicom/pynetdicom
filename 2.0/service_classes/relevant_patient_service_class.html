@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Relevant Patient Information Query Service Class &mdash; pynetdicom 2.0.2 documentation</title>
+  <title>Relevant Patient Information Query Service Class &mdash; pynetdicom 2.0.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -36,7 +37,7 @@
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.0.2
+                2.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -121,12 +122,12 @@
            <div itemprop="articleBody">
              
   <section id="relevant-patient-information-query-service-class">
-<span id="service-relpat"></span><h1>Relevant Patient Information Query Service Class<a class="headerlink" href="#relevant-patient-information-query-service-class" title="Permalink to this headline">¶</a></h1>
+<span id="service-relpat"></span><h1>Relevant Patient Information Query Service Class<a class="headerlink" href="#relevant-patient-information-query-service-class" title="Permalink to this heading">¶</a></h1>
 <p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_Q.html">Relevant Patient Information Query Service Class</a>
 defines a service that facilitates querying of stored Instances for specific
 information from a single patient.</p>
 <section id="supported-sop-classes">
-<span id="relpat-sops"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this headline">¶</a></h2>
+<span id="relpat-sops"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 39%" />
@@ -151,7 +152,7 @@ information from a single patient.</p>
 </table>
 </section>
 <section id="dimse-services">
-<h2>DIMSE Services<a class="headerlink" href="#dimse-services" title="Permalink to this headline">¶</a></h2>
+<h2>DIMSE Services<a class="headerlink" href="#dimse-services" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 33%" />
@@ -170,9 +171,9 @@ information from a single patient.</p>
 </table>
 </section>
 <section id="statuses">
-<span id="relpat-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this headline">¶</a></h2>
+<span id="relpat-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this heading">¶</a></h2>
 <section id="c-find-statuses">
-<h3>C-FIND Statuses<a class="headerlink" href="#c-find-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>C-FIND Statuses<a class="headerlink" href="#c-find-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 21%" />
@@ -202,7 +203,7 @@ information from a single patient.</p>
 </table>
 </section>
 <section id="relevant-patient-information-query-service-statuses">
-<h3>Relevant Patient Information Query Service Statuses<a class="headerlink" href="#relevant-patient-information-query-service-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>Relevant Patient Information Query Service Statuses<a class="headerlink" href="#relevant-patient-information-query-service-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 24%" />
@@ -244,7 +245,7 @@ information from a single patient.</p>
 </table>
 </section>
 <section id="pynetdicom-relevant-patient-information-query-statuses">
-<h3>pynetdicom Relevant Patient Information Query Statuses<a class="headerlink" href="#pynetdicom-relevant-patient-information-query-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>pynetdicom Relevant Patient Information Query Statuses<a class="headerlink" href="#pynetdicom-relevant-patient-information-query-statuses" title="Permalink to this heading">¶</a></h3>
 <p>When pynetdicom is acting as a Relevant Patient Information SCP it uses the
 following status codes values to indicate the corresponding issue has occurred
 to help aid in debugging.</p>

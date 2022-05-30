@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Association &mdash; pynetdicom 2.0.2 documentation</title>
+  <title>Association &mdash; pynetdicom 2.0.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -36,7 +37,7 @@
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.0.2
+                2.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -119,9 +120,9 @@
            <div itemprop="articleBody">
              
   <section id="association">
-<span id="id1"></span><h1>Association<a class="headerlink" href="#association" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Association<a class="headerlink" href="#association" title="Permalink to this heading">¶</a></h1>
 <section id="requesting-an-association-scu">
-<span id="assoc-scu"></span><h2>Requesting an Association (SCU)<a class="headerlink" href="#requesting-an-association-scu" title="Permalink to this headline">¶</a></h2>
+<span id="assoc-scu"></span><h2>Requesting an Association (SCU)<a class="headerlink" href="#requesting-an-association-scu" title="Permalink to this heading">¶</a></h2>
 <p>Assuming you <a class="reference internal" href="ae.html#ae-create-scu"><span class="std std-ref">have an AE</span></a> and have added your requested
 presentation contexts then you can associate with a peer by using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
@@ -149,7 +150,7 @@ and the default <em>Called AE Title</em> parameter of <code class="docutils lite
 association will remain open until either the peer or local AE hits a timeout
 and aborts.</p>
 <section id="specifying-the-called-ae-title">
-<h3>Specifying the Called AE Title<a class="headerlink" href="#specifying-the-called-ae-title" title="Permalink to this headline">¶</a></h3>
+<h3>Specifying the Called AE Title<a class="headerlink" href="#specifying-the-called-ae-title" title="Permalink to this heading">¶</a></h3>
 <p>Some SCPs will reject an association request if the <em>Called AE Title</em> parameter
 value doesn’t match its own title, so this can be set using the <em>ae_title</em>
 keyword parameter:</p>
@@ -158,7 +159,7 @@ keyword parameter:</p>
 </div>
 </section>
 <section id="specifying-presentation-contexts-for-each-association">
-<h3>Specifying Presentation Contexts for each Association<a class="headerlink" href="#specifying-presentation-contexts-for-each-association" title="Permalink to this headline">¶</a></h3>
+<h3>Specifying Presentation Contexts for each Association<a class="headerlink" href="#specifying-presentation-contexts-for-each-association" title="Permalink to this heading">¶</a></h3>
 <p>Calling <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
 with only the <em>addr</em> and <em>port</em> parameters means the presentation
 contexts in
@@ -177,7 +178,7 @@ per-association basis you can use the <em>contexts</em> keyword parameter:</p>
 </div>
 </section>
 <section id="using-extended-negotiation">
-<span id="user-assoc-extneg"></span><h3>Using Extended Negotiation<a class="headerlink" href="#using-extended-negotiation" title="Permalink to this headline">¶</a></h3>
+<span id="user-assoc-extneg"></span><h3>Using Extended Negotiation<a class="headerlink" href="#using-extended-negotiation" title="Permalink to this heading">¶</a></h3>
 <p>If you require the use of <a class="reference internal" href="concepts.html#concepts-negotiation"><span class="std std-ref">extended negotiation</span></a>
 then you can supply the <em>ext_neg</em> keyword parameter. Some extended negotiation
 items can only be singular and some can occur multiple times depending on the
@@ -228,7 +229,7 @@ also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</
 </ul>
 </section>
 <section id="binding-event-handlers">
-<h3>Binding Event Handlers<a class="headerlink" href="#binding-event-handlers" title="Permalink to this headline">¶</a></h3>
+<h3>Binding Event Handlers<a class="headerlink" href="#binding-event-handlers" title="Permalink to this heading">¶</a></h3>
 <p>If you want to bind handlers to any
 <a class="reference internal" href="events.html#user-events"><span class="std std-ref">events</span></a> within a new <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> you can
 use the <em>evt_handlers</em> keyword parameter:</p>
@@ -299,7 +300,7 @@ use the <em>evt_handlers</em> keyword parameter:</p>
 </div>
 </section>
 <section id="tls">
-<h3>TLS<a class="headerlink" href="#tls" title="Permalink to this headline">¶</a></h3>
+<h3>TLS<a class="headerlink" href="#tls" title="Permalink to this heading">¶</a></h3>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>TLS v1.3 is not currently supported</p>
@@ -331,7 +332,7 @@ value of the <em>server_hostname</em> keyword parameter in
 <a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket" title="(in Python v3.10)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wrap_socket()</span></code></a>.</p>
 </section>
 <section id="outcomes-of-an-association-request">
-<h3>Outcomes of an Association Request<a class="headerlink" href="#outcomes-of-an-association-request" title="Permalink to this headline">¶</a></h3>
+<h3>Outcomes of an Association Request<a class="headerlink" href="#outcomes-of-an-association-request" title="Permalink to this heading">¶</a></h3>
 <p>There are four potential outcomes of an association request: acceptance and
 establishment, association rejection, association abort or a connection
 failure, so its a good idea to test for establishment before attempting to
@@ -356,7 +357,7 @@ use the association:</p>
 </section>
 </section>
 <section id="using-an-association-scu">
-<h2>Using an Association (SCU)<a class="headerlink" href="#using-an-association-scu" title="Permalink to this headline">¶</a></h2>
+<h2>Using an Association (SCU)<a class="headerlink" href="#using-an-association-scu" title="Permalink to this heading">¶</a></h2>
 <p>Once an association has been established with the peer then the agreed upon
 set of services are available for use. <em>pynetdicom</em> supports the usage
 of the following DIMSE services:</p>
@@ -388,7 +389,7 @@ by the association will raise a <a class="reference external" href="https://docs
 read through the <a class="reference internal" href="../index.html#index-examples"><span class="std std-ref">examples</span></a> corresponding to the
 service class you’re interested in.</p>
 <section id="releasing-an-association">
-<h3>Releasing an Association<a class="headerlink" href="#releasing-an-association" title="Permalink to this headline">¶</a></h3>
+<h3>Releasing an Association<a class="headerlink" href="#releasing-an-association" title="Permalink to this heading">¶</a></h3>
 <p>Once your association has been established and you’ve finished using it, its a
 good idea to release the association using <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.release" title="pynetdicom.association.Association.release"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.release()</span></code></a>, otherwise
 the association will remain open until the network timeout expires or the
@@ -396,7 +397,7 @@ peer aborts or closes the connection.</p>
 </section>
 </section>
 <section id="accessing-user-identity-responses">
-<h2>Accessing User Identity Responses<a class="headerlink" href="#accessing-user-identity-responses" title="Permalink to this headline">¶</a></h2>
+<h2>Accessing User Identity Responses<a class="headerlink" href="#accessing-user-identity-responses" title="Permalink to this heading">¶</a></h2>
 <p>If the association <em>Requestor</em> has sent a
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">User Identity Negotiation</a>
 item as part of the extended negotiation and has requested a response in the
@@ -405,7 +406,7 @@ event of a positive identification then it can be accessed via the
 property after the association has been established.</p>
 </section>
 <section id="listening-for-association-requests-scp">
-<span id="assoc-scp"></span><h2>Listening for Association Requests (SCP)<a class="headerlink" href="#listening-for-association-requests-scp" title="Permalink to this headline">¶</a></h2>
+<span id="assoc-scp"></span><h2>Listening for Association Requests (SCP)<a class="headerlink" href="#listening-for-association-requests-scp" title="Permalink to this heading">¶</a></h2>
 <p>Assuming you have added your supported presentation contexts then you can start
 listening for association requests from peers with the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a>
@@ -445,7 +446,7 @@ instances can be stopped using
 associations can be stopped using
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.shutdown" title="pynetdicom.ae.ApplicationEntity.shutdown"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.shutdown()</span></code></a>.</p>
 <section id="specifying-the-ae-title">
-<h3>Specifying the AE Title<a class="headerlink" href="#specifying-the-ae-title" title="Permalink to this headline">¶</a></h3>
+<h3>Specifying the AE Title<a class="headerlink" href="#specifying-the-ae-title" title="Permalink to this heading">¶</a></h3>
 <p>The AE title for each SCP can be set using the <em>ae_title</em> keyword parameter.
 If no value is set then the AE title of the parent AE will be used instead:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">ae_title</span><span class="o">=</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
@@ -453,7 +454,7 @@ If no value is set then the AE title of the parent AE will be used instead:</p>
 </div>
 </section>
 <section id="specifying-presentation-contexts-for-each-scp">
-<h3>Specifying Presentation Contexts for each SCP<a class="headerlink" href="#specifying-presentation-contexts-for-each-scp" title="Permalink to this headline">¶</a></h3>
+<h3>Specifying Presentation Contexts for each SCP<a class="headerlink" href="#specifying-presentation-contexts-for-each-scp" title="Permalink to this heading">¶</a></h3>
 <p>To support presentation contexts on a per-SCP basis you can use the
 <em>contexts</em> keyword parameter:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
@@ -465,7 +466,7 @@ If no value is set then the AE title of the parent AE will be used instead:</p>
 </div>
 </section>
 <section id="id2">
-<h3>Binding Event Handlers<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<h3>Binding Event Handlers<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
 <p>If you want to bind handlers to any
 <a class="reference internal" href="events.html#user-events"><span class="std std-ref">events</span></a> within any <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> instances
 generated by the SCP you can use the <em>evt_handlers</em> keyword parameter:</p>
@@ -546,7 +547,7 @@ requests. Associations created using
 unaffected.</p>
 </section>
 <section id="id3">
-<h3>TLS<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<h3>TLS<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>TLS v1.3 is not currently supported</p>
@@ -577,7 +578,7 @@ keyword parameter:</p>
 </section>
 </section>
 <section id="providing-dimse-services-scp">
-<h2>Providing DIMSE Services (SCP)<a class="headerlink" href="#providing-dimse-services-scp" title="Permalink to this headline">¶</a></h2>
+<h2>Providing DIMSE Services (SCP)<a class="headerlink" href="#providing-dimse-services-scp" title="Permalink to this heading">¶</a></h2>
 <p>If the association supports a service class that uses one or more of the
 DIMSE-C or -N services then a handler must be implemented and bound to the
 event corresponding the the service (excluding C-ECHO which has a default

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Print Management Service Class &mdash; pynetdicom 2.0.2 documentation</title>
+  <title>Print Management Service Class &mdash; pynetdicom 2.0.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -36,7 +37,7 @@
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.0.2
+                2.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -128,13 +129,13 @@
            <div itemprop="articleBody">
              
   <section id="print-management-service-class">
-<span id="service-print"></span><h1>Print Management Service Class<a class="headerlink" href="#print-management-service-class" title="Permalink to this headline">¶</a></h1>
+<span id="service-print"></span><h1>Print Management Service Class<a class="headerlink" href="#print-management-service-class" title="Permalink to this heading">¶</a></h1>
 <p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_H.html">Print Management Service Class</a>
 defines a service that uses the DIMSE N-CREATE, N-SET, N-DELETE, N-ACTION,
 N-EVENT-REPORT and N-GET services to
 facilitate the print of images and image related data.</p>
 <section id="supported-sop-classes">
-<span id="print-sops"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this headline">¶</a></h2>
+<span id="print-sops"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 37%" />
@@ -183,7 +184,7 @@ facilitate the print of images and image related data.</p>
 </table>
 </section>
 <section id="meta-sop-classes">
-<h2>Meta SOP Classes<a class="headerlink" href="#meta-sop-classes" title="Permalink to this headline">¶</a></h2>
+<h2>Meta SOP Classes<a class="headerlink" href="#meta-sop-classes" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 65%" />
@@ -240,7 +241,7 @@ facilitate the print of images and image related data.</p>
 </table>
 </section>
 <section id="dimse-services">
-<h2>DIMSE Services<a class="headerlink" href="#dimse-services" title="Permalink to this headline">¶</a></h2>
+<h2>DIMSE Services<a class="headerlink" href="#dimse-services" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 29%" />
@@ -319,9 +320,9 @@ facilitate the print of images and image related data.</p>
 </table>
 </section>
 <section id="statuses">
-<span id="print-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this headline">¶</a></h2>
+<span id="print-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this heading">¶</a></h2>
 <section id="n-action-statuses">
-<h3>N-ACTION Statuses<a class="headerlink" href="#n-action-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>N-ACTION Statuses<a class="headerlink" href="#n-action-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 24%" />
@@ -391,7 +392,7 @@ facilitate the print of images and image related data.</p>
 </table>
 </section>
 <section id="print-management-n-action-service-statuses">
-<h3>Print Management N-ACTION Service Statuses<a class="headerlink" href="#print-management-n-action-service-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>Print Management N-ACTION Service Statuses<a class="headerlink" href="#print-management-n-action-service-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 24%" />
@@ -464,7 +465,7 @@ Image Box size</p></td>
 </table>
 </section>
 <section id="n-create-statuses">
-<h3>N-CREATE Statuses<a class="headerlink" href="#n-create-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>N-CREATE Statuses<a class="headerlink" href="#n-create-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 24%" />
@@ -546,7 +547,7 @@ Image Box size</p></td>
 </table>
 </section>
 <section id="print-management-n-create-service-statuses">
-<h3>Print Management N-CREATE Service Statuses<a class="headerlink" href="#print-management-n-create-service-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>Print Management N-CREATE Service Statuses<a class="headerlink" href="#print-management-n-create-service-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 24%" />
@@ -583,7 +584,7 @@ not been printed</p></td>
 </table>
 </section>
 <section id="n-delete-statuses">
-<h3>N-DELETE Statuses<a class="headerlink" href="#n-delete-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>N-DELETE Statuses<a class="headerlink" href="#n-delete-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 29%" />
@@ -645,7 +646,7 @@ not been printed</p></td>
 </table>
 </section>
 <section id="n-event-report-statuses">
-<h3>N-EVENT-REPORT Statuses<a class="headerlink" href="#n-event-report-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>N-EVENT-REPORT Statuses<a class="headerlink" href="#n-event-report-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 29%" />
@@ -715,7 +716,7 @@ not been printed</p></td>
 </table>
 </section>
 <section id="n-get-statuses">
-<h3>N-GET Statuses<a class="headerlink" href="#n-get-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>N-GET Statuses<a class="headerlink" href="#n-get-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 21%" />
@@ -785,7 +786,7 @@ not been printed</p></td>
 </table>
 </section>
 <section id="n-set-statuses">
-<h3>N-SET Statuses<a class="headerlink" href="#n-set-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>N-SET Statuses<a class="headerlink" href="#n-set-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 29%" />
@@ -863,7 +864,7 @@ not been printed</p></td>
 </table>
 </section>
 <section id="print-management-n-set-service-statuses">
-<h3>Print Management N-SET Service Statuses<a class="headerlink" href="#print-management-n-set-service-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>Print Management N-SET Service Statuses<a class="headerlink" href="#print-management-n-set-service-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 24%" />

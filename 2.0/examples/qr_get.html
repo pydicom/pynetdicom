@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Query/Retrieve (Get) Service Examples &mdash; pynetdicom 2.0.2 documentation</title>
+  <title>Query/Retrieve (Get) Service Examples &mdash; pynetdicom 2.0.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -36,7 +37,7 @@
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.0.2
+                2.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -104,7 +105,7 @@
            <div itemprop="articleBody">
              
   <section id="query-retrieve-get-service-examples">
-<h1>Query/Retrieve (Get) Service Examples<a class="headerlink" href="#query-retrieve-get-service-examples" title="Permalink to this headline">¶</a></h1>
+<h1>Query/Retrieve (Get) Service Examples<a class="headerlink" href="#query-retrieve-get-service-examples" title="Permalink to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve Service</a>
 provides a mechanism for a service user to query and retrieve the SOP Instances
 managed by a QR SCP. The QR (Get) SOP classes allow an SCU to receive SOP
@@ -113,7 +114,7 @@ DIMSE C-GET and C-STORE services. Both query and
 retrieval occur over the same association, with the SCP of the Query/Retrieve
 Service acting as the SCU of the Storage Service (and vice versa).</p>
 <section id="query-retrieve-get-scu">
-<h2>Query/Retrieve (Get) SCU<a class="headerlink" href="#query-retrieve-get-scu" title="Permalink to this headline">¶</a></h2>
+<h2>Query/Retrieve (Get) SCU<a class="headerlink" href="#query-retrieve-get-scu" title="Permalink to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the retrieval of
 all CT datasets for the patient with <em>Patient ID</em> <code class="docutils literal notranslate"><span class="pre">1234567</span></code> belonging to the
 series with <em>Study Instance UID</em> <code class="docutils literal notranslate"><span class="pre">1.2.3</span></code> and <em>Series Instance UID</em>
@@ -231,7 +232,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 keys and values, the Query/Retrieve level and the information model.</p>
 </section>
 <section id="query-retrieve-get-scp">
-<span id="example-qrget-scp"></span><h2>Query/Retrieve (Get) SCP<a class="headerlink" href="#query-retrieve-get-scp" title="Permalink to this headline">¶</a></h2>
+<span id="example-qrget-scp"></span><h2>Query/Retrieve (Get) SCP<a class="headerlink" href="#query-retrieve-get-scp" title="Permalink to this heading">¶</a></h2>
 <p>The following represents a toy implementation of a Query/Retrieve (Get) SCP
 where the SCU has sent the following <em>Identifier</em> dataset under the <em>Patient
 Root Query Retrieve Information Model - Get</em> context.</p>

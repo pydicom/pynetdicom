@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Verification Service Examples &mdash; pynetdicom 2.0.2 documentation</title>
+  <title>Verification Service Examples &mdash; pynetdicom 2.0.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -36,7 +37,7 @@
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.0.2
+                2.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -104,7 +105,7 @@
            <div itemprop="articleBody">
              
   <section id="verification-service-examples">
-<h1>Verification Service Examples<a class="headerlink" href="#verification-service-examples" title="Permalink to this headline">¶</a></h1>
+<h1>Verification Service Examples<a class="headerlink" href="#verification-service-examples" title="Permalink to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">Verification Service</a>
 allows an Application Entity to verify application level communication between
 itself and another AE by using the DIMSE C-ECHO service. It only has a single
@@ -120,7 +121,7 @@ to debug:</p>
 </pre></div>
 </div>
 <section id="verification-scu">
-<h2>Verification SCU<a class="headerlink" href="#verification-scu" title="Permalink to this headline">¶</a></h2>
+<h2>Verification SCU<a class="headerlink" href="#verification-scu" title="Permalink to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the use of the
 Verification Service.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
@@ -164,7 +165,7 @@ the requested contexts.</p>
 </div>
 </section>
 <section id="verification-scp">
-<span id="example-verification-scp"></span><h2>Verification SCP<a class="headerlink" href="#verification-scp" title="Permalink to this headline">¶</a></h2>
+<span id="example-verification-scp"></span><h2>Verification SCP<a class="headerlink" href="#verification-scp" title="Permalink to this heading">¶</a></h2>
 <p>Create an <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> that supports the
 Verification Service and then listen for
 association requests on port 11112. When a verification request is received

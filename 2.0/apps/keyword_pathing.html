@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Keyword pathing &mdash; pynetdicom 2.0.2 documentation</title>
+  <title>Keyword pathing &mdash; pynetdicom 2.0.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -34,7 +35,7 @@
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.0.2
+                2.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -85,7 +86,7 @@
            <div itemprop="articleBody">
              
   <section id="keyword-pathing">
-<h1>Keyword pathing<a class="headerlink" href="#keyword-pathing" title="Permalink to this headline">¶</a></h1>
+<h1>Keyword pathing<a class="headerlink" href="#keyword-pathing" title="Permalink to this heading">¶</a></h1>
 <p>When using the <cite>-k keyword</cite> option it becomes possible to specify the
 query dataset (the <em>Identifier</em>) without needing to create a DICOM file.
 Multiple instances of <cite>-k</cite> can be used to build up the <em>Identifier</em>. For
@@ -110,7 +111,7 @@ an incorrect element value. <code class="docutils literal notranslate"><span cla
 <p>When both the <cite>-f file</cite> and <cite>-k keyword</cite> options are used then the keywords
 will be used to update the elements in the file.</p>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
 <p>Empty (0010,0010) <em>Patient Name</em> element:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k PatientName=
 -k (0010,0010)=

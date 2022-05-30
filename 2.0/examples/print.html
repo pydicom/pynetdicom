@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Print Management Service Examples &mdash; pynetdicom 2.0.2 documentation</title>
+  <title>Print Management Service Examples &mdash; pynetdicom 2.0.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
@@ -36,7 +37,7 @@
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.0.2
+                2.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -108,7 +109,7 @@
            <div itemprop="articleBody">
              
   <section id="print-management-service-examples">
-<h1>Print Management Service Examples<a class="headerlink" href="#print-management-service-examples" title="Permalink to this headline">¶</a></h1>
+<h1>Print Management Service Examples<a class="headerlink" href="#print-management-service-examples" title="Permalink to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_H.html">Print Management service</a>
 facilitates print of images and image related data. There are two Basic Print
 Management Meta SOP Classes which correspond with the minimum functionality
@@ -165,9 +166,9 @@ pixel data for display on devices that conform to the Grayscale Standard
 Display Function defined in Part 14 of the DICOM Standard.</p></li>
 </ul>
 <section id="grayscale-print-scu">
-<h2>Grayscale Print SCU<a class="headerlink" href="#grayscale-print-scu" title="Permalink to this headline">¶</a></h2>
+<h2>Grayscale Print SCU<a class="headerlink" href="#grayscale-print-scu" title="Permalink to this heading">¶</a></h2>
 <section id="overview">
-<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h3>
+<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h3>
 <p>Over a single association:</p>
 <ol class="arabic simple">
 <li><p>Send an N-GET request to check the status of the printer.</p></li>
@@ -208,7 +209,7 @@ to return a status of <code class="docutils literal notranslate"><span class="pr
 by sending an N-GET request.</p>
 </section>
 <section id="dimse-services-available">
-<h3>DIMSE Services Available<a class="headerlink" href="#dimse-services-available" title="Permalink to this headline">¶</a></h3>
+<h3>DIMSE Services Available<a class="headerlink" href="#dimse-services-available" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 40%" />
@@ -265,7 +266,7 @@ by sending an N-GET request.</p>
 </table>
 </section>
 <section id="example">
-<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h3>
 <p>Print the image data from a SOP Instance onto a single A4 page. For a real-life
 Print SCP you would need to check its conformance statement to see what
 print options (medium types, page sizes, layouts, etc) are supported. This
