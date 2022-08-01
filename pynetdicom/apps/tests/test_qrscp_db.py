@@ -231,7 +231,7 @@ class TestAddInstance:
     def test_bad_instance(self):
         """Test that instances with bad data aren't added."""
         keywords = [
-            ("PatientID", 16),
+            ("PatientID", 64),
             ("PatientName", 400),
             ("StudyInstanceUID", 64),
             ("StudyDate", 8),
@@ -255,7 +255,7 @@ class TestAddInstance:
     def test_bad_instance_none(self):
         """Test that instances with bad data aren't added."""
         keywords = [
-            ("PatientID", 16),
+            ("PatientID", 64),
             ("PatientName", 64),
             ("StudyInstanceUID", 64),
             ("StudyDate", 8),

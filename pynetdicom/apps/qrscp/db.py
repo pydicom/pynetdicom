@@ -174,7 +174,7 @@ def add_instance(ds, session, fpath=None):
     # Unique or Required attributes
     required = [
         # (Instance attribute, DICOM keyword, max length, req'd)
-        ("patient_id", "PatientID", 16, True),
+        ("patient_id", "PatientID", 64, True),
         ("patient_name", "PatientName", 64, False),
         ("study_instance_uid", "StudyInstanceUID", 64, True),
         ("study_date", "StudyDate", 8, False),
@@ -783,7 +783,7 @@ class Instance(Base):
 class Patient(Base):
     __tablename__ = "patient"
     # (0010,0020) Patient ID | VR LO, VM 1, U
-    patient_id = Column(String(16), primary_key=True)
+    patient_id = Column(String(64), primary_key=True)
     # (0010,0010) Patient's Name | VR PN, VM 1, R
     patient_name = Column(String(400))
 
