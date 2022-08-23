@@ -391,6 +391,7 @@ _STORAGE_CLASSES = {
     "RTStructureSetStorage": "1.2.840.10008.5.1.4.1.1.481.3",  # A.19
     "RTBeamsTreatmentRecordStorage": "1.2.840.10008.5.1.4.1.1.481.4",  # A.29
     "RTPlanStorage": "1.2.840.10008.5.1.4.1.1.481.5",  # A.20
+    "HalcyonPlanStorage": "1.2.246.352.70.1.70",
     "RTBrachyTreatmentRecordStorage": "1.2.840.10008.5.1.4.1.1.481.6",  # A.20
     "RTTreatmentSummaryRecordStorage": "1.2.840.10008.5.1.4.1.1.481.7",  # A.31
     "RTIonPlanStorage": "1.2.840.10008.5.1.4.1.1.481.8",  # A.49

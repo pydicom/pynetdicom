@@ -663,6 +663,7 @@ SOP_CLASS_PREFIXES = {
     "1.2.840.10008.5.1.4.1.1.481.1": ("RI", "RT Image Storage"),
     "1.2.840.10008.5.1.4.1.1.481.2": ("RD", "RT Dose Storage"),
     "1.2.840.10008.5.1.4.1.1.481.5": ("RP", "RT Plan Storage"),
+    "1.2.246.352.70.1.70": ("RP", "Halcyon Plan Storage"),
     "1.2.840.10008.5.1.4.1.1.481.3": ("RS", "RT Structure Set Storage"),
     "1.2.840.10008.5.1.4.1.1.1": ("CR", "Computed Radiography Image Storage"),
     "1.2.840.10008.5.1.4.1.1.6.1": ("US", "Ultrasound Image Storage"),
