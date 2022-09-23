@@ -1095,7 +1095,7 @@ ACTIONS = {
         ("Sta9", "Sta10"),
     ),
     "AR-9": ("Send A-RELEASE-RP PDU", AR_9, "Sta11"),
-    "AR-10": ("Issue A-RELEASE confimation primitive", AR_10, "Sta12"),
+    "AR-10": ("Issue A-RELEASE confirmation primitive", AR_10, "Sta12"),
     # Association abort related actions
     "AA-1": (
         "Send A-ABORT PDU (service-user source) and start (or "

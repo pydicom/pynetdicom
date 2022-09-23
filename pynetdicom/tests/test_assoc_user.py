@@ -258,7 +258,7 @@ class TestServiceUserAcceptor:
         assert item.primary_field == b"username"
 
     def test_info(self):
-        """Test the .info propoerty"""
+        """Test the .info property"""
         user = ServiceUser(self.assoc, mode="acceptor")
         info = user.info
 
@@ -1562,7 +1562,7 @@ class TestServiceUserRequestor:
         assert item.primary_field == b"username"
 
     def test_info(self):
-        """Test the .info propoerty"""
+        """Test the .info property"""
         user = ServiceUser(self.assoc, mode="requestor")
         info = user.info
 
