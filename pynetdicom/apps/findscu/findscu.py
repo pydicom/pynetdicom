@@ -357,7 +357,7 @@ def main(args=None):
         responses = assoc.send_c_find(identifier, query_model)
         # Used to generate filenames if args.write used
         fname = generate_filename()
-        for (status, rsp_identifier) in responses:
+        for status, rsp_identifier in responses:
             # If `status.Status` is one of the 'Pending' statuses then
             #   `rsp_identifier` is the C-FIND response's Identifier dataset
             if status and status.Status in [0xFF00, 0xFF01]:

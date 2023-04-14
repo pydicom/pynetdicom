@@ -406,8 +406,7 @@ class DIMSEMessage:
         if primitive.__class__ != P_DATA or primitive is None:
             return False
 
-        for (context_id, data) in primitive.presentation_data_value_list:
-
+        for context_id, data in primitive.presentation_data_value_list:
             # The first byte of the P-DATA is the Message Control Header
             #   See Part 8, Annex E.2
             # The standard says that only the significant bits (ie the last

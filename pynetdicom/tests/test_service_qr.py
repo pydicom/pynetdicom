@@ -1081,6 +1081,7 @@ class TestQRFindServiceClass:
 
     def test_success_no_identifier(self):
         """Test success response has no identifier dataset"""
+
         # Regression test for #571
         def handle(event):
             status = Dataset()
@@ -2518,7 +2519,6 @@ class TestQRGetServiceClass:
             yield 0xFF00, self.ds
 
         def handle_store(event):
-
             return 0x0000
 
         handlers = [(evt.EVT_C_GET, handle)]
@@ -3396,6 +3396,7 @@ class TestQRGetServiceClass:
 
     def test_success_no_identifier(self):
         """Test pending and success responses have no identifier dataset"""
+
         # Regression test for #571
         def handle(event):
             yield 1
@@ -3580,6 +3581,7 @@ class TestQRMoveServiceClass:
 
     def test_move_handler_bad_yield_destination(self):
         """Test correct status returned if handler doesn't yield dest."""
+
         # Testing what happens if the handler doesn't yield
         def handle(event):
             return

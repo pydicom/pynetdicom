@@ -34,7 +34,7 @@ class ParrotRequest(BaseRequestHandler):
         self.event.clear()
         self.received = []
         self.sent = []
-        for (cmd, data) in self.commands:
+        for cmd, data in self.commands:
             if cmd == "recv":
                 self.kill_read = False
                 while not self.kill_read:

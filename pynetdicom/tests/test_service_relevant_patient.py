@@ -292,6 +292,7 @@ class TestRelevantPatientServiceClass:
 
     def test_pending_cancel(self):
         """Test handler yielding pending then cancel status"""
+
         # Note: success should be second, cancel should get ignored
         def handle(event):
             yield 0xFF00, self.query

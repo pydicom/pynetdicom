@@ -8580,6 +8580,7 @@ class TestStateMachineFunctionalRequestor:
 
     def test_release_AR6(self):
         """Test receive P-DATA-TF while waiting for A-RELEASE-RP."""
+
         # Requestor sends A-RELEASE-RQ, acceptor sends P-DATA-TF then
         #   A-RELEASE-RP
         # Patch AR-4 to also send a P-DATA-TF

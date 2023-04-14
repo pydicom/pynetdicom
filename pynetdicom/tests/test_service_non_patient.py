@@ -40,6 +40,7 @@ class TestNonPatientObjectStorageServiceClass:
 
     def test_scp_failed_ds_decode(self):
         """Test failure to decode the dataset"""
+
         # Hard to test directly as decode errors won't show up until the
         #   dataset is actually used
         def handle(event):
