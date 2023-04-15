@@ -310,7 +310,7 @@ def main(args=None):
     if assoc.is_established:
         # Send query
         responses = assoc.send_c_get(identifier, query_model)
-        for (status, rsp_identifier) in responses:
+        for status, rsp_identifier in responses:
             # If `status.Status` is one of the 'Pending' statuses then
             #   `rsp_identifier` is the C-GET response's Identifier dataset
             if status and status.Status in [0xFF00, 0xFF01]:

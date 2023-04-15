@@ -230,7 +230,7 @@ def get_contexts(fpaths, app_logger):
 
         good.append(path)
 
-    for (reason, path) in bad:
+    for reason, path in bad:
         app_logger.error(f"{reason}: {path}")
 
     return good, contexts

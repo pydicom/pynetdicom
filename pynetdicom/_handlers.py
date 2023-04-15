@@ -638,17 +638,17 @@ def _receive_associate_rq(event: "Event") -> List[str]:
 
 def _receive_data_tf(event: "Event") -> List[str]:
     """Standard logging handler for receiving a P-DATA-TF PDU."""
-    pass
+    return []
 
 
 def _receive_release_rp(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-RELEASE-RP PDU."""
-    pass
+    return []
 
 
 def _receive_release_rq(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-RELEASE-RQ PDU."""
-    pass
+    return []
 
 
 def _send_abort(event: "Event") -> List[str]:
@@ -906,17 +906,17 @@ def _send_associate_rq(event: "Event") -> List[str]:
 
 def _send_data_tf(event: "Event") -> List[str]:
     """Standard logging handler for sending a P-DATA-TF PDU."""
-    pass
+    return []
 
 
 def _send_release_rp(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-RELEASE-RP PDU."""
-    pass
+    return []
 
 
 def _send_release_rq(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-RELEASE-RQ PDU."""
-    pass
+    return []
 
 
 # DIMSE sub-handlers
@@ -933,7 +933,7 @@ def _send_c_echo_rq(event: "Event") -> List[str]:
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    pass
+    return []
 
 
 def _send_c_echo_rsp(event: "Event") -> List[str]:
@@ -951,7 +951,7 @@ def _send_c_echo_rsp(event: "Event") -> List[str]:
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    pass
+    return []
 
 
 def _send_c_store_rq(event: "Event") -> List[str]:
@@ -1025,7 +1025,7 @@ def _send_c_store_rsp(event: "Event") -> List[str]:
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    pass
+    return []
 
 
 def _send_c_find_rq(event: "Event") -> List[str]:
@@ -1285,7 +1285,7 @@ def _send_c_cancel_rq(event: "Event") -> List[str]:
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    pass
+    return []
 
 
 def _recv_c_echo_rq(event: "Event") -> List[str]:
@@ -2279,7 +2279,7 @@ def doc_handle_echo(event: "Event", *args: Sequence[Any]) -> StatusType:
       :dcm:`9.3.5<part07/sect_9.3.5.html>`, and
       :dcm:`Annex C<part07/chapter_C.html>`
     """
-    pass
+    return 0  # pragma: no cover
 
 
 def doc_handle_find(event: "Event", *args: Sequence[Any]) -> CFindType:
@@ -2431,7 +2431,7 @@ def doc_handle_find(event: "Event", *args: Sequence[Any]) -> CFindType:
       :dcm:`9.3.2<part07/sect_9.3.2.html>` and
       :dcm:`Annex C<part07/chapter_C.html>`
     """
-    pass
+    yield 0, None  # pragma: no cover
 
 
 def doc_handle_c_get(event: "Event", *args: Sequence[Any]) -> CGetType:
@@ -2589,7 +2589,7 @@ def doc_handle_c_get(event: "Event", *args: Sequence[Any]) -> CGetType:
       :dcm:`9.3.3<part07/sect_9.3.3.html>` and
       :dcm:`Annex C<part07/chapter_C.html>`
     """
-    pass
+    yield 0  # pragma: no cover
 
 
 def doc_handle_move(event: "Event", *args: Sequence[Any]) -> CMoveType:
@@ -2775,7 +2775,7 @@ def doc_handle_move(event: "Event", *args: Sequence[Any]) -> CMoveType:
       :dcm:`9.3.4<part07/sect_9.3.4.html>` and
       :dcm:`Annex C<part07/chapter_C.html>`
     """
-    pass
+    yield 0  # pragma: no cover
 
 
 def doc_handle_store(event: "Event", *args: Sequence[Any]) -> StatusType:
@@ -2901,7 +2901,7 @@ def doc_handle_store(event: "Event", *args: Sequence[Any]) -> StatusType:
       :dcm:`9.3.1<part07/sect_9.3.html#sect_9.3.1>` and
       :dcm:`Annex C<part07/chapter_C.html>`
     """
-    pass
+    return 0  # pragma: no cover
 
 
 def doc_handle_action(event: "Event", *args: Sequence[Any]) -> UserReturnType:
@@ -3092,7 +3092,7 @@ def doc_handle_action(event: "Event", *args: Sequence[Any]) -> UserReturnType:
       :dcm:`10.3.4<part07/sect_10.3.4.html>` and
       :dcm:`Annex C<part07/chapter_C.html>`
     """
-    pass
+    return 0, None  # pragma: no cover
 
 
 def doc_handle_create(event: "Event", *args: Sequence[Any]) -> UserReturnType:
@@ -3249,7 +3249,7 @@ def doc_handle_create(event: "Event", *args: Sequence[Any]) -> UserReturnType:
       :dcm:`10.3.5<part07/sect_10.3.5.html>`
       and :dcm:`Annex C<part07/chapter_C.html>`
     """
-    pass
+    return 0, None  # pragma: no cover
 
 
 def doc_handle_delete(event: "Event", *args: Sequence[Any]) -> StatusType:
@@ -3353,7 +3353,7 @@ def doc_handle_delete(event: "Event", *args: Sequence[Any]) -> StatusType:
       :dcm:`10.3.6<part07/sect_10.3.6.html>`
       and :dcm:`Annex C<part07/chapter_C.html>`
     """
-    pass
+    return 0  # pragma: no cover
 
 
 def doc_handle_event_report(event: "Event", *args: Sequence[Any]) -> UserReturnType:
@@ -3486,7 +3486,7 @@ def doc_handle_event_report(event: "Event", *args: Sequence[Any]) -> UserReturnT
       :dcm:`10.3.1 <part07/sect_10.3.html#sect_10.3.1>`
       and :dcm:`Annex C <part07/chapter_C.html>`
     """
-    pass
+    return 0, None  # pragma: no cover
 
 
 def doc_handle_n_get(event: "Event", *args: Sequence[Any]) -> UserReturnType:
@@ -3614,7 +3614,7 @@ def doc_handle_n_get(event: "Event", *args: Sequence[Any]) -> UserReturnType:
       :dcm:`10.3.2 <part07/sect_10.3.2.html>`
       and :dcm:`Annex C <part07/chapter_C.html>`
     """
-    pass
+    return 0, None  # pragma: no cover
 
 
 def doc_handle_set(event: "Event", *args: Sequence[Any]) -> UserReturnType:
@@ -3775,7 +3775,7 @@ def doc_handle_set(event: "Event", *args: Sequence[Any]) -> UserReturnType:
       :dcm:`10.3.3 <part07/sect_10.3.3.html>`
       and :dcm:`Annex C <part07/chapter_C.html>`
     """
-    pass
+    return 0, None  # pragma: no cover
 
 
 def doc_handle_async(event: "Event", *args: Sequence[Any]) -> Tuple[int, int]:
@@ -3840,7 +3840,7 @@ def doc_handle_async(event: "Event", *args: Sequence[Any]) -> Tuple[int, int]:
 
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.3 <part07/sect_D.3.3.3.html>`
     """
-    pass
+    return 1, 1  # pragma: no cover
 
 
 def doc_handle_sop_common(
@@ -3897,7 +3897,7 @@ def doc_handle_sop_common(
 
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.6 <part07/sect_D.3.3.6.html>`
     """
-    pass
+    return {}  # pragma: no cover
 
 
 def doc_handle_sop_extended(event: "Event", *args: Sequence[Any]) -> Dict[UID, bytes]:
@@ -3954,7 +3954,7 @@ def doc_handle_sop_extended(event: "Event", *args: Sequence[Any]) -> Dict[UID, b
 
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.5 <part07/sect_D.3.3.5.html>`
     """
-    pass
+    return {}  # pragma: no cover
 
 
 def doc_handle_userid(
@@ -4030,7 +4030,7 @@ def doc_handle_userid(
 
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.7 <part07/sect_D.3.3.7.html>`
     """
-    pass
+    return False, None  # pragma: no cover
 
 
 # Notification event handler documentation
