@@ -559,7 +559,6 @@ class RequestHandler(BaseRequestHandler):
         for event in self.server._handlers:
             # Intervention events
             if event.is_intervention and self.server._handlers[event]:
-
                 assoc.bind(event, *self.server._handlers[event])
             elif isinstance(event, evt.NotificationEvent):
                 # List[Tuple[Callable, Optional[List[Any]]]]
@@ -605,7 +604,7 @@ class AssociationServer(TCPServer):
         ae_title: str,
         contexts: List[PresentationContext],
         ssl_context: Optional["ssl.SSLContext"] = None,
-        evt_handlers: List[evt.EventHandlerType] = None,
+        evt_handlers: Optional[List[evt.EventHandlerType]] = None,
         request_handler: Optional[Callable[..., BaseRequestHandler]] = None,
     ) -> None:
         """Create a new :class:`AssociationServer`, bind a socket and start

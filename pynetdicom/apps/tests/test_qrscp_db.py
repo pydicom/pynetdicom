@@ -135,7 +135,7 @@ class TestConnect:
         engine = db.create(db_location)
 
         # Check exists with tables
-        meta = MetaData(bind=engine)
+        meta = MetaData()
         meta.reflect(bind=engine)
         assert "patient" in meta.tables
         assert "study" in meta.tables
@@ -151,7 +151,7 @@ class TestConnect:
         # Test creating if already exists
         engine = db.create(db_location)
 
-        meta = MetaData(bind=engine)
+        meta = MetaData()
         meta.reflect(bind=engine)
         assert "patient" in meta.tables
         assert "study" in meta.tables

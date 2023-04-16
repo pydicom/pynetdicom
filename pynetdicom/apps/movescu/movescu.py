@@ -339,7 +339,7 @@ def main(args=None):
         # Send query
         move_aet = args.move_aet or args.calling_aet
         responses = assoc.send_c_move(identifier, move_aet, query_model)
-        for (status, rsp_identifier) in responses:
+        for status, rsp_identifier in responses:
             # If `status.Status` is one of the 'Pending' statuses then
             #   `rsp_identifier` is the C-MOVE response's Identifier dataset
             if status and status.Status in [0xFF00, 0xFF01]:

@@ -403,7 +403,7 @@ class PDUItem:
 class ApplicationContextItem(PDUItem):
     """An Application Context Item.
 
-    An Application Context explicitly defines the set of appliation service
+    An Application Context explicitly defines the set of application service
     elements, related options and any other information necessary for the
     inter-working of Application Entities on an association.
 

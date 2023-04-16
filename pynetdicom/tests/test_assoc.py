@@ -1268,6 +1268,7 @@ class TestAssociationSendCStore:
 
     def test_must_be_associated(self):
         """Test SCU can't send without association."""
+
         # Test raise if assoc not established
         def handle_store(event):
             return 0x0000
@@ -2050,7 +2051,7 @@ class TestAssociationSendCFind:
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(
+        for status, ds in assoc.send_c_find(
             self.ds, PatientRootQueryRetrieveInformationModelFind
         ):
             assert status.Status == 0xA700
@@ -2112,7 +2113,7 @@ class TestAssociationSendCFind:
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(
+        for status, ds in assoc.send_c_find(
             self.ds, PatientRootQueryRetrieveInformationModelFind
         ):
             assert status.Status == 0x0000
@@ -2124,6 +2125,7 @@ class TestAssociationSendCFind:
 
     def test_rsp_empty(self):
         """Test receiving a success response from the peer"""
+
         # No matches
         def handle(event):
             pass
@@ -2141,7 +2143,7 @@ class TestAssociationSendCFind:
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(
+        for status, ds in assoc.send_c_find(
             self.ds, PatientRootQueryRetrieveInformationModelFind
         ):
             assert status.Status == 0x0000
@@ -2170,7 +2172,7 @@ class TestAssociationSendCFind:
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(
+        for status, ds in assoc.send_c_find(
             self.ds, PatientRootQueryRetrieveInformationModelFind
         ):
             assert status.Status == 0xFE00
@@ -2207,7 +2209,7 @@ class TestAssociationSendCFind:
             time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
-        for (_, _) in assoc.send_c_find(
+        for _, _ in assoc.send_c_find(
             self.ds, PatientRootQueryRetrieveInformationModelFind
         ):
             pass
@@ -2235,7 +2237,7 @@ class TestAssociationSendCFind:
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(
+        for status, ds in assoc.send_c_find(
             self.ds, PatientRootQueryRetrieveInformationModelFind
         ):
             assert status.Status == 0xFFF0
@@ -2268,7 +2270,7 @@ class TestAssociationSendCFind:
         ae.add_requested_context(model, ExplicitVRLittleEndian)
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
-        for (status, ds) in assoc.send_c_find(self.ds, model):
+        for status, ds in assoc.send_c_find(self.ds, model):
             assert status.Status in range(0xC000, 0xD000)
 
         assoc.release()
@@ -2455,7 +2457,7 @@ class TestAssociationSendCFind:
         responses = assoc.send_c_find(
             self.ds, PatientRootQueryRetrieveInformationModelFind
         )
-        for (status, ds) in responses:
+        for status, ds in responses:
             assert status.Status == 0x0000
             assert ds is None
         assoc.release()
@@ -2797,7 +2799,7 @@ class TestAssociationSendCGet:
         )
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_get(
+        for status, ds in assoc.send_c_get(
             self.ds, PatientRootQueryRetrieveInformationModelGet
         ):
             assert status.Status == 0xA701
@@ -3064,7 +3066,7 @@ class TestAssociationSendCGet:
         )
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_get(
+        for status, ds in assoc.send_c_get(
             self.ds, PatientRootQueryRetrieveInformationModelGet
         ):
             assert status.Status == 0xFE00
@@ -3164,7 +3166,7 @@ class TestAssociationSendCGet:
         )
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_get(
+        for status, ds in assoc.send_c_get(
             self.ds, PatientRootQueryRetrieveInformationModelGet
         ):
             assert status.Status == 0xFFF0
@@ -3376,7 +3378,7 @@ class TestAssociationSendCGet:
         responses = assoc.send_c_get(
             self.ds, PatientRootQueryRetrieveInformationModelGet
         )
-        for (status, ds) in responses:
+        for status, ds in responses:
             assert status.Status == 0x0000
             assert ds is None
         assoc.release()
@@ -3683,6 +3685,7 @@ class TestAssociationSendCMove:
 
     def test_move_destination_no_assoc(self):
         """Test move destination failed to assoc"""
+
         # Move SCP
         def handle_move(event):
             yield "localhost", 11113
@@ -3703,7 +3706,7 @@ class TestAssociationSendCMove:
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
-        for (status, ds) in assoc.send_c_move(
+        for status, ds in assoc.send_c_move(
             self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
         ):
             assert status.Status == 0xA801
@@ -3735,7 +3738,7 @@ class TestAssociationSendCMove:
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_move(
+        for status, ds in assoc.send_c_move(
             self.ds, "UNKNOWN", PatientRootQueryRetrieveInformationModelMove
         ):
             assert status.Status == 0xA801
@@ -4093,7 +4096,7 @@ class TestAssociationSendCMove:
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_move(
+        for status, ds in assoc.send_c_move(
             self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
         ):
             assert status.Status == 0xFFF0
