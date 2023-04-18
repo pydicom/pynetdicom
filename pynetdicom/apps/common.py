@@ -2,6 +2,7 @@
 
 import logging
 import os
+import re
 from struct import pack
 
 from pydicom import dcmread
@@ -585,7 +586,8 @@ def handle_store(event, args, app_logger):
     #   are hidden until encountered by accessing a faulty element
     try:
         sop_class = ds.SOPClassUID
-        sop_instance = ds.SOPInstanceUID
+        # sanitize filename by replacing all illegal characters with underscores
+        sop_instance = re.sub(r"[^\d.]", "_", ds.SOPInstanceUID)
     except Exception as exc:
         app_logger.error(
             "Unable to decode the received dataset or missing 'SOP Class "
