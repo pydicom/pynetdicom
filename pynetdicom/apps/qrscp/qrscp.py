@@ -14,19 +14,22 @@ from pynetdicom import (
     AE,
     _config,
     evt,
-    AllStoragePresentationContexts,
+    AllStoragePresentationContexts,    
     ALL_TRANSFER_SYNTAXES,
+    UnifiedProcedurePresentationContexts,
 )
 from pynetdicom import _config, _handlers
 from pynetdicom.apps.common import setup_logging
 from pynetdicom.sop_class import (
     Verification,
+    ModalityWorklistInformationFind,
     PatientRootQueryRetrieveInformationModelFind,
     PatientRootQueryRetrieveInformationModelMove,
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelGet,
+    UnifiedProcedureStepPull,
 )
 from pynetdicom.utils import set_ae
 
@@ -57,7 +60,7 @@ _handlers._send_c_store_rq = _dont_log
 _handlers._recv_c_store_rsp = _dont_log
 
 
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 
 
 def _log_config(config, logger):
@@ -385,6 +388,15 @@ def main(args=None):
     ae.add_supported_context(StudyRootQueryRetrieveInformationModelFind)
     ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
     ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
+
+    # Unified Procedure Step SCP
+    for cx in UnifiedProcedurePresentationContexts:
+        ae.add_supported_context(
+            cx.abstract_syntax, ALL_TRANSFER_SYNTAXES, scp_role=True, scu_role=False
+        )
+
+    # Modality Worklist SCP
+    ae.add_supported_context(ModalityWorklistInformationFind)
 
     # Set our handler bindings
     handlers = [
