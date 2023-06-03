@@ -14,10 +14,11 @@ from pydicom.uid import generate_uid
 from pynetdicom import (
     AE,
     BasicWorklistManagementPresentationContexts,
-    QueryRetrievePresentationContexts,
+    QueryRetrievePresentationContexts,   
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION,
     PYNETDICOM_UID_PREFIX,
+    UnifiedProcedurePresentationContexts,
 )
 from pynetdicom.apps.common import create_dataset, setup_logging
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
@@ -310,7 +311,7 @@ def main(args=None):
 
     # Set the Presentation Contexts we are requesting the Find SCP support
     ae.requested_contexts = (
-        QueryRetrievePresentationContexts + BasicWorklistManagementPresentationContexts
+        QueryRetrievePresentationContexts + BasicWorklistManagementPresentationContexts + UnifiedProcedurePresentationContexts
     )
 
     # Query/Retrieve Information Models
