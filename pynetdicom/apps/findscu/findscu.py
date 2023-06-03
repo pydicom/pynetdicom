@@ -24,6 +24,7 @@ from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.sop_class import (
     ModalityWorklistInformationFind,
+    UnifiedProcedureStepPull,
     PatientRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelFind,
     PatientStudyOnlyQueryRetrieveInformationModelFind,
@@ -173,6 +174,12 @@ def _setup_argparser():
         help="use modality worklist information model",
         action="store_true",
     )
+    qr_model.add_argument(
+        "-U",
+        "--ups",
+        help="use unified procedure step information model",
+        action="store_true",
+    )
 
     qr_query = parser.add_argument_group("Query Options")
     qr_query.add_argument(
@@ -309,6 +316,8 @@ def main(args=None):
     # Query/Retrieve Information Models
     if args.worklist:
         query_model = ModalityWorklistInformationFind
+    elif args.ups:
+        query_model= UnifiedProcedureStepPull
     elif args.study:
         query_model = StudyRootQueryRetrieveInformationModelFind
     elif args.psonly:
