@@ -14,7 +14,7 @@ from pynetdicom import (
     AE,
     _config,
     evt,
-    AllStoragePresentationContexts,    
+    AllStoragePresentationContexts,
     ALL_TRANSFER_SYNTAXES,
     UnifiedProcedurePresentationContexts,
 )
