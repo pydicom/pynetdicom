@@ -14,7 +14,7 @@ from pydicom.uid import generate_uid
 from pynetdicom import (
     AE,
     BasicWorklistManagementPresentationContexts,
-    QueryRetrievePresentationContexts,   
+    QueryRetrievePresentationContexts,
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION,
     PYNETDICOM_UID_PREFIX,
