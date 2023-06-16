@@ -27,6 +27,10 @@ SOP Instances sent to the application using the Storage service have some of
 their attributes added to a sqlite database that is used to manage Instances
 for the Query/Retrieve service.
 
+In addition, the `qrscp`` application implements a Service Class Provider (SCP) for the
+:dcm:`Basic Modality Worklist<part04/chapter_K.html>`, and :dcm:`Unified Procedure Step<part04/Chapter_CC>`
+service classes, but currently will only return empty results (0 records)
+
 .. warning::
 
     In addition to the standard *pynetdicom* dependencies, the ``qrscp``
@@ -651,6 +655,63 @@ SOP Classes
 |1.2.840.10008.5.1.4.1.2.2.3       | Study Root Query/Retrieve Information    |
 |                                  | Model - GET                              |
 +----------------------------------+------------------------------------------+
+
+Transfer Syntaxes
+.................
+
++------------------------+----------------------------------------------------+
+| UID                    | Transfer Syntax                                    |
++========================+====================================================+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
++------------------------+----------------------------------------------------+
+
+Basic Worklist Management Service
+---------------------------------
+
+SOP Classes
+...........
+
++-----------------------------+-----------------------------------------------+
+| UID                         | Transfer Syntax                               |
++=============================+===============================================+
+| 1.2.840.10008.5.1.4.31      | Modality Worklist Information Model - FIND    |
++-----------------------------+-----------------------------------------------+
+
+
+Transfer Syntaxes
+.................
+
++------------------------+----------------------------------------------------+
+| UID                    | Transfer Syntax                                    |
++========================+====================================================+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
++------------------------+----------------------------------------------------+
+
+Unified Procedure Step  Service
+-------------------------------
+
+
+SOP Classes
+...........
+
++-----------------------------+-----------------------------------------------+
+| UID                         | Transfer Syntax                               |
++=============================+===============================================+
+| 1.2.840.10008.5.1.4.34.6.3  | UPS Pull Information Model - FIND             |
++-----------------------------+-----------------------------------------------+
+
 
 Transfer Syntaxes
 .................
