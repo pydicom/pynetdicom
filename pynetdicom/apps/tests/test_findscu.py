@@ -31,6 +31,7 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelFind,
     PatientStudyOnlyQueryRetrieveInformationModelFind,
     ModalityWorklistInformationFind,
+    UnifiedProcedureStepPull
 )
 
 
@@ -522,6 +523,40 @@ class FindSCUBase:
         assert events[0].event == evt.EVT_C_FIND
         cx = events[0].context
         assert cx.abstract_syntax == (PatientStudyOnlyQueryRetrieveInformationModelFind)
+
+    def test_flag_ups(self):
+        """Test the -U flag."""
+        events = []
+
+        def handle_find(event):
+            events.append(event)
+            yield 0x0000, None
+
+        handlers = [
+            (evt.EVT_C_FIND, handle_find),
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.supported_contexts = (
+            QueryRetrievePresentationContexts
+            + BasicWorklistManagementPresentationContexts
+            + UnifiedProcedurePresentationContexts
+        )
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+
+        p = self.func(["-U", "-k", "PatientName="])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_FIND
+        cx = events[0].context
+        assert cx.abstract_syntax == UnifiedProcedureStepPull
+
 
     def test_flag_worklist(self):
         """Test the -W flag."""
