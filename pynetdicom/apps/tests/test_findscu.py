@@ -31,7 +31,7 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelFind,
     PatientStudyOnlyQueryRetrieveInformationModelFind,
     ModalityWorklistInformationFind,
-    UnifiedProcedureStepPull
+    UnifiedProcedureStepPull,
 )
 
 
@@ -114,7 +114,7 @@ class FindSCUBase:
         assert {} == requestor.sop_class_extended
         assert requestor.user_identity == None
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 18 
+        assert len(cxs) == 18
         cxs = {cx.abstract_syntax: cx for cx in cxs}
         assert PatientRootQueryRetrieveInformationModelFind in cxs
         cx = cxs[PatientRootQueryRetrieveInformationModelFind]
@@ -556,7 +556,6 @@ class FindSCUBase:
         assert events[0].event == evt.EVT_C_FIND
         cx = events[0].context
         assert cx.abstract_syntax == UnifiedProcedureStepPull
-
 
     def test_flag_worklist(self):
         """Test the -W flag."""

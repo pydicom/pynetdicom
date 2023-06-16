@@ -311,14 +311,16 @@ def main(args=None):
 
     # Set the Presentation Contexts we are requesting the Find SCP support
     ae.requested_contexts = (
-        QueryRetrievePresentationContexts + BasicWorklistManagementPresentationContexts + UnifiedProcedurePresentationContexts
+        QueryRetrievePresentationContexts
+        + BasicWorklistManagementPresentationContexts
+        + UnifiedProcedurePresentationContexts
     )
 
     # Query/Retrieve Information Models
     if args.worklist:
         query_model = ModalityWorklistInformationFind
     elif args.ups:
-        query_model= UnifiedProcedureStepPull
+        query_model = UnifiedProcedureStepPull
     elif args.study:
         query_model = StudyRootQueryRetrieveInformationModelFind
     elif args.psonly:
