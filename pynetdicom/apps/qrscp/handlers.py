@@ -100,10 +100,10 @@ def handle_find(event, db_path, cli_config, logger):
                 logger.error("Error creating response Identifier")
                 logger.exception(exc)
                 yield 0xC322, None
-        else:
-            pass #TODO build up a response for UPS
 
-        yield 0xFF00, response
+            yield 0xFF00, response
+    else:
+        yield 0x0000, None
 
 
 def handle_get(event, db_path, cli_config, logger):

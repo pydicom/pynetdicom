@@ -23,6 +23,7 @@ from pynetdicom import (
     DEFAULT_TRANSFER_SYNTAXES,
     QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts,
+    UnifiedProcedurePresentationContexts,
 )
 from pynetdicom.sop_class import (
     Verification,
@@ -89,6 +90,7 @@ class FindSCUBase:
         ae.supported_contexts = (
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
+            + UnifiedProcedurePresentationContexts
         )
         scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
@@ -111,7 +113,7 @@ class FindSCUBase:
         assert {} == requestor.sop_class_extended
         assert requestor.user_identity == None
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 13
+        assert len(cxs) == 18 
         cxs = {cx.abstract_syntax: cx for cx in cxs}
         assert PatientRootQueryRetrieveInformationModelFind in cxs
         cx = cxs[PatientRootQueryRetrieveInformationModelFind]
