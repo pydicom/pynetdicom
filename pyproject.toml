@@ -11,19 +11,7 @@ omit = [
     "pydicom-master/*",
 ]
 
-classifiers=[
-    "License :: OSI Approved :: MIT License",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Healthcare Industry",
-    "Intended Audience :: Science/Research",
-    "Development Status :: 5 - Production/Stable",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
-    "Operating System :: OS Independent",
-    "Topic :: Scientific/Engineering :: Medical Science Apps.",
-    "Topic :: Scientific/Engineering :: Physics",
-    "Topic :: Software Development :: Libraries"
-]
+
 
 
 [project.urls]
@@ -41,7 +29,19 @@ license = "MIT"
 readme = "README.rst"
 packages = [{include = "pynetdicom"}]
 keywords = ["dicom, python, medical, imaging, radiotherapy"]
-
+classifiers=[
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries"
+]
 
 
 [tool.mypy]
@@ -67,6 +67,11 @@ python = ">=3.7,<3.11"
 pydicom = "^2.3.0"
 typing-extensions = "*"
 
+# ----- #
+# Apps  #
+# ----- #
+sqlalchemy = { version =">=2.0", optional = true } # groups ["all", "tests", "dev" ]
+
 # ------------- #
 # Documentation #
 # ------------- #
@@ -82,13 +87,15 @@ sphinx_rtd_theme = { version = "*", optional = true } # groups = [ "all", "docs"
 # ----- #
 # Tests #
 # ----- #
-pytest = { version = "*", optional = true }               # groups = ["all", "tests"]
-pytest-sugar = { version = "*", optional = true }         # groups = ["all", "tests"]
+pytest = { version = "*", optional = true }                 # groups = ["all", "tests"]
+pytest-sugar = { version = "*", optional = true }           # groups = ["all", "tests"]
 # hypothesis = { version = "<6", optional = true }          # groups = ["all", "tests"]
 # astroid = { version = "*", optional = true }              # groups = ["all", "tests"]
 # psutil = { version = "*", optional = true }               # groups = ["all", "tests"]
-pylint = { version = "*", optional = true }               # groups = ["all", "tests"]
-pytest-rerunfailures = { version = "*", optional = true } # groups = ["all", "tests"]
+pylint = { version = "*", optional = true }                 # groups = ["all", "tests"]
+pytest-rerunfailures = { version = "*", optional = true }   # groups = ["all", "tests"]
+pytest-cov = { version = "*", optional = true }             # groups = ["all", "tests"]
+coverage = { version = "*", optional = true }               # groups = ["all", "tests"]
 
 # ---------------- #
 # Development Only #
@@ -100,6 +107,8 @@ rope = { version = "*", optional = true }            # groups = ["dev", "all"]
 doc8 = { version = "*", optional = true }            # groups = ["dev", "all"]
 readme-renderer = { version = "*", optional = true } # groups = ["dev", "all"]
 tabulate = { version = "*", optional = true }        # groups = ["dev", "all", "doctests"]
+flake8 = { version = "*", optional = true }          # groups = ["dev', "all"]
+codespell = { version = "*", optional = true }       # groups = ["dev", "all"]
 
 [tool.poetry.extras]
 
@@ -116,4 +125,30 @@ tests = [
     "pytest",
     "pytest-rerunfailures",
     "pytest-sugar",
+]
+
+all = [
+    "pylint",
+    "pytest",
+    "pytest-rerunfailures",
+    "pytest-sugar",
+    "pydicom",
+    "sphinx-argparse",
+    "black",
+    "tabulate",
+    "doc8", 
+    "mypy",
+    "pre-commit", 
+    "readme-renderer", 
+    "rope",
+    "flake8",
+    "sphinx",
+    "sphinx_copybutton",
+    "sphinx_rtd_theme",
+    "setuptools",
+    "typing-extensions",
+    "sqlalchemy",
+    "coverage",
+    "codespell",
+    "pytest-cov",
 ]

@@ -43,6 +43,6 @@ jobs:
     - name: Check spelling
       run: codespell -L halp,ot,pres -d pynetdicom
     - name: Check for syntax errors
-      run: python -m flake8 --select=E901,E999,F821,F822,F823 ${{ steps.pydiff.outputs.pyfiles }} --ignore F821
+      run: python -m flake8 --select=E901,E999,F822,F823 ${{ steps.pydiff.outputs.pyfiles }} --ignore F821
     - name: Check for style warnings
       run: python -m flake8 --exit-zero ${{ steps.pydiff.outputs.pyfiles }}
