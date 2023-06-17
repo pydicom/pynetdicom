@@ -62,10 +62,12 @@ def handle_find(event, db_path, cli_config, logger):
 
     model = event.request.AffectedSOPClassUID
 
-    if model.name not in [
-        "Unified Procedure Step - Pull SOP Class",
-        "Modality Worklist Information Model - FIND",
-    ]:
+    if model.keyword in (
+        "UnifiedProcedureStepPull",
+        "ModalityWorklistInformationModelFind",
+    ):
+        yield 0x0000, None
+    else:
         engine = create_engine(db_path)
         with engine.connect() as conn:
             Session = sessionmaker(bind=engine)
@@ -104,8 +106,6 @@ def handle_find(event, db_path, cli_config, logger):
                 yield 0xC322, None
 
             yield 0xFF00, response
-    else:
-        yield 0x0000, None
 
 
 def handle_get(event, db_path, cli_config, logger):
