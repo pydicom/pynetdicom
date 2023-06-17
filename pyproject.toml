@@ -15,6 +15,7 @@ omit = [
 
 
 [project.urls]
+name = "pynetdicom"
 documentation = "https://pydicom.github.io/pynetdicom"
 download = "https://github.com/pydicom/pynetdicom/archive/master.zip"
 homepage = "https://github.com/pydicom/pynetdicom"
@@ -67,7 +68,7 @@ python = ">=3.7,<3.11"
 pydicom = "^2.3.0"
 typing-extensions = "*"
 setuptools = "*"
- 
+
 # ----- #
 # Apps  #
 # ----- #
