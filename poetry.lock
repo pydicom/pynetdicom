@@ -1191,7 +1191,7 @@ doc = ["pytoolconfig[doc]", "sphinx (>=4.5.0)", "sphinx-autodoc-typehints (>=1.1
 name = "setuptools"
 version = "67.8.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "setuptools-67.8.0-py3-none-any.whl", hash = "sha256:5df61bf30bb10c6f756eb19e7c9f3b473051f48db77fddbe06ff2ca307df9a6f"},
@@ -1743,7 +1743,7 @@ docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker
 testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
 [extras]
-all = ["black", "codespell", "coverage", "doc8", "flake8", "mypy", "pre-commit", "pydicom", "pylint", "pytest", "pytest-cov", "pytest-rerunfailures", "pytest-sugar", "readme-renderer", "rope", "sphinx", "sphinx-argparse", "sphinx_copybutton", "sphinx_rtd_theme", "sqlalchemy", "tabulate", "typing-extensions"]
+all = ["black", "codespell", "coverage", "doc8", "flake8", "mypy", "pre-commit", "pydicom", "pylint", "pytest", "pytest-cov", "pytest-rerunfailures", "pytest-sugar", "readme-renderer", "rope", "setuptools", "sphinx", "sphinx-argparse", "sphinx_copybutton", "sphinx_rtd_theme", "sqlalchemy", "tabulate", "typing-extensions"]
 dev = ["black", "codespell", "doc8", "flake8", "mypy", "pre-commit", "readme-renderer", "rope", "tabulate"]
 docs = ["pydicom", "sphinx", "sphinx-argparse", "sphinx_copybutton", "sphinx_rtd_theme"]
 doctests = ["black", "tabulate"]
@@ -1752,4 +1752,4 @@ tests = ["coverage", "pylint", "pytest", "pytest-cov", "pytest-rerunfailures", "
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7,<3.11"
-content-hash = "0653a631a21bd66e8a31a05d29163a637340e0cb97712e4eed349cb8e8ce4d3e"
+content-hash = "3eaef03229f7e8b60fd8141b8bae05ec1a80531930b8a3d32edbc2e4ad298f61"
