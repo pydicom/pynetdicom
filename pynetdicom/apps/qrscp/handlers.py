@@ -72,7 +72,6 @@ def handle_find(event, db_path, cli_config, logger):
             session = Session()
             # Search database using Identifier as the query
             try:
-
                 matches = search(model, event.identifier, session)
 
             except InvalidIdentifier as exc:
