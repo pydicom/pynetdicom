@@ -14,12 +14,6 @@ omit = [
 
 
 
-[project.urls]
-name = "pynetdicom"
-documentation = "https://pydicom.github.io/pynetdicom"
-download = "https://github.com/pydicom/pynetdicom/archive/master.zip"
-homepage = "https://github.com/pydicom/pynetdicom"
-repository = "https://github.com/pydicom/pynetdicom"
 
 [tool.poetry]
 name = "pynetdicom"
