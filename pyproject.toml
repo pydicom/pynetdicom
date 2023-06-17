@@ -27,7 +27,7 @@ description = "A Python implementation of the DICOM networking protocol, origina
 authors = [ "Darcy Mason and contributors <darcymason@gmail.com>"]
 license = "MIT"
 readme = "README.rst"
-packages = [{include = "pynetdicom"}]
+packages = [{include = "pynetdicom"},{include = "pynetdicom/py.typed"}]
 keywords = ["dicom, python, medical, imaging, radiotherapy"]
 classifiers=[
     "License :: OSI Approved :: MIT License",
@@ -129,7 +129,7 @@ docs = [
     "pydicom",
     "sphinx",
     "sphinx-argparse",
-    "sphinx_copybutton",
+    "sphinx-copybutton",
     "sphinx_rtd_theme",
 ]
 doctests = ["black", "tabulate"]
@@ -159,7 +159,7 @@ all = [
     "rope",
     "flake8",
     "sphinx",
-    "sphinx_copybutton",
+    "sphinx-copybutton",
     "sphinx_rtd_theme",
     "setuptools",
     "typing-extensions",

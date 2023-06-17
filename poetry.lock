@@ -1752,4 +1752,4 @@ tests = ["coverage", "pylint", "pytest", "pytest-cov", "pytest-rerunfailures", "
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7,<3.11"
-content-hash = "851d4143099e539deff316f15740b75877edb97e63e077ae166d253bc0cc011e"
+content-hash = "0653a631a21bd66e8a31a05d29163a637340e0cb97712e4eed349cb8e8ce4d3e"
