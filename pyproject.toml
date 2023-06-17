@@ -112,11 +112,25 @@ codespell = { version = "*", optional = true }       # groups = ["dev", "all"]
 
 [tool.poetry.extras]
 
-dev = ["black", "doc8", "mypy", "pre-commit", "readme-renderer", "rope", "tabulate"]
+dev = [
+    "black", 
+    "doc8", 
+    "mypy", 
+    "pre-commit", 
+    "readme-renderer", 
+    "rope", 
+    "tabulate",
+    "flake8",
+    "codespell"
+]
+
 
 docs = [
     "pydicom",
+    "sphinx",
     "sphinx-argparse",
+    "sphinx_copybutton",
+    "sphinx_rtd_theme",
 ]
 doctests = ["black", "tabulate"]
 
@@ -125,6 +139,8 @@ tests = [
     "pytest",
     "pytest-rerunfailures",
     "pytest-sugar",
+    "pytest-cov",
+    "coverage",
 ]
 
 all = [

@@ -1744,12 +1744,12 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 
 [extras]
 all = ["black", "codespell", "coverage", "doc8", "flake8", "mypy", "pre-commit", "pydicom", "pylint", "pytest", "pytest-cov", "pytest-rerunfailures", "pytest-sugar", "readme-renderer", "rope", "sphinx", "sphinx-argparse", "sphinx_copybutton", "sphinx_rtd_theme", "sqlalchemy", "tabulate", "typing-extensions"]
-dev = ["black", "doc8", "mypy", "pre-commit", "readme-renderer", "rope", "tabulate"]
-docs = ["pydicom", "sphinx-argparse"]
+dev = ["black", "codespell", "doc8", "flake8", "mypy", "pre-commit", "readme-renderer", "rope", "tabulate"]
+docs = ["pydicom", "sphinx", "sphinx-argparse", "sphinx_copybutton", "sphinx_rtd_theme"]
 doctests = ["black", "tabulate"]
-tests = ["pylint", "pytest", "pytest-rerunfailures", "pytest-sugar"]
+tests = ["coverage", "pylint", "pytest", "pytest-cov", "pytest-rerunfailures", "pytest-sugar"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7,<3.11"
-content-hash = "cbc386beb4093389095c9ffea1db1ee3c2b050d767ea948669d182f7eb7e9f4a"
+content-hash = "851d4143099e539deff316f15740b75877edb97e63e077ae166d253bc0cc011e"
