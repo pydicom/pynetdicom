@@ -12,8 +12,41 @@ omit = [
 ]
 
 
+
+
+
+[tool.poetry]
+name = "pynetdicom"
+version = "2.0.2"
+description = "A Python implementation of the DICOM networking protocol, originally based on (legacy) pynetdicom."
+authors = [ "Darcy Mason and contributors <darcymason@gmail.com>"]
+license = "MIT"
+readme = "README.rst"
+packages = [{include = "pynetdicom"},{include = "pynetdicom/py.typed"}]
+keywords = ["dicom, python, medical, imaging, radiotherapy"]
+classifiers=[
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries"
+]
+documentation = "https://pydicom.github.io/pynetdicom"
+homepage = "https://github.com/pydicom/pynetdicom"
+repository = "https://github.com/pydicom/pynetdicom"
+
+
+[tool.poetry.urls]
+download = "https://github.com/pydicom/pynetdicom/archive/master.zip"
+
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 exclude = [
     "pynetdicom/tests",
     "pynetdicom/apps",
@@ -29,3 +62,111 @@ ignore_missing_imports = true
 disallow_untyped_calls = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
+
+[tool.poetry.dependencies]
+python = ">=3.7,<3.11"
+pydicom = "^2.3.0"
+typing-extensions = "*"
+setuptools = "*"
+
+# ----- #
+# Apps  #
+# ----- #
+sqlalchemy = { version =">=2.0", optional = true } # groups ["all", "tests", "dev" ]
+
+# ------------- #
+# Documentation #
+# ------------- #
+Sphinx = { version = "*", optional = true } # groups = ["all", "docs"]
+sphinx-argparse = { version = "*", optional = true } # groups = ["all", "docs"]
+sphinx_copybutton = { version = "*", optional = true } # groups = [ "all", "docs"]
+sphinx_rtd_theme = { version = "*", optional = true } # groups = [ "all", "docs"]
+# sphinx-ext-napoleon = { version = "*", optional = true }  # groups = ["all", "docs"]
+# sphinx-book-theme = { version = "*", optional = true }   # groups = ["all", "docs", "doctests"]
+# jupyter-book = { version = ">=0.12.0", optional = true } # groups = ["all", "docs"]
+# networkx = { version = "*", optional = true }            # groups = ["all", "docs"]
+
+# ----- #
+# Tests #
+# ----- #
+pytest = { version = "*", optional = true }                 # groups = ["all", "tests"]
+pytest-sugar = { version = "*", optional = true }           # groups = ["all", "tests"]
+# hypothesis = { version = "<6", optional = true }          # groups = ["all", "tests"]
+# astroid = { version = "*", optional = true }              # groups = ["all", "tests"]
+# psutil = { version = "*", optional = true }               # groups = ["all", "tests"]
+pylint = { version = "*", optional = true }                 # groups = ["all", "tests"]
+pytest-rerunfailures = { version = "*", optional = true }   # groups = ["all", "tests"]
+pytest-cov = { version = "*", optional = true }             # groups = ["all", "tests"]
+coverage = { version = "*", optional = true }               # groups = ["all", "tests"]
+
+# ---------------- #
+# Development Only #
+# ---------------- #
+pre-commit = { version = "*", optional = true }      # groups = ["dev", "all"]
+black = { version = ">=22.3.0", optional = true }     # groups = ["dev", "all", "propagate", "doctests"]
+mypy = { version = "*", optional = true }            # groups = ["dev", "all"]
+rope = { version = "*", optional = true }            # groups = ["dev", "all"]
+doc8 = { version = "*", optional = true }            # groups = ["dev", "all"]
+readme-renderer = { version = "*", optional = true } # groups = ["dev", "all"]
+tabulate = { version = "*", optional = true }        # groups = ["dev", "all", "doctests"]
+flake8 = { version = "*", optional = true }          # groups = ["dev', "all"]
+codespell = { version = "*", optional = true }       # groups = ["dev", "all"]
+
+[tool.poetry.extras]
+
+dev = [
+    "black", 
+    "doc8", 
+    "mypy", 
+    "pre-commit", 
+    "readme-renderer", 
+    "rope", 
+    "tabulate",
+    "flake8",
+    "codespell"
+]
+
+
+docs = [
+    "pydicom",
+    "Sphinx",
+    "sphinx-argparse",
+    "sphinx-copybutton",
+    "sphinx_rtd_theme",
+]
+doctests = ["black", "tabulate"]
+
+tests = [
+    "pylint",
+    "pytest",
+    "pytest-rerunfailures",
+    "pytest-sugar",
+    "pytest-cov",
+    "coverage",
+]
+
+all = [
+    "pylint",
+    "pytest",
+    "pytest-rerunfailures",
+    "pytest-sugar",
+    "pydicom",
+    "sphinx-argparse",
+    "black",
+    "tabulate",
+    "doc8", 
+    "mypy",
+    "pre-commit", 
+    "readme-renderer", 
+    "rope",
+    "flake8",
+    "Sphinx",
+    "sphinx-copybutton",
+    "sphinx_rtd_theme",
+    "setuptools",
+    "typing-extensions",
+    "sqlalchemy",
+    "coverage",
+    "codespell",
+    "pytest-cov",
+]
