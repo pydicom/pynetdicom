@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>1.1.0 &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -101,9 +104,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Release Notes</a> &raquo;</li>
-      <li>1.1.0</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Release Notes</a></li>
+      <li class="breadcrumb-item active">1.1.0</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -113,9 +116,9 @@
            <div itemprop="articleBody">
              
   <section id="v1-1-0">
-<span id="id1"></span><h1>1.1.0<a class="headerlink" href="#v1-1-0" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>1.1.0<a class="headerlink" href="#v1-1-0" title="Permalink to this heading">¶</a></h1>
 <section id="fixes">
-<h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
+<h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>No longer using a list as the default value for the <code class="docutils literal notranslate"><span class="pre">transfer_syntax</span></code>
 keyword argument in <code class="docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code>,
@@ -133,7 +136,7 @@ close the connection and there was data still available to be read.
 </ul>
 </section>
 <section id="enhancements">
-<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">select_timeout</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">Association.start()</span></code> to allow the
 user to specify how long the select.select() call blocks for.
@@ -142,7 +145,7 @@ user to specify how long the select.select() call blocks for.
 </ul>
 </section>
 <section id="changes">
-<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
+<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">AE.quit()</span></code> is deprecated and will be removed in v1.2. Use <code class="docutils literal notranslate"><span class="pre">AE.stop()</span></code>
 instead.</p></li>
@@ -183,7 +186,7 @@ are no accepted presentation contexts. The association requestor still does.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

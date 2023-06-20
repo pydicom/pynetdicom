@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.pdu_items.UserIdentitySubItemRQ &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> pynetdicom
-            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -119,12 +122,12 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">API Reference</a> &raquo;</li>
-          <li><a href="../dul.html">DICOM Upper Layer</a> &raquo;</li>
-          <li><a href="../dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a> &raquo;</li>
-          <li><a href="../dul.pdu.a_associate_rq.html">A-ASSOCIATE-RQ PDU</a> &raquo;</li>
-      <li>pynetdicom.pdu_items.UserIdentitySubItemRQ</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../dul.html">DICOM Upper Layer</a></li>
+          <li class="breadcrumb-item"><a href="../dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a></li>
+          <li class="breadcrumb-item"><a href="../dul.pdu.a_associate_rq.html">A-ASSOCIATE-RQ PDU</a></li>
+      <li class="breadcrumb-item active">pynetdicom.pdu_items.UserIdentitySubItemRQ</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -134,10 +137,10 @@
            <div itemprop="articleBody">
              
   <section id="pynetdicom-pdu-items-useridentitysubitemrq">
-<h1>pynetdicom.pdu_items.UserIdentitySubItemRQ<a class="headerlink" href="#pynetdicom-pdu-items-useridentitysubitemrq" title="Permalink to this headline">¶</a></h1>
+<h1>pynetdicom.pdu_items.UserIdentitySubItemRQ<a class="headerlink" href="#pynetdicom-pdu-items-useridentitysubitemrq" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_items.</span></span><span class="sig-name descname"><span class="pre">UserIdentitySubItemRQ</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/pdu_items.py#L2973"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_items.</span></span><span class="sig-name descname"><span class="pre">UserIdentitySubItemRQ</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/pdu_items.py#L2973"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>A User Identity (RQ) Sub-item.</p>
 <p>A User Identity (RQ) Sub-item is used to notify the association acceptor of
 the user identity of the requestor.</p>
@@ -159,11 +162,6 @@ structure, taken from Tables D.3-14 of the DICOM Standard (offsets shown
 with
 Python indexing). Items are always encoded using Big Endian.</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 41%" />
-<col style="width: 15%" />
-<col style="width: 44%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Offset</p></th>
 <th class="head"><p>Length</p></th>
@@ -218,16 +216,12 @@ Python indexing). Items are always encoded using Big Endian.</p>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/pdu_items.py#L3029"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/pdu_items.py#L3029"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new User Identity (RQ) Item.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.__init__" title="pynetdicom.pdu_items.UserIdentitySubItemRQ.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p>Initialise a new User Identity (RQ) Item.</p></td>
@@ -248,10 +242,6 @@ Python indexing). Items are always encoded using Big Endian.</p>
 </table>
 <p class="rubric">Attributes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.id_type" title="pynetdicom.pdu_items.UserIdentitySubItemRQ.id_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id_type</span></code></a></p></td>
 <td><p>Return the item's <em>User Identity Type</em> field value.</p></td>
@@ -260,19 +250,19 @@ Python indexing). Items are always encoded using Big Endian.</p>
 <td><p>Return a string description of the <em>User Identity Type</em> field.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.item_length" title="pynetdicom.pdu_items.UserIdentitySubItemRQ.item_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">item_length</span></code></a></p></td>
-<td><p>Return the item's <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Return the item's <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">item_type</span></code></p></td>
-<td><p>Return the item's <em>Item Type</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Return the item's <em>Item Type</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.primary" title="pynetdicom.pdu_items.UserIdentitySubItemRQ.primary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">primary</span></code></a></p></td>
-<td><p>Return the item's <em>Primary Field</em> field value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></td>
+<td><p>Return the item's <em>Primary Field</em> field value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.primary_field_length" title="pynetdicom.pdu_items.UserIdentitySubItemRQ.primary_field_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">primary_field_length</span></code></a></p></td>
 <td><p>Return the item's <em>Primary Field Length</em> field value.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.response_requested" title="pynetdicom.pdu_items.UserIdentitySubItemRQ.response_requested"><code class="xref py py-obj docutils literal notranslate"><span class="pre">response_requested</span></code></a></p></td>
-<td><p>Return the item's <em>Positive Response Requested</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>.</p></td>
+<td><p>Return the item's <em>Positive Response Requested</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary" title="pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">secondary</span></code></a></p></td>
 <td><p>Return the item's <em>Secondary Field</em> field value.</p></td>
@@ -284,10 +274,10 @@ Python indexing). Items are always encoded using Big Endian.</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ.from_primitive">
-<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><span class="pre">UserIdentityNegotiation</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/pdu_items.py#L3038"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.from_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><span class="pre">UserIdentityNegotiation</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/pdu_items.py#L3038"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the item’s values using an User Identity primitive.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>primitive</strong> (<a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><em>pdu_primitives.UserIdentityNegotiation</em></a>) – The primitive to use to set the Item’s field values.</p>
 </dd>
 </dl>
@@ -295,62 +285,62 @@ Python indexing). Items are always encoded using Big Endian.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ.id_type">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">id_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.id_type" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">id_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.id_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>User Identity Type</em> field value.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ.id_type_str">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">id_type_str</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.id_type_str" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">id_type_str</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.id_type_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a string description of the <em>User Identity Type</em> field.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ.item_length">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">item_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.item_length" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the item’s <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">item_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.item_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the item’s <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ.primary">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">primary</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.primary" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the item’s <em>Primary Field</em> field value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">primary</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.primary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the item’s <em>Primary Field</em> field value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ.primary_field_length">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">primary_field_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.primary_field_length" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">primary_field_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.primary_field_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Primary Field Length</em> field value.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ.response_requested">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">response_requested</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.response_requested" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">response_requested</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.response_requested" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Positive Response Requested</em> field value as
-<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>.</p>
+<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">secondary</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">secondary</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Secondary Field</em> field value.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary_field_length">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">secondary_field_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary_field_length" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">secondary_field_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary_field_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Secondary Field Length</em> field value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserIdentitySubItemRQ.to_primitive">
-<span class="sig-name descname"><span class="pre">to_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><span class="pre">UserIdentityNegotiation</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/pdu_items.py#L3051"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.to_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><span class="pre">UserIdentityNegotiation</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/pdu_items.py#L3051"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserIdentitySubItemRQ.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an  User Identity primitive from the current Item.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The primitive representation of the current Item.</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation">pdu_primitives.UserIdentityNegotiation</a></p>
 </dd>
 </dl>
@@ -371,7 +361,7 @@ Python indexing). Items are always encoded using Big Endian.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

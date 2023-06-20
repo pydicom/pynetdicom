@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>storescu &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -103,9 +106,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Applications</a> &raquo;</li>
-      <li>storescu</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Applications</a></li>
+      <li class="breadcrumb-item active">storescu</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -115,12 +118,12 @@
            <div itemprop="articleBody">
              
   <section id="storescu">
-<h1>storescu<a class="headerlink" href="#storescu" title="Permalink to this headline">¶</a></h1>
+<h1>storescu<a class="headerlink" href="#storescu" title="Permalink to this heading">¶</a></h1>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom storescu [options] addr port path
 </pre></div>
 </div>
 <section id="description">
-<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">storescu</span></code> application implements a Service Class User (SCU) for
 the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage</a> service class. It requests an
 association with a peer Application Entity and once established requests the
@@ -128,7 +131,7 @@ transfer of one or more SOP Instances.</p>
 <p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/storescu">here</a></p>
 </section>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <p>The following example shows what happens when it is successfully run on
 an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the <em>Storage
 Service</em>:</p>
@@ -176,7 +179,7 @@ I: Releasing Association
 </div>
 </section>
 <section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h2>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">addr</span></code></dt><dd><p>TCP/IP address or hostname of DICOM peer</p>
 </dd>
@@ -188,9 +191,9 @@ to be transmitted</p>
 </dl>
 </section>
 <section id="options">
-<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this heading">¶</a></h2>
 <section id="general-options">
-<h3>General Options<a class="headerlink" href="#general-options" title="Permalink to this headline">¶</a></h3>
+<h3>General Options<a class="headerlink" href="#general-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-q</span>&#160;&#160;&#160; <span class="pre">--quiet</span></code></dt><dd><p>quiet mode, prints no warnings or errors</p>
 </dd>
@@ -205,14 +208,14 @@ or higher</p>
 </dl>
 </section>
 <section id="input-options">
-<h3>Input Options<a class="headerlink" href="#input-options" title="Permalink to this headline">¶</a></h3>
+<h3>Input Options<a class="headerlink" href="#input-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-r</span>&#160;&#160;&#160; <span class="pre">--recurse</span></code></dt><dd><p>recursively search the given directory</p>
 </dd>
 </dl>
 </section>
 <section id="network-options">
-<h3>Network Options<a class="headerlink" href="#network-options" title="Permalink to this headline">¶</a></h3>
+<h3>Network Options<a class="headerlink" href="#network-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-aet</span>&#160; <span class="pre">--calling-aet</span> <span class="pre">[a]etitle</span> <span class="pre">(str)</span></code></dt><dd><p>set the local AE title (default: STORESCU)</p>
 </dd>
@@ -229,7 +232,7 @@ or higher</p>
 </dl>
 </section>
 <section id="transfer-syntax-options">
-<h3>Transfer Syntax Options<a class="headerlink" href="#transfer-syntax-options" title="Permalink to this headline">¶</a></h3>
+<h3>Transfer Syntax Options<a class="headerlink" href="#transfer-syntax-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-xe</span>&#160;&#160; <span class="pre">--request-little</span></code></dt><dd><p>request explicit VR little endian TS only</p>
 </dd>
@@ -240,7 +243,7 @@ or higher</p>
 </dl>
 </section>
 <section id="miscellaneous-options">
-<h3>Miscellaneous Options<a class="headerlink" href="#miscellaneous-options" title="Permalink to this headline">¶</a></h3>
+<h3>Miscellaneous Options<a class="headerlink" href="#miscellaneous-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-cx</span>&#160;&#160; <span class="pre">--single-context</span></code></dt><dd><p>only request the presentation contexts required for the
 input DICOM file(s)</p>
@@ -249,18 +252,14 @@ input DICOM file(s)</p>
 </section>
 </section>
 <section id="dicom-conformance">
-<h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
+<h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">storescu</span></code> application supports the Storage service class as an SCU. The
 following SOP classes are supported:</p>
 <section id="storage-service">
-<h3>Storage Service<a class="headerlink" href="#storage-service" title="Permalink to this headline">¶</a></h3>
+<h3>Storage Service<a class="headerlink" href="#storage-service" title="Permalink to this heading">¶</a></h3>
 <section id="sop-classes">
-<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h4>
+<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 45%" />
-<col style="width: 55%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
 <th class="head"><p>SOP Class</p></th>
@@ -793,14 +792,10 @@ Instructions Storage</p></td>
 </table>
 </section>
 <section id="transfer-syntaxes">
-<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this headline">¶</a></h4>
+<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this heading">¶</a></h4>
 <p>By default, the application will request presentation contexts using these
 transfer syntaxes:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 32%" />
-<col style="width: 68%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
 <th class="head"><p>Transfer Syntax</p></th>
@@ -837,7 +832,7 @@ transfer syntaxes:</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

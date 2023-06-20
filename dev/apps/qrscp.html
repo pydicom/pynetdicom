@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>qrscp &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -103,9 +106,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Applications</a> &raquo;</li>
-      <li>qrscp</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Applications</a></li>
+      <li class="breadcrumb-item active">qrscp</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -115,7 +118,7 @@
            <div itemprop="articleBody">
              
   <section id="qrscp">
-<h1>qrscp<a class="headerlink" href="#qrscp" title="Permalink to this headline">¶</a></h1>
+<h1>qrscp<a class="headerlink" href="#qrscp" title="Permalink to this heading">¶</a></h1>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.5.</span></p>
 </div>
@@ -123,7 +126,7 @@
 </pre></div>
 </div>
 <section id="description">
-<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">qrscp</span></code> application implements a Service Class Provider (SCP) for the
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">Verification</a>, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage</a> and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve</a>
 service classes. It listens for incoming association requests on the
@@ -147,7 +150,7 @@ package</p>
 <p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/qrscp">here</a></p>
 </section>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <p>Start the application using the default configuration, which listens on port
 11112:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom qrscp
@@ -164,9 +167,9 @@ package</p>
 </div>
 </section>
 <section id="options">
-<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this heading">¶</a></h2>
 <section id="general-options">
-<h3>General Options<a class="headerlink" href="#general-options" title="Permalink to this headline">¶</a></h3>
+<h3>General Options<a class="headerlink" href="#general-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-c</span>&#160;&#160;&#160; <span class="pre">--config</span> <span class="pre">[f]ilename</span></code></dt><dd><p>use configuration file f, see the <em>configuration file</em> section for
 more information</p>
@@ -186,7 +189,7 @@ or lower</p>
 </dl>
 </section>
 <section id="network-options">
-<h3>Network Options<a class="headerlink" href="#network-options" title="Permalink to this headline">¶</a></h3>
+<h3>Network Options<a class="headerlink" href="#network-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-aet</span>&#160; <span class="pre">--ae-title</span> <span class="pre">[a]etitle</span> <span class="pre">(str)</span></code></dt><dd><p>override the configured local AE title</p>
 </dd>
@@ -205,7 +208,7 @@ or lower</p>
 </dl>
 </section>
 <section id="database-options">
-<h3>Database Options<a class="headerlink" href="#database-options" title="Permalink to this headline">¶</a></h3>
+<h3>Database Options<a class="headerlink" href="#database-options" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">--database-location</span> <span class="pre">[f]ile</span> <span class="pre">(str)</span></code></dt><dd><p>override the location of the database using file f</p>
 </dd>
@@ -218,9 +221,9 @@ stored instances</p>
 </section>
 </section>
 <section id="configuration-file">
-<h2>Configuration File<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
+<h2>Configuration File<a class="headerlink" href="#configuration-file" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">qrscp</span></code> application uses a configuration file format compatible with the
-<a class="reference external" href="https://docs.python.org/3/library/configparser.html#module-configparser" title="(in Python v3.10)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">configparser</span></code></a> Python module. The <code class="docutils literal notranslate"><span class="pre">[DEFAULT]</span></code> section contains the
+<a class="reference external" href="https://docs.python.org/3/library/configparser.html#module-configparser" title="(in Python v3.11)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">configparser</span></code></a> Python module. The <code class="docutils literal notranslate"><span class="pre">[DEFAULT]</span></code> section contains the
 configuration options for the application itself while all other sections
 are assumed to be definitions for the Query/Retrieve service’s <em>Move
 Destinations</em>:</p>
@@ -259,18 +262,14 @@ database_location: instances.sqlite
 </div>
 </section>
 <section id="dicom-conformance">
-<h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
+<h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">qrscp</span></code> application supports the Verification, Storage and Query/Retrieve
 service classes as an SCP. The following SOP classes are supported:</p>
 <section id="verification-service">
-<h3>Verification Service<a class="headerlink" href="#verification-service" title="Permalink to this headline">¶</a></h3>
+<h3>Verification Service<a class="headerlink" href="#verification-service" title="Permalink to this heading">¶</a></h3>
 <section id="sop-classes">
-<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h4>
+<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 45%" />
-<col style="width: 55%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
 <th class="head"><p>SOP Class</p></th>
@@ -284,12 +283,8 @@ service classes as an SCP. The following SOP classes are supported:</p>
 </table>
 </section>
 <section id="transfer-syntaxes">
-<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this headline">¶</a></h4>
+<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 32%" />
-<col style="width: 68%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
 <th class="head"><p>Transfer Syntax</p></th>
@@ -348,14 +343,10 @@ Prediction (Process 14 [Selection Value 1])</p></td>
 </section>
 </section>
 <section id="storage-service">
-<h3>Storage Service<a class="headerlink" href="#storage-service" title="Permalink to this headline">¶</a></h3>
+<h3>Storage Service<a class="headerlink" href="#storage-service" title="Permalink to this heading">¶</a></h3>
 <section id="id1">
-<h4>SOP Classes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<h4>SOP Classes<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 45%" />
-<col style="width: 55%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
 <th class="head"><p>SOP Class</p></th>
@@ -888,12 +879,8 @@ Instructions Storage</p></td>
 </table>
 </section>
 <section id="id2">
-<h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 32%" />
-<col style="width: 68%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
 <th class="head"><p>Transfer Syntax</p></th>
@@ -952,14 +939,10 @@ Prediction (Process 14 [Selection Value 1])</p></td>
 </section>
 </section>
 <section id="query-retrieve-service">
-<h3>Query/Retrieve Service<a class="headerlink" href="#query-retrieve-service" title="Permalink to this headline">¶</a></h3>
+<h3>Query/Retrieve Service<a class="headerlink" href="#query-retrieve-service" title="Permalink to this heading">¶</a></h3>
 <section id="id3">
-<h4>SOP Classes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<h4>SOP Classes<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 45%" />
-<col style="width: 55%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
 <th class="head"><p>SOP Class</p></th>
@@ -994,12 +977,8 @@ Model - GET</p></td>
 </table>
 </section>
 <section id="id4">
-<h4>Transfer Syntaxes<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<h4>Transfer Syntaxes<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 32%" />
-<col style="width: 68%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
 <th class="head"><p>Transfer Syntax</p></th>
@@ -1036,7 +1015,7 @@ Model - GET</p></td>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

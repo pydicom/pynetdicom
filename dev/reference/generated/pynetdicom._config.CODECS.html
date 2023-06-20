@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom._config.CODECS &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> pynetdicom
-            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -57,7 +60,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom._config.CODECS</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom._config.CODECS</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pynetdicom._config.CODECS"><code class="docutils literal notranslate"><span class="pre">CODECS</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.ENFORCE_UID_CONFORMANCE.html">pynetdicom._config.ENFORCE_UID_CONFORMANCE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_HANDLER_LEVEL.html">pynetdicom._config.LOG_HANDLER_LEVEL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html">pynetdicom._config.LOG_REQUEST_IDENTIFIERS</a></li>
@@ -109,10 +115,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">API Reference</a> &raquo;</li>
-          <li><a href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a> &raquo;</li>
-      <li>pynetdicom._config.CODECS</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
+      <li class="breadcrumb-item active">pynetdicom._config.CODECS</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -122,10 +128,10 @@
            <div itemprop="articleBody">
              
   <section id="pynetdicom-config-codecs">
-<h1>pynetdicom._config.CODECS<a class="headerlink" href="#pynetdicom-config-codecs" title="Permalink to this headline">¶</a></h1>
+<h1>pynetdicom._config.CODECS<a class="headerlink" href="#pynetdicom-config-codecs" title="Permalink to this heading">¶</a></h1>
 <dl class="py data">
 <dt class="sig sig-object py" id="pynetdicom._config.CODECS">
-<span class="sig-prename descclassname"><span class="pre">pynetdicom._config.</span></span><span class="sig-name descname"><span class="pre">CODECS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ascii',)</span></em><a class="headerlink" href="#pynetdicom._config.CODECS" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pynetdicom._config.</span></span><span class="sig-name descname"><span class="pre">CODECS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ascii',)</span></em><a class="headerlink" href="#pynetdicom._config.CODECS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Customise the codecs used to decode text values.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 2.0.</span></p>
@@ -183,7 +189,7 @@ Class UID</em>, <em>Related General SOP Class UID</em></p></li>
 will be attempted in the order that the codecs appear in <code class="docutils literal notranslate"><span class="pre">CODECS</span></code> and any
 fallback codecs should be added after <code class="docutils literal notranslate"><span class="pre">&quot;ascii&quot;</span></code>.</p>
 <p>If a fallback successfully decodes an encoded value the string will be
-converted to ASCII  using <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str.encode" title="(in Python v3.10)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">str.encode()</span></code></a> with the <cite>errors</cite> parameter set
+converted to ASCII  using <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str.encode" title="(in Python v3.11)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">str.encode()</span></code></a> with the <cite>errors</cite> parameter set
 to <code class="docutils literal notranslate"><span class="pre">&quot;ignore&quot;</span></code>.</p>
 <p>Default: <code class="docutils literal notranslate"><span class="pre">(&quot;ascii&quot;,)</span></code></p>
 <p class="rubric">Examples</p>
@@ -207,7 +213,7 @@ to <code class="docutils literal notranslate"><span class="pre">&quot;ignore&quo
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

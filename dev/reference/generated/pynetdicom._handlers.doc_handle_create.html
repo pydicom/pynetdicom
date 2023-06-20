@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom._handlers.doc_handle_create &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> pynetdicom
-            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -120,10 +123,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">API Reference</a> &raquo;</li>
-          <li><a href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a> &raquo;</li>
-      <li>pynetdicom._handlers.doc_handle_create</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
+      <li class="breadcrumb-item active">pynetdicom._handlers.doc_handle_create</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -133,10 +136,10 @@
            <div itemprop="articleBody">
              
   <section id="pynetdicom-handlers-doc-handle-create">
-<h1>pynetdicom._handlers.doc_handle_create<a class="headerlink" href="#pynetdicom-handlers-doc-handle-create" title="Permalink to this headline">¶</a></h1>
+<h1>pynetdicom._handlers.doc_handle_create<a class="headerlink" href="#pynetdicom-handlers-doc-handle-create" title="Permalink to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="pynetdicom._handlers.doc_handle_create">
-<span class="sig-prename descclassname"><span class="pre">pynetdicom._handlers.</span></span><span class="sig-name descname"><span class="pre">doc_handle_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><span class="pre">Event</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.10)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.3.0)"><span class="pre">pydicom.dataset.Dataset</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.3.0)"><span class="pre">pydicom.dataset.Dataset</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/_handlers.py#L3098"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_create" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pynetdicom._handlers.</span></span><span class="sig-name descname"><span class="pre">doc_handle_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><span class="pre">Event</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.11)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.4.1)"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.4.1)"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/_handlers.py#L3098"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_CREATE</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use N-CREATE are to be supported. If a handler is
@@ -203,7 +206,7 @@ minimum or maximum density value instead</div>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>The event representing a service class receiving a N-CREATE
 request message. <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> attributes are:</p>
@@ -220,38 +223,38 @@ as a <a class="reference internal" href="pynetdicom.presentation.PresentationCon
 <a class="reference internal" href="pynetdicom.dimse_primitives.N_CREATE.html#pynetdicom.dimse_primitives.N_CREATE" title="pynetdicom.dimse_primitives.N_CREATE"><code class="xref py py-class docutils literal notranslate"><span class="pre">N-CREATE</span> <span class="pre">request</span></code></a></p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.timestamp" title="pynetdicom.events.Event.timestamp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timestamp</span></code></a>: the date and time
 that the N-CREATE request was processed by the service as
-<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
+<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
 </ul>
 <p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> properties are:</p>
 <ul>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.attribute_list" title="pynetdicom.events.Event.attribute_list"><code class="xref py py-attr docutils literal notranslate"><span class="pre">attribute_list</span></code></a>: the decoded
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
 N-CREATE request’s <em>Attribute List</em> parameter. Because <em>pydicom</em>
 uses a deferred read when decoding data, if the decode fails the
-returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> will only raise an
+returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> will only raise an
 exception at the time of use.</p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a>: the N-CREATE request’s
-<em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
+<em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
 </ul>
 </p></li>
 <li><p><strong>args</strong> – If the handler was bound to the event using
 <code class="docutils literal notranslate"><span class="pre">bind(event,</span> <span class="pre">handler,</span> <span class="pre">args)</span></code> or by passing
 <code class="docutils literal notranslate"><span class="pre">evt_handlers=[(event,</span> <span class="pre">handler,</span> <span class="pre">args),</span> <span class="pre">...]</span></code>, where <cite>args</cite> is a
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> then there will be one or more optional extra parameters
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> then there will be one or more optional extra parameters
 matching the contents of <cite>args</cite>.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul>
 <li><p><strong>status</strong> (<em>pydicom.dataset.Dataset or int</em>) – The status returned to the peer AE in the N-CREATE response. Must be a
 valid N-CREATE status value for the applicable Service Class as either
-an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
+an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
 containing (at a minimum) a (0000,0900) <em>Status</em> element. If returning
-a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object then
+a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object then
 it may also contain optional elements related to the <em>Status</em> (as in
 DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_C.html">Annex C</a>).</p></li>
 <li><p><strong>dataset</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Success’ or ‘Warning’ then a
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing elements of the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing elements of the
 response’s <em>Attribute List</em> conformant to the specifications in the
 corresponding Service Class.</p>
 <p>If the status category is not ‘Success’ or ‘Warning’ then <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
@@ -259,8 +262,8 @@ corresponding Service Class.</p>
 </ul>
 </p>
 </dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.10)"><strong>NotImplementedError</strong></a> – If the handler has not been implemented and bound to
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.11)"><strong>NotImplementedError</strong></a> – If the handler has not been implemented and bound to
     <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_CREATE</span></code> by the user.</p>
 </dd>
 </dl>
@@ -296,7 +299,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

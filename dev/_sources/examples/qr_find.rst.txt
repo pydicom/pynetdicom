@@ -15,6 +15,27 @@ Associate with a peer DICOM Application Entity and request the SCP search for
 SOP Instances with a *Patient Name* matching ``CITIZEN^Jan`` using *Patient
 Root Query/Retrieve Information Model - Find* at the ``'PATIENT'`` level.
 
+The value of the *Query Retrieve Level* determines what SOP Instances are
+actually transferred, you can find all the possible query level values in the 
+following table. In this example we are querying for all the available
+data of a specific patient, so ``'PATIENT'`` level is the appropriate one.
+
++--------------------+--------------------------------------------------------+
+| Query Retrieve     |                                                        |
+| Level              | Effect                                                 |
++====================+========================================================+
+| PATIENT            | All SOP Instances related to a patient shall be        |
+|                    | transferred                                            |
++--------------------+--------------------------------------------------------+
+| STUDY              | All SOP Instances related to a study shall be          |
+|                    | transferred                                            |
++--------------------+--------------------------------------------------------+
+| SERIES             | All SOP Instances related to a series shall be         |
+|                    | transferred                                            |
++--------------------+--------------------------------------------------------+
+| IMAGE              | Selected individual SOP Instances shall be transferred |
++--------------------+--------------------------------------------------------+
+
 .. code-block:: python
 
     from pydicom.dataset import Dataset

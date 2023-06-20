@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>A-ASSOCIATE-AC PDU &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -110,11 +113,11 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">API Reference</a> &raquo;</li>
-          <li><a href="dul.html">DICOM Upper Layer</a> &raquo;</li>
-          <li><a href="dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a> &raquo;</li>
-      <li>A-ASSOCIATE-AC PDU</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="dul.html">DICOM Upper Layer</a></li>
+          <li class="breadcrumb-item"><a href="dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a></li>
+      <li class="breadcrumb-item active">A-ASSOCIATE-AC PDU</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -124,18 +127,14 @@
            <div itemprop="articleBody">
              
   <section id="a-associate-ac-pdu">
-<span id="api-dul-pdu-aassociateac"></span><h1>A-ASSOCIATE-AC PDU<a class="headerlink" href="#a-associate-ac-pdu" title="Permalink to this headline">¶</a></h1>
+<span id="api-dul-pdu-aassociateac"></span><h1>A-ASSOCIATE-AC PDU<a class="headerlink" href="#a-associate-ac-pdu" title="Permalink to this heading">¶</a></h1>
 <p>An A-ASSOCIATE-AC PDU is made of a sequence of mandatory fields followed by a
 variable length field that must contain one Application Context item, one or
 more Presentation Context items and one User Information item. Sub-items shall
 exist for the Presentation Context and User Information items.</p>
 <section id="pdu">
-<h2>PDU<a class="headerlink" href="#pdu" title="Permalink to this headline">¶</a></h2>
+<h2>PDU<a class="headerlink" href="#pdu" title="Permalink to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu.A_ASSOCIATE_AC.html#pynetdicom.pdu.A_ASSOCIATE_AC" title="pynetdicom.pdu.A_ASSOCIATE_AC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">A_ASSOCIATE_AC</span></code></a>([primitive])</p></td>
 <td><p>An A-ASSOCIATE-AC PDU.</p></td>
@@ -144,12 +143,8 @@ exist for the Presentation Context and User Information items.</p>
 </table>
 </section>
 <section id="variable-items">
-<h2>Variable Items<a class="headerlink" href="#variable-items" title="Permalink to this headline">¶</a></h2>
+<h2>Variable Items<a class="headerlink" href="#variable-items" title="Permalink to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.ApplicationContextItem.html#pynetdicom.pdu_items.ApplicationContextItem" title="pynetdicom.pdu_items.ApplicationContextItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ApplicationContextItem</span></code></a>()</p></td>
 <td><p>An Application Context Item.</p></td>
@@ -164,12 +159,8 @@ exist for the Presentation Context and User Information items.</p>
 </table>
 </section>
 <section id="presentation-context-sub-items">
-<h2>Presentation Context Sub-items<a class="headerlink" href="#presentation-context-sub-items" title="Permalink to this headline">¶</a></h2>
+<h2>Presentation Context Sub-items<a class="headerlink" href="#presentation-context-sub-items" title="Permalink to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.AbstractSyntaxSubItem.html#pynetdicom.pdu_items.AbstractSyntaxSubItem" title="pynetdicom.pdu_items.AbstractSyntaxSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractSyntaxSubItem</span></code></a>()</p></td>
 <td><p>An Abstract Syntax Sub-item.</p></td>
@@ -181,12 +172,8 @@ exist for the Presentation Context and User Information items.</p>
 </table>
 </section>
 <section id="user-information-sub-items">
-<h2>User Information Sub-items<a class="headerlink" href="#user-information-sub-items" title="Permalink to this headline">¶</a></h2>
+<h2>User Information Sub-items<a class="headerlink" href="#user-information-sub-items" title="Permalink to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.MaximumLengthSubItem.html#pynetdicom.pdu_items.MaximumLengthSubItem" title="pynetdicom.pdu_items.MaximumLengthSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaximumLengthSubItem</span></code></a>()</p></td>
 <td><p>A Maximum Length Sub-item.</p></td>
@@ -228,7 +215,7 @@ exist for the Presentation Context and User Information items.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

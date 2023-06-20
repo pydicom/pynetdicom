@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Storage Service Examples &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -92,9 +95,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Code Examples</a> &raquo;</li>
-      <li>Storage Service Examples</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Code Examples</a></li>
+      <li class="breadcrumb-item active">Storage Service Examples</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -104,7 +107,7 @@
            <div itemprop="articleBody">
              
   <section id="storage-service-examples">
-<h1>Storage Service Examples<a class="headerlink" href="#storage-service-examples" title="Permalink to this headline">¶</a></h1>
+<h1>Storage Service Examples<a class="headerlink" href="#storage-service-examples" title="Permalink to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage Service</a>
 provides a mechanism for an SCU to request the transfer
 of supported <a class="reference internal" href="../service_classes/storage_service_class.html#storage-sops"><span class="std std-ref">Storage SOP Class</span></a> instances to
@@ -114,7 +117,7 @@ DIMSE C-STORE service.</p>
 other type of data supported by the Storage SOP Classes, then the Storage
 Service is what you’re looking for.</p>
 <section id="storage-scu">
-<h2>Storage SCU<a class="headerlink" href="#storage-scu" title="Permalink to this headline">¶</a></h2>
+<h2>Storage SCU<a class="headerlink" href="#storage-scu" title="Permalink to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the transfer of a
 single CT dataset.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
@@ -187,7 +190,7 @@ the requested contexts, or just add as many contexts as you need.</p>
 </div>
 </section>
 <section id="storage-scp">
-<span id="example-storage-scp"></span><h2>Storage SCP<a class="headerlink" href="#storage-scp" title="Permalink to this headline">¶</a></h2>
+<span id="example-storage-scp"></span><h2>Storage SCP<a class="headerlink" href="#storage-scp" title="Permalink to this heading">¶</a></h2>
 <p>Create an <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> that supports the
 Storage Service and then listen for association requests on port <code class="docutils literal notranslate"><span class="pre">11112</span></code>.
 When a storage request is
@@ -206,7 +209,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 
 <span class="c1"># Implement a handler for evt.EVT_C_STORE</span>
 <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Handle a C-STORE request event.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle a C-STORE request event.&quot;&quot;&quot;</span>
     <span class="c1"># Decode the C-STORE request&#39;s *Data Set* parameter to a pydicom Dataset</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dataset</span>
 
@@ -246,7 +249,7 @@ multiple C-STORE requests, depending on the size of the datasets:</p>
 
 <span class="c1"># Implement a handler for evt.EVT_C_STORE</span>
 <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Handle a C-STORE request event.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle a C-STORE request event.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="c1"># Write the preamble and prefix</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="o">*</span> <span class="mi">128</span><span class="p">)</span>
@@ -325,7 +328,7 @@ interested in.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

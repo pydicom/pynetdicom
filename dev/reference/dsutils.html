@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dataset Utilities (pynetdicom.dsutils) &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -107,9 +110,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">API Reference</a> &raquo;</li>
-      <li>Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -119,32 +122,24 @@
            <div itemprop="articleBody">
              
   <span class="target" id="module-pynetdicom.dsutils"><span id="api-dsutils"></span></span><section id="dataset-utilities-pynetdicom-dsutils">
-<h1>Dataset Utilities (<a class="reference internal" href="#module-pynetdicom.dsutils" title="pynetdicom.dsutils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code></a>)<a class="headerlink" href="#dataset-utilities-pynetdicom-dsutils" title="Permalink to this headline">¶</a></h1>
+<h1>Dataset Utilities (<a class="reference internal" href="#module-pynetdicom.dsutils" title="pynetdicom.dsutils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code></a>)<a class="headerlink" href="#dataset-utilities-pynetdicom-dsutils" title="Permalink to this heading">¶</a></h1>
 <p>This module provides DICOM Dataset related utilities.</p>
 <section id="encoding-and-decoding">
-<h2>Encoding and Decoding<a class="headerlink" href="#encoding-and-decoding" title="Permalink to this headline">¶</a></h2>
+<h2>Encoding and Decoding<a class="headerlink" href="#encoding-and-decoding" title="Permalink to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.dsutils.encode.html#pynetdicom.dsutils.encode" title="pynetdicom.dsutils.encode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode</span></code></a>(ds, is_implicit_vr, is_little_endian)</p></td>
-<td><p>Encode a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> <cite>ds</cite>.</p></td>
+<td><p>Encode a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> <cite>ds</cite>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.dsutils.decode.html#pynetdicom.dsutils.decode" title="pynetdicom.dsutils.decode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode</span></code></a>(bytestring, is_implicit_vr, ...[, ...])</p></td>
-<td><p>Decode <cite>bytestring</cite> to a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
+<td><p>Decode <cite>bytestring</cite> to a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="miscellaneous">
-<h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h2>
+<h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.dsutils.pretty_dataset.html#pynetdicom.dsutils.pretty_dataset" title="pynetdicom.dsutils.pretty_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pretty_dataset</span></code></a>(ds[, indent, indent_char])</p></td>
 <td><p>Return a list of pretty dataset strings.</p></td>
@@ -168,7 +163,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

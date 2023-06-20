@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Query/Retrieve (Find) Service Examples &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -92,9 +95,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Code Examples</a> &raquo;</li>
-      <li>Query/Retrieve (Find) Service Examples</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Code Examples</a></li>
+      <li class="breadcrumb-item active">Query/Retrieve (Find) Service Examples</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -104,17 +107,46 @@
            <div itemprop="articleBody">
              
   <section id="query-retrieve-find-service-examples">
-<h1>Query/Retrieve (Find) Service Examples<a class="headerlink" href="#query-retrieve-find-service-examples" title="Permalink to this headline">¶</a></h1>
+<h1>Query/Retrieve (Find) Service Examples<a class="headerlink" href="#query-retrieve-find-service-examples" title="Permalink to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve Service</a>
 provides a mechanism for a service user to query the SOP Instances managed
 by a QR SCP. The QR (Find) SOP classes allow an SCU to receive a list of
 attributes matching the requested query. This is accomplished through the
 DIMSE C-FIND service.</p>
 <section id="query-retrieve-find-scu">
-<h2>Query/Retrieve (Find) SCU<a class="headerlink" href="#query-retrieve-find-scu" title="Permalink to this headline">¶</a></h2>
+<h2>Query/Retrieve (Find) SCU<a class="headerlink" href="#query-retrieve-find-scu" title="Permalink to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the SCP search for
 SOP Instances with a <em>Patient Name</em> matching <code class="docutils literal notranslate"><span class="pre">CITIZEN^Jan</span></code> using <em>Patient
 Root Query/Retrieve Information Model - Find</em> at the <code class="docutils literal notranslate"><span class="pre">'PATIENT'</span></code> level.</p>
+<p>The value of the <em>Query Retrieve Level</em> determines what SOP Instances are
+actually transferred, you can find all the possible query level values in the
+following table. In this example we are querying for all the available
+data of a specific patient, so <code class="docutils literal notranslate"><span class="pre">'PATIENT'</span></code> level is the appropriate one.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Query Retrieve
+Level</p></th>
+<th class="head"><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>PATIENT</p></td>
+<td><p>All SOP Instances related to a patient shall be
+transferred</p></td>
+</tr>
+<tr class="row-odd"><td><p>STUDY</p></td>
+<td><p>All SOP Instances related to a study shall be
+transferred</p></td>
+</tr>
+<tr class="row-even"><td><p>SERIES</p></td>
+<td><p>All SOP Instances related to a series shall be
+transferred</p></td>
+</tr>
+<tr class="row-odd"><td><p>IMAGE</p></td>
+<td><p>Selected individual SOP Instances shall be transferred</p></td>
+</tr>
+</tbody>
+</table>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
@@ -162,7 +194,7 @@ the various <em>SOP Class UIDs</em> that make are in each study for a patient wi
 </div>
 </section>
 <section id="query-retrieve-find-scp">
-<span id="example-qrfind-scp"></span><h2>Query/Retrieve (Find) SCP<a class="headerlink" href="#query-retrieve-find-scp" title="Permalink to this headline">¶</a></h2>
+<span id="example-qrfind-scp"></span><h2>Query/Retrieve (Find) SCP<a class="headerlink" href="#query-retrieve-find-scp" title="Permalink to this heading">¶</a></h2>
 <p>The following represents a toy implementation of a Query/Retrieve (Find) SCP
 where the SCU has sent the following <em>Identifier</em> dataset under the <em>Patient
 Root Query Retrieve Information Model - Find</em> context.</p>
@@ -188,7 +220,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 
  <span class="c1"># Implement the handler for evt.EVT_C_FIND</span>
  <span class="k">def</span> <span class="nf">handle_find</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-     <span class="sd">&quot;&quot;&quot;Handle a C-FIND request event.&quot;&quot;&quot;</span>
+<span class="w">     </span><span class="sd">&quot;&quot;&quot;Handle a C-FIND request event.&quot;&quot;&quot;</span>
      <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">identifier</span>
 
      <span class="c1"># Import stored SOP Instances</span>
@@ -254,7 +286,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

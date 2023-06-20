@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Query/Retrieve (Move) Service Examples &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -92,9 +95,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Code Examples</a> &raquo;</li>
-      <li>Query/Retrieve (Move) Service Examples</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Code Examples</a></li>
+      <li class="breadcrumb-item active">Query/Retrieve (Move) Service Examples</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -104,7 +107,7 @@
            <div itemprop="articleBody">
              
   <section id="query-retrieve-move-service-examples">
-<h1>Query/Retrieve (Move) Service Examples<a class="headerlink" href="#query-retrieve-move-service-examples" title="Permalink to this headline">¶</a></h1>
+<h1>Query/Retrieve (Move) Service Examples<a class="headerlink" href="#query-retrieve-move-service-examples" title="Permalink to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve Service</a>
 provides a mechanism for a service user to query and retrieve the SOP Instances
 managed by a QR SCP. The QR (Move) SOP classes allow an SCU to request an SCP
@@ -115,7 +118,7 @@ know in advance the details (AE title, IP address, port number) of the
 destination Storage SCP. If the Move SCP doesn’t know the destination AE then
 it will usually respond with an <code class="docutils literal notranslate"><span class="pre">0xA801</span></code> status code.</p>
 <section id="query-retrieve-move-scu">
-<h2>Query/Retrieve (Move) SCU<a class="headerlink" href="#query-retrieve-move-scu" title="Permalink to this headline">¶</a></h2>
+<h2>Query/Retrieve (Move) SCU<a class="headerlink" href="#query-retrieve-move-scu" title="Permalink to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request it send
 all SOP Instances for the patient with <em>Patient ID</em> <code class="docutils literal notranslate"><span class="pre">1234567</span></code> belonging to the
 series with <em>Study Instance UID</em> <code class="docutils literal notranslate"><span class="pre">1.2.3</span></code> and <em>Series Instance UID</em>
@@ -176,7 +179,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 <span class="n">debug_logger</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Handle a C-STORE service request&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle a C-STORE service request&quot;&quot;&quot;</span>
     <span class="c1"># Ignore the request and return Success</span>
     <span class="k">return</span> <span class="mh">0x0000</span>
 
@@ -229,7 +232,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 </div>
 </section>
 <section id="query-retrieve-move-scp">
-<span id="example-qrmove-scp"></span><h2>Query/Retrieve (Move) SCP<a class="headerlink" href="#query-retrieve-move-scp" title="Permalink to this headline">¶</a></h2>
+<span id="example-qrmove-scp"></span><h2>Query/Retrieve (Move) SCP<a class="headerlink" href="#query-retrieve-move-scp" title="Permalink to this heading">¶</a></h2>
 <p>The following represents a toy implementation of a Query/Retrieve (Move) SCP
 where the SCU has sent the following <em>Identifier</em> dataset under the <em>Patient
 Root Query Retrieve Information Model - Move</em> context and the move destination
@@ -256,7 +259,7 @@ query against that, which is the approach taken by the
 
 <span class="c1"># Implement the evt.EVT_C_MOVE handler</span>
 <span class="k">def</span> <span class="nf">handle_move</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Handle a C-MOVE request event.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle a C-MOVE request event.&quot;&quot;&quot;</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">identifier</span>
 
     <span class="k">if</span> <span class="s1">&#39;QueryRetrieveLevel&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
@@ -324,7 +327,7 @@ query against that, which is the approach taken by the
 </div>
 <p>It’s also possible to get more control over the association with the Storage
 SCP that’ll be receiving any matching datasets by yielding <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port,</span>
-<span class="pre">kwargs)</span></code> instead of <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port)</span></code>, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>
+<span class="pre">kwargs)</span></code> instead of <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port)</span></code>, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>
 containing keyword parameters that’ll be passed to
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>. In
 particular, this allows you to tailor the presentation contexts that will be
@@ -344,7 +347,7 @@ parameter).</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

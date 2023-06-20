@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.transport.T_CONNECT &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> pynetdicom
-            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -72,7 +75,10 @@
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.AssociationServer.html">pynetdicom.transport.AssociationServer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.RequestHandler.html">pynetdicom.transport.RequestHandler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.ThreadedAssociationServer.html">pynetdicom.transport.ThreadedAssociationServer</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.transport.T_CONNECT</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.transport.T_CONNECT</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pynetdicom.transport.T_CONNECT"><code class="docutils literal notranslate"><span class="pre">T_CONNECT</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
@@ -102,10 +108,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">API Reference</a> &raquo;</li>
-          <li><a href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a> &raquo;</li>
-      <li>pynetdicom.transport.T_CONNECT</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+      <li class="breadcrumb-item active">pynetdicom.transport.T_CONNECT</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -115,10 +121,10 @@
            <div itemprop="articleBody">
              
   <section id="pynetdicom-transport-t-connect">
-<h1>pynetdicom.transport.T_CONNECT<a class="headerlink" href="#pynetdicom-transport-t-connect" title="Permalink to this headline">¶</a></h1>
+<h1>pynetdicom.transport.T_CONNECT<a class="headerlink" href="#pynetdicom-transport-t-connect" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.transport.T_CONNECT">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.transport.</span></span><span class="sig-name descname"><span class="pre">T_CONNECT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">pynetdicom.pdu_primitives.A_ASSOCIATE</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/transport.py#L51"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.T_CONNECT" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.transport.</span></span><span class="sig-name descname"><span class="pre">T_CONNECT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">A_ASSOCIATE</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/transport.py#L51"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.T_CONNECT" title="Permalink to this definition">¶</a></dt>
 <dd><p>A TRANSPORT CONNECTION primitive</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 2.0.</span></p>
@@ -129,7 +135,7 @@
 <dd><p>The A-ASSOCIATE (request) primitive that generated the TRANSPORT CONNECTION
 primitive.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE">pynetdicom.pdu_primitives.A_ASSOCIATE</a></p>
 </dd>
 </dl>
@@ -137,10 +143,10 @@ primitive.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.transport.T_CONNECT.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">pynetdicom.pdu_primitives.A_ASSOCIATE</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/transport.py#L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.T_CONNECT.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">A_ASSOCIATE</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/transport.py#L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.T_CONNECT.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new TRANSPORT CONNECTION primitive.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>request</strong> (<a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><em>pynetdicom.pdu_primitives.A_ASSOCIATE</em></a>) – The A-ASSOCIATE (request) primitive to use when making a connection with
 a peer.</p>
 </dd>
@@ -149,10 +155,6 @@ a peer.</p>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.T_CONNECT.__init__" title="pynetdicom.transport.T_CONNECT.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(request)</p></td>
 <td><p>Create a new TRANSPORT CONNECTION primitive.</p></td>
@@ -161,40 +163,36 @@ a peer.</p>
 </table>
 <p class="rubric">Attributes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.T_CONNECT.address" title="pynetdicom.transport.T_CONNECT.address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">address</span></code></a></p></td>
 <td><p>Return the peer's <code class="docutils literal notranslate"><span class="pre">(str:</span> <span class="pre">IP</span> <span class="pre">address,</span> <span class="pre">int:</span> <span class="pre">port)</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.T_CONNECT.result" title="pynetdicom.transport.T_CONNECT.result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result</span></code></a></p></td>
-<td><p>Return the result of the connection attempt as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p></td>
+<td><p>Return the result of the connection attempt as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.transport.T_CONNECT.address">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.transport.T_CONNECT.address" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.transport.T_CONNECT.address" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the peer’s <code class="docutils literal notranslate"><span class="pre">(str:</span> <span class="pre">IP</span> <span class="pre">address,</span> <span class="pre">int:</span> <span class="pre">port)</span></code>.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.transport.T_CONNECT.result">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#pynetdicom.transport.T_CONNECT.result" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the result of the connection attempt as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#pynetdicom.transport.T_CONNECT.result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the result of the connection attempt as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>str</strong> – The result of the connection attempt, <code class="docutils literal notranslate"><span class="pre">&quot;Evt2&quot;</span></code> if the connection
 succeeded, <code class="docutils literal notranslate"><span class="pre">&quot;Evt17&quot;</span></code> if it failed.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The result of the connection attempt, <code class="docutils literal notranslate"><span class="pre">&quot;Evt2&quot;</span></code> if the connection
 succeeded, <code class="docutils literal notranslate"><span class="pre">&quot;Evt17&quot;</span></code> if it failed.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -214,7 +212,7 @@ succeeded, <code class="docutils literal notranslate"><span class="pre">&quot;Ev
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

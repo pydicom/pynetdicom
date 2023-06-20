@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.presentation.build_role &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> pynetdicom
-            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -106,10 +109,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">API Reference</a> &raquo;</li>
-          <li><a href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a> &raquo;</li>
-      <li>pynetdicom.presentation.build_role</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+      <li class="breadcrumb-item active">pynetdicom.presentation.build_role</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -119,30 +122,30 @@
            <div itemprop="articleBody">
              
   <section id="pynetdicom-presentation-build-role">
-<h1>pynetdicom.presentation.build_role<a class="headerlink" href="#pynetdicom-presentation-build-role" title="Permalink to this headline">¶</a></h1>
+<h1>pynetdicom.presentation.build_role<a class="headerlink" href="#pynetdicom-presentation-build-role" title="Permalink to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="pynetdicom.presentation.build_role">
-<span class="sig-prename descclassname"><span class="pre">pynetdicom.presentation.</span></span><span class="sig-name descname"><span class="pre">build_role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.3.0)"><span class="pre">pydicom.uid.UID</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scu_role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scp_role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/presentation.py#L953"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.presentation.build_role" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pynetdicom.presentation.</span></span><span class="sig-name descname"><span class="pre">build_role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.4.1)"><span class="pre">UID</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">scu_role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scp_role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/presentation.py#L953"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.presentation.build_role" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a SCP/SCU Role Selection Negotiation item.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>uid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>UID</em><em> or </em><a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><em>sop_class.SOPClass</em></a>) – The <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a> or subclass of
+<li><p><strong>uid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>UID</em><em> or </em><a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><em>sop_class.SOPClass</em></a>) – The <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a> or subclass of
 <a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOPClass</span></code></a> instance to use as the <em>SOP
 Class UID</em> parameter value.</p></li>
-<li><p><strong>scu_role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> to propose the SCU role for the <em>Requestor</em>, <code class="docutils literal notranslate"><span class="pre">False</span></code>
+<li><p><strong>scu_role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> to propose the SCU role for the <em>Requestor</em>, <code class="docutils literal notranslate"><span class="pre">False</span></code>
 otherwise (default).</p></li>
-<li><p><strong>scp_role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> to propose the SCP role for the <em>Requestor</em>, <code class="docutils literal notranslate"><span class="pre">False</span></code>
+<li><p><strong>scp_role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> to propose the SCP role for the <em>Requestor</em>, <code class="docutils literal notranslate"><span class="pre">False</span></code>
 otherwise (default).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The role selection item.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation">pdu_primitives.SCP_SCU_RoleSelectionNegotiation</a></p>
 </dd>
 </dl>
@@ -161,7 +164,7 @@ otherwise (default).</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>State Machine (pynetdicom.fsm) &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -108,9 +111,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">API Reference</a> &raquo;</li>
-      <li>State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -120,15 +123,11 @@
            <div itemprop="articleBody">
              
   <span class="target" id="module-pynetdicom.fsm"><span id="api-fsm"></span></span><section id="state-machine-pynetdicom-fsm">
-<h1>State Machine (<a class="reference internal" href="#module-pynetdicom.fsm" title="pynetdicom.fsm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code></a>)<a class="headerlink" href="#state-machine-pynetdicom-fsm" title="Permalink to this headline">¶</a></h1>
+<h1>State Machine (<a class="reference internal" href="#module-pynetdicom.fsm" title="pynetdicom.fsm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code></a>)<a class="headerlink" href="#state-machine-pynetdicom-fsm" title="Permalink to this heading">¶</a></h1>
 <p>The Finite State Machine</p>
 <section id="state-machine">
-<h2>State Machine<a class="headerlink" href="#state-machine" title="Permalink to this headline">¶</a></h2>
+<h2>State Machine<a class="headerlink" href="#state-machine" title="Permalink to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.fsm.StateMachine.html#pynetdicom.fsm.StateMachine" title="pynetdicom.fsm.StateMachine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StateMachine</span></code></a>(dul)</p></td>
 <td><p>Implementation of the DICOM Upper Layer State Machine.</p></td>
@@ -137,14 +136,10 @@
 </table>
 </section>
 <section id="actions">
-<h2>Actions<a class="headerlink" href="#actions" title="Permalink to this headline">¶</a></h2>
+<h2>Actions<a class="headerlink" href="#actions" title="Permalink to this heading">¶</a></h2>
 <section id="association-establishment">
-<h3>Association Establishment<a class="headerlink" href="#association-establishment" title="Permalink to this headline">¶</a></h3>
+<h3>Association Establishment<a class="headerlink" href="#association-establishment" title="Permalink to this heading">¶</a></h3>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.fsm.AE_1.html#pynetdicom.fsm.AE_1" title="pynetdicom.fsm.AE_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE_1</span></code></a>(dul)</p></td>
 <td><p>Association establishment action AE-1.</p></td>
@@ -174,12 +169,8 @@
 </table>
 </section>
 <section id="data-transfer">
-<h3>Data Transfer<a class="headerlink" href="#data-transfer" title="Permalink to this headline">¶</a></h3>
+<h3>Data Transfer<a class="headerlink" href="#data-transfer" title="Permalink to this heading">¶</a></h3>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.fsm.DT_1.html#pynetdicom.fsm.DT_1" title="pynetdicom.fsm.DT_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DT_1</span></code></a>(dul)</p></td>
 <td><p>Data transfer DT-1.</p></td>
@@ -191,12 +182,8 @@
 </table>
 </section>
 <section id="association-release">
-<h3>Association Release<a class="headerlink" href="#association-release" title="Permalink to this headline">¶</a></h3>
+<h3>Association Release<a class="headerlink" href="#association-release" title="Permalink to this heading">¶</a></h3>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.fsm.AR_1.html#pynetdicom.fsm.AR_1" title="pynetdicom.fsm.AR_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AR_1</span></code></a>(dul)</p></td>
 <td><p>Association release AR-1.</p></td>
@@ -232,12 +219,8 @@
 </table>
 </section>
 <section id="association-abort">
-<h3>Association Abort<a class="headerlink" href="#association-abort" title="Permalink to this headline">¶</a></h3>
+<h3>Association Abort<a class="headerlink" href="#association-abort" title="Permalink to this heading">¶</a></h3>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.fsm.AA_1.html#pynetdicom.fsm.AA_1" title="pynetdicom.fsm.AA_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AA_1</span></code></a>(dul)</p></td>
 <td><p>Association abort AA-1.</p></td>
@@ -280,7 +263,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

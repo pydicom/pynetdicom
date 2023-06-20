@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Relevant Patient Information Query Service Examples &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -92,9 +95,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Code Examples</a> &raquo;</li>
-      <li>Relevant Patient Information Query Service Examples</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Code Examples</a></li>
+      <li class="breadcrumb-item active">Relevant Patient Information Query Service Examples</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -104,12 +107,12 @@
            <div itemprop="articleBody">
              
   <section id="relevant-patient-information-query-service-examples">
-<h1>Relevant Patient Information Query Service Examples<a class="headerlink" href="#relevant-patient-information-query-service-examples" title="Permalink to this headline">¶</a></h1>
+<h1>Relevant Patient Information Query Service Examples<a class="headerlink" href="#relevant-patient-information-query-service-examples" title="Permalink to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_Q.html">Relevant Patient Information Query Service</a>
 provides a mechanism for an SCU to access relevant patient information managed
 by an SCP. This is accomplished through the DIMSE C-FIND service.</p>
 <section id="relevant-patient-information-scu">
-<h2>Relevant Patient Information SCU<a class="headerlink" href="#relevant-patient-information-scu" title="Permalink to this headline">¶</a></h2>
+<h2>Relevant Patient Information SCU<a class="headerlink" href="#relevant-patient-information-scu" title="Permalink to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request information on a
 single patient with ID <code class="docutils literal notranslate"><span class="pre">1234567</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
@@ -155,7 +158,7 @@ single patient with ID <code class="docutils literal notranslate"><span class="p
 </div>
 </section>
 <section id="relevant-patient-information-scp">
-<h2>Relevant Patient Information SCP<a class="headerlink" href="#relevant-patient-information-scp" title="Permalink to this headline">¶</a></h2>
+<h2>Relevant Patient Information SCP<a class="headerlink" href="#relevant-patient-information-scp" title="Permalink to this heading">¶</a></h2>
 <p>The following represents a toy implementation of a Relevant Patient
 Information Query SCP where the SCU has sent the following <em>Identifier</em>
 dataset under the <em>General Relevant Patient Information Model Query</em> context.
@@ -186,7 +189,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 
 <span class="c1"># Implement the evt.EVT_C_FIND handler</span>
 <span class="k">def</span> <span class="nf">handle_find</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Handle a C-FIND service request&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle a C-FIND service request&quot;&quot;&quot;</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">identifier</span>
 
     <span class="c1"># Import stored SOP Instances</span>
@@ -237,7 +240,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

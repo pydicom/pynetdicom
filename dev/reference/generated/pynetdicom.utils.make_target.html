@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.utils.make_target &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> pynetdicom
-            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -70,7 +73,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.utils.decode_bytes.html">pynetdicom.utils.decode_bytes</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.utils.make_target</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.utils.make_target</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pynetdicom.utils.make_target"><code class="docutils literal notranslate"><span class="pre">make_target()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.utils.pretty_bytes.html">pynetdicom.utils.pretty_bytes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.utils.set_ae.html">pynetdicom.utils.set_ae</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.utils.set_uid.html">pynetdicom.utils.set_uid</a></li>
@@ -103,10 +109,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">API Reference</a> &raquo;</li>
-          <li><a href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a> &raquo;</li>
-      <li>pynetdicom.utils.make_target</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+      <li class="breadcrumb-item active">pynetdicom.utils.make_target</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -116,10 +122,10 @@
            <div itemprop="articleBody">
              
   <section id="pynetdicom-utils-make-target">
-<h1>pynetdicom.utils.make_target<a class="headerlink" href="#pynetdicom-utils-make-target" title="Permalink to this headline">¶</a></h1>
+<h1>pynetdicom.utils.make_target<a class="headerlink" href="#pynetdicom-utils-make-target" title="Permalink to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="pynetdicom.utils.make_target">
-<span class="sig-prename descclassname"><span class="pre">pynetdicom.utils.</span></span><span class="sig-name descname"><span class="pre">make_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><span class="pre">Callable</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><span class="pre">Callable</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/utils.py#L73"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.utils.make_target" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pynetdicom.utils.</span></span><span class="sig-name descname"><span class="pre">make_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><span class="pre">Callable</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><span class="pre">Callable</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/utils.py#L73"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.utils.make_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wraps <cite>target_fn</cite> in a thunk that passes all contextvars from the
 current context. It is assumed that <cite>target_fn</cite> is the target of a new
 <code class="docutils literal notranslate"><span class="pre">threading.Thread</span></code>.</p>
@@ -129,14 +135,14 @@ current context. It is assumed that <cite>target_fn</cite> is the target of a ne
 </ul>
 <p>If the requirements are not met, the original <cite>target_fn</cite> is returned.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>target_fn</strong> (<em>Callable</em>) – The function to wrap</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The wrapped <cite>target_fn</cite> if requirements are met, else the original
 <cite>target_fn</cite>.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Callable</p>
 </dd>
 </dl>
@@ -155,7 +161,7 @@ current context. It is assumed that <cite>target_fn</cite> is the target of a ne
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

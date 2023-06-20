@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Modality Performed Procedure Step Management &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -110,9 +113,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Supported Service Classes</a> &raquo;</li>
-      <li>Modality Performed Procedure Step Management</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Supported Service Classes</a></li>
+      <li class="breadcrumb-item active">Modality Performed Procedure Step Management</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -122,17 +125,13 @@
            <div itemprop="articleBody">
              
   <section id="modality-performed-procedure-step-management">
-<span id="service-mpps"></span><h1>Modality Performed Procedure Step Management<a class="headerlink" href="#modality-performed-procedure-step-management" title="Permalink to this headline">¶</a></h1>
+<span id="service-mpps"></span><h1>Modality Performed Procedure Step Management<a class="headerlink" href="#modality-performed-procedure-step-management" title="Permalink to this heading">¶</a></h1>
 <p><cite>Modality Performed Procedure Step Management &lt;part04/chapter_F.html&gt;</cite>
 defines a service that facilitates logging and tracking of procedures performed
 by a modality.</p>
 <section id="supported-sop-classes">
-<span id="mpps-sops"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this headline">¶</a></h2>
+<span id="mpps-sops"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 36%" />
-<col style="width: 64%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
 <th class="head"><p>SOP Class</p></th>
@@ -152,12 +151,8 @@ by a modality.</p>
 </table>
 </section>
 <section id="dimse-services">
-<h2>DIMSE Services<a class="headerlink" href="#dimse-services" title="Permalink to this headline">¶</a></h2>
+<h2>DIMSE Services<a class="headerlink" href="#dimse-services" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 29%" />
-<col style="width: 71%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>DIMSE Service</p></th>
 <th class="head"><p>Usage SCU/SCP</p></th>
@@ -186,15 +181,10 @@ by a modality.</p>
 </table>
 </section>
 <section id="statuses">
-<span id="mpps-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this headline">¶</a></h2>
+<span id="mpps-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this heading">¶</a></h2>
 <section id="n-create-statuses">
-<h3>N-CREATE Statuses<a class="headerlink" href="#n-create-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>N-CREATE Statuses<a class="headerlink" href="#n-create-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 21%" />
-<col style="width: 18%" />
-<col style="width: 61%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -270,13 +260,8 @@ by a modality.</p>
 </table>
 </section>
 <section id="n-event-report-statuses">
-<h3>N-EVENT-REPORT Statuses<a class="headerlink" href="#n-event-report-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>N-EVENT-REPORT Statuses<a class="headerlink" href="#n-event-report-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 21%" />
-<col style="width: 18%" />
-<col style="width: 61%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -340,13 +325,8 @@ by a modality.</p>
 </table>
 </section>
 <section id="n-get-statuses">
-<h3>N-GET Statuses<a class="headerlink" href="#n-get-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>N-GET Statuses<a class="headerlink" href="#n-get-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 21%" />
-<col style="width: 18%" />
-<col style="width: 61%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -410,13 +390,8 @@ by a modality.</p>
 </table>
 </section>
 <section id="n-set-statuses">
-<h3>N-SET Statuses<a class="headerlink" href="#n-set-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>N-SET Statuses<a class="headerlink" href="#n-set-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 21%" />
-<col style="width: 18%" />
-<col style="width: 61%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -501,7 +476,7 @@ by a modality.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.dul.DULServiceProvider &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> pynetdicom
-            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -104,11 +107,11 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">API Reference</a> &raquo;</li>
-          <li><a href="../dul.html">DICOM Upper Layer</a> &raquo;</li>
-          <li><a href="../dul.provider.html">DUL Service Provider (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dul</span></code>)</a> &raquo;</li>
-      <li>pynetdicom.dul.DULServiceProvider</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../dul.html">DICOM Upper Layer</a></li>
+          <li class="breadcrumb-item"><a href="../dul.provider.html">DUL Service Provider (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dul</span></code>)</a></li>
+      <li class="breadcrumb-item active">pynetdicom.dul.DULServiceProvider</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -118,17 +121,17 @@
            <div itemprop="articleBody">
              
   <section id="pynetdicom-dul-dulserviceprovider">
-<h1>pynetdicom.dul.DULServiceProvider<a class="headerlink" href="#pynetdicom-dul-dulserviceprovider" title="Permalink to this headline">¶</a></h1>
+<h1>pynetdicom.dul.DULServiceProvider<a class="headerlink" href="#pynetdicom-dul-dulserviceprovider" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.dul.DULServiceProvider">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.dul.</span></span><span class="sig-name descname"><span class="pre">DULServiceProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assoc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><span class="pre">Association</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/dul.py#L47"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.dul.</span></span><span class="sig-name descname"><span class="pre">DULServiceProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assoc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><span class="pre">Association</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/dul.py#L47"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider" title="Permalink to this definition">¶</a></dt>
 <dd><p>The DICOM Upper Layer Service Provider.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pynetdicom.dul.DULServiceProvider.artim_timer">
 <span class="sig-name descname"><span class="pre">artim_timer</span></span><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.artim_timer" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_9.html#sect_9.1.5">ARTIM</a> timer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="pynetdicom.timer.Timer.html#pynetdicom.timer.Timer" title="pynetdicom.timer.Timer">timer.Timer</a></p>
 </dd>
 </dl>
@@ -140,7 +143,7 @@
 <dd><p>A wrapped <a class="reference external" href="https://docs.python.org/3/library/socket.html#socket-objects">socket</a>
 object used to communicate with the peer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket" title="pynetdicom.transport.AssociationSocket">transport.AssociationSocket</a></p>
 </dd>
 </dl>
@@ -151,8 +154,8 @@ object used to communicate with the peer.</p>
 <span class="sig-name descname"><span class="pre">to_provider_queue</span></span><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.to_provider_queue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Queue of primitives received from the peer to be processed by the service user.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/queue.html#queue.Queue" title="(in Python v3.10)">queue.Queue</a></p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/queue.html#queue.Queue" title="(in Python v3.11)">queue.Queue</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -162,8 +165,8 @@ object used to communicate with the peer.</p>
 <span class="sig-name descname"><span class="pre">to_user_queue</span></span><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.to_user_queue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Queue of processed PDUs for the DUL service user.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/queue.html#queue.Queue" title="(in Python v3.10)">queue.Queue</a></p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/queue.html#queue.Queue" title="(in Python v3.11)">queue.Queue</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -173,8 +176,8 @@ object used to communicate with the peer.</p>
 <span class="sig-name descname"><span class="pre">event_queue</span></span><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.event_queue" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of queued events to be processed by the state machine.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/queue.html#queue.Queue" title="(in Python v3.10)">queue.Queue</a></p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/queue.html#queue.Queue" title="(in Python v3.11)">queue.Queue</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -184,7 +187,7 @@ object used to communicate with the peer.</p>
 <span class="sig-name descname"><span class="pre">state_machine</span></span><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.state_machine" title="Permalink to this definition">¶</a></dt>
 <dd><p>The DICOM Upper Layer’s State Machine.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="pynetdicom.fsm.StateMachine.html#pynetdicom.fsm.StateMachine" title="pynetdicom.fsm.StateMachine">fsm.StateMachine</a></p>
 </dd>
 </dl>
@@ -192,10 +195,10 @@ object used to communicate with the peer.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.dul.DULServiceProvider.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assoc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><span class="pre">Association</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/dul.py#L68"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assoc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><span class="pre">Association</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/dul.py#L68"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new DUL service provider for <cite>assoc</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The DUL’s parent <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>
 instance.</p>
 </dd>
@@ -204,10 +207,6 @@ instance.</p>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dul.DULServiceProvider.__init__" title="pynetdicom.dul.DULServiceProvider.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(assoc)</p></td>
 <td><p>Create a new DUL service provider for <cite>assoc</cite>.</p></td>
@@ -261,10 +260,6 @@ instance.</p>
 </table>
 <p class="rubric">Attributes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dul.DULServiceProvider.assoc" title="pynetdicom.dul.DULServiceProvider.assoc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assoc</span></code></a></p></td>
 <td><p>Return the parent <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>.</p></td>
@@ -294,49 +289,49 @@ instance.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.dul.DULServiceProvider.idle_timer_expired">
-<span class="sig-name descname"><span class="pre">idle_timer_expired</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/dul.py#L142"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.idle_timer_expired" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">idle_timer_expired</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/dul.py#L142"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.idle_timer_expired" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the network idle timer has expired.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.dul.DULServiceProvider.kill_dul">
-<span class="sig-name descname"><span class="pre">kill_dul</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/dul.py#L184"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.kill_dul" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">kill_dul</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/dul.py#L184"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.kill_dul" title="Permalink to this definition">¶</a></dt>
 <dd><p>Kill the DUL reactor and stop the thread</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.dul.DULServiceProvider.network_timeout">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">network_timeout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.network_timeout" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">network_timeout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.network_timeout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the network timeout (in seconds).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.dul.DULServiceProvider.peek_next_pdu">
-<span class="sig-name descname"><span class="pre">peek_next_pdu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">pynetdicom.pdu_primitives.A_ASSOCIATE</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_RELEASE.html#pynetdicom.pdu_primitives.A_RELEASE" title="pynetdicom.pdu_primitives.A_RELEASE"><span class="pre">pynetdicom.pdu_primitives.A_RELEASE</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_ABORT.html#pynetdicom.pdu_primitives.A_ABORT" title="pynetdicom.pdu_primitives.A_ABORT"><span class="pre">pynetdicom.pdu_primitives.A_ABORT</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_P_ABORT.html#pynetdicom.pdu_primitives.A_P_ABORT" title="pynetdicom.pdu_primitives.A_P_ABORT"><span class="pre">pynetdicom.pdu_primitives.A_P_ABORT</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.P_DATA.html#pynetdicom.pdu_primitives.P_DATA" title="pynetdicom.pdu_primitives.P_DATA"><span class="pre">pynetdicom.pdu_primitives.P_DATA</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/dul.py#L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.peek_next_pdu" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">peek_next_pdu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">A_ASSOCIATE</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_RELEASE.html#pynetdicom.pdu_primitives.A_RELEASE" title="pynetdicom.pdu_primitives.A_RELEASE"><span class="pre">A_RELEASE</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_ABORT.html#pynetdicom.pdu_primitives.A_ABORT" title="pynetdicom.pdu_primitives.A_ABORT"><span class="pre">A_ABORT</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_P_ABORT.html#pynetdicom.pdu_primitives.A_P_ABORT" title="pynetdicom.pdu_primitives.A_P_ABORT"><span class="pre">A_P_ABORT</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.P_DATA.html#pynetdicom.pdu_primitives.P_DATA" title="pynetdicom.pdu_primitives.P_DATA"><span class="pre">P_DATA</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/dul.py#L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.peek_next_pdu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check the next PDU to be processed.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.dul.DULServiceProvider.receive_pdu">
-<span class="sig-name descname"><span class="pre">receive_pdu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">pynetdicom.pdu_primitives.A_ASSOCIATE</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_RELEASE.html#pynetdicom.pdu_primitives.A_RELEASE" title="pynetdicom.pdu_primitives.A_RELEASE"><span class="pre">pynetdicom.pdu_primitives.A_RELEASE</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_ABORT.html#pynetdicom.pdu_primitives.A_ABORT" title="pynetdicom.pdu_primitives.A_ABORT"><span class="pre">pynetdicom.pdu_primitives.A_ABORT</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_P_ABORT.html#pynetdicom.pdu_primitives.A_P_ABORT" title="pynetdicom.pdu_primitives.A_P_ABORT"><span class="pre">pynetdicom.pdu_primitives.A_P_ABORT</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.P_DATA.html#pynetdicom.pdu_primitives.P_DATA" title="pynetdicom.pdu_primitives.P_DATA"><span class="pre">pynetdicom.pdu_primitives.P_DATA</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/dul.py#L334"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.receive_pdu" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">receive_pdu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">A_ASSOCIATE</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_RELEASE.html#pynetdicom.pdu_primitives.A_RELEASE" title="pynetdicom.pdu_primitives.A_RELEASE"><span class="pre">A_RELEASE</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_ABORT.html#pynetdicom.pdu_primitives.A_ABORT" title="pynetdicom.pdu_primitives.A_ABORT"><span class="pre">A_ABORT</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_P_ABORT.html#pynetdicom.pdu_primitives.A_P_ABORT" title="pynetdicom.pdu_primitives.A_P_ABORT"><span class="pre">A_P_ABORT</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.P_DATA.html#pynetdicom.pdu_primitives.P_DATA" title="pynetdicom.pdu_primitives.P_DATA"><span class="pre">P_DATA</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/dul.py#L334"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.receive_pdu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an item from the queue if one is available.</p>
 <p>Get the next service primitive to be processed out of the queue of items sent
 from the DUL service provider to the service user</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>wait</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>wait</cite> is <code class="docutils literal notranslate"><span class="pre">True</span></code> and <cite>timeout</cite> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, blocks until an
+<li><p><strong>wait</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>wait</cite> is <code class="docutils literal notranslate"><span class="pre">True</span></code> and <cite>timeout</cite> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, blocks until an
 item is available. If <cite>timeout</cite> is a positive number, blocks at
 most <cite>timeout</cite> seconds. Otherwise returns an item if one is
 immediately available.</p></li>
-<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em>) – See the definition of <cite>wait</cite></p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em>) – See the definition of <cite>wait</cite></p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The next primitive in the <a class="reference internal" href="#pynetdicom.dul.DULServiceProvider.to_user_queue" title="pynetdicom.dul.DULServiceProvider.to_user_queue"><code class="xref py py-attr docutils literal notranslate"><span class="pre">to_user_queue</span></code></a>, or
 <code class="docutils literal notranslate"><span class="pre">None</span></code> if the queue is empty.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Optional[Union[<a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE">A_ASSOCIATE</a>, <a class="reference internal" href="pynetdicom.pdu_primitives.A_RELEASE.html#pynetdicom.pdu_primitives.A_RELEASE" title="pynetdicom.pdu_primitives.A_RELEASE">A_RELEASE</a>, <a class="reference internal" href="pynetdicom.pdu_primitives.A_ABORT.html#pynetdicom.pdu_primitives.A_ABORT" title="pynetdicom.pdu_primitives.A_ABORT">A_ABORT</a>, <a class="reference internal" href="pynetdicom.pdu_primitives.A_P_ABORT.html#pynetdicom.pdu_primitives.A_P_ABORT" title="pynetdicom.pdu_primitives.A_P_ABORT">A_P_ABORT</a>]]</p>
 </dd>
 </dl>
@@ -344,9 +339,9 @@ immediately available.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.dul.DULServiceProvider.run_reactor">
-<span class="sig-name descname"><span class="pre">run_reactor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/dul.py#L375"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.run_reactor" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run_reactor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/dul.py#L375"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.run_reactor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the DUL reactor.</p>
-<p>The main <a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Thread" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">threading.Thread</span></code></a> run loop. Runs constantly, checking
+<p>The main <a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Thread" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">threading.Thread</span></code></a> run loop. Runs constantly, checking
 the connection for incoming data. When incoming data is received it
 categorises it and add its to the
 <a class="reference internal" href="#pynetdicom.dul.DULServiceProvider.to_user_queue" title="pynetdicom.dul.DULServiceProvider.to_user_queue"><code class="xref py py-attr docutils literal notranslate"><span class="pre">to_user_queue</span></code></a>.</p>
@@ -354,12 +349,12 @@ categorises it and add its to the
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.dul.DULServiceProvider.send_pdu">
-<span class="sig-name descname"><span class="pre">send_pdu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">pynetdicom.pdu_primitives.A_ASSOCIATE</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_RELEASE.html#pynetdicom.pdu_primitives.A_RELEASE" title="pynetdicom.pdu_primitives.A_RELEASE"><span class="pre">pynetdicom.pdu_primitives.A_RELEASE</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_ABORT.html#pynetdicom.pdu_primitives.A_ABORT" title="pynetdicom.pdu_primitives.A_ABORT"><span class="pre">pynetdicom.pdu_primitives.A_ABORT</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_P_ABORT.html#pynetdicom.pdu_primitives.A_P_ABORT" title="pynetdicom.pdu_primitives.A_P_ABORT"><span class="pre">pynetdicom.pdu_primitives.A_P_ABORT</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.P_DATA.html#pynetdicom.pdu_primitives.P_DATA" title="pynetdicom.pdu_primitives.P_DATA"><span class="pre">pynetdicom.pdu_primitives.P_DATA</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/dul.py#L462"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.send_pdu" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">send_pdu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">A_ASSOCIATE</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_RELEASE.html#pynetdicom.pdu_primitives.A_RELEASE" title="pynetdicom.pdu_primitives.A_RELEASE"><span class="pre">A_RELEASE</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_ABORT.html#pynetdicom.pdu_primitives.A_ABORT" title="pynetdicom.pdu_primitives.A_ABORT"><span class="pre">A_ABORT</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.A_P_ABORT.html#pynetdicom.pdu_primitives.A_P_ABORT" title="pynetdicom.pdu_primitives.A_P_ABORT"><span class="pre">A_P_ABORT</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.P_DATA.html#pynetdicom.pdu_primitives.P_DATA" title="pynetdicom.pdu_primitives.P_DATA"><span class="pre">P_DATA</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/dul.py#L462"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.send_pdu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Place a primitive in the provider queue to be sent to the peer.</p>
 <p>Primitives are converted to the corresponding PDU and encoded before
 sending.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>primitive</strong> (<em>pdu_primitives.PDU sub-class</em>) – <p>A service primitive, one of:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><code class="xref py py-class docutils literal notranslate"><span class="pre">A_ASSOCIATE</span></code></a></p></li>
@@ -375,15 +370,15 @@ sending.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.dul.DULServiceProvider.stop_dul">
-<span class="sig-name descname"><span class="pre">stop_dul</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/dul.py#L487"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.stop_dul" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">stop_dul</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/dul.py#L487"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.stop_dul" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stop the reactor if current state is <code class="docutils literal notranslate"><span class="pre">'Sta1'</span></code></p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if <code class="docutils literal notranslate"><span class="pre">'Sta1'</span></code> and the reactor has stopped, <code class="docutils literal notranslate"><span class="pre">False</span></code>
 otherwise</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -403,7 +398,7 @@ otherwise</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

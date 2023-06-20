@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Relevant Patient Information Query Service Class &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -109,9 +112,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Supported Service Classes</a> &raquo;</li>
-      <li>Relevant Patient Information Query Service Class</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Supported Service Classes</a></li>
+      <li class="breadcrumb-item active">Relevant Patient Information Query Service Class</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -121,17 +124,13 @@
            <div itemprop="articleBody">
              
   <section id="relevant-patient-information-query-service-class">
-<span id="service-relpat"></span><h1>Relevant Patient Information Query Service Class<a class="headerlink" href="#relevant-patient-information-query-service-class" title="Permalink to this headline">¶</a></h1>
+<span id="service-relpat"></span><h1>Relevant Patient Information Query Service Class<a class="headerlink" href="#relevant-patient-information-query-service-class" title="Permalink to this heading">¶</a></h1>
 <p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_Q.html">Relevant Patient Information Query Service Class</a>
 defines a service that facilitates querying of stored Instances for specific
 information from a single patient.</p>
 <section id="supported-sop-classes">
-<span id="relpat-sops"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this headline">¶</a></h2>
+<span id="relpat-sops"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 39%" />
-<col style="width: 61%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
 <th class="head"><p>SOP Class</p></th>
@@ -151,12 +150,8 @@ information from a single patient.</p>
 </table>
 </section>
 <section id="dimse-services">
-<h2>DIMSE Services<a class="headerlink" href="#dimse-services" title="Permalink to this headline">¶</a></h2>
+<h2>DIMSE Services<a class="headerlink" href="#dimse-services" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 67%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>DIMSE Service</p></th>
 <th class="head"><p>Usage SCU/SCP</p></th>
@@ -170,15 +165,10 @@ information from a single patient.</p>
 </table>
 </section>
 <section id="statuses">
-<span id="relpat-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this headline">¶</a></h2>
+<span id="relpat-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this heading">¶</a></h2>
 <section id="c-find-statuses">
-<h3>C-FIND Statuses<a class="headerlink" href="#c-find-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>C-FIND Statuses<a class="headerlink" href="#c-find-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 21%" />
-<col style="width: 18%" />
-<col style="width: 61%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -202,13 +192,8 @@ information from a single patient.</p>
 </table>
 </section>
 <section id="relevant-patient-information-query-service-statuses">
-<h3>Relevant Patient Information Query Service Statuses<a class="headerlink" href="#relevant-patient-information-query-service-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>Relevant Patient Information Query Service Statuses<a class="headerlink" href="#relevant-patient-information-query-service-statuses" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 24%" />
-<col style="width: 14%" />
-<col style="width: 62%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -244,16 +229,11 @@ information from a single patient.</p>
 </table>
 </section>
 <section id="pynetdicom-relevant-patient-information-query-statuses">
-<h3>pynetdicom Relevant Patient Information Query Statuses<a class="headerlink" href="#pynetdicom-relevant-patient-information-query-statuses" title="Permalink to this headline">¶</a></h3>
+<h3>pynetdicom Relevant Patient Information Query Statuses<a class="headerlink" href="#pynetdicom-relevant-patient-information-query-statuses" title="Permalink to this heading">¶</a></h3>
 <p>When pynetdicom is acting as a Relevant Patient Information SCP it uses the
 following status codes values to indicate the corresponding issue has occurred
 to help aid in debugging.</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 24%" />
-<col style="width: 13%" />
-<col style="width: 63%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -305,7 +285,7 @@ the handler bound to <code class="docutils literal notranslate"><span class="pre
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

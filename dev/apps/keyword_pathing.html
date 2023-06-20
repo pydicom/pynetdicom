@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Keyword pathing &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -30,15 +29,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -74,8 +77,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Keyword pathing</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Keyword pathing</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -85,7 +88,7 @@
            <div itemprop="articleBody">
              
   <section id="keyword-pathing">
-<h1>Keyword pathing<a class="headerlink" href="#keyword-pathing" title="Permalink to this headline">¶</a></h1>
+<h1>Keyword pathing<a class="headerlink" href="#keyword-pathing" title="Permalink to this heading">¶</a></h1>
 <p>When using the <cite>-k keyword</cite> option it becomes possible to specify the
 query dataset (the <em>Identifier</em>) without needing to create a DICOM file.
 Multiple instances of <cite>-k</cite> can be used to build up the <em>Identifier</em>. For
@@ -110,7 +113,7 @@ an incorrect element value. <code class="docutils literal notranslate"><span cla
 <p>When both the <cite>-f file</cite> and <cite>-k keyword</cite> options are used then the keywords
 will be used to update the elements in the file.</p>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
 <p>Empty (0010,0010) <em>Patient Name</em> element:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k PatientName=
 -k (0010,0010)=
@@ -125,14 +128,14 @@ will be used to update the elements in the file.</p>
 (0010, 0010) Patient&#39;s Name                      PN: &#39;Citizen^Jan&#39;
 </pre></div>
 </div>
-<p>Numeric VRs like <strong>US</strong> and <strong>FL</strong> are converted to either <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>
-or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> depending on the VR:</p>
+<p>Numeric VRs like <strong>US</strong> and <strong>FL</strong> are converted to either <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>
+or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> depending on the VR:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k Columns=1024
 
 (0028, 0011) Columns                             US: 1024
 </pre></div>
 </div>
-<p>Byte VRs like <strong>OB</strong> and <strong>OW</strong> are converted to <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>:</p>
+<p>Byte VRs like <strong>OB</strong> and <strong>OW</strong> are converted to <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k PixelData=00FFEA08
 
 (7fe0, 0010) Pixel Data                          OW: b&#39;\x00\xff\xea\x08&#39;
@@ -202,7 +205,7 @@ or <a class="reference external" href="https://docs.python.org/3/library/functio
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

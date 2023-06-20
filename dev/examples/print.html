@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Print Management Service Examples &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pynetdicom
-            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -96,9 +99,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Code Examples</a> &raquo;</li>
-      <li>Print Management Service Examples</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Code Examples</a></li>
+      <li class="breadcrumb-item active">Print Management Service Examples</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -108,7 +111,7 @@
            <div itemprop="articleBody">
              
   <section id="print-management-service-examples">
-<h1>Print Management Service Examples<a class="headerlink" href="#print-management-service-examples" title="Permalink to this headline">¶</a></h1>
+<h1>Print Management Service Examples<a class="headerlink" href="#print-management-service-examples" title="Permalink to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_H.html">Print Management service</a>
 facilitates print of images and image related data. There are two Basic Print
 Management Meta SOP Classes which correspond with the minimum functionality
@@ -165,9 +168,9 @@ pixel data for display on devices that conform to the Grayscale Standard
 Display Function defined in Part 14 of the DICOM Standard.</p></li>
 </ul>
 <section id="grayscale-print-scu">
-<h2>Grayscale Print SCU<a class="headerlink" href="#grayscale-print-scu" title="Permalink to this headline">¶</a></h2>
+<h2>Grayscale Print SCU<a class="headerlink" href="#grayscale-print-scu" title="Permalink to this heading">¶</a></h2>
 <section id="overview">
-<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h3>
+<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h3>
 <p>Over a single association:</p>
 <ol class="arabic simple">
 <li><p>Send an N-GET request to check the status of the printer.</p></li>
@@ -208,12 +211,8 @@ to return a status of <code class="docutils literal notranslate"><span class="pr
 by sending an N-GET request.</p>
 </section>
 <section id="dimse-services-available">
-<h3>DIMSE Services Available<a class="headerlink" href="#dimse-services-available" title="Permalink to this headline">¶</a></h3>
+<h3>DIMSE Services Available<a class="headerlink" href="#dimse-services-available" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 40%" />
-<col style="width: 60%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>DIMSE-N Service</p></th>
 <th class="head"><p>Usage SCU/SCP</p></th>
@@ -265,7 +264,7 @@ by sending an N-GET request.</p>
 </table>
 </section>
 <section id="example">
-<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h3>
 <p>Print the image data from a SOP Instance onto a single A4 page. For a real-life
 Print SCP you would need to check its conformance statement to see what
 print options (medium types, page sizes, layouts, etc) are supported. This
@@ -297,7 +296,7 @@ notifications over the same association (and ignore them).</p>
 
 
 <span class="k">def</span> <span class="nf">build_session</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Return an N-CREATE *Attribute List* for creating a Basic Film Session</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an N-CREATE *Attribute List* for creating a Basic Film Session</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -318,7 +317,7 @@ notifications over the same association (and ignore them).</p>
 
 
 <span class="k">def</span> <span class="nf">build_film_box</span><span class="p">(</span><span class="n">session</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return an N-CREATE *Attribute List* for creating a Basic Film Box.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an N-CREATE *Attribute List* for creating a Basic Film Box.</span>
 
 <span class="sd">    In this example we just have a single Image Box.</span>
 
@@ -350,7 +349,7 @@ notifications over the same association (and ignore them).</p>
 
 
 <span class="k">def</span> <span class="nf">build_image_box</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return an N-SET *Attribute List* for updating a Basic Grayscale Image Box</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an N-SET *Attribute List* for updating a Basic Grayscale Image Box</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -382,7 +381,7 @@ notifications over the same association (and ignore them).</p>
     <span class="k">return</span> <span class="n">attr_list</span>
 
 <span class="k">def</span> <span class="nf">handle_n_er</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Ignore the N-EVENT-REPORT notification&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ignore the N-EVENT-REPORT notification&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mh">0x0000</span>
 
 <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_EVENT_REPORT</span><span class="p">,</span> <span class="n">handle_n_er</span><span class="p">)]</span>
@@ -507,7 +506,7 @@ notifications over the same association (and ignore them).</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

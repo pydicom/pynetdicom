@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation &mdash; pynetdicom 2.1.0.dev0 documentation</title>
@@ -15,9 +15,8 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -32,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> pynetdicom
-            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.1.0.dev0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -108,12 +111,12 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">API Reference</a> &raquo;</li>
-          <li><a href="../dul.html">DICOM Upper Layer</a> &raquo;</li>
-          <li><a href="../dul.pdu_primitives.html">Service Primitives (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_primitives</span></code>)</a> &raquo;</li>
-          <li><a href="../dul.pdu_primitives.a_associate.html">A-ASSOCIATE</a> &raquo;</li>
-      <li>pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../dul.html">DICOM Upper Layer</a></li>
+          <li class="breadcrumb-item"><a href="../dul.pdu_primitives.html">Service Primitives (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_primitives</span></code>)</a></li>
+          <li class="breadcrumb-item"><a href="../dul.pdu_primitives.a_associate.html">A-ASSOCIATE</a></li>
+      <li class="breadcrumb-item active">pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -123,10 +126,10 @@
            <div itemprop="articleBody">
              
   <section id="pynetdicom-pdu-primitives-scp-scu-roleselectionnegotiation">
-<h1>pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation<a class="headerlink" href="#pynetdicom-pdu-primitives-scp-scu-roleselectionnegotiation" title="Permalink to this headline">¶</a></h1>
+<h1>pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation<a class="headerlink" href="#pynetdicom-pdu-primitives-scp-scu-roleselectionnegotiation" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></span><span class="sig-name descname"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/pdu_primitives.py#L1389"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></span><span class="sig-name descname"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/pdu_primitives.py#L1389"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="Permalink to this definition">¶</a></dt>
 <dd><p>A representation of the SCP/SCU Role Selection Negotiation primitive.</p>
 <p>Allows peer AEs to negotiate the roles in which they will serve for each
 SOP Class or Meta SOP Class supported on the association. This negotiation
@@ -156,15 +159,11 @@ shall be one of three role values:</p>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/pdu_primitives.py#L1425"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/pdu_primitives.py#L1425"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.__init__" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p></p></td>
@@ -176,10 +175,6 @@ shall be one of three role values:</p>
 </table>
 <p class="rubric">Attributes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scp_role</span></code></a></p></td>
 <td><p>Get or set the <em>SCP Role</em>.</p></td>
@@ -194,19 +189,19 @@ shall be one of three role values:</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.from_primitive">
-<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem" title="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem"><span class="pre">pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5c2989ed2/pynetdicom/pdu_primitives.py#L1430"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem" title="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem"><span class="pre">SCP_SCU_RoleSelectionSubItem</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/4c18b2e4c/pynetdicom/pdu_primitives.py#L1430"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>item</strong></p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem" title="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem">pdu_items.SCP_SCU_RoleSelectionSubItem</a></p>
 </dd>
-<dt class="field-odd">Raises</dt>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.10)"><strong>ValueError</strong></a> – If no SOP Class UID, SCU Role or SCP Role is set</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.10)"><strong>ValueError</strong></a> – If SCU Role and SCP Role are both False</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.11)"><strong>ValueError</strong></a> – If no SOP Class UID, SCU Role or SCP Role is set</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.11)"><strong>ValueError</strong></a> – If SCU Role and SCP Role are both False</p></li>
 </ul>
 </dd>
 </dl>
@@ -214,42 +209,42 @@ shall be one of three role values:</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scp_role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scp_role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get or set the <em>SCP Role</em>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – True if supported, False otherwise (default)</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – True if supported, False otherwise (default)</p>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.10)"><strong>TypeError</strong></a> – If <cite>value</cite> is not a bool</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.11)"><strong>TypeError</strong></a> – If <cite>value</cite> is not a bool</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scu_role">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scu_role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scu_role" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scu_role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scu_role" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get or set the <em>SCU Role</em>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – True if supported, False otherwise</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – True if supported, False otherwise</p>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.10)"><strong>TypeError</strong></a> – If <cite>value</cite> is not a bool</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.11)"><strong>TypeError</strong></a> – If <cite>value</cite> is not a bool</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.sop_class_uid">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sop_class_uid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.3.0)"><span class="pre">pydicom.uid.UID</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.sop_class_uid" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sop_class_uid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.4.1)"><span class="pre">UID</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.sop_class_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get or set the <em>SOP Class UID</em>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The corresponding Abstract Syntax UID</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.4.1)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The corresponding Abstract Syntax UID</p>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.10)"><strong>TypeError</strong></a> – If <cite>value</cite> is not a pydicom.uid.UID, bytes or str</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.11)"><strong>TypeError</strong></a> – If <cite>value</cite> is not a pydicom.uid.UID, bytes or str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -269,7 +264,7 @@ shall be one of three role values:</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2022, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2023, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
