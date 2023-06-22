@@ -108,11 +108,11 @@ class DummyDIMSE:
 class TestAssociation:
     """Run tests on Associtation."""
 
-    def setup(self):
+    def setup_method(self):
         """This function runs prior to all test methods"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """This function runs after all test methods"""
         if self.ae:
             self.ae.shutdown()
@@ -614,10 +614,10 @@ class TestCStoreSCP:
     """Tests for Association._c_store_scp()."""
 
     # Used with C-GET (always) and C-MOVE (over the same association)
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 
@@ -866,11 +866,11 @@ class TestCStoreSCP:
 class TestAssociationSendCEcho:
     """Run tests on Association evt.EVT_C_ECHO handler."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -1255,11 +1255,11 @@ class TestAssociationSendCEcho:
 class TestAssociationSendCStore:
     """Run tests on Association send_c_store."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -1924,7 +1924,7 @@ class TestAssociationSendCStore:
 class TestAssociationSendCFind:
     """Run tests on Association send_c_find."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ds = Dataset()
         self.ds.PatientName = "*"
@@ -1932,7 +1932,7 @@ class TestAssociationSendCFind:
 
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -2501,11 +2501,11 @@ class TestAssociationSendCFind:
 class TestAssociationSendCCancel:
     """Run tests on Association send_c_cancel."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -2604,7 +2604,7 @@ class TestAssociationSendCCancel:
 class TestAssociationSendCGet:
     """Run tests on Association send_c_get."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ds = Dataset()
         self.ds.PatientName = "*"
@@ -2619,7 +2619,7 @@ class TestAssociationSendCGet:
 
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -3565,7 +3565,7 @@ class TestAssociationSendCGet:
 class TestAssociationSendCMove:
     """Run tests on Association send_c_move."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ds = Dataset()
         self.ds.PatientName = "*"
@@ -3580,7 +3580,7 @@ class TestAssociationSendCMove:
 
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -4454,11 +4454,11 @@ class TestAssociationSendCMove:
 class TestGetValidContext:
     """Tests for Association._get_valid_context."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -5176,11 +5176,11 @@ class TestGetValidContext:
 class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
         _config.LOG_HANDLER_LEVEL = "none"
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 
@@ -6480,11 +6480,11 @@ class TestEventHandlingAcceptor:
 class TestEventHandlingRequestor:
     """Test the transport events and handling as acceptor."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
         _config.LOG_HANDLER_LEVEL = "none"
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 
@@ -7249,11 +7249,11 @@ class TestEventHandlingRequestor:
 class TestAssociationWindows:
     """Windows specific association tests."""
 
-    def setup(self):
+    def setup_method(self):
         """This function runs prior to all test methods"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """This function runs after all test methods"""
         if self.ae:
             self.ae.shutdown()

@@ -99,7 +99,7 @@ class TestTConnect:
 class TestAssociationSocket:
     """Tests for the transport.AssociationSocket class."""
 
-    def setup(self):
+    def setup_method(self):
         ae = AE()
         self.assoc = Association(ae, MODE_REQUESTOR)
 
@@ -353,11 +353,11 @@ def client_context(request):
 class TestTLS:
     """Test using TLS to wrap the association."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
         self.has_ssl = transport._HAS_SSL
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 
@@ -612,10 +612,10 @@ class TestTLS:
 
 
 class TestAssociationServer:
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 
@@ -877,10 +877,10 @@ class TestAssociationServer:
 class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 
@@ -1633,10 +1633,10 @@ class TestEventHandlingAcceptor:
 class TestEventHandlingRequestor:
     """Test the transport events and handling as requestor."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 

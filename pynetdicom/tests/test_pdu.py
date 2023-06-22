@@ -1511,11 +1511,11 @@ class TestABORT:
 class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
         _config.LOG_HANDLER_LEVEL = "none"
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 
@@ -1843,11 +1843,11 @@ class TestEventHandlingAcceptor:
 class TestEventHandlingRequestor:
     """Test the transport events and handling as requestor."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
         _config.LOG_HANDLER_LEVEL = "none"
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 

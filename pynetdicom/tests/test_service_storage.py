@@ -44,7 +44,7 @@ def enable_unrestricted():
 class TestStorageServiceClass:
     """Test the StorageServiceClass"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
@@ -55,7 +55,7 @@ class TestStorageServiceClass:
         self.ds.SOPInstanceUID = "1.1.1"
         self.ds.PatientName = "Test"
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()

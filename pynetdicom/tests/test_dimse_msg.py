@@ -751,7 +751,7 @@ class TestDIMSEMessage:
 class TestThreadSafety:
     """Tests for the thread safety of DIMSEMessage classes."""
 
-    def setup(self):
+    def setup_method(self):
         ds = Dataset()
         ds.SOPClassUID = "1.2.840.10008.5.1.4.1.1"
         ds.SOPInstanceUID = "1.2.3.4"

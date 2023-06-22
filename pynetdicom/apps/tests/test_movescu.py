@@ -61,7 +61,7 @@ def start_movescu_cli(args):
 class MoveSCUBase:
     """Tests for movescu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = None
@@ -73,7 +73,7 @@ class MoveSCUBase:
         ds.SOPInstanceUID = "1.2.3.4"
         ds.PatientName = "Citizen^Jan"
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -756,7 +756,7 @@ class MoveSCUBase:
 class TestMoveSCU(MoveSCUBase):
     """Tests for movescu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_movescu
@@ -772,7 +772,7 @@ class TestMoveSCU(MoveSCUBase):
 class TestMoveSCUCLI(MoveSCUBase):
     """Tests for movescu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_movescu_cli

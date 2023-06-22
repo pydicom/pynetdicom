@@ -75,11 +75,11 @@ class TestPrimitive_C_CANCEL:
 class TestPrimitive_C_STORE:
     """Test DIMSE C-STORE operations."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
         self.default_aet_length = _config.USE_SHORT_DIMSE_AET
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
         _config.USE_SHORT_DIMSE_AET = self.default_aet_length
 
@@ -397,10 +397,10 @@ class TestPrimitive_C_STORE:
 class TestPrimitive_C_FIND:
     """Test DIMSE C-FIND operations."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_assignment(self):
@@ -610,10 +610,10 @@ class TestPrimitive_C_FIND:
 class TestPrimitive_C_GET:
     """Test DIMSE C-GET operations."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_assignment(self):
@@ -866,11 +866,11 @@ class TestPrimitive_C_GET:
 class TestPrimitive_C_MOVE:
     """Test DIMSE C-MOVE operations."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
         self.default_aet_length = _config.USE_SHORT_DIMSE_AET
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
         _config.USE_SHORT_DIMSE_AET = self.default_aet_length
 
@@ -1179,10 +1179,10 @@ class TestPrimitive_C_MOVE:
 class TestPrimitive_C_ECHO:
     """Test DIMSE C-ECHO operations."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_assignment(self):

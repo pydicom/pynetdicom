@@ -142,7 +142,7 @@ class DummyAssociation:
 class TestACSE:
     """Tests for initialising the ACSE class"""
 
-    def setup(self):
+    def setup_method(self):
         self.assoc = DummyAssociation()
         self.assoc.requestor.requested_contexts = [build_context("1.2.840.10008.1.1")]
 
@@ -189,14 +189,14 @@ class TestACSE:
 class TestNegotiationRequestor:
     """Test ACSE negotiation as requestor."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
         self.assoc = DummyAssociation()
         self.assoc.requestor.requested_contexts = [build_context("1.2.840.10008.1.1")]
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -340,10 +340,10 @@ class TestNegotiationRequestor:
 class TestNegotiationAcceptor:
     """Test ACSE negotiation as acceptor."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 
@@ -385,7 +385,7 @@ REFERENCE_REJECT_GOOD = [
 class TestPrimitiveConstruction:
     """Test the primitive builders"""
 
-    def setup(self):
+    def setup_method(self):
         self.assoc = DummyAssociation()
         self.assoc.requestor.requested_contexts = [build_context("1.2.840.10008.1.1")]
 
@@ -586,11 +586,11 @@ REFERENCE_USER_IDENTITY_REQUEST = [
 class TestUserIdentityNegotiation:
     """Tests for User Identity Negotiation."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -1065,11 +1065,11 @@ class TestUserIdentityNegotiation:
 class TestSOPClassExtendedNegotiation:
     """Tests for SOP Class Extended Negotiation."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -1479,11 +1479,11 @@ class TestSOPClassExtendedNegotiation:
 class TestSOPClassCommonExtendedNegotiation:
     """Tests for SOP Class Extended Negotiation."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -1759,11 +1759,11 @@ class TestSOPClassCommonExtendedNegotiation:
 class TestAsyncOpsNegotiation:
     """Tests for Asynchronous Operations Window Negotiation."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -1936,11 +1936,11 @@ class TestAsyncOpsNegotiation:
 class TestNegotiateRelease:
     """Tests for ACSE.negotiate_release."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.scp = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.shutdown()
@@ -2198,11 +2198,11 @@ class TestNegotiateRelease:
 class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
         _config.LOG_HANDLER_LEVEL = "none"
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 
@@ -2573,11 +2573,11 @@ class TestEventHandlingAcceptor:
 class TestEventHandlingRequestor:
     """Test the transport events and handling as requestor."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
         _config.LOG_HANDLER_LEVEL = "none"
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 

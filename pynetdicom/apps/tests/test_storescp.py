@@ -52,13 +52,13 @@ def start_storescp_cli(args):
 class StoreSCPBase:
     """Tests for storescp.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.p = None
         self.func = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if TEST_DIR.exists():
             shutil.rmtree(os.fspath(TEST_DIR))
@@ -394,7 +394,7 @@ class StoreSCPBase:
 class TestStoreSCP(StoreSCPBase):
     """Tests for storescp.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.p = None
@@ -404,7 +404,7 @@ class TestStoreSCP(StoreSCPBase):
 class TestStoreSCPCLI(StoreSCPBase):
     """Tests for storescp using CLI"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.p = None
