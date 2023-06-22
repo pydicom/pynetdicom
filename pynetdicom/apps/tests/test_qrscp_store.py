@@ -65,7 +65,7 @@ def _send_datasets():
 class StoreSCPBase:
     """Tests for qrscp.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.p = None
@@ -77,7 +77,7 @@ class StoreSCPBase:
 
         self.startup = 1.0
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -108,9 +108,9 @@ class StoreSCPBase:
 class TestStoreSCP(StoreSCPBase):
     """Tests for qrscp.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
-        super().setup()
+        super().setup_method()
         self.ae = None
         self.p = None
         self.func = start_qrscp
@@ -120,9 +120,9 @@ class TestStoreSCP(StoreSCPBase):
 class TestStoreSCPCLI(StoreSCPBase):
     """Tests for qrscp using CLI"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
-        super().setup()
+        super().setup_method()
         self.ae = None
         self.p = None
         self.func = start_qrscp_cli

@@ -43,10 +43,10 @@ class DummyDIMSE:
 class TestAssociationSendNEventReport:
     """Run tests on Association send_n_event_report."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -668,11 +668,11 @@ class TestAssociationSendNEventReport:
 class TestAssociationSendNGet:
     """Run tests on Association send_n_get."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -1223,10 +1223,10 @@ class TestAssociationSendNGet:
 class TestAssociationSendNSet:
     """Run tests on Association send_n_set."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -1802,10 +1802,10 @@ class TestAssociationSendNSet:
 class TestAssociationSendNAction:
     """Run tests on Association send_n_action."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -2336,10 +2336,10 @@ class TestAssociationSendNAction:
 class TestAssociationSendNCreate:
     """Run tests on Association send_n_create."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -2896,10 +2896,10 @@ class TestAssociationSendNCreate:
 class TestAssociationSendNDelete:
     """Run tests on Association send_n_delete."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()

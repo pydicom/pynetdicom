@@ -164,7 +164,7 @@ class TestConnect:
 class TestAddInstance:
     """Tests for db.add_instance()."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         engine = db.create("sqlite:///:memory:")
 
@@ -302,7 +302,7 @@ class TestAddInstance:
 class TestRemoveInstance:
     """Tests for db.remove_instance()."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         engine = db.create("sqlite:///:memory:")
 
@@ -349,7 +349,7 @@ class TestRemoveInstance:
 class TestClear:
     """Tests for db.clear()."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         engine = db.create("sqlite:///:memory:")
 
@@ -372,7 +372,7 @@ class TestClear:
 class TestSearch:
     """Tests for db.search()."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         engine = db.create("sqlite:///:memory:")
         pydicom.config.use_none_as_empty_text_VR_value = True
@@ -668,7 +668,7 @@ IDENTIFIERS = [
 class TestSearchFind:
     """Tests for running C-FIND queries against the database."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         engine = db.create("sqlite:///:memory:")
         pydicom.config.use_none_as_empty_text_VR_value = True

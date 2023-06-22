@@ -60,7 +60,7 @@ def start_getscu_cli(args):
 class GetSCUBase:
     """Tests for getscu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = None
@@ -72,7 +72,7 @@ class GetSCUBase:
         ds.SOPInstanceUID = "1.2.3.4"
         ds.PatientName = "Citizen^Jan"
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -569,7 +569,7 @@ class GetSCUBase:
 class TestGetSCU(GetSCUBase):
     """Tests for getscu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_getscu
@@ -585,7 +585,7 @@ class TestGetSCU(GetSCUBase):
 class TestGetSCUCLI(GetSCUBase):
     """Tests for getscu using CLI"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_getscu_cli

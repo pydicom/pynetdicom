@@ -143,7 +143,7 @@ class TestDecodeFailure:
 class TestPrettyElement:
     """Tests for pretty_element()."""
 
-    def teardown(self):
+    def teardown_method(self):
         config.DS_decimal(False)
         config.datetime_conversion = False
 

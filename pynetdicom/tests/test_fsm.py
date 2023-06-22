@@ -193,7 +193,7 @@ class TestStateMachine:
 class TestStateBase:
     """Base class for State tests."""
 
-    def setup(self):
+    def setup_method(self):
         ae = AE()
         ae.add_requested_context(Verification)
         ae.acse_timeout = 5
@@ -224,7 +224,7 @@ class TestStateBase:
         self.fsm = self.monkey_patch(assoc.dul.state_machine)
         self.scp = None
 
-    def teardown(self):
+    def teardown_method(self):
         if self.scp:
             for commands in self.scp.commands:
                 self.scp.step()
@@ -8195,7 +8195,7 @@ class TestParrotAttack(TestStateBase):
 class TestStateMachineFunctionalRequestor:
     """Functional tests for StateMachine as association requestor."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
@@ -8230,7 +8230,7 @@ class TestStateMachineFunctionalRequestor:
         self.orig_ar2 = FINITE_STATE.ACTIONS["AR-2"]
         self.orig_ar4 = FINITE_STATE.ACTIONS["AR-4"]
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -8721,7 +8721,7 @@ class TestStateMachineFunctionalRequestor:
 class TestStateMachineFunctionalAcceptor:
     """Functional tests for StateMachine as association acceptor."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
@@ -8755,7 +8755,7 @@ class TestStateMachineFunctionalAcceptor:
 
         self.orig_entry = FINITE_STATE.ACTIONS["AE-2"]
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -8839,10 +8839,10 @@ class TestStateMachineFunctionalAcceptor:
 class TestEventHandling:
     """Test the FSM event handlers."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 

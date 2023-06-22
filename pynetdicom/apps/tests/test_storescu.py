@@ -55,12 +55,12 @@ def start_storescu_cli(args):
 class StoreSCUBase:
     """Tests for storescu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -578,7 +578,7 @@ class StoreSCUBase:
 class TestStoreSCU(StoreSCUBase):
     """Tests for storescu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_storescu
@@ -587,7 +587,7 @@ class TestStoreSCU(StoreSCUBase):
 class TestStoreSCUCLI(StoreSCUBase):
     """Tests for storescu using CLI"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_storescu_cli

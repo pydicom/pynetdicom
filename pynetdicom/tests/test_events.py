@@ -94,7 +94,7 @@ def test_notification_global():
 class TestEvent:
     """Tests for event.Event."""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = None
         _config.LOG_HANDLER_LEVEL = "none"
 
@@ -107,7 +107,7 @@ class TestEvent:
         )
         self.context = build_context("1.2.840.10008.1.1", ImplicitVRLittleEndian)
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 
