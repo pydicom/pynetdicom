@@ -110,7 +110,7 @@ class TestStoreSCP(StoreSCPBase):
 
     def setup_method(self):
         """Run prior to each test"""
-        super().setup()
+        super().setup_method()
         self.ae = None
         self.p = None
         self.func = start_qrscp
@@ -122,7 +122,7 @@ class TestStoreSCPCLI(StoreSCPBase):
 
     def setup_method(self):
         """Run prior to each test"""
-        super().setup()
+        super().setup_method()
         self.ae = None
         self.p = None
         self.func = start_qrscp_cli

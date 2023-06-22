@@ -242,7 +242,7 @@ class TestEchoSCP(EchoSCPBase):
 
     def setup_method(self):
         """Run prior to each test"""
-        super().setup()
+        super().setup_method()
 
         self.func = start_qrscp
 
@@ -253,6 +253,6 @@ class TestEchoSCPCLI(EchoSCPBase):
 
     def setup_method(self):
         """Run prior to each test"""
-        super().setup()
+        super().setup_method()
 
         self.func = start_qrscp_cli
