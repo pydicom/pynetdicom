@@ -63,7 +63,7 @@ def test_unknown_sop_class():
 class TestQRFindServiceClass:
     """Test the QueryRetrieveFindServiceClass"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.query = Dataset()
         self.query.QueryRetrieveLevel = "PATIENT"
@@ -71,7 +71,7 @@ class TestQRFindServiceClass:
 
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -1177,7 +1177,7 @@ class TestQRFindServiceClass:
 
 
 class TestQRGetServiceClass:
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.query = Dataset()
         self.query.PatientName = "*"
@@ -1195,7 +1195,7 @@ class TestQRGetServiceClass:
 
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -3503,7 +3503,7 @@ class TestQRGetServiceClass:
 
 
 class TestQRMoveServiceClass:
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.query = Dataset()
         self.query.PatientName = "*"
@@ -3523,7 +3523,7 @@ class TestQRMoveServiceClass:
 
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -5970,7 +5970,7 @@ class TestQRMoveServiceClass:
 class TestQRCompositeInstanceWithoutBulk:
     """Tests for QR + Composite Instance Without Bulk Data"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.query = Dataset()
         self.query.PatientName = "*"
@@ -5990,7 +5990,7 @@ class TestQRCompositeInstanceWithoutBulk:
 
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -6177,7 +6177,7 @@ class TestQRCompositeInstanceWithoutBulk:
 class TestBasicWorklistServiceClass:
     """Tests for BasicWorklistManagementServiceClass."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.query = Dataset()
         self.query.QueryRetrieveLevel = "PATIENT"
@@ -6185,7 +6185,7 @@ class TestBasicWorklistServiceClass:
 
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()

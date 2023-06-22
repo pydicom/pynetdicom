@@ -14,7 +14,7 @@ from pynetdicom.presentation import (
 
 
 class TimePresentationContext:
-    def setup(self):
+    def setup_method(self):
         self.contexts = []
         for x in range(500):
             cx = PresentationContext()
@@ -75,7 +75,7 @@ class TimePresentationAcceptorRoleNegotiation:
     Selection
     """
 
-    def setup(self):
+    def setup_method(self):
         # Requestor presentation contexts - max 126
         self.requestor_contexts = []
         for ii, cx in enumerate(StoragePresentationContexts):
@@ -111,7 +111,7 @@ class TimePresentationRequestorRoleNegotiation:
     Selection
     """
 
-    def setup(self):
+    def setup_method(self):
         # Requestor presentation contexts - max 126
         self.requestor_contexts = []
         for ii, cx in enumerate(StoragePresentationContexts):
@@ -141,7 +141,7 @@ class TimePresentationRequestorRoleNegotiation:
 class TimePresentationAcceptor:
     """Time presentation context negotiation as acceptor"""
 
-    def setup(self):
+    def setup_method(self):
         # Requestor presentation contexts - max 128
         self.requestor_contexts = []
 
@@ -171,7 +171,7 @@ class TimePresentationAcceptor:
 class TimePresentationRequestor:
     """Time presentation context negotiation as requestor"""
 
-    def setup(self):
+    def setup_method(self):
         # Requestor presentation contexts - max 126
         self.requestor_contexts = []
         for ii, cx in enumerate(StoragePresentationContexts):

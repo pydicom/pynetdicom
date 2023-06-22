@@ -68,7 +68,7 @@ def _send_datasets():
 class MoveSCPBase:
     """Tests for qrscp.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.p = None
@@ -80,7 +80,7 @@ class MoveSCPBase:
 
         self.startup = 1.0
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -155,9 +155,9 @@ class MoveSCPBase:
 class TestMoveSCP(MoveSCPBase):
     """Tests for qrscp.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
-        super().setup()
+        super().setup_method()
         self.ae = None
         self.p = None
         self.func = start_qrscp
@@ -167,9 +167,9 @@ class TestMoveSCP(MoveSCPBase):
 class TestMoveSCPCLI(MoveSCPBase):
     """Tests for qrscp using CLI"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
-        super().setup()
+        super().setup_method()
         self.ae = None
         self.p = None
         self.func = start_qrscp_cli

@@ -76,10 +76,10 @@ LOGGER.setLevel(logging.CRITICAL)
 class TestPrimitive_N_EVENT:
     """Test DIMSE N-EVENT-REPORT operations."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_assignment(self):
@@ -330,10 +330,10 @@ class TestPrimitive_N_EVENT:
 class TestPrimitive_N_GET:
     """Test DIMSE N-GET operations."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_assignment(self):
@@ -632,10 +632,10 @@ class TestPrimitive_N_GET:
 class TestPrimitive_N_SET:
     """Test DIMSE N-SET operations."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_assignment(self):
@@ -932,10 +932,10 @@ class TestPrimitive_N_SET:
 class TestPrimitive_N_ACTION:
     """Test DIMSE N-ACTION operations."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_assignment(self):
@@ -1238,10 +1238,10 @@ class TestPrimitive_N_ACTION:
 class TestPrimitive_N_CREATE:
     """Test DIMSE N-CREATE operations."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_assignment(self):
@@ -1457,10 +1457,10 @@ class TestPrimitive_N_CREATE:
 class TestPrimitive_N_DELETE:
     """Test DIMSE N-DELETE operations."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_assignment(self):

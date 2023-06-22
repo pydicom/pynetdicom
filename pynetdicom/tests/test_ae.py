@@ -69,11 +69,11 @@ def test_blocking_handler():
 class TestMakeServer:
     """Tests for AE.make_server()"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -115,11 +115,11 @@ class TestMakeServer:
 class TestStartServer:
     """Tests for AE.start_server()"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -176,11 +176,11 @@ class TestStartServer:
 class TestAEVerificationSCP:
     """Check verification SCP"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -230,11 +230,11 @@ class TestAEVerificationSCP:
 class TestAEPresentationSCU:
     """Tests for AE presentation contexts when running as an SCU"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -425,11 +425,11 @@ class TestAEGoodTimeoutSetters:
 
 
 class TestAEGoodAssociation:
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -709,10 +709,10 @@ class TestAEBadAssociation:
 
 
 class TestAEGoodMiscSetters:
-    def setup(self):
+    def setup_method(self):
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         if self.ae:
             self.ae.shutdown()
 
@@ -992,11 +992,11 @@ class TestAEBadInitialisation:
 
 
 class TestAE_GoodExit:
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -1051,7 +1051,7 @@ class TestAE_GoodExit:
 class TestAESupportedPresentationContexts:
     """Tests for AE's presentation contexts when acting as an SCP"""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = AE()
 
     def test_add_supported_context_str(self):
@@ -1474,7 +1474,7 @@ class TestAESupportedPresentationContexts:
 class TestAERequestedPresentationContexts:
     """Tests for AE's presentation contexts when acting as an SCU"""
 
-    def setup(self):
+    def setup_method(self):
         self.ae = AE()
 
     def test_add_requested_context_str(self):

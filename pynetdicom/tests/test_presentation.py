@@ -70,10 +70,10 @@ def good_init(request):
 class TestPresentationContext:
     """Test the PresentationContext class"""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_setter(self, good_init):
@@ -433,7 +433,7 @@ class TestPresentationContext:
 class TestNegotiateAsAcceptor:
     """Tests negotiation_as_acceptor."""
 
-    def setup(self):
+    def setup_method(self):
         self.test_func = negotiate_as_acceptor
 
     def test_no_req_no_acc(self):
@@ -1325,7 +1325,7 @@ class TestNegotiateAsRequestorWithRoleSelection:
 class TestNegotiateAsRequestor:
     """Tests negotiate_as_requestor."""
 
-    def setup(self):
+    def setup_method(self):
         self.test_acc = negotiate_as_acceptor
         self.test_func = negotiate_as_requestor
 
@@ -1681,7 +1681,7 @@ class TestNegotiateAsRequestor:
 class TestNegotiateUnrestricted:
     """Tests for presentation.negotiate_unrestricted()"""
 
-    def setup(self):
+    def setup_method(self):
         self.test_func = negotiate_unrestricted
 
     def test_no_contexts(self):

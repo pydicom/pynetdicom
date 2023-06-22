@@ -61,12 +61,12 @@ def start_findscu_scli(args):
 class FindSCUBase:
     """Tests for findscu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -624,7 +624,7 @@ class FindSCUBase:
 class TestFindSCU(FindSCUBase):
     """Tests for findscu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_findscu
@@ -633,7 +633,7 @@ class TestFindSCU(FindSCUBase):
 class TestFindSCUCLI(FindSCUBase):
     """Tests for findscu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_findscu_scli

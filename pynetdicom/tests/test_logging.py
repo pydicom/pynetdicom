@@ -198,11 +198,11 @@ class TestDocHandlers:
 
 
 class TestStandardDIMSE:
-    def setup(self):
+    def setup_method(self):
         """Setup each test."""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Cleanup after each test"""
         if self.ae:
             self.ae.shutdown()
@@ -299,7 +299,7 @@ class TestStandardDIMSE:
 class TestStandardLogging:
     """Tests for standard logging handlers."""
 
-    def setup(self):
+    def setup_method(self):
         """Setup each test."""
         self.ae = None
 
@@ -370,7 +370,7 @@ class TestStandardLogging:
 
         self.associate_ac = primitive
 
-    def teardown(self):
+    def teardown_method(self):
         """Cleanup after each test"""
         if self.ae:
             self.ae.shutdown()
@@ -1288,11 +1288,11 @@ class TestStandardLogging:
 class TestDebuggingLogging:
     """Tests for debugging handlers."""
 
-    def setup(self):
+    def setup_method(self):
         """Setup each test."""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Cleanup after each test"""
         if self.ae:
             self.ae.shutdown()

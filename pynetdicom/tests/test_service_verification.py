@@ -19,11 +19,11 @@ from pynetdicom.sop_class import Verification
 class TestVerificationServiceClass:
     """Test the VerifictionSOPClass"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()

@@ -43,12 +43,12 @@ def start_echoscu_cli(args):
 class EchoSCUBase:
     """Tests for echoscu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -539,7 +539,7 @@ class EchoSCUBase:
 class TestEchoSCU(EchoSCUBase):
     """Tests for echoscu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_echoscu
@@ -548,7 +548,7 @@ class TestEchoSCU(EchoSCUBase):
 class TestEchoSCUCLI(EchoSCUBase):
     """Tests for echoscu using CLI"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_echoscu_cli
