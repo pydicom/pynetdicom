@@ -85,6 +85,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#query-retrieve-service">Query/Retrieve Service</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#basic-worklist-management-service">Basic Worklist Management Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#unified-procedure-step-service">Unified Procedure Step  Service</a></li>
 </ul>
 </li>
 </ul>
@@ -220,6 +221,8 @@ or higher</p>
 <dt><code class="docutils literal notranslate"><span class="pre">-O</span>&#160;&#160;&#160; <span class="pre">--psonly</span></code></dt><dd><p>use patient/study only information model</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">-W</span>&#160;&#160;&#160; <span class="pre">--worklist</span></code></dt><dd><p>use modality worklist information model</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-U</span>&#160;&#160;&#160; <span class="pre">--ups</span></code></dt><dd><p>use unified procedure step pull information model</p>
 </dd>
 </dl>
 </section>
@@ -444,6 +447,48 @@ Management services as an SCU. The following SOP classes are supported:</p>
 </section>
 <section id="id2">
 <h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.1.2</p></td>
+<td><p>Implicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
+<td><p>Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="unified-procedure-step-service">
+<h3>Unified Procedure Step  Service<a class="headerlink" href="#unified-procedure-step-service" title="Permalink to this heading">¶</a></h3>
+<section id="id3">
+<h4>SOP Classes<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.34.6.3</p></td>
+<td><p>UPS Pull Information Model - FIND</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id4">
+<h4>Transfer Syntaxes<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>

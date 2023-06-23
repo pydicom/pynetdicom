@@ -82,6 +82,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#verification-service">Verification Service</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#storage-service">Storage Service</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#query-retrieve-service">Query/Retrieve Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#basic-worklist-management-service">Basic Worklist Management Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#unified-procedure-step-service">Unified Procedure Step  Service</a></li>
 </ul>
 </li>
 </ul>
@@ -141,6 +143,9 @@ Users (SCUs) to:</p>
 <p>SOP Instances sent to the application using the Storage service have some of
 their attributes added to a sqlite database that is used to manage Instances
 for the Query/Retrieve service.</p>
+<p>In addition, the <code class="docutils literal notranslate"><span class="pre">qrscp</span></code> application implements a Service Class Provider (SCP) for the
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_K.html">Basic Modality Worklist</a>, and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/Chapter_CC">Unified Procedure Step</a>
+service classes, but currently will only return empty results (0 records)</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>In addition to the standard <em>pynetdicom</em> dependencies, the <code class="docutils literal notranslate"><span class="pre">qrscp</span></code>
@@ -978,6 +983,90 @@ Model - GET</p></td>
 </section>
 <section id="id4">
 <h4>Transfer Syntaxes<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.1.2</p></td>
+<td><p>Implicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
+<td><p>Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="basic-worklist-management-service">
+<h3>Basic Worklist Management Service<a class="headerlink" href="#basic-worklist-management-service" title="Permalink to this heading">¶</a></h3>
+<section id="id5">
+<h4>SOP Classes<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.31</p></td>
+<td><p>Modality Worklist Information Model - FIND</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id6">
+<h4>Transfer Syntaxes<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.1.2</p></td>
+<td><p>Implicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
+<td><p>Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="unified-procedure-step-service">
+<h3>Unified Procedure Step  Service<a class="headerlink" href="#unified-procedure-step-service" title="Permalink to this heading">¶</a></h3>
+<section id="id7">
+<h4>SOP Classes<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.34.6.3</p></td>
+<td><p>UPS Pull Information Model - FIND</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id8">
+<h4>Transfer Syntaxes<a class="headerlink" href="#id8" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
