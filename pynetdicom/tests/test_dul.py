@@ -78,11 +78,11 @@ class TestDUL:
     READ_PDU_EXC_F - test_dul.py::TestDUL::test_recv_bad_pdu_aborts
     """
 
-    def setup(self):
+    def setup_method(self):
         self.scp = None
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         if self.scp:
             self.scp.commands = [("exit", None)]
             self.scp.step

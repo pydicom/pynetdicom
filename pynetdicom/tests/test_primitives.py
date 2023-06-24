@@ -90,10 +90,10 @@ class TestPrimitive_MaximumLengthNotification:
 
 
 class TestPrimitive_ImplementationClassUIDNotification:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_uid_conformance_false(self):
@@ -289,10 +289,10 @@ class TestPrimitive_AsynchronousOperationsWindowNegotiation:
 
 
 class TestPrimitive_SCP_SCU_RoleSelectionNegotiation:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_uid_conformance_false(self):
@@ -408,10 +408,10 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation:
 
 
 class TestPrimitive_SOPClassExtendedNegotiation:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_uid_conformance_false(self):
@@ -499,10 +499,10 @@ class TestPrimitive_SOPClassExtendedNegotiation:
 
 
 class TestPrimitive_SOPClassCommonExtendedNegotiation:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_uid_conformance_false(self):
@@ -732,10 +732,10 @@ class TestPrimitive_UserIdentityNegotiation:
 
 
 class TestPrimitive_A_ASSOCIATE:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_uid_conformance_false(self):

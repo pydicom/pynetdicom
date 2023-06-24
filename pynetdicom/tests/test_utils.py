@@ -100,10 +100,10 @@ REFERENCE_UID = [
 class TestValidateUID:
     """Tests for utils.validate_uid()."""
 
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     @pytest.mark.parametrize("uid,is_valid", REFERENCE_UID)

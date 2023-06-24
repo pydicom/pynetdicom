@@ -85,7 +85,7 @@ REFERENCE_REQUESTS = [
 class TestNServiceClass:
     """Generic tests for the DIMSE-N Service Classes"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
@@ -97,7 +97,7 @@ class TestNServiceClass:
 
         self.event = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -1208,7 +1208,7 @@ class TestNServiceClass:
 class TestUPSFindServiceClass:
     """Test the Unified Proecedure Step (Find) Service Class"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.query = Dataset()
         self.query.QueryRetrieveLevel = "PATIENT"
@@ -1216,7 +1216,7 @@ class TestUPSFindServiceClass:
 
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -2133,11 +2133,11 @@ class TestUPSFindServiceClass:
 class TestNEventReport:
     """Functional tests for N-EVENT-REPORT services."""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()

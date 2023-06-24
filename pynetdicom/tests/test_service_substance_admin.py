@@ -42,7 +42,7 @@ class TestSubstanceAdministrationQueryServiceClass:
     Subclass of QR Find Service class with its own statuses.
     """
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.query = Dataset()
         self.query.QueryRetrieveLevel = "PATIENT"
@@ -50,7 +50,7 @@ class TestSubstanceAdministrationQueryServiceClass:
 
         self.ae = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()

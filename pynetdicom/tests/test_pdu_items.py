@@ -325,10 +325,10 @@ class TestPDU:
 
 
 class TestApplicationContext:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_init(self):
@@ -804,10 +804,10 @@ class TestPresentationContextAC:
 
 
 class TestAbstractSyntax:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_init(self):
@@ -945,10 +945,10 @@ class TestAbstractSyntax:
 
 
 class TestTransferSyntax:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_init(self):
@@ -1394,10 +1394,10 @@ class TestUserInformation_MaximumLength:
 
 
 class TestUserInformation_ImplementationUID:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_uid(self):
@@ -1846,10 +1846,10 @@ class TestUserInformation_Asynchronous:
 
 
 class TestUserInformation_RoleSelection:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_uid_conformance(self):
@@ -2367,10 +2367,10 @@ class TestUserIdentityAC_UserResponse:
 
 
 class TestUserInformation_ExtendedNegotiation:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_uid_conformance(self):
@@ -2576,10 +2576,10 @@ class TestUserInformation_ExtendedNegotiation:
 
 
 class TestUserInformation_CommonExtendedNegotiation:
-    def setup(self):
+    def setup_method(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
-    def teardown(self):
+    def teardown_method(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
     def test_uid_conformance(self):

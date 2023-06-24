@@ -23,7 +23,7 @@ DATASET = dcmread(os.path.join(DS_DIR, "CTImageStorage.dcm"))
 
 
 class TestSendCEcho:
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.scp = DummyVerificationSCP()
         self.scp.start()
@@ -32,7 +32,7 @@ class TestSendCEcho:
         ae.add_requested_context(Verification)
         self.assoc = ae.associate("localhost", 11112)
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
@@ -57,7 +57,7 @@ class TestSendCEcho:
 
 
 class TestSendCStore:
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.scp = DummyStorageSCP()
         self.scp.status = 0x0000
@@ -67,7 +67,7 @@ class TestSendCStore:
         ae.add_requested_context(CTImageStorage)
         self.assoc = ae.associate("localhost", 11112)
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()

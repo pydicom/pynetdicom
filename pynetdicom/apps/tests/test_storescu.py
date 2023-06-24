@@ -55,12 +55,12 @@ def start_storescu_cli(args):
 class StoreSCUBase:
     """Tests for storescu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -119,7 +119,6 @@ class StoreSCUBase:
         p = self.func([DATASET_FILE])
         p.wait()
         assert p.returncode == 1
-
         out, err = capfd.readouterr()
         assert "Association request failed: unable to connect to remote" in err
         assert "TCP Initialisation Error" in err
@@ -566,7 +565,7 @@ class StoreSCUBase:
             ae.add_supported_context(cx.abstract_syntax, ALL_TRANSFER_SYNTAXES)
         scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([LIB_DIR, "--recurse", "-cx"])
+        p = self.func([DATA_DIR, "--recurse", "-cx"])
         p.wait()
         assert p.returncode == 0
 
@@ -578,7 +577,7 @@ class StoreSCUBase:
 class TestStoreSCU(StoreSCUBase):
     """Tests for storescu.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_storescu
@@ -587,7 +586,7 @@ class TestStoreSCU(StoreSCUBase):
 class TestStoreSCUCLI(StoreSCUBase):
     """Tests for storescu using CLI"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.func = start_storescu_cli

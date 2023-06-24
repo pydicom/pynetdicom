@@ -18,12 +18,14 @@ from pynetdicom import (
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION,
     PYNETDICOM_UID_PREFIX,
+    UnifiedProcedurePresentationContexts,
 )
 from pynetdicom.apps.common import create_dataset, setup_logging
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.sop_class import (
     ModalityWorklistInformationFind,
+    UnifiedProcedureStepPull,
     PatientRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelFind,
     PatientStudyOnlyQueryRetrieveInformationModelFind,
@@ -173,6 +175,12 @@ def _setup_argparser():
         help="use modality worklist information model",
         action="store_true",
     )
+    qr_model.add_argument(
+        "-U",
+        "--ups",
+        help="use unified procedure step information model",
+        action="store_true",
+    )
 
     qr_query = parser.add_argument_group("Query Options")
     qr_query.add_argument(
@@ -303,12 +311,16 @@ def main(args=None):
 
     # Set the Presentation Contexts we are requesting the Find SCP support
     ae.requested_contexts = (
-        QueryRetrievePresentationContexts + BasicWorklistManagementPresentationContexts
+        QueryRetrievePresentationContexts
+        + BasicWorklistManagementPresentationContexts
+        + UnifiedProcedurePresentationContexts
     )
 
     # Query/Retrieve Information Models
     if args.worklist:
         query_model = ModalityWorklistInformationFind
+    elif args.ups:
+        query_model = UnifiedProcedureStepPull
     elif args.study:
         query_model = StudyRootQueryRetrieveInformationModelFind
     elif args.psonly:

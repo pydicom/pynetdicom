@@ -17,7 +17,7 @@ DATASET = dcmread(os.path.join(TEST_DS_DIR, "CTImageStorage.dcm"))
 
 
 class TestDecodeMessage:
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         primitive = C_STORE()
         primitive.MessageID = 7
@@ -40,7 +40,7 @@ class TestDecodeMessage:
 
 
 class TestEncodeMessage:
-    def setup(self):
+    def setup_method(self):
         primitive = C_STORE()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = "1.1.1"

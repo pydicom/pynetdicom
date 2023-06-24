@@ -44,13 +44,13 @@ def start_echoscp_cli(args):
 class EchoSCPBase:
     """Tests for echoscp.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.p = None
         self.func = None
 
-    def teardown(self):
+    def teardown_method(self):
         """Clear any active threads"""
         if self.ae:
             self.ae.shutdown()
@@ -301,7 +301,7 @@ class EchoSCPBase:
 class TestEchoSCP(EchoSCPBase):
     """Tests for echoscp.py"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.p = None
@@ -311,7 +311,7 @@ class TestEchoSCP(EchoSCPBase):
 class TestEchoSCPCLI(EchoSCPBase):
     """Tests for echoscp using CLI"""
 
-    def setup(self):
+    def setup_method(self):
         """Run prior to each test"""
         self.ae = None
         self.p = None

@@ -62,43 +62,50 @@ def handle_find(event, db_path, cli_config, logger):
 
     model = event.request.AffectedSOPClassUID
 
-    engine = create_engine(db_path)
-    with engine.connect() as conn:
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        # Search database using Identifier as the query
-        try:
-            matches = search(model, event.identifier, session)
-        except InvalidIdentifier as exc:
-            session.rollback()
-            logger.error("Invalid C-FIND Identifier received")
-            logger.error(str(exc))
-            yield 0xA900, None
-            return
-        except Exception as exc:
-            session.rollback()
-            logger.error("Exception occurred while querying database")
-            logger.exception(exc)
-            yield 0xC320, None
-            return
-        finally:
-            session.close()
+    if model.keyword in (
+        "UnifiedProcedureStepPull",
+        "ModalityWorklistInformationModelFind",
+    ):
+        yield 0x0000, None
+    else:
+        engine = create_engine(db_path)
+        with engine.connect() as conn:
+            Session = sessionmaker(bind=engine)
+            session = Session()
+            # Search database using Identifier as the query
+            try:
+                matches = search(model, event.identifier, session)
 
-    # Yield results
-    for match in matches:
-        if event.is_cancelled:
-            yield 0xFE00, None
-            return
+            except InvalidIdentifier as exc:
+                session.rollback()
+                logger.error("Invalid C-FIND Identifier received")
+                logger.error(str(exc))
+                yield 0xA900, None
+                return
+            except Exception as exc:
+                session.rollback()
+                logger.error("Exception occurred while querying database")
+                logger.exception(exc)
+                yield 0xC320, None
+                return
+            finally:
+                session.close()
 
-        try:
-            response = match.as_identifier(event.identifier, model)
-            response.RetrieveAETitle = event.assoc.ae.ae_title
-        except Exception as exc:
-            logger.error("Error creating response Identifier")
-            logger.exception(exc)
-            yield 0xC322, None
+        # Yield results
+        for match in matches:
+            if event.is_cancelled:
+                yield 0xFE00, None
+                return
 
-        yield 0xFF00, response
+            try:
+                response = match.as_identifier(event.identifier, model)
+                response.RetrieveAETitle = event.assoc.ae.ae_title
+            except Exception as exc:
+                logger.error("Error creating response Identifier")
+                logger.exception(exc)
+                yield 0xC322, None
+
+            yield 0xFF00, response
 
 
 def handle_get(event, db_path, cli_config, logger):

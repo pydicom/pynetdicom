@@ -29,7 +29,7 @@ from pynetdicom.sop_class import Verification
 class TestServiceUserAcceptor:
     """Tests for ServiceUser as acceptor."""
 
-    def setup(self):
+    def setup_method(self):
         self.assoc = Association(AE(), mode="requestor")
 
         primitive = A_ASSOCIATE()
@@ -1382,7 +1382,7 @@ class TestServiceUserAcceptor:
 class TestServiceUserRequestor:
     """Tests for ServiceUser as requestor."""
 
-    def setup(self):
+    def setup_method(self):
         self.assoc = Association(AE(), mode="requestor")
 
         primitive = A_ASSOCIATE()
