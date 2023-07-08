@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools", "wheel"]
-build_backend = "setuptools.build_meta"
+build-backend = "setuptools.build_meta"
 
 
 [tool.coverage.run]
@@ -17,7 +17,7 @@ omit = [
 
 [tool.poetry]
 name = "pynetdicom"
-version = "2.0.2"
+version = "2.1.0-dev0"
 description = "A Python implementation of the DICOM networking protocol, originally based on (legacy) pynetdicom."
 authors = [ "Darcy Mason and contributors <darcymason@gmail.com>"]
 license = "MIT"
