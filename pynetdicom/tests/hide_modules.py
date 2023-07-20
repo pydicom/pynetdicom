@@ -26,13 +26,10 @@ https://github.com/roryyorke/py-hide-modules
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import importlib.abc
-
-# py>=3.3 has MetaPathFinder
-_ModuleHiderBase = getattr(importlib.abc, "MetaPathFinder")
+from importlib.abc import MetaPathFinder
 
 
-class ModuleHider(MetaPathFinder)::
+class ModuleHider(MetaPathFinder):
     """Import finder hook to hide specified modules
     ModuleHider(hidden_modules) -> instance
     hidden_modules is a list of strings naming modules to hide.
