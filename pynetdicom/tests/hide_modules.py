@@ -32,7 +32,7 @@ import importlib.abc
 _ModuleHiderBase = getattr(importlib.abc, "MetaPathFinder")
 
 
-class ModuleHider(_ModuleHiderBase):
+class ModuleHider(MetaPathFinder)::
     """Import finder hook to hide specified modules
     ModuleHider(hidden_modules) -> instance
     hidden_modules is a list of strings naming modules to hide.
