@@ -40,6 +40,8 @@ class TestBuilds:
         if not version:
             raise RuntimeError("No 'PYTHON_VERSION' envar has been set")
 
+        # remove any pre-release suffix
+        version = version.split("-")[0]
         version = tuple([int(vv) for vv in version.split(".")])
         assert version[:2] == sys.version_info[:2]
 
