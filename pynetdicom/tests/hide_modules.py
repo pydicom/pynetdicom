@@ -26,14 +26,10 @@ https://github.com/roryyorke/py-hide-modules
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-try:
-    import importlib.abc
+import importlib.abc
 
-    # py>=3.3 has MetaPathFinder
-    _ModuleHiderBase = getattr(importlib.abc, "MetaPathFinder")
-except ImportError:
-    # py2
-    _ModuleHiderBase = object
+# py>=3.3 has MetaPathFinder
+_ModuleHiderBase = getattr(importlib.abc, "MetaPathFinder")
 
 
 class ModuleHider(_ModuleHiderBase):
