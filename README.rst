@@ -24,7 +24,7 @@
 pynetdicom
 ==========
 
-A Python implementation of the `DICOM <http://dicom.nema.org>`_
+A Python implementation of the `DICOM <https://www.dicomstandard.org>`_
 networking protocol, originally based on (legacy)
 `pynetdicom <https://github.com/patmun/pynetdicom_legacy>`_.
 
@@ -32,8 +32,8 @@ networking protocol, originally based on (legacy)
 Description
 -----------
 
-`DICOM <http://dicom.nema.org>`_ is the international standard for medical
-images and related information. It defines the formats and communication
+`DICOM <https://www.dicomstandard.org>`_ is the international standard for
+medical images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and other
 medical domains.
 
@@ -60,9 +60,9 @@ and is used to represent a DICOM Application Entity. With it you can:
 
 Once associated, the services available to the association can
 be used by sending
-`DIMSE-C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_9>`_
+`DIMSE-C <https://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_9>`_
 and
-`DIMSE-N <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_10>`_
+`DIMSE-N <https://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_10>`_
 messages.
 
 Documentation
