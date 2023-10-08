@@ -38,9 +38,7 @@ if hasattr(PYD_CONFIG, "settings"):
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), "dicom_files")
 DATASET = dcmread(os.path.join(TEST_DS_DIR, "RTImageStorage.dcm"))
-COMP_DATASET = dcmread(
-    os.path.join(TEST_DS_DIR, "MRImageStorage_JPG2000_Lossless.dcm")
-)
+COMP_DATASET = dcmread(os.path.join(TEST_DS_DIR, "MRImageStorage_JPG2000_Lossless.dcm"))
 
 
 def test_blocking_handler():
