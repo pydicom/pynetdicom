@@ -1846,7 +1846,7 @@ class TestState04(TestStateBase):
             try:
                 assoc.dul.socket.socket.connect(address)
                 assoc.dul.socket._is_connected = True
-            except (socket.error, socket.timeout) as exc:
+            except (OSError, TimeoutError) as exc:
                 assoc.dul.socket.close()
 
         assoc.dul.socket.connect = connect

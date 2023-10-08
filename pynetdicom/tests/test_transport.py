@@ -778,7 +778,7 @@ class TestAssociationServer:
         server.shutdown()
 
         if sys.version_info[0] == 2:
-            with pytest.raises(socket.error):
+            with pytest.raises(OSError):
                 server.socket.fileno()
         else:
             assert server.socket.fileno() == -1

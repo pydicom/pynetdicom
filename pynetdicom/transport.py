@@ -199,7 +199,7 @@ class AssociationSocket:
 
         try:
             self.socket.shutdown(socket.SHUT_RDWR)
-        except socket.error:
+        except OSError:
             pass
 
         self.socket.close()
@@ -238,7 +238,7 @@ class AssociationSocket:
             # Set ae connection timeout
             self.socket.settimeout(self.assoc.connection_timeout)
             # Try and connect to remote at (address, port)
-            #   raises socket.error if connection refused
+            #   raises OSError if connection refused
             self.socket.connect(primitive.address)
             # Clear ae connection timeout
             self.socket.settimeout(None)
@@ -363,7 +363,7 @@ class AssociationSocket:
         try:
             # Use a timeout of 0 so we get an "instant" result
             ready, _, _ = select.select([self.socket], [], [], 0)
-        except (socket.error, socket.timeout, ValueError):
+        except (OSError, TimeoutError, ValueError):
             # Evt17: Transport connection closed
             self.event_queue.put("Evt17")
             return False
@@ -442,7 +442,7 @@ class AssociationSocket:
                 total_sent += nr_sent
 
             evt.trigger(self.assoc, evt.EVT_DATA_SENT, {"data": bytestream})
-        except (socket.error, socket.timeout):
+        except (OSError, TimeoutError):
             # Evt17: Transport connection closed
             self.event_queue.put("Evt17")
 
@@ -816,7 +816,7 @@ class AssociationServer(TCPServer):
         self.socket = cast(socket.socket, self.socket)
         try:
             self.socket.shutdown(socket.SHUT_RDWR)
-        except socket.error:
+        except OSError:
             pass
 
         self.socket.close()
