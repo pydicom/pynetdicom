@@ -42,7 +42,7 @@ jobs:
     - name: Check code formatting
       run: black . --check
     - name: Check spelling
-      run: codespell -L halp,ot,pres,requestor,requestors -d pynetdicom
+      run: codespell -L ddress,halp,ot,pres,requestor,requestors -d pynetdicom
     - name: Check for syntax errors
       run: python -m flake8 --select=E901,E999,F822,F823 ${{ steps.pydiff.outputs.pyfiles }} --ignore F821
     - name: Check for style warnings

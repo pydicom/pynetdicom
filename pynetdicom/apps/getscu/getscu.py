@@ -240,7 +240,7 @@ def main(args=None):
 
     # Create query (identifier) dataset
     try:
-        # If you're looking at this to see how QR Get works then `identifer`
+        # If you're looking at this to see how QR Get works then `identifier`
         # is a pydicom Dataset instance with your query keys, e.g.:
         #     identifier = Dataset()
         #     identifier.QueryRetrieveLevel = 'PATIENT'
