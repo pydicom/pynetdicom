@@ -757,12 +757,11 @@ class PresentationContextItemRQ(PDUItem):
         -------
         list of pydicom.uid.UID
         """
-        syntaxes = []
-        for item in self.abstract_transfer_syntax_sub_items:
-            if isinstance(item, TransferSyntaxSubItem):
-                syntaxes.append(cast(UID, item.transfer_syntax_name))
-
-        return syntaxes
+        return [
+            cast(UID, item.transfer_syntax_name)
+            for item in self.abstract_transfer_syntax_sub_items
+            if isinstance(item, TransferSyntaxSubItem)
+        ]
 
 
 class PresentationContextItemAC(PDUItem):
@@ -1082,11 +1081,7 @@ class UserInformationItem(PDUItem):
             - SOPClassCommonExtendedNegotiation
             - UserIdentityNegotiation
         """
-        primitive = []
-        for item in self.user_data:
-            primitive.append(item.to_primitive())
-
-        return primitive
+        return [item.to_primitive() for item in self.user_data]
 
     @property
     def async_ops_window(self) -> Optional["AsynchronousOperationsWindowSubItem"]:
@@ -1102,12 +1097,11 @@ class UserInformationItem(PDUItem):
     @property
     def common_ext_neg(self) -> List["SOPClassCommonExtendedNegotiationSubItem"]:
         """Return the *SOP Class Common Extended Negotiation Sub-items*."""
-        items = []
-        for item in self.user_data:
-            if isinstance(item, SOPClassCommonExtendedNegotiationSubItem):
-                items.append(item)
-
-        return items
+        return [
+            item
+            for item in self.user_data
+            if isinstance(item, SOPClassCommonExtendedNegotiationSubItem)
+        ]
 
     @property
     def _decoders(self) -> Any:
@@ -1150,12 +1144,11 @@ class UserInformationItem(PDUItem):
     @property
     def ext_neg(self) -> List["SOPClassExtendedNegotiationSubItem"]:
         """Return the *SOP Class Extended Negotiation Sub-items*."""
-        items = []
-        for item in self.user_data:
-            if isinstance(item, SOPClassExtendedNegotiationSubItem):
-                items.append(item)
-
-        return items
+        return [
+            item
+            for item in self.user_data
+            if isinstance(item, SOPClassExtendedNegotiationSubItem)
+        ]
 
     @property
     def implementation_class_uid(self) -> Optional[UID]:
@@ -2936,11 +2929,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     def _wrap_generate_items(self, b: bytes) -> List[UID]:  # type: ignore
         """Return a list of UID items generated from `bytestream`."""
-        item_list = []
-        for uid in self._generate_items(b):
-            item_list.append(uid)
-
-        return item_list
+        return [uid for uid in self._generate_items(b)]
 
     def _wrap_list(self, uid_list: List[UID]) -> bytes:
         """Return `uid_list` encoded as bytes.
