@@ -61,7 +61,7 @@ class ParrotRequest(BaseRequestHandler):
         try:
             # Use a timeout of 0 so we get an "instant" result
             ready, _, _ = select.select([self.socket], [], [], 0.5)
-        except (socket.error, socket.timeout, ValueError):
+        except (OSError, TimeoutError, ValueError):
             return False
 
         return bool(ready)
@@ -73,7 +73,7 @@ class ParrotRequest(BaseRequestHandler):
         # Try and read the PDU type and length from the socket
         try:
             bytestream.extend(self.recv(6))
-        except (socket.error, socket.timeout):
+        except (OSError, TimeoutError):
             pass
         try:
             # Byte 1 is always the PDU type
@@ -86,7 +86,7 @@ class ParrotRequest(BaseRequestHandler):
         # Try and read the rest of the PDU
         try:
             bytestream += self.recv(pdu_length)
-        except (socket.error, socket.timeout):
+        except (OSError, TimeoutError):
             pass
 
         return bytestream
@@ -154,7 +154,7 @@ class ParrotRequest(BaseRequestHandler):
                 # Returns the number of bytes sent
                 nr_sent = self.socket.send(bytestream)
                 total_sent += nr_sent
-        except (socket.error, socket.timeout):
+        except (OSError, TimeoutError):
             # Evt17: Transport connection closed
             return False
 

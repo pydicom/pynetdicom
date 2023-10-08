@@ -267,7 +267,7 @@ class DULServiceProvider(Thread):
         # Try and read the PDU type and length from the socket
         try:
             bytestream.extend(self.socket.recv(6))
-        except (socket.error, socket.timeout) as exc:
+        except (OSError, TimeoutError) as exc:
             # READ_PDU_EXC_A
             LOGGER.error("Connection closed before the entire PDU was received")
             LOGGER.exception(exc)
@@ -298,7 +298,7 @@ class DULServiceProvider(Thread):
         # Try and read the rest of the PDU
         try:
             bytestream += self.socket.recv(pdu_length)
-        except (socket.error, socket.timeout) as exc:
+        except (OSError, TimeoutError) as exc:
             # READ_PDU_EXC_D
             LOGGER.error("Connection closed before the entire PDU was received")
             LOGGER.exception(exc)

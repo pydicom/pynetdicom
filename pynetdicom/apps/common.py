@@ -618,7 +618,7 @@ def handle_store(event, args, app_logger):
             app_logger.error("Unable to create the output directory:")
             app_logger.error(f"    {args.output_directory}")
             app_logger.exception(exc)
-            # Failed - Out of Resources - IOError
+            # Failed - Out of Resources - OSError
             status_ds.Status = 0xA700
             return status_ds
 
@@ -639,11 +639,11 @@ def handle_store(event, args, app_logger):
             ds.save_as(filename, write_like_original=False)
 
         status_ds.Status = 0x0000  # Success
-    except IOError as exc:
+    except OSError as exc:
         app_logger.error("Could not write file to specified directory:")
         app_logger.error(f"    {os.path.dirname(filename)}")
         app_logger.exception(exc)
-        # Failed - Out of Resources - IOError
+        # Failed - Out of Resources - OSError
         status_ds.Status = 0xA700
     except Exception as exc:
         app_logger.error("Could not write file to specified directory:")
