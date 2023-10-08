@@ -114,17 +114,17 @@
 <span id="user-presentation"></span><h1>Presentation Contexts<a class="headerlink" href="#presentation-contexts" title="Link to this heading">¶</a></h1>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h2>
-<p><a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.1.13">Presentation Contexts</a>
+<p><a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.1.13">Presentation Contexts</a>
 are used in DICOM to fully define the content and the
 encoding of a piece of data (typically a DICOM dataset). They consist of three
 main parts; a <em>Context ID</em>, an <em>Abstract Syntax</em> and one or more
 <em>Transfer Syntaxes</em>.</p>
 <ul class="simple">
-<li><p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.2.2.html">Context ID</a>
+<li><p>The <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.2.2.html">Context ID</a>
 is an odd-integer between 1 and 255 (inclusive) and
 identifies the context. With <em>pynetdicom</em> this is not something you usually
 have to worry about.</p></li>
-<li><p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_B.html">Abstract Syntax</a>
+<li><p>The <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_B.html">Abstract Syntax</a>
 defines what the data represents, usually identified by
 a DICOM <em>SOP Class UID</em> (however private abstract syntaxes are also allowed)
 such as:</p>
@@ -133,7 +133,7 @@ such as:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">1.2.840.10008.5.1.4.1.1</span></code> - <em>CT Image Storage</em></p></li>
 </ul>
 </li>
-<li><p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_10.html">Transfer Syntax</a>
+<li><p>The <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_10.html">Transfer Syntax</a>
 defines how the data is encoded, usually identified by
 a DICOM <em>Transfer Syntax UID</em> (however private transfer syntaxes are also
 allowed) such as:</p>
@@ -240,7 +240,7 @@ via the <em>contexts</em> keyword parameter.</p>
 <p>The abstract syntaxes you propose should match the SOP Class or Meta SOP Class
 that corresponds to the service you wish to use. For example, if
 you’re intending to use the storage service then you’d propose one or more
-abstract syntaxes from the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">corresponding SOP Class UIDs</a>.</p>
+abstract syntaxes from the <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">corresponding SOP Class UIDs</a>.</p>
 <p>The transfer syntaxes you propose for each abstract syntax should match the
 transfer syntax of the data you wish to send. For example, if you have
 a <em>CT Image Storage</em> dataset with a (0002,0010) <em>Transfer Syntax UID</em> value of
@@ -325,8 +325,8 @@ via the <cite>contexts</cite> keyword parameter</p>
 </ol>
 <p>The abstract syntaxes you support should correspond to the service classes that
 are being offered. For example, if you offer the
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage Service</a> then you should
-support one or more of the Storage Service’s <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">corresponding SOP Classes</a>.</p>
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage Service</a> then you should
+support one or more of the Storage Service’s <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">corresponding SOP Classes</a>.</p>
 <p>The transfer syntaxes for each abstract syntax should match the data encoding
 you support.</p>
 <div class="admonition note">
@@ -428,7 +428,7 @@ the <em>requestor</em> proposes the following:</p>
 </section>
 <section id="scp-scu-role-selection">
 <span id="user-presentation-role"></span><h2>SCP/SCU Role Selection<a class="headerlink" href="#scp-scu-role-selection" title="Link to this heading">¶</a></h2>
-<p>The final wrinkle in presentation context negotiation is <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html">SCP/SCU Role
+<p>The final wrinkle in presentation context negotiation is <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html">SCP/SCU Role
 Selection</a>,
 which allows an association <em>requestor</em> to propose it’s role (SCU, SCP, or
 SCU and SCP) for each proposed abstract syntax. Role selection is used for

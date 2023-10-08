@@ -136,7 +136,7 @@ this tutorial we’ll also be using the <a class="reference internal" href="../a
 application that comes with <em>pynetdicom</em>.</p>
 <section id="dicom-networking">
 <h2>DICOM networking<a class="headerlink" href="#dicom-networking" title="Link to this heading">¶</a></h2>
-<p><em>pynetdicom</em> is an implementation of the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_9.html">DICOM Upper Layer Protocol for
+<p><em>pynetdicom</em> is an implementation of the <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_9.html">DICOM Upper Layer Protocol for
 TCP/IP</a>, which is used to facilitate communication
 between DICOM <em>Application Entities</em> (AEs) over a <a class="reference external" href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">TCP connection</a>. Communication
 between two AEs starts by establishing a TCP connection, then progresses to
@@ -144,22 +144,22 @@ negotiating an <em>association</em>, which is the term used to describe the
 communications channel between the AEs and the set of rules that govern their
 expected behaviour.</p>
 <p>The AE that initiated the connection, the <em>requestor</em>, sends an
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.2.html">A-ASSOCIATE-RQ</a> message proposing which
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html">DICOM services</a> it would like
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.2.html">A-ASSOCIATE-RQ</a> message proposing which
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html">DICOM services</a> it would like
 to use. The receiving AE, the <em>acceptor</em>, goes through the proposal and either:</p>
 <ul class="simple">
-<li><p>Accepts the association and replies with an <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.3.html">A-ASSOCIATE-AC</a> message. However, just because an association has
+<li><p>Accepts the association and replies with an <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.3.html">A-ASSOCIATE-AC</a> message. However, just because an association has
 been accepted doesn’t mean that the proposed services have also been
 accepted.</p></li>
-<li><p>Rejects the association by replying with an <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.4.html">A-ASSOCIATE-RJ</a> message.</p></li>
-<li><p>Aborts the association negotiation by sending an <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.8.html">A-ABORT</a> message.</p></li>
+<li><p>Rejects the association by replying with an <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.4.html">A-ASSOCIATE-RJ</a> message.</p></li>
+<li><p>Aborts the association negotiation by sending an <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.8.html">A-ABORT</a> message.</p></li>
 </ul>
 <p>When the <em>requestor</em> receives the A-ASSOCIATE-AC message the negotiation phase
 ends and the association becomes <em>established</em>. The two AEs can then
 use the services that were agreed upon during negotiation by exchanging
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_7.5.html#sect_7.5.1">DIMSE-C</a> and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_7.5.2.html">DIMSE-N</a> messages.</p>
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_7.5.html#sect_7.5.1">DIMSE-C</a> and <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_7.5.2.html">DIMSE-N</a> messages.</p>
 <p>When the association is no longer needed, it can be released by sending an
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.6.html">A-RELEASE-RQ</a> message. The association can be
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.6.html">A-RELEASE-RQ</a> message. The association can be
 also be aborted at any time when either AE sends an A-ABORT message. Once
 the association has been aborted or released, the TCP connection is closed
 (if still open) and communication between the two AEs ends.</p>
@@ -170,14 +170,14 @@ the association has been aborted or released, the TCP connection is closed
 association; if an AE <em>provides</em> a service then it’s referred to as a <em>Service
 Class Provider</em>, or SCP, while if an AE <em>uses</em> a service then it’s a <em>Service
 Class User</em>, or SCU. A <em>Verification SCU</em> then, is an AE that uses the DICOM
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">verification service</a>, a <em>Storage SCP</em> is an AE
-that provides the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">storage service</a>, and so
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">verification service</a>, a <em>Storage SCP</em> is an AE
+that provides the DICOM <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">storage service</a>, and so
 on. Because the verification service is the sole user of
-the DIMSE <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.5">C-ECHO</a> messages, the
+the DIMSE <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.5">C-ECHO</a> messages, the
 labels “Verification SCU” and “Verification SCP”
 are frequently shortened to “Echo SCU” and “Echo SCP” instead.</p>
 <p>The verification service itself is used to verify basic DICOM connectivity
-between two AEs; the Echo SCU sends a <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_9.3.5.html#sect_9.3.5.1">C-ECHO request</a> to the SCP, which
+between two AEs; the Echo SCU sends a <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_9.3.5.html#sect_9.3.5.1">C-ECHO request</a> to the SCP, which
 replies with an acknowledgement. By doing this you can test
 whether a DICOM application is active and reachable by your SCU, that your
 configuration is correct and that the connection isn’t being blocked by a
@@ -440,15 +440,15 @@ debug output in the A-ASSOCIATE-RQ section as:</p>
 </div>
 <p>Presentation contexts are how DICOM applications agree on which services
 are available to an association. Each DICOM service has a corresponding set of
-<em>SOP Class UIDs</em> which can be found in the relevant sections of <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03/PS3.3.html">Part 3 of
+<em>SOP Class UIDs</em> which can be found in the relevant sections of <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part03/PS3.3.html">Part 3 of
 the DICOM Standard</a>. Setting one of these as the <em>abstract
 syntax</em> parameter in a proposed presentation context indicates to the
 <em>acceptor</em> that the corresponding service is requested for data matching that
 SOP class. Additionally, the presentation context includes a description on
 how any exchanged data is to be encoded, its <em>transfer syntax</em>.</p>
-<p>So if you want to use the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">verification</a>
+<p>So if you want to use the DICOM <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">verification</a>
 service, you propose a presentation context for the <em>Verification SOP Class</em>.
-If you wanted to use the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">storage</a> service
+If you wanted to use the <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">storage</a> service
 to store <em>CT Images</em>, you’d propose a presentation context for the <em>CT Image
 Storage</em> SOP class with a transfer syntax that matches the encoding of the
 CT data.</p>
@@ -510,9 +510,9 @@ list of possible status codes and their meaning.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Service specific status codes are defined in the corresponding sections of
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03/PS3.3.html">Part 3</a> of the DICOM Standard, while the general
-codes are in Sections <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html">9</a> and
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html">10</a> and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_C.html">Annex C</a>
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part03/PS3.3.html">Part 3</a> of the DICOM Standard, while the general
+codes are in Sections <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html">9</a> and
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html">10</a> and <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_C.html">Annex C</a>
 of Part 7.</p>
 </div>
 <p>If you run your modified code then at the end of the output you should see:</p>

@@ -144,7 +144,7 @@ the official DICOM UID for <em>CT Image Storage</em> is
 must not start with <code class="docutils literal notranslate"><span class="pre">0</span></code> unless the component itself is <code class="docutils literal notranslate"><span class="pre">0</span></code> (e.g.
 <code class="docutils literal notranslate"><span class="pre">1.2.0.4</span></code> is valid but <code class="docutils literal notranslate"><span class="pre">1.2.08.4</span></code> is invalid) and the maximum length of a
 UID is 64 total characters.</p>
-<p>More information on DICOM UIDs is available in <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05.html">Part 5</a>
+<p>More information on DICOM UIDs is available in <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part05.html">Part 5</a>
 of the DICOM Standard.</p>
 </section>
 <section id="dicom-information-model">
@@ -160,17 +160,17 @@ one or more <em>Studies</em>, each <em>Study</em> contains one or more <em>Serie
 <em>Series</em> is created by a piece of <em>Equipment</em>).</p>
 <p>IODs come in two types; composite and normalised IODs. Normalised IODs
 generally represent only a single class of real-world objects (such as the
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_B.11.2.html">Print Job IOD</a>). Composite IODs include
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_B.11.2.html">Print Job IOD</a>). Composite IODs include
 information about related real-world objects (such as the
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.3.3.html">CT Image IOD</a> which contains objects like
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.3.3.html">CT Image IOD</a> which contains objects like
 <em>Patient</em>, <em>Study</em>, <em>Series</em>, <em>Equipment</em>, etc).</p>
 <p>There are many different DICOM IODs and they’re all defined in
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03.html">Part 3</a> of the DICOM Standard.</p>
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part03.html">Part 3</a> of the DICOM Standard.</p>
 </section>
 <section id="sop-classes">
 <span id="concepts-sop-classes"></span><h3>SOP Classes<a class="headerlink" href="#sop-classes" title="Link to this heading">¶</a></h3>
 <p>A Service-Object Pair (SOP) Class is defined by the union of an IOD and a
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/PS3.7.html">DICOM Message Service Element</a>
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/PS3.7.html">DICOM Message Service Element</a>
 (DIMSE) service group:</p>
 <ul class="simple">
 <li><p><strong>Composite SOP Classes</strong> are the union of Composite IODs and
@@ -188,9 +188,9 @@ Class</em>, which is the union of the <em>Print Job IOD</em> and the DIMSE
 N-EVENT-REPORT and N-GET services. The <em>Print Job SOP Class</em> is an
 abstraction of a print job containing one or more films to be printed.</p></li>
 </ul>
-<p>The DIMSE-C and DIMSE-N services are defined in <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07.html">Part 7</a> of
+<p>The DIMSE-C and DIMSE-N services are defined in <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07.html">Part 7</a> of
 the DICOM Standard. Every DICOM SOP class has its own UID that can be found in
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html">Part 6</a>.</p>
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html">Part 6</a>.</p>
 </section>
 <section id="service-classes">
 <span id="concepts-service-classes"></span><h3>Service Classes<a class="headerlink" href="#service-classes" title="Link to this heading">¶</a></h3>
@@ -203,7 +203,7 @@ of managed SOP instances (<em>Query/Retrieve Service Class</em>), printing of im
 (<em>Print Management Service Class</em>) and many others.</p>
 <p>The labels <em>Service Class User</em> and <em>Service Class Provider</em> are derived from
 whether or not an AE <em>uses</em> or <em>provides</em> the services in a Service Class.</p>
-<p>Service Classes are defined in <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04.html">Part 4</a> of the DICOM
+<p>Service Classes are defined in <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04.html">Part 4</a> of the DICOM
 Standard.</p>
 </section>
 </section>
@@ -236,7 +236,7 @@ presentation context.</p></li>
 <em>pynetdicom</em> is available <a class="reference internal" href="presentation.html#user-presentation"><span class="std std-ref">here</span></a>.</p>
 <section id="abstract-syntax">
 <span id="concepts-abstract-syntax"></span><h3>Abstract Syntax<a class="headerlink" href="#abstract-syntax" title="Link to this heading">¶</a></h3>
-<p>An <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_B.html">Abstract Syntax</a>
+<p>An <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_B.html">Abstract Syntax</a>
 is a specification of a set of data elements and their associated semantics.
 Each Abstract Syntax is identified by an <em>Abstract Syntax Name</em> in the form
 of a UID. Abstract syntax names used with DICOM are usually the officially
@@ -248,14 +248,14 @@ services/semantics is up to the end user.</p>
 </section>
 <section id="transfer-syntax">
 <span id="concepts-transfer-syntax"></span><h3>Transfer Syntax<a class="headerlink" href="#transfer-syntax" title="Link to this heading">¶</a></h3>
-<p>A <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_B.2.html">Transfer Syntax</a>
+<p>A <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_B.2.html">Transfer Syntax</a>
 defines a set of encoding rules able to unambiguously
 represent the data elements defined by one or more Abstract Syntaxes. In
 particular, the negotiation of transfer syntaxes allows communicating AEs to
 agree on the encoding techniques they are able to support (i.e. byte ordering,
 compression, etc.).</p>
 <p>The official DICOM transfer syntaxes are defined in
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05.html#chapter_8">Part 5</a> of the DICOM Standard. The Standard also
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part05.html#chapter_8">Part 5</a> of the DICOM Standard. The Standard also
 allows the use of privately defined transfer syntaxes. While <em>pynetdicom</em> is
 able to handle association negotiation containing private transfer syntaxes,
 the implementation of the associated encoding requirements is the
@@ -279,9 +279,9 @@ of proposed presentation contexts and association negotiation items.</p></li>
 </ul>
 <p>An association may be rejected because none of the proposed presentation
 contexts are supported, or because the <em>Requestor</em> hasn’t identified itself
-correctly or for a <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.4.html">number of other reasons</a>.</p>
+correctly or for a <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.4.html">number of other reasons</a>.</p>
 <p>The full service procedure for an association is found in
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.2">Part 8</a> of the DICOM Standard.</p>
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.2">Part 8</a> of the DICOM Standard.</p>
 <section id="association-negotiation-and-extended-negotiation">
 <span id="concepts-negotiation"></span><h3>Association Negotiation and Extended Negotiation<a class="headerlink" href="#association-negotiation-and-extended-negotiation" title="Link to this heading">¶</a></h3>
 <p>Standard association negotiation usually involves the peer AEs agreeing on a
@@ -302,8 +302,8 @@ depending on the requested service class (such as SCP/SCU role selection
 negotiation when the Query/Retrieve service class’ C-GET operation is
 requested). Association negotiation involving these additional items is usually
 referred to as <em>extended negotiation</em>.</p>
-<p>Extended negotiation items are defined in <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_D.html">Part 7</a>
-and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_D.html">Part 8</a> of the DICOM Standard.</p>
+<p>Extended negotiation items are defined in <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_D.html">Part 7</a>
+and <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_D.html">Part 8</a> of the DICOM Standard.</p>
 </section>
 </section>
 </section>

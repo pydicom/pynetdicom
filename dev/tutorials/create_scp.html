@@ -126,12 +126,12 @@ also be using the <a class="reference internal" href="../apps/storescu.html"><sp
 <em>pynetdicom</em>.</p>
 <section id="the-data-set">
 <h2>The Data Set<a class="headerlink" href="#the-data-set" title="Link to this heading">¶</a></h2>
-<p>This tutorial is about creating an SCP for the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">storage service</a>, which is used to transfer DICOM
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html">Data Sets</a> from one AE to another. A Data Set,
+<p>This tutorial is about creating an SCP for the DICOM <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">storage service</a>, which is used to transfer DICOM
+<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html">Data Sets</a> from one AE to another. A Data Set,
 which from now on we’ll just refer to as a <em>dataset</em>, is a representation of
-a real world object, like a slice of a <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.3.html">CT</a>
-or a <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.35.html">structured report</a>. A dataset is a
-collection of <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html#sect_7.1">Data Elements</a>, where each
+a real world object, like a slice of a <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.3.html">CT</a>
+or a <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.35.html">structured report</a>. A dataset is a
+collection of <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html#sect_7.1">Data Elements</a>, where each
 <em>element</em> represents an attribute of the object.</p>
 <p>Datasets are usually used to store information from the medical procedures
 undergone by a patient, however the DICOM Standard also puts them to use as
@@ -211,7 +211,7 @@ I: Releasing Association
 </div>
 <p>As you can see, <code class="docutils literal notranslate"><span class="pre">storescu</span></code> successfully associated with our SCP and sent a
 store request, but received a response containing a failure status <code class="docutils literal notranslate"><span class="pre">0xC211</span></code>.
-For the storage service, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.2.3.html">statuses</a> in the
+For the storage service, <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.2.3.html">statuses</a> in the
 <code class="docutils literal notranslate"><span class="pre">0xC000</span></code> to <code class="docutils literal notranslate"><span class="pre">0xCFFF</span></code> range fall under ‘cannot understand’, which is a
 generic failure status. In <em>pynetdicom’s</em> case this range of statuses is used
 to provide more specific error information; by checking the
@@ -259,7 +259,7 @@ the handler is called.</p>
 <ol class="arabic simple">
 <li><p>Responding to <a class="reference internal" href="../user/association.html#user-assoc-extneg"><span class="std std-ref">extended negotiation</span></a> items during
 association negotiation. You most likely will only have to worry about this
-if you’re using <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">User Identity negotiation</a>.</p></li>
+if you’re using <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">User Identity negotiation</a>.</p></li>
 <li><p>Responding to a service request when acting as an
 SCP, such as when an SCU sends a store request to a Storage SCP…</p></li>
 </ol>
@@ -319,7 +319,7 @@ about the DICOM File Format.</p>
 <section id="the-dicom-file-format">
 <h3>The DICOM File Format<a class="headerlink" href="#the-dicom-file-format" title="Link to this heading">¶</a></h3>
 <p>To be conformant to the DICOM Standard, when a dataset is written to file it
-should be written in the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html">DICOM File Format</a>,
+should be written in the <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html">DICOM File Format</a>,
 which consists of four main parts:</p>
 <ol class="arabic simple">
 <li><p>A header containing an 128-byte preamble</p></li>
