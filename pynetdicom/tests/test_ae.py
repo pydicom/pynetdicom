@@ -8,7 +8,7 @@ import time
 
 import pytest
 
-from pydicom import read_file, config as PYD_CONFIG
+from pydicom import dcmread, config as PYD_CONFIG
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
@@ -37,8 +37,8 @@ if hasattr(PYD_CONFIG, "settings"):
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), "dicom_files")
-DATASET = read_file(os.path.join(TEST_DS_DIR, "RTImageStorage.dcm"))
-COMP_DATASET = read_file(
+DATASET = dcmread(os.path.join(TEST_DS_DIR, "RTImageStorage.dcm"))
+COMP_DATASET = dcmread(
     os.path.join(TEST_DS_DIR, "MRImageStorage_JPG2000_Lossless.dcm")
 )
 
