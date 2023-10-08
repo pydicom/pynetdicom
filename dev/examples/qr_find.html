@@ -14,11 +14,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/documentation_options.js?v=591fcf0d"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -107,14 +107,14 @@
            <div itemprop="articleBody">
              
   <section id="query-retrieve-find-service-examples">
-<h1>Query/Retrieve (Find) Service Examples<a class="headerlink" href="#query-retrieve-find-service-examples" title="Permalink to this heading">¶</a></h1>
+<h1>Query/Retrieve (Find) Service Examples<a class="headerlink" href="#query-retrieve-find-service-examples" title="Link to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve Service</a>
 provides a mechanism for a service user to query the SOP Instances managed
 by a QR SCP. The QR (Find) SOP classes allow an SCU to receive a list of
 attributes matching the requested query. This is accomplished through the
 DIMSE C-FIND service.</p>
 <section id="query-retrieve-find-scu">
-<h2>Query/Retrieve (Find) SCU<a class="headerlink" href="#query-retrieve-find-scu" title="Permalink to this heading">¶</a></h2>
+<h2>Query/Retrieve (Find) SCU<a class="headerlink" href="#query-retrieve-find-scu" title="Link to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the SCP search for
 SOP Instances with a <em>Patient Name</em> matching <code class="docutils literal notranslate"><span class="pre">CITIZEN^Jan</span></code> using <em>Patient
 Root Query/Retrieve Information Model - Find</em> at the <code class="docutils literal notranslate"><span class="pre">'PATIENT'</span></code> level.</p>
@@ -194,7 +194,7 @@ the various <em>SOP Class UIDs</em> that make are in each study for a patient wi
 </div>
 </section>
 <section id="query-retrieve-find-scp">
-<span id="example-qrfind-scp"></span><h2>Query/Retrieve (Find) SCP<a class="headerlink" href="#query-retrieve-find-scp" title="Permalink to this heading">¶</a></h2>
+<span id="example-qrfind-scp"></span><h2>Query/Retrieve (Find) SCP<a class="headerlink" href="#query-retrieve-find-scp" title="Link to this heading">¶</a></h2>
 <p>The following represents a toy implementation of a Query/Retrieve (Find) SCP
 where the SCU has sent the following <em>Identifier</em> dataset under the <em>Patient
 Root Query Retrieve Information Model - Find</em> context.</p>

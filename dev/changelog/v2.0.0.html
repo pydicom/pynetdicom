@@ -14,11 +14,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/documentation_options.js?v=591fcf0d"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -116,19 +116,19 @@
            <div itemprop="articleBody">
              
   <section id="v2-0-0">
-<span id="id1"></span><h1>2.0.0<a class="headerlink" href="#v2-0-0" title="Permalink to this heading">¶</a></h1>
+<span id="id1"></span><h1>2.0.0<a class="headerlink" href="#v2-0-0" title="Link to this heading">¶</a></h1>
 <p>The major breaking changes with the version 2.0 release are:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Python 2 is no longer supported</p></li>
 <li><p>SOP class variable names now use their <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html#table_A-1">new DICOM UID keywords</a>
 (for example, <em>VerificationSOPClass</em> becomes simply <em>Verification</em>)</p></li>
-<li><p>AE title values should be <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> and trailing
+<li><p>AE title values should be <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> and trailing
 padding spaces are stripped from the raw value during decoding.</p></li>
 </ul>
 </div></blockquote>
 <section id="fixes">
-<h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this heading">¶</a></h2>
+<h2>Fixes<a class="headerlink" href="#fixes" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Fixed not processing multiple PDUs received when acting as the association
 requestor with SSL/TLS (<a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/528">#528</a>)</p></li>
@@ -154,7 +154,7 @@ processed (<a class="reference external" href="https://github.com/pydicom/pynetd
 </ul>
 </section>
 <section id="enhancements">
-<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this heading">¶</a></h2>
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added the ability to pass a file path to a dataset to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
@@ -198,7 +198,7 @@ association release on network timeout expiry rather than an abort (<a class="re
 </ul>
 </section>
 <section id="changes">
-<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this heading">¶</a></h2>
+<h2>Changes<a class="headerlink" href="#changes" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Removed support for Python 2.7, 3.5 and 3.6, added it for Python 3.9 and 3.10</p></li>
 <li><p>Minimum <em>pydicom</em> version is 2.2</p></li>
@@ -209,7 +209,7 @@ sub-operations that return a warning status</p></li>
 from the DICOM Standard. In particular <code class="docutils literal notranslate"><span class="pre">VerificationSOPClass</span></code> is now simply
 <a class="reference internal" href="../reference/generated/pynetdicom.sop_class.Verification.html#pynetdicom.sop_class.Verification" title="pynetdicom.sop_class.Verification"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Verification</span></code></a></p></li>
 <li><p>All AE titles and DIMSE elements with a VR of <strong>AE</strong> should be set using an
-ASCII <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a></p></li>
+ASCII <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a></p></li>
 <li><p>The default bind address used when making association requests has been changed to
 <code class="docutils literal notranslate"><span class="pre">(&quot;127.0.0.1&quot;,</span> <span class="pre">0)</span></code> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/680">#680</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DULServiceProvider.primitive</span></code> and <code class="docutils literal notranslate"><span class="pre">DULServiceProvider.pdu</span></code> have been removed</p></li>

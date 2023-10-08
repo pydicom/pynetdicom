@@ -14,11 +14,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/documentation_options.js?v=591fcf0d"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -111,9 +111,9 @@
            <div itemprop="articleBody">
              
   <section id="presentation-contexts">
-<span id="user-presentation"></span><h1>Presentation Contexts<a class="headerlink" href="#presentation-contexts" title="Permalink to this heading">¶</a></h1>
+<span id="user-presentation"></span><h1>Presentation Contexts<a class="headerlink" href="#presentation-contexts" title="Link to this heading">¶</a></h1>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h2>
 <p><a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.1.13">Presentation Contexts</a>
 are used in DICOM to fully define the content and the
 encoding of a piece of data (typically a DICOM dataset). They consist of three
@@ -144,7 +144,7 @@ allowed) such as:</p>
 </li>
 </ul>
 <section id="representation-in-pynetdicom">
-<h3>Representation in pynetdicom<a class="headerlink" href="#representation-in-pynetdicom" title="Permalink to this heading">¶</a></h3>
+<h3>Representation in pynetdicom<a class="headerlink" href="#representation-in-pynetdicom" title="Link to this heading">¶</a></h3>
 <p>In <em>pynetdicom</em> presentation contexts are represented using the
 <code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code> class.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="kn">import</span> <span class="n">PresentationContext</span>
@@ -189,7 +189,7 @@ used instead.</p>
 </section>
 </section>
 <section id="presentation-contexts-and-the-association-requestor">
-<h2>Presentation Contexts and the Association Requestor<a class="headerlink" href="#presentation-contexts-and-the-association-requestor" title="Permalink to this heading">¶</a></h2>
+<h2>Presentation Contexts and the Association Requestor<a class="headerlink" href="#presentation-contexts-and-the-association-requestor" title="Link to this heading">¶</a></h2>
 <p>When acting as the association <em>requestor</em> (usually the SCU), you must propose
 presentation contexts to be negotiated by the
 association process. There are a couple of simple rules for these:</p>
@@ -276,11 +276,11 @@ transfer syntaxes:</p>
 <p>Provided both contexts get accepted then it becomes possible to transfer CT
 Image datasets encoded in <em>JPEG Baseline</em> and/or <em>Implicit VR Little Endian</em>.
 Alternatively it may be necessary to
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset.decompress" title="(in pydicom v2.4.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">decompress()</span></code></a> datasets prior to sending (as
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset.decompress" title="(in pydicom v2.4.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">decompress()</span></code></a> datasets prior to sending (as
 <em>Implicit VR Little Endian</em> should always be accepted).</p>
 </section>
 <section id="presentation-contexts-and-the-association-acceptor">
-<h2>Presentation Contexts and the Association Acceptor<a class="headerlink" href="#presentation-contexts-and-the-association-acceptor" title="Permalink to this heading">¶</a></h2>
+<h2>Presentation Contexts and the Association Acceptor<a class="headerlink" href="#presentation-contexts-and-the-association-acceptor" title="Link to this heading">¶</a></h2>
 <p>When acting as the association <em>acceptor</em> (usually the SCP), you should define
 which presentation contexts will be supported. Unlike the <em>requestor</em> you can
 define an unlimited number of supported presentation contexts.</p>
@@ -336,7 +336,7 @@ acting as an SCP.</p>
 </div>
 </section>
 <section id="presentation-context-negotiation">
-<h2>Presentation Context Negotiation<a class="headerlink" href="#presentation-context-negotiation" title="Permalink to this heading">¶</a></h2>
+<h2>Presentation Context Negotiation<a class="headerlink" href="#presentation-context-negotiation" title="Link to this heading">¶</a></h2>
 <p>Consider an <em>acceptor</em> that supports the following abstract syntax/transfer
 syntaxes:</p>
 <ul class="simple">
@@ -400,7 +400,7 @@ doesn’t support the <em>CR Image Storage</em> abstract syntax.</p></li>
 <p>Contexts 1 and 3 have been accepted and can be used for sending data while
 5 and 7 have been rejected and are not available.</p>
 <section id="implementation-note">
-<h3>Implementation Note<a class="headerlink" href="#implementation-note" title="Permalink to this heading">¶</a></h3>
+<h3>Implementation Note<a class="headerlink" href="#implementation-note" title="Link to this heading">¶</a></h3>
 <p>When acting as an <em>acceptor</em>, <em>pynetdicom</em> will choose the first matching
 transfer syntax in <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext.transfer_syntax" title="pynetdicom.presentation.PresentationContext.transfer_syntax"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PresentationContext.transfer_syntax</span></code></a>.  For example, if
 the <em>requestor</em> proposes the following:</p>
@@ -427,7 +427,7 @@ the <em>requestor</em> proposes the following:</p>
 </section>
 </section>
 <section id="scp-scu-role-selection">
-<span id="user-presentation-role"></span><h2>SCP/SCU Role Selection<a class="headerlink" href="#scp-scu-role-selection" title="Permalink to this heading">¶</a></h2>
+<span id="user-presentation-role"></span><h2>SCP/SCU Role Selection<a class="headerlink" href="#scp-scu-role-selection" title="Link to this heading">¶</a></h2>
 <p>The final wrinkle in presentation context negotiation is <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html">SCP/SCU Role
 Selection</a>,
 which allows an association <em>requestor</em> to propose it’s role (SCU, SCP, or

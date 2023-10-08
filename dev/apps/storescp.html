@@ -14,11 +14,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/documentation_options.js?v=591fcf0d"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -118,12 +118,12 @@
            <div itemprop="articleBody">
              
   <section id="storescp">
-<h1>storescp<a class="headerlink" href="#storescp" title="Permalink to this heading">¶</a></h1>
+<h1>storescp<a class="headerlink" href="#storescp" title="Link to this heading">¶</a></h1>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom storescp [options] port
 </pre></div>
 </div>
 <section id="description">
-<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">¶</a></h2>
+<h2>Description<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">storescp</span></code> application implements a Service Class Provider (SCP) for
 the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage</a> service class. It listens for
 incoming association requests on the specified <em>port</em>, and once an association
@@ -131,7 +131,7 @@ is established, allows Storage SCUs to transfer SOP Instances.</p>
 <p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/storescp">here</a></p>
 </section>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
 <p>The following example shows what happens when it is started and receives
 a C-STORE request from a peer:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom storescp 11112
@@ -173,9 +173,9 @@ I: Association Released
 </div>
 </section>
 <section id="options">
-<h2>Options<a class="headerlink" href="#options" title="Permalink to this heading">¶</a></h2>
+<h2>Options<a class="headerlink" href="#options" title="Link to this heading">¶</a></h2>
 <section id="general-options">
-<h3>General Options<a class="headerlink" href="#general-options" title="Permalink to this heading">¶</a></h3>
+<h3>General Options<a class="headerlink" href="#general-options" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-q</span>&#160;&#160;&#160; <span class="pre">--quiet</span></code></dt><dd><p>quiet mode, prints no warnings or errors</p>
 </dd>
@@ -190,7 +190,7 @@ or lower</p>
 </dl>
 </section>
 <section id="network-options">
-<h3>Network Options<a class="headerlink" href="#network-options" title="Permalink to this heading">¶</a></h3>
+<h3>Network Options<a class="headerlink" href="#network-options" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-aet</span>&#160; <span class="pre">--ae-title</span> <span class="pre">[a]etitle</span> <span class="pre">(str)</span></code></dt><dd><p>set the local AE title (default: <code class="docutils literal notranslate"><span class="pre">STORESCP</span></code>)</p>
 </dd>
@@ -205,7 +205,7 @@ or lower</p>
 </dl>
 </section>
 <section id="preferred-transfer-syntaxes">
-<h3>Preferred Transfer Syntaxes<a class="headerlink" href="#preferred-transfer-syntaxes" title="Permalink to this heading">¶</a></h3>
+<h3>Preferred Transfer Syntaxes<a class="headerlink" href="#preferred-transfer-syntaxes" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-x=</span>&#160;&#160; <span class="pre">--prefer-uncompr</span></code></dt><dd><p>prefer explicit VR local byte order</p>
 </dd>
@@ -218,7 +218,7 @@ or lower</p>
 </dl>
 </section>
 <section id="output">
-<h3>Output<a class="headerlink" href="#output" title="Permalink to this heading">¶</a></h3>
+<h3>Output<a class="headerlink" href="#output" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-od</span> <span class="pre">[d]irectory,</span> <span class="pre">--output-directory</span> <span class="pre">[d]irectory</span> <span class="pre">(str)</span></code></dt><dd><p>write received objects to directory <code class="docutils literal notranslate"><span class="pre">d</span></code></p>
 </dd>
@@ -227,7 +227,7 @@ or lower</p>
 </dl>
 </section>
 <section id="miscellaneous">
-<h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this heading">¶</a></h3>
+<h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">--no-echo</span></code></dt><dd><p>don’t act as a verification SCP</p>
 </dd>
@@ -235,14 +235,14 @@ or lower</p>
 </section>
 </section>
 <section id="dicom-conformance">
-<h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this heading">¶</a></h2>
+<h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">storescp</span></code> application supports the Verification (unless <code class="docutils literal notranslate"><span class="pre">--no-echo</span></code>
 is used) and Storage service classes as an SCP. The following SOP
 classes are supported:</p>
 <section id="verification-service">
-<h3>Verification Service<a class="headerlink" href="#verification-service" title="Permalink to this heading">¶</a></h3>
+<h3>Verification Service<a class="headerlink" href="#verification-service" title="Link to this heading">¶</a></h3>
 <section id="sop-classes">
-<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this heading">¶</a></h4>
+<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Link to this heading">¶</a></h4>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
@@ -257,7 +257,7 @@ classes are supported:</p>
 </table>
 </section>
 <section id="transfer-syntaxes">
-<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this heading">¶</a></h4>
+<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Link to this heading">¶</a></h4>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
@@ -282,9 +282,9 @@ classes are supported:</p>
 </section>
 </section>
 <section id="storage-service">
-<h3>Storage Service<a class="headerlink" href="#storage-service" title="Permalink to this heading">¶</a></h3>
+<h3>Storage Service<a class="headerlink" href="#storage-service" title="Link to this heading">¶</a></h3>
 <section id="id1">
-<h4>SOP Classes<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h4>
+<h4>SOP Classes<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h4>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
@@ -818,7 +818,7 @@ Instructions Storage</p></td>
 </table>
 </section>
 <section id="id2">
-<h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h4>
+<h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>

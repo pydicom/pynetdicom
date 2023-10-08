@@ -14,11 +14,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/documentation_options.js?v=591fcf0d"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -116,9 +116,9 @@
            <div itemprop="articleBody">
              
   <section id="v1-4-0">
-<span id="id1"></span><h1>1.4.0<a class="headerlink" href="#v1-4-0" title="Permalink to this heading">¶</a></h1>
+<span id="id1"></span><h1>1.4.0<a class="headerlink" href="#v1-4-0" title="Link to this heading">¶</a></h1>
 <section id="fixes">
-<h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this heading">¶</a></h2>
+<h2>Fixes<a class="headerlink" href="#fixes" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Fixed Query Retrieve service class not responded with <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> (Success)
 if no matches were yielded by the C-FIND request handler.</p></li>
@@ -135,7 +135,7 @@ methods.</p></li>
 </ul>
 </section>
 <section id="enhancements">
-<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this heading">¶</a></h2>
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.move_destination" title="pynetdicom.events.Event.move_destination"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.move_destination</span></code></a> (for
 <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>), <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.action_type" title="pynetdicom.events.Event.action_type"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.action_type</span></code></a>
@@ -172,7 +172,7 @@ Requestor</p></li>
 </ul>
 </section>
 <section id="changes">
-<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this heading">¶</a></h2>
+<h2>Changes<a class="headerlink" href="#changes" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>The following have been removed as per planned deprecation:</p>
 <ul>
@@ -190,7 +190,7 @@ Requestor</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_find()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_get()</span></code> and
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_move()</span></code> now require a <cite>query_model</cite> parameter that
 is used to set the <em>Affected SOP Class UID</em> value. The parameter should
-pass a pydicom <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydicom.uid.UID</span></code></a> or UID string. Passing a key that
+pass a pydicom <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydicom.uid.UID</span></code></a> or UID string. Passing a key that
 corresponds to a given UID is deprecated and will be removed in v1.5.
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/348">#348</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Event.name</span></code> and <code class="docutils literal notranslate"><span class="pre">Event.description</span></code> properties removed, use

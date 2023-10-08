@@ -14,11 +14,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/documentation_options.js?v=591fcf0d"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -107,14 +107,14 @@
            <div itemprop="articleBody">
              
   <section id="events">
-<span id="user-events"></span><h1>Events<a class="headerlink" href="#events" title="Permalink to this heading">¶</a></h1>
+<span id="user-events"></span><h1>Events<a class="headerlink" href="#events" title="Link to this heading">¶</a></h1>
 <p><em>pynetdicom</em> uses an event-handler system to give the user access to the
 data exchanged between different services within an AE as well as the PDUs
 and data sent between the local and peer AEs. Two different types of events
 are used: <em>notification events</em> and <em>intervention events</em>. Events are imported
 using <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">pynetdicom</span> <span class="pre">import</span> <span class="pre">evt</span></code></p>
 <section id="notification-events">
-<span id="events-notification"></span><h2>Notification Events<a class="headerlink" href="#notification-events" title="Permalink to this heading">¶</a></h2>
+<span id="events-notification"></span><h2>Notification Events<a class="headerlink" href="#notification-events" title="Link to this heading">¶</a></h2>
 <p>Notification events are those events where bound event handlers don’t need
 to return or yield anything (i.e. the user is <em>notified</em> some event has
 occurred). Each notification event can have multiple handlers
@@ -196,7 +196,7 @@ associations:</p>
 </div>
 </section>
 <section id="intervention-events">
-<span id="events-intervention"></span><h2>Intervention Events<a class="headerlink" href="#intervention-events" title="Permalink to this heading">¶</a></h2>
+<span id="events-intervention"></span><h2>Intervention Events<a class="headerlink" href="#intervention-events" title="Link to this heading">¶</a></h2>
 <p>Intervention events are those events where the bound event handler must return
 or yield certain expected values so that <em>pynetdicom</em> can complete an action
 (i.e. user <em>intervention</em> is required).
@@ -207,7 +207,7 @@ or extended negotiation ignored). The sole exception is the default handler
 for <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code> which returns an <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> <em>Success</em> status. The
 table below lists the possible intervention events.</p>
 <section id="association-related">
-<h3>Association related<a class="headerlink" href="#association-related" title="Permalink to this heading">¶</a></h3>
+<h3>Association related<a class="headerlink" href="#association-related" title="Link to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 25%" />
@@ -235,7 +235,7 @@ table below lists the possible intervention events.</p>
 </table>
 </section>
 <section id="service-class-related">
-<h3>Service Class related<a class="headerlink" href="#service-class-related" title="Permalink to this heading">¶</a></h3>
+<h3>Service Class related<a class="headerlink" href="#service-class-related" title="Link to this heading">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 33%" />
@@ -285,7 +285,7 @@ table below lists the possible intervention events.</p>
 </section>
 </section>
 <section id="event-handlers">
-<h2>Event Handlers<a class="headerlink" href="#event-handlers" title="Permalink to this heading">¶</a></h2>
+<h2>Event Handlers<a class="headerlink" href="#event-handlers" title="Link to this heading">¶</a></h2>
 <p>Event handlers are callable functions bound to an event that, at a minimum,
 get passed a single parameter, <em>event</em>, which is an <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instance.
 All <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instances come with at least three attributes:</p>
@@ -294,9 +294,9 @@ All <a class="reference internal" href="../reference/generated/pynetdicom.events
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> in which the
 event occurred</p></li>
 <li><p><a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.event</span></code></a> - the corresponding event, as a Python
-<a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple" title="(in Python v3.11)"><code class="xref py py-func docutils literal notranslate"><span class="pre">namedtuple</span></code></a></p></li>
+<a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple" title="(in Python v3.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">namedtuple</span></code></a></p></li>
 <li><p><a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.timestamp" title="pynetdicom.events.Event.timestamp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.timestamp</span></code></a> - the date and time the event occurred at, as a
-Python <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a></p></li>
+Python <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a></p></li>
 </ul>
 <p>Additional attributes and properties are available depending on the event type,
 see the <a class="reference external" href="../reference/events.html">handler implementation documentation</a> for more information.</p>

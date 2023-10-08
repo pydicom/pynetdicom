@@ -14,11 +14,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/documentation_options.js?v=591fcf0d"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -107,7 +107,7 @@
            <div itemprop="articleBody">
              
   <section id="storage-service-examples">
-<h1>Storage Service Examples<a class="headerlink" href="#storage-service-examples" title="Permalink to this heading">¶</a></h1>
+<h1>Storage Service Examples<a class="headerlink" href="#storage-service-examples" title="Link to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage Service</a>
 provides a mechanism for an SCU to request the transfer
 of supported <a class="reference internal" href="../service_classes/storage_service_class.html#storage-sops"><span class="std std-ref">Storage SOP Class</span></a> instances to
@@ -117,7 +117,7 @@ DIMSE C-STORE service.</p>
 other type of data supported by the Storage SOP Classes, then the Storage
 Service is what you’re looking for.</p>
 <section id="storage-scu">
-<h2>Storage SCU<a class="headerlink" href="#storage-scu" title="Permalink to this heading">¶</a></h2>
+<h2>Storage SCU<a class="headerlink" href="#storage-scu" title="Link to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the transfer of a
 single CT dataset.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
@@ -190,7 +190,7 @@ the requested contexts, or just add as many contexts as you need.</p>
 </div>
 </section>
 <section id="storage-scp">
-<span id="example-storage-scp"></span><h2>Storage SCP<a class="headerlink" href="#storage-scp" title="Permalink to this heading">¶</a></h2>
+<span id="example-storage-scp"></span><h2>Storage SCP<a class="headerlink" href="#storage-scp" title="Link to this heading">¶</a></h2>
 <p>Create an <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> that supports the
 Storage Service and then listen for association requests on port <code class="docutils literal notranslate"><span class="pre">11112</span></code>.
 When a storage request is

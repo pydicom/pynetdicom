@@ -14,11 +14,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/documentation_options.js?v=591fcf0d"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -107,7 +107,7 @@
            <div itemprop="articleBody">
              
   <section id="query-retrieve-move-service-examples">
-<h1>Query/Retrieve (Move) Service Examples<a class="headerlink" href="#query-retrieve-move-service-examples" title="Permalink to this heading">¶</a></h1>
+<h1>Query/Retrieve (Move) Service Examples<a class="headerlink" href="#query-retrieve-move-service-examples" title="Link to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve Service</a>
 provides a mechanism for a service user to query and retrieve the SOP Instances
 managed by a QR SCP. The QR (Move) SOP classes allow an SCU to request an SCP
@@ -118,7 +118,7 @@ know in advance the details (AE title, IP address, port number) of the
 destination Storage SCP. If the Move SCP doesn’t know the destination AE then
 it will usually respond with an <code class="docutils literal notranslate"><span class="pre">0xA801</span></code> status code.</p>
 <section id="query-retrieve-move-scu">
-<h2>Query/Retrieve (Move) SCU<a class="headerlink" href="#query-retrieve-move-scu" title="Permalink to this heading">¶</a></h2>
+<h2>Query/Retrieve (Move) SCU<a class="headerlink" href="#query-retrieve-move-scu" title="Link to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request it send
 all SOP Instances for the patient with <em>Patient ID</em> <code class="docutils literal notranslate"><span class="pre">1234567</span></code> belonging to the
 series with <em>Study Instance UID</em> <code class="docutils literal notranslate"><span class="pre">1.2.3</span></code> and <em>Series Instance UID</em>
@@ -232,7 +232,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 </div>
 </section>
 <section id="query-retrieve-move-scp">
-<span id="example-qrmove-scp"></span><h2>Query/Retrieve (Move) SCP<a class="headerlink" href="#query-retrieve-move-scp" title="Permalink to this heading">¶</a></h2>
+<span id="example-qrmove-scp"></span><h2>Query/Retrieve (Move) SCP<a class="headerlink" href="#query-retrieve-move-scp" title="Link to this heading">¶</a></h2>
 <p>The following represents a toy implementation of a Query/Retrieve (Move) SCP
 where the SCU has sent the following <em>Identifier</em> dataset under the <em>Patient
 Root Query Retrieve Information Model - Move</em> context and the move destination
@@ -327,7 +327,7 @@ query against that, which is the approach taken by the
 </div>
 <p>It’s also possible to get more control over the association with the Storage
 SCP that’ll be receiving any matching datasets by yielding <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port,</span>
-<span class="pre">kwargs)</span></code> instead of <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port)</span></code>, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>
+<span class="pre">kwargs)</span></code> instead of <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port)</span></code>, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>
 containing keyword parameters that’ll be passed to
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>. In
 particular, this allows you to tailor the presentation contexts that will be

@@ -14,11 +14,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/documentation_options.js?v=591fcf0d"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -107,7 +107,7 @@
            <div itemprop="articleBody">
              
   <section id="verification-service-examples">
-<h1>Verification Service Examples<a class="headerlink" href="#verification-service-examples" title="Permalink to this heading">¶</a></h1>
+<h1>Verification Service Examples<a class="headerlink" href="#verification-service-examples" title="Link to this heading">¶</a></h1>
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">Verification Service</a>
 allows an Application Entity to verify application level communication between
 itself and another AE by using the DIMSE C-ECHO service. It only has a single
@@ -123,7 +123,7 @@ to debug:</p>
 </pre></div>
 </div>
 <section id="verification-scu">
-<h2>Verification SCU<a class="headerlink" href="#verification-scu" title="Permalink to this heading">¶</a></h2>
+<h2>Verification SCU<a class="headerlink" href="#verification-scu" title="Link to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the use of the
 Verification Service.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
@@ -167,7 +167,7 @@ the requested contexts.</p>
 </div>
 </section>
 <section id="verification-scp">
-<span id="example-verification-scp"></span><h2>Verification SCP<a class="headerlink" href="#verification-scp" title="Permalink to this heading">¶</a></h2>
+<span id="example-verification-scp"></span><h2>Verification SCP<a class="headerlink" href="#verification-scp" title="Link to this heading">¶</a></h2>
 <p>Create an <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> that supports the
 Verification Service and then listen for
 association requests on port 11112. When a verification request is received
