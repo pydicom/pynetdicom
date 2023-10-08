@@ -613,7 +613,7 @@ class TestElementPath:
             "TM": ("StudyTime", "120000.123456"),
             "UC": ("LongCodeValue", "So many characters in this one"),
             "UI": ("SOPClassUID", "1.2.3.4.5.6"),
-            "UR": ("CodingSchemeURL", "http://github.com/pydicom/pynetdicom"),
+            "UR": ("CodingSchemeURL", "https://github.com/pydicom/pynetdicom"),
             "UT": ("StrainAdditionalInformation", "Wheeeeeeeeee"),
         }
         for vr, (kw, val) in keywords.items():

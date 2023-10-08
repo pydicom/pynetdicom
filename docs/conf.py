@@ -96,7 +96,7 @@ copybutton_prompt_is_regexp = True
 extlinks = {
     # 'alias' : (url_prefix, caption)
     # Usage :dcm:`link text <part05/sect_6.2.html>`
-    "dcm": ("http://dicom.nema.org/medical/dicom/current/output/chtml/%s", None),
+    "dcm": ("https://dicom.nema.org/medical/dicom/current/output/chtml/%s", None),
     "gh": ("https://github.com/pydicom/%s", None),
     "issue": ("https://github.com/pydicom/pynetdicom/issues/%s", "#%s"),
     "pr": ("https://github.com/pydicom/pynetdicom/pull/%s", "#%s"),
@@ -306,7 +306,7 @@ def setup(app):
 
 # Example configuration for intersphinx: refer to
 # the Python standard library.
-# intersphinx_mapping = {'http://docs.python.org/': None}
+# intersphinx_mapping = {'https://docs.python.org/': None}
 
 
 # The following is used by sphinx.ext.linkcode to provide links to github

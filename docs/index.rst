@@ -4,7 +4,7 @@
 ============
 
 :gh:`pynetdicom <pynetdicom>` is a pure Python package
-that implements the `DICOM <http://dicom.nema.org/>`_ networking protocol.
+that implements the `DICOM <https://www.dicomstandard.org/>`_ networking protocol.
 Working with
 :gh:`pydicom <pydicom>`, it allows the easy creation
 of DICOM Application Entities (AEs), which can then act as *Service Class

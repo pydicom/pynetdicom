@@ -43,7 +43,7 @@ Pull Requests
 Code Style
 ----------
 - [Black](https://github.com/psf/black) is required
-- Type hints should pass using the current [mypy](http://mypy-lang.org/) release
+- Type hints should pass using the current [mypy](https://mypy-lang.org/) release
 - There are a handful of project-specific styles that should be used:
   - `ae` for an ApplicationEntity object
   - `acse` for the ACSE object
