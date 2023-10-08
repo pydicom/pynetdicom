@@ -289,7 +289,7 @@ class ServiceClass:
                 LOGGER.error(
                     "\nTraceback (most recent call last):\n"
                     + "".join(traceback.format_tb(exc[2]))
-                    + f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
+                    + f"{exc[0].__name__}: {exc[1]}"  # type: ignore
                 )
                 rsp_status = 0xC311
                 dataset = None
@@ -1707,7 +1707,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 LOGGER.error(
                     "\nTraceback (most recent call last):\n"
                     + "".join(traceback.format_tb(exc[2]))
-                    + f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
+                    + f"{exc[0].__name__}: {exc[1]}"  # type: ignore
                 )
                 rsp_status = 0xC411
                 dataset = None
@@ -2131,7 +2131,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 LOGGER.error(
                     "\nTraceback (most recent call last):\n"
                     + "".join(traceback.format_tb(exc[2]))
-                    + f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
+                    + f"{exc[0].__name__}: {exc[1]}"  # type: ignore
                 )
                 rsp_status = 0xC511
                 dataset = None
