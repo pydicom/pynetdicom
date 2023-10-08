@@ -3509,7 +3509,7 @@ def doc_handle_n_get(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     * :dcm:`Media Creation Management<part04/chapter_S.html>`
     * :dcm:`Unified Procedure Step<part04/chapter_CC.html>`
     * :dcm:`RT Machine Verification<part04/chapter_DD.html>`
-    * :dcm:`Dispaly System Management<part04/chapter_EE.html>`
+    * :dcm:`Display System Management<part04/chapter_EE.html>`
 
     **Status**
 
