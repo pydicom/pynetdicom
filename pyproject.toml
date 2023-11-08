@@ -1,6 +1,102 @@
 [build-system]
-requires = ["setuptools", "wheel"]
-build_backend = "setuptools.build_meta"
+requires = ["poetry-core >=1.8,<2"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry]
+authors = [
+    "pynetdicom contributors"
+]
+classifiers=[
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "Development Status :: 5 - Production/Stable",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Software Development :: Libraries",
+]
+description = "A Python implementation of the DICOM networking protocol"
+documentation = "https://pydicom.github.io/pynetdicom"
+homepage = "https://github.com/pydicom/pynetdicom"
+include = [
+    "pynetdicom/tests/cert_files/*",
+    "pynetdicom/tests/dicom_files/*",
+    "pynetdicom/apps/qrscp/default.ini",
+    "pynetdicom/py.typed",
+    "LICENCE",
+]
+
+keywords = ["dicom", "networking", "pydicom"]
+license = "MIT"
+maintainers = [
+    "scaramallion <scaramallion@users.noreply.github.com>",
+]
+name = "pynetdicom"
+readme = "README.rst"
+version = "2.2.0.dev0"
+
+
+[tool.poetry.dependencies]
+pydicom = "~2.4"
+python = "^3.10"
+
+[tool.poetry.group.apps]
+optional = true
+
+[tool.poetry.group.apps.dependencies]
+sqlalchemy = "^2.0"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.10"
+codespell = "^2.2"
+coverage = "^7.3"
+flake8 = "^6.1"
+mypy = "^1.6"
+pyfakefs = "^5.3"
+pytest = "^7.4"
+sqlalchemy = "^2.0"
+
+[tool.poetry.group.tests]
+optional = true
+
+[tool.poetry.group.tests.dependencies]
+pyfakefs = "^5.3"
+pytest = "^7.4"
+sqlalchemy = "^2.0"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+numpydoc = "^1.6"
+sphinx = "^7.2"
+sphinx-copybutton = "^0.5"
+sphinx-rtd-theme = "^1.3"
+
+
+[tool.poetry.scripts]
+echoscp = "pynetdicom.apps.echoscp.echoscp:main"
+echoscu = "pynetdicom.apps.echoscu.echoscu:main"
+findscu = "pynetdicom.apps.findscu.findscu:main"
+getscu = "pynetdicom.apps.getscu.getscu:main"
+movescu = "pynetdicom.apps.movescu.echoscp:main"
+qrscp = "pynetdicom.apps.qrscp.qrscp:main"
+storescp = "pynetdicom.apps.storescp.storescp:main"
+storescu = "pynetdicom.apps.storescu.storescu:main"
+
+
+[tool.black]
+exclude = ".venv|build|/_.*_dict.py$"
+force-exclude = ".venv|/_.*_dict.py$"
 
 
 [tool.coverage.run]
@@ -13,7 +109,7 @@ omit = [
 
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"  # use the minimum supported Python version
 exclude = [
     "pynetdicom/tests",
     "pynetdicom/apps",
