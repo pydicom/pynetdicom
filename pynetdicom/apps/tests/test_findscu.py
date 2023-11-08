@@ -114,7 +114,7 @@ class FindSCUBase:
         assert {} == requestor.sop_class_extended
         assert requestor.user_identity == None
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 18
+        assert len(cxs) == 19
         cxs = {cx.abstract_syntax: cx for cx in cxs}
         assert PatientRootQueryRetrieveInformationModelFind in cxs
         cx = cxs[PatientRootQueryRetrieveInformationModelFind]
