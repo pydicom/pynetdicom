@@ -18,7 +18,8 @@ If you're new to *pynetdicom* then start here:
 
 * **Basics**: :doc:`Installation</tutorials/installation>` |
   :doc:`Writing your first SCU</tutorials/create_scu>` |
-  :doc:`Writing your first SCP</tutorials/create_scp>`
+  :doc:`Writing your first SCP</tutorials/create_scp>` |
+  :doc:`Adding new SOP Classes`
 
 
 .. _index_guide:
