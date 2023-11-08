@@ -543,7 +543,6 @@ def register_uid(
     keyword: str,
     service_class: Type[ServiceClass],
     dimse_msg_type: str = "",
-    name: str = "",
 ) -> None:
     """Register a private or public SOP Class UID `uid` with the
     :mod:`~pynetdicom.sop_class` module.
@@ -558,16 +557,16 @@ def register_uid(
         >>> from pynetdicom.service_class import StorageServiceClass
         >>> register_uid(
         ...     "1.2.246.352.70.1.70",
-        ...     "VarianHalcyonRTPlanStorage",
+        ...     "FooStorage",
         ...     StorageServiceClass,
         ... )
 
     Using a UID after registration::
 
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VarianHalcyonRTPlanStorage
+        >>> from pynetdicom.sop_class import FooStorage
         >>> ae = AE()
-        >>> ae.add_supported_context(VarianHalcyonRTPlanStorage)
+        >>> ae.add_supported_context(FooStorage)
 
     Parameters
     ----------
@@ -585,10 +584,6 @@ def register_uid(
         :class:`~pynetdicom.service_class.QueryRetrieveServiceClass` then this
         should be the DIMSE service message type that the `uid` is being
         registered to. One of ("C-FIND", "C-GET", "C-MOVE").
-    name : str, optional
-        A name for the UID to be displayed when logging, analogous to the DICOM UID
-        Name (such as 'CT Image Storage'). If not supplied then the UID value
-        itself will be used instead.
     """
     if not keyword.isidentifier() or iskeyword(keyword):
         raise ValueError(
