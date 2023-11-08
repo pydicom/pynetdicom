@@ -446,6 +446,7 @@ Well-known SOP Instances
    PrinterInstance
    ProceduralEventLoggingInstance
    StorageCommitmentPushModelInstance
+   StorageManagementInstance
    SubstanceAdministrationLoggingInstance
    UPSFilteredGlobalSubscriptionInstance
    UPSGlobalSubscriptionInstance
