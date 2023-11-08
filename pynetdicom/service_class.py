@@ -1538,18 +1538,8 @@ class QueryRetrieveServiceClass(ServiceClass):
         "SpectroscopyData",
         "EncapsulatedDocument",
     ]
-
-    def SCP(self, req: "_QR", context: "PresentationContext") -> None:
-        """The SCP implementation for the Query/Retrieve Service Class.
-
-        Parameters
-        ----------
-        req : dimse_primitives.C_FIND or C_GET or C_MOVE
-            The request primitive received from the peer.
-        context : presentation.PresentationContext
-            The presentation context that the SCP is operating under.
-        """
-        _find_uids = [
+    _SUPPORTED_UIDS = {
+        "C-FIND": [
             "1.2.840.10008.5.1.4.1.2.1.1",
             "1.2.840.10008.5.1.4.1.2.2.1",
             "1.2.840.10008.5.1.4.1.2.3.1",
@@ -1560,8 +1550,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             "1.2.840.10008.5.1.4.44.2",
             "1.2.840.10008.5.1.4.45.2",
             "1.2.840.10008.5.1.4.1.1.200.4",
-        ]
-        _get_uids = [
+        ],
+        "C-GET": [
             "1.2.840.10008.5.1.4.1.2.1.3",
             "1.2.840.10008.5.1.4.1.2.2.3",
             "1.2.840.10008.5.1.4.1.2.3.3",
@@ -1574,8 +1564,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             "1.2.840.10008.5.1.4.44.4",
             "1.2.840.10008.5.1.4.45.4",
             "1.2.840.10008.5.1.4.1.1.200.6",
-        ]
-        _move_uids = [
+        ],
+        "C-MOVE": [
             "1.2.840.10008.5.1.4.1.2.1.2",
             "1.2.840.10008.5.1.4.1.2.2.2",
             "1.2.840.10008.5.1.4.1.2.3.2",
@@ -1587,15 +1577,35 @@ class QueryRetrieveServiceClass(ServiceClass):
             "1.2.840.10008.5.1.4.44.3",
             "1.2.840.10008.5.1.4.45.3",
             "1.2.840.10008.5.1.4.1.1.200.5",
-        ]
+        ],
+    }
 
-        if isinstance(req, C_FIND) and context.abstract_syntax in _find_uids:
+    def SCP(self, req: "_QR", context: "PresentationContext") -> None:
+        """The SCP implementation for the Query/Retrieve Service Class.
+
+        Parameters
+        ----------
+        req : dimse_primitives.C_FIND or C_GET or C_MOVE
+            The request primitive received from the peer.
+        context : presentation.PresentationContext
+            The presentation context that the SCP is operating under.
+        """
+        if (
+            isinstance(req, C_FIND)
+            and context.abstract_syntax in self._SUPPORTED_UIDS["C-FIND"]
+        ):
             self.statuses = QR_FIND_SERVICE_CLASS_STATUS
             self._c_find_scp(req, context)
-        elif isinstance(req, C_GET) and context.abstract_syntax in _get_uids:
+        elif (
+            isinstance(req, C_GET)
+            and context.abstract_syntax in self._SUPPORTED_UIDS["C-GET"]
+        ):
             self.statuses = QR_GET_SERVICE_CLASS_STATUS
             self._get_scp(req, context)
-        elif isinstance(req, C_MOVE) and context.abstract_syntax in _move_uids:
+        elif (
+            isinstance(req, C_MOVE)
+            and context.abstract_syntax in self._SUPPORTED_UIDS["C-MOVE"]
+        ):
             self.statuses = QR_MOVE_SERVICE_CLASS_STATUS
             self._move_scp(req, context)
         else:
@@ -2379,6 +2389,9 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Basic Worklist Management Service Class."""
 
     statuses = QR_FIND_SERVICE_CLASS_STATUS
+    _SUPPORTED_UIDS = {
+        "C-FIND": ["1.2.840.10008.5.1.4.31"],
+    }
 
     def SCP(self, req: "_QR", context: "PresentationContext") -> None:
         """The SCP implementation for Basic Worklist Management.
@@ -2392,7 +2405,7 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
         """
         if (
             isinstance(req, C_FIND)
-            and context.abstract_syntax == "1.2.840.10008.5.1.4.31"
+            and context.abstract_syntax in self._SUPPORTED_UIDS["C-FIND"]
         ):
             self._c_find_scp(req, context)
         else:
@@ -2585,6 +2598,9 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Substance Administration Query Service"""
 
     statuses = SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS
+    _SUPPORTED_UIDS = {
+        "C-FIND": ["1.2.840.10008.5.1.4.41", "1.2.840.10008.5.1.4.42"],
+    }
 
     def SCP(self, req: "_QR", context: "PresentationContext") -> None:
         """The SCP implementation for the Relevant Patient Information Query
@@ -2597,8 +2613,10 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         """
-        uids = ["1.2.840.10008.5.1.4.41", "1.2.840.10008.5.1.4.42"]
-        if isinstance(req, C_FIND) and context.abstract_syntax in uids:
+        if (
+            isinstance(req, C_FIND)
+            and context.abstract_syntax in self._SUPPORTED_UIDS["C-FIND"]
+        ):
             self._c_find_scp(req, context)
         else:
             raise ValueError(

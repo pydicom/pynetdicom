@@ -26,6 +26,8 @@ from pynetdicom import (
     evt,
     build_role,
     debug_logger,
+    sop_class,
+    register_uid,
 )
 from pynetdicom.dimse_primitives import C_FIND, C_GET, C_MOVE, C_STORE
 from pynetdicom.presentation import PresentationContext
@@ -40,6 +42,8 @@ from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelGet,
     PatientRootQueryRetrieveInformationModelMove,
     CompositeInstanceRetrieveWithoutBulkDataGet,
+    _QR_CLASSES,
+    _BASIC_WORKLIST_CLASSES,
 )
 
 
@@ -58,6 +62,20 @@ def test_unknown_sop_class():
     context.add_transfer_syntax("1.2")
     with pytest.raises(ValueError):
         service.SCP(None, context)
+
+
+@pytest.fixture()
+def register_new_uid_find():
+    register_uid(
+        "1.2.3.4",
+        "NewFind",
+        QueryRetrieveServiceClass,
+        "C-FIND",
+    )
+    yield
+    del _QR_CLASSES["NewFind"]
+    delattr(sop_class, "NewFind")
+    QueryRetrieveServiceClass._SUPPORTED_UIDS["C-FIND"].remove("1.2.3.4")
 
 
 class TestQRFindServiceClass:
@@ -1174,6 +1192,54 @@ class TestQRFindServiceClass:
 
         assert assoc.is_aborted
         scp.shutdown()
+
+    def test_register(self, register_new_uid_find):
+        """Test registering a new UID"""
+        from pynetdicom.sop_class import NewFind
+
+        def handle(event):
+            yield 0xFF01, self.query
+            yield 0x0000, None
+            yield 0xA700, None
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(NewFind)
+        ae.add_requested_context(NewFind, ExplicitVRLittleEndian)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(self.query, NewFind)
+        status, identifier = next(result)
+        assert status.Status == 0xFF01
+        assert identifier == self.query
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
+
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
+
+
+@pytest.fixture()
+def register_new_uid_get():
+    register_uid(
+        "1.2.3.4",
+        "NewGet",
+        QueryRetrieveServiceClass,
+        "C-GET",
+    )
+    yield
+    del _QR_CLASSES["NewGet"]
+    delattr(sop_class, "NewGet")
+    QueryRetrieveServiceClass._SUPPORTED_UIDS["C-GET"].remove("1.2.3.4")
 
 
 class TestQRGetServiceClass:
@@ -3500,6 +3566,63 @@ class TestQRGetServiceClass:
         assoc.release()
         assert assoc.is_released
         scp.shutdown()
+
+    def test_register(self, register_new_uid_get):
+        """Test registering a new UID"""
+        from pynetdicom.sop_class import NewGet
+
+        def handle(event):
+            yield 1
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(NewGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(NewGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate("localhost", 11112, ext_neg=[role], evt_handlers=handlers)
+        assert assoc.is_established
+        result = assoc.send_c_get(self.query, NewGet)
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
+
+
+@pytest.fixture()
+def register_new_uid_move():
+    register_uid(
+        "1.2.3.4",
+        "NewMove",
+        QueryRetrieveServiceClass,
+        "C-MOVE",
+    )
+    yield
+    del _QR_CLASSES["NewMove"]
+    delattr(sop_class, "NewMove")
+    QueryRetrieveServiceClass._SUPPORTED_UIDS["C-MOVE"].remove("1.2.3.4")
 
 
 class TestQRMoveServiceClass:
@@ -5966,6 +6089,46 @@ class TestQRMoveServiceClass:
         assoc.release()
         scp.shutdown()
 
+    def test_register(self, register_new_uid_move):
+        """Test registering a new UID"""
+        from pynetdicom.sop_class import NewMove
+
+        def handle(event):
+            yield self.destination
+            yield 1
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(NewMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(NewMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(self.query, "TESTMOVE", NewMove)
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        scp.shutdown()
+
 
 class TestQRCompositeInstanceWithoutBulk:
     """Tests for QR + Composite Instance Without Bulk Data"""
@@ -6174,6 +6337,20 @@ class TestQRCompositeInstanceWithoutBulk:
         scp.shutdown()
 
 
+@pytest.fixture()
+def register_new_uid_bwm():
+    register_uid(
+        "1.2.3.4",
+        "NewFind",
+        BasicWorklistManagementServiceClass,
+        "C-FIND",
+    )
+    yield
+    del _BASIC_WORKLIST_CLASSES["NewFind"]
+    delattr(sop_class, "NewFind")
+    BasicWorklistManagementServiceClass._SUPPORTED_UIDS["C-FIND"].remove("1.2.3.4")
+
+
 class TestBasicWorklistServiceClass:
     """Tests for BasicWorklistManagementServiceClass."""
 
@@ -6198,8 +6375,9 @@ class TestBasicWorklistServiceClass:
             context = build_context("1.2.3.4")
             bwm.SCP(None, context)
 
-    def test_pending_success(self):
-        """Test handler yielding pending then success status"""
+    def test_register(self, register_new_uid_bwm):
+        """Test registering a new UID"""
+        from pynetdicom.sop_class import NewFind
 
         def handle(event):
             yield 0xFF01, self.query
@@ -6209,15 +6387,15 @@ class TestBasicWorklistServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(ModalityWorklistInformationFind)
-        ae.add_requested_context(ModalityWorklistInformationFind)
+        ae.add_supported_context(NewFind)
+        ae.add_requested_context(NewFind)
         scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, ModalityWorklistInformationFind)
+        result = assoc.send_c_find(self.query, NewFind)
         status, identifier = next(result)
         assert status.Status == 0xFF01
         assert identifier == self.query

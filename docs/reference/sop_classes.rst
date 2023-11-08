@@ -13,6 +13,7 @@ SOP Class Utilities
 .. autosummary::
    :toctree: generated/
 
+   register_uid
    SOPClass
    uid_to_sop_class
    uid_to_service_class

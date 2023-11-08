@@ -1,5 +1,6 @@
 """Tests for the StorageServiceClass."""
 
+from copy import deepcopy
 from io import BytesIO
 import os
 from pathlib import Path
@@ -11,13 +12,15 @@ from pydicom import dcmread
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian
 
-from pynetdicom import AE, _config, evt, debug_logger
+from pynetdicom import AE, _config, evt, debug_logger, register_uid, sop_class
 from pynetdicom.dimse_primitives import C_STORE
 from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.sop_class import (
     Verification,
     CTImageStorage,
+    _STORAGE_CLASSES,
 )
+from pynetdicom.service_class import StorageServiceClass
 
 try:
     from pynetdicom.status import Status
@@ -39,6 +42,18 @@ def enable_unrestricted():
     _config.UNRESTRICTED_STORAGE_SERVICE = True
     yield
     _config.UNRESTRICTED_STORAGE_SERVICE = False
+
+
+@pytest.fixture()
+def register_new_uid():
+    register_uid(
+        "1.2.3.4",
+        "NewStorage",
+        StorageServiceClass,
+    )
+    yield
+    del _STORAGE_CLASSES["NewStorage"]
+    delattr(sop_class, "NewStorage")
 
 
 class TestStorageServiceClass:
@@ -797,5 +812,37 @@ class TestStorageServiceClass:
         assert assoc.is_released
 
         assert recv == ["CompressedSamples^CT1", "Private", "Unknown^Public"]
+
+        scp.shutdown()
+
+    def test_register(self, register_new_uid):
+        """Test registering a new UID."""
+        from pynetdicom.sop_class import NewStorage
+
+        attrs = {}
+
+        def handle(event):
+            attrs["uid"] = event.dataset.SOPClassUID
+            return 0x0000
+
+        ds = deepcopy(DATASET)
+        ds.SOPClassUID = NewStorage
+
+        handlers = [(evt.EVT_C_STORE, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(NewStorage)
+        ae.add_requested_context(NewStorage)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_store(ds)
+        assert rsp.Status == 0x0000
+        assert "ErrorComment" not in rsp
+        assoc.release()
+        assert assoc.is_released
+
+        assert attrs["uid"] == NewStorage
 
         scp.shutdown()

@@ -5,6 +5,7 @@ import pytest
 from pynetdicom import __version__
 from pydicom._uid_dict import UID_dictionary
 
+from pynetdicom import sop_class
 from pynetdicom.sop_class import (
     uid_to_sop_class,
     uid_to_service_class,
@@ -64,6 +65,7 @@ from pynetdicom.sop_class import (
     SubstanceAdministrationLoggingInstance,
     UPSFilteredGlobalSubscriptionInstance,
     UPSGlobalSubscriptionInstance,
+    register_uid,
 )
 from pynetdicom.service_class import (
     ServiceClass,
@@ -166,11 +168,11 @@ def test_all_sop_instances():
 class TestUIDtoSOPlass:
     """Tests for uid_to_sop_class"""
 
-    def test_missing_sop(self):
+    def test_missing_sop_class(self):
         """Test SOP Class if UID not found."""
-        sop_class = uid_to_sop_class("1.2.3.4")
-        assert sop_class == "1.2.3.4"
-        assert sop_class.service_class == ServiceClass
+        sop = uid_to_sop_class("1.2.3.4")
+        assert sop == "1.2.3.4"
+        assert sop.service_class == ServiceClass
 
     def test_verification_uid(self):
         """Test normal function"""
@@ -179,8 +181,8 @@ class TestUIDtoSOPlass:
     def test_existing(self):
         """Test that the existing class is returned."""
         original = Verification
-        sop_class = uid_to_sop_class("1.2.840.10008.1.1")
-        assert id(sop_class) == id(original)
+        sop = uid_to_sop_class("1.2.840.10008.1.1")
+        assert id(sop) == id(original)
 
 
 class TestUIDToServiceClass:
@@ -471,13 +473,158 @@ class TestSOPClass:
 
     def test_uid_creation(self):
         """Test creating a new UIDSOPClass."""
-        sop_class = SOPClass("1.2.3")
-        sop_class._service_class = ServiceClass
+        sop = SOPClass("1.2.3")
+        sop._service_class = ServiceClass
 
-        assert sop_class == "1.2.3"
-        assert sop_class.service_class == ServiceClass
+        assert sop == "1.2.3"
+        assert sop.service_class == ServiceClass
 
-        sop_class_b = SOPClass(sop_class)
-        assert sop_class == sop_class_b
-        assert sop_class_b == "1.2.3"
-        assert sop_class_b.service_class == ServiceClass
+        sop_b = SOPClass(sop)
+        assert sop == sop_b
+        assert sop_b == "1.2.3"
+        assert sop_b.service_class == ServiceClass
+
+
+class TestRegisterUID:
+    def test_register_storage(self):
+        """Test registering to the storage service."""
+        register_uid(
+            "1.2.3.4",
+            "FooStorage",
+            StorageServiceClass,
+        )
+
+        sop = sop_class.FooStorage
+        assert sop == "1.2.3.4"
+        assert sop.service_class == StorageServiceClass
+
+        del _STORAGE_CLASSES["FooStorage"]
+        delattr(sop_class, "FooStorage")
+
+    def test_register_qr_find(self):
+        """Test registering to the QR service - FIND."""
+        register_uid(
+            "1.2.3.4",
+            "FooFind",
+            QueryRetrieveServiceClass,
+            dimse_msg_type="C-FIND",
+        )
+
+        sop = sop_class.FooFind
+        assert sop == "1.2.3.4"
+        assert sop.service_class == QueryRetrieveServiceClass
+        assert sop in QueryRetrieveServiceClass._SUPPORTED_UIDS["C-FIND"]
+
+        del _QR_CLASSES["FooFind"]
+        QueryRetrieveServiceClass._SUPPORTED_UIDS["C-FIND"].remove(sop)
+        delattr(sop_class, "FooFind")
+
+    def test_register_qr_get(self):
+        """Test registering to the QR service - GET."""
+        register_uid(
+            "1.2.3.4",
+            "FooGet",
+            QueryRetrieveServiceClass,
+            dimse_msg_type="C-GET",
+        )
+
+        sop = sop_class.FooGet
+        assert sop == "1.2.3.4"
+        assert sop.service_class == QueryRetrieveServiceClass
+        assert sop in QueryRetrieveServiceClass._SUPPORTED_UIDS["C-GET"]
+
+        del _QR_CLASSES["FooGet"]
+        QueryRetrieveServiceClass._SUPPORTED_UIDS["C-GET"].remove(sop)
+        delattr(sop_class, "FooGet")
+
+    def test_register_qr_move(self):
+        """Test registering to the QR service - MOVE."""
+        register_uid(
+            "1.2.3.4",
+            "FooMove",
+            QueryRetrieveServiceClass,
+            dimse_msg_type="C-MOVE",
+        )
+
+        sop = sop_class.FooMove
+        assert sop == "1.2.3.4"
+        assert sop.service_class == QueryRetrieveServiceClass
+        assert sop in QueryRetrieveServiceClass._SUPPORTED_UIDS["C-MOVE"]
+
+        del _QR_CLASSES["FooMove"]
+        QueryRetrieveServiceClass._SUPPORTED_UIDS["C-MOVE"].remove(sop)
+        delattr(sop_class, "FooMove")
+
+    def test_register_bwm_find(self):
+        """Test registering to the BWM service."""
+        register_uid(
+            "1.2.3.4",
+            "FooFind",
+            BasicWorklistManagementServiceClass,
+            dimse_msg_type="C-FIND",
+        )
+
+        sop = sop_class.FooFind
+        assert sop == "1.2.3.4"
+        assert sop.service_class == BasicWorklistManagementServiceClass
+        assert sop in BasicWorklistManagementServiceClass._SUPPORTED_UIDS["C-FIND"]
+
+        del _BASIC_WORKLIST_CLASSES["FooFind"]
+        BasicWorklistManagementServiceClass._SUPPORTED_UIDS["C-FIND"].remove(sop)
+        delattr(sop_class, "FooFind")
+
+    def test_register_substance_admin_find(self):
+        """Test registering to the Substance Admin QR service."""
+        register_uid(
+            "1.2.3.4",
+            "FooFind",
+            SubstanceAdministrationQueryServiceClass,
+            dimse_msg_type="C-FIND",
+        )
+
+        sop = sop_class.FooFind
+        assert sop == "1.2.3.4"
+        assert sop.service_class == SubstanceAdministrationQueryServiceClass
+        assert sop in SubstanceAdministrationQueryServiceClass._SUPPORTED_UIDS["C-FIND"]
+
+        del _SUBSTANCE_ADMINISTRATION_CLASSES["FooFind"]
+        SubstanceAdministrationQueryServiceClass._SUPPORTED_UIDS["C-FIND"].remove(sop)
+        delattr(sop_class, "FooFind")
+
+    def test_invalid_keyword_raises(self):
+        """Test invalid keyword raises exceptions."""
+        msg = (
+            "The keyword '2coo' is not a valid Python identifier or is "
+            "a Python keyword"
+        )
+        with pytest.raises(ValueError, match=msg):
+            register_uid("", "2coo", ServiceClass)
+
+        msg = (
+            "The keyword 'def' is not a valid Python identifier or is "
+            "a Python keyword"
+        )
+        with pytest.raises(ValueError, match=msg):
+            register_uid("", "def", ServiceClass)
+
+    def test_invalid_service_class_raises(self):
+        """Test that an invalid service_class raises exceptions."""
+        msg = "'service_class' must be a class object not a class instance"
+        with pytest.raises(TypeError, match=msg):
+            register_uid("", "Foo", "")
+
+        msg = (
+            "'service_class' must be a ServiceClass subclass object "
+            "such as 'StorageServiceClass'"
+        )
+        with pytest.raises(TypeError, match=msg):
+            register_uid("", "Foo", str)
+
+    def test_invalid_dimse_msg_type_raises(self):
+        """Test that an invalid dimse_msg_type raises exceptions."""
+        msg = (
+            "'dimse_msg_type' must be 'C-FIND', 'C-GET' or 'C-MOVE' "
+            "when registering a UID with QueryRetrieveServiceClass"
+        )
+        with pytest.raises(ValueError, match=msg):
+            register_uid("", "Foo", QueryRetrieveServiceClass, "Foo")

@@ -63,6 +63,7 @@ from pynetdicom.presentation import (
     UnifiedProcedurePresentationContexts,
     VerificationPresentationContexts,
 )
+from pynetdicom.sop_class import register_uid
 
 
 # Setup default logging

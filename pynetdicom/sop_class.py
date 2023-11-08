@@ -1,6 +1,7 @@
 """Generates the supported SOP Classes and well-known SOP Instances."""
 
 import inspect
+from keyword import iskeyword
 import logging
 import sys
 from typing import Optional, Type, Any, cast, Dict
@@ -56,49 +57,71 @@ def uid_to_service_class(uid: str) -> Type[ServiceClass]:
     """
     if uid in _VERIFICATION_CLASSES.values():
         return VerificationServiceClass
-    elif uid in _QR_CLASSES.values():
+
+    if uid in _QR_CLASSES.values():
         return QueryRetrieveServiceClass
-    elif uid in _STORAGE_CLASSES.values():
+
+    if uid in _STORAGE_CLASSES.values():
         return StorageServiceClass
-    elif uid in _SERVICE_CLASSES:
+
+    if uid in _SERVICE_CLASSES:
         return _SERVICE_CLASSES[uid]
-    elif uid in _APPLICATION_EVENT_CLASSES.values():
+
+    if uid in _APPLICATION_EVENT_CLASSES.values():
         return ApplicationEventLoggingServiceClass
-    elif uid in _BASIC_WORKLIST_CLASSES.values():
+
+    if uid in _BASIC_WORKLIST_CLASSES.values():
         return BasicWorklistManagementServiceClass
-    elif uid in _COLOR_PALETTE_CLASSES.values():
+
+    if uid in _COLOR_PALETTE_CLASSES.values():
         return ColorPaletteQueryRetrieveServiceClass
-    elif uid in _DEFINED_PROCEDURE_CLASSES.values():
+
+    if uid in _DEFINED_PROCEDURE_CLASSES.values():
         return DefinedProcedureProtocolQueryRetrieveServiceClass
-    elif uid in _DISPLAY_SYSTEM_CLASSES.values():
+
+    if uid in _DISPLAY_SYSTEM_CLASSES.values():
         return DisplaySystemManagementServiceClass
-    elif uid in _HANGING_PROTOCOL_CLASSES.values():
+
+    if uid in _HANGING_PROTOCOL_CLASSES.values():
         return HangingProtocolQueryRetrieveServiceClass
-    elif uid in _IMPLANT_TEMPLATE_CLASSES.values():
+
+    if uid in _IMPLANT_TEMPLATE_CLASSES.values():
         return ImplantTemplateQueryRetrieveServiceClass
-    elif uid in _INSTANCE_AVAILABILITY_CLASSES.values():
+
+    if uid in _INSTANCE_AVAILABILITY_CLASSES.values():
         return InstanceAvailabilityNotificationServiceClass
-    elif uid in _MEDIA_CREATION_CLASSES.values():
+
+    if uid in _MEDIA_CREATION_CLASSES.values():
         return MediaCreationManagementServiceClass
-    elif uid in _MEDIA_STORAGE_CLASSES.values():
+
+    if uid in _MEDIA_STORAGE_CLASSES.values():
         return ServiceClass  # Not yet implemented
-    elif uid in _NON_PATIENT_OBJECT_CLASSES.values():
+
+    if uid in _NON_PATIENT_OBJECT_CLASSES.values():
         return NonPatientObjectStorageServiceClass
-    elif uid in _PRINT_MANAGEMENT_CLASSES.values():
+
+    if uid in _PRINT_MANAGEMENT_CLASSES.values():
         return PrintManagementServiceClass
-    elif uid in _PROCEDURE_STEP_CLASSES.values():
+
+    if uid in _PROCEDURE_STEP_CLASSES.values():
         return ProcedureStepServiceClass
-    elif uid in _PROTOCOL_APPROVAL_CLASSES.values():
+
+    if uid in _PROTOCOL_APPROVAL_CLASSES.values():
         return ProtocolApprovalQueryRetrieveServiceClass
-    elif uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
+
+    if uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
         return RelevantPatientInformationQueryServiceClass
-    elif uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
+
+    if uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         return RTMachineVerificationServiceClass
-    elif uid in _STORAGE_COMMITMENT_CLASSES.values():
+
+    if uid in _STORAGE_COMMITMENT_CLASSES.values():
         return StorageCommitmentServiceClass
-    elif uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
+
+    if uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
         return SubstanceAdministrationQueryServiceClass
-    elif uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
+
+    if uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
         return UnifiedProcedureStepServiceClass
 
     # No SCP implemented
@@ -112,6 +135,7 @@ class SOPClass(UID):
     """
 
     _service_class: Optional[Type[ServiceClass]] = None
+    _name: str = ""
 
     def __new__(cls: Type["SOPClass"], val: str) -> "SOPClass":
         if isinstance(val, SOPClass):
@@ -429,6 +453,32 @@ _VERIFICATION_CLASSES = {
     "Verification": "1.2.840.10008.1.1",
 }
 
+
+_SERVICE_TO_UID_GROUP = {
+    VerificationServiceClass: _VERIFICATION_CLASSES,
+    QueryRetrieveServiceClass: _QR_CLASSES,
+    StorageServiceClass: _STORAGE_CLASSES,
+    ApplicationEventLoggingServiceClass: _APPLICATION_EVENT_CLASSES,
+    BasicWorklistManagementServiceClass: _BASIC_WORKLIST_CLASSES,
+    ColorPaletteQueryRetrieveServiceClass: _COLOR_PALETTE_CLASSES,
+    DefinedProcedureProtocolQueryRetrieveServiceClass: _DEFINED_PROCEDURE_CLASSES,
+    DisplaySystemManagementServiceClass: _DISPLAY_SYSTEM_CLASSES,
+    HangingProtocolQueryRetrieveServiceClass: _HANGING_PROTOCOL_CLASSES,
+    ImplantTemplateQueryRetrieveServiceClass: _IMPLANT_TEMPLATE_CLASSES,
+    InstanceAvailabilityNotificationServiceClass: _INSTANCE_AVAILABILITY_CLASSES,
+    MediaCreationManagementServiceClass: _MEDIA_CREATION_CLASSES,
+    NonPatientObjectStorageServiceClass: _NON_PATIENT_OBJECT_CLASSES,
+    PrintManagementServiceClass: _PRINT_MANAGEMENT_CLASSES,
+    ProcedureStepServiceClass: _PROCEDURE_STEP_CLASSES,
+    ProtocolApprovalQueryRetrieveServiceClass: _PROTOCOL_APPROVAL_CLASSES,
+    RelevantPatientInformationQueryServiceClass: _RELEVANT_PATIENT_QUERY_CLASSES,
+    RTMachineVerificationServiceClass: _RT_MACHINE_VERIFICATION_CLASSES,
+    StorageCommitmentServiceClass: _STORAGE_COMMITMENT_CLASSES,
+    SubstanceAdministrationQueryServiceClass: _SUBSTANCE_ADMINISTRATION_CLASSES,
+    UnifiedProcedureStepServiceClass: _UNIFIED_PROCEDURE_STEP_CLASSES,
+}
+
+
 # pylint: enable=line-too-long
 _generate_sop_classes(_APPLICATION_EVENT_CLASSES)
 _generate_sop_classes(_BASIC_WORKLIST_CLASSES)
@@ -486,6 +536,87 @@ def uid_to_sop_class(uid: str) -> SOPClass:
     sop_class._service_class = ServiceClass
 
     return sop_class
+
+
+def register_uid(
+    uid: str,
+    keyword: str,
+    service_class: Type[ServiceClass],
+    dimse_msg_type: str = "",
+) -> None:
+    """Register a private or public SOP Class UID `uid` with the
+    :mod:`~pynetdicom.sop_class` module.
+
+    Examples
+    --------
+
+    Register the UID ``1.2.246.352.70.1.70`` with the
+    :class:`~pynetdicom.service_class.StorageServiceClass`::
+
+        >>> from pynetdicom import register_uid
+        >>> from pynetdicom.service_class import StorageServiceClass
+        >>> register_uid(
+        ...     "1.2.246.352.70.1.70",
+        ...     "FooStorage",
+        ...     StorageServiceClass,
+        ... )
+
+    Using a UID after registration::
+
+        >>> from pynetdicom import AE
+        >>> from pynetdicom.sop_class import FooStorage
+        >>> ae = AE()
+        >>> ae.add_supported_context(FooStorage)
+
+    Parameters
+    ----------
+    uid : str
+        The UID to be registered.
+    keyword : str
+        The keyword to use for the UID, must be a valid Python identifier and
+        may not be a Python keyword.
+    service_class : pynetdicom.service_class.ServiceClass
+        The service that the `uid` will be registered with, such as
+        :class:`~pynetdicom.service_class.StorageServiceClass`. Note that this
+        must be the class object itself and not a class instance.
+    dimse_msg_type : str, optional
+        If `service_class` is
+        :class:`~pynetdicom.service_class.QueryRetrieveServiceClass` then this
+        should be the DIMSE service message type that the `uid` is being
+        registered to. One of (``"C-FIND"``, ``"C-GET"``, ``"C-MOVE"``).
+    """
+    if not keyword.isidentifier() or iskeyword(keyword):
+        raise ValueError(
+            f"The keyword '{keyword}' is not a valid Python identifier or is "
+            "a Python keyword"
+        )
+
+    if not inspect.isclass(service_class):
+        raise TypeError("'service_class' must be a class object not a class instance")
+
+    if not issubclass(service_class, ServiceClass):
+        raise TypeError(
+            "'service_class' must be a ServiceClass subclass object "
+            "such as 'StorageServiceClass'"
+        )
+
+    group = _SERVICE_TO_UID_GROUP[service_class]
+    group[keyword] = uid
+
+    sop_class = SOPClass(uid)
+    sop_class._service_class = uid_to_service_class(uid)
+    globals()[keyword] = sop_class
+
+    if issubclass(service_class, QueryRetrieveServiceClass):
+        if service_class is QueryRetrieveServiceClass:
+            if dimse_msg_type not in ("C-FIND", "C-GET", "C-MOVE"):
+                raise ValueError(
+                    "'dimse_msg_type' must be 'C-FIND', 'C-GET' or 'C-MOVE' "
+                    "when registering a UID with QueryRetrieveServiceClass"
+                )
+            service_class._SUPPORTED_UIDS[dimse_msg_type].append(uid)
+        else:
+            service_class._SUPPORTED_UIDS["C-FIND"].append(uid)
 
 
 # Well-known SOP Instance UIDs for the supported Service Classes
