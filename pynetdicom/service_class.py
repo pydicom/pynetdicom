@@ -1539,7 +1539,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         "EncapsulatedDocument",
     ]
     _SUPPORTED_UIDS = {
-        "C-FIND" : [
+        "C-FIND": [
             "1.2.840.10008.5.1.4.1.2.1.1",
             "1.2.840.10008.5.1.4.1.2.2.1",
             "1.2.840.10008.5.1.4.1.2.3.1",
@@ -1551,7 +1551,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             "1.2.840.10008.5.1.4.45.2",
             "1.2.840.10008.5.1.4.1.1.200.4",
         ],
-        "C-GET" : [
+        "C-GET": [
             "1.2.840.10008.5.1.4.1.2.1.3",
             "1.2.840.10008.5.1.4.1.2.2.3",
             "1.2.840.10008.5.1.4.1.2.3.3",
@@ -1565,7 +1565,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             "1.2.840.10008.5.1.4.45.4",
             "1.2.840.10008.5.1.4.1.1.200.6",
         ],
-        "C-MOVE" : [
+        "C-MOVE": [
             "1.2.840.10008.5.1.4.1.2.1.2",
             "1.2.840.10008.5.1.4.1.2.2.2",
             "1.2.840.10008.5.1.4.1.2.3.2",
@@ -2390,7 +2390,7 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
 
     statuses = QR_FIND_SERVICE_CLASS_STATUS
     _SUPPORTED_UIDS = {
-        "C-FIND" : ["1.2.840.10008.5.1.4.31"],
+        "C-FIND": ["1.2.840.10008.5.1.4.31"],
     }
 
     def SCP(self, req: "_QR", context: "PresentationContext") -> None:
@@ -2599,7 +2599,7 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
 
     statuses = SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS
     _SUPPORTED_UIDS = {
-        "C-FIND" : ["1.2.840.10008.5.1.4.41", "1.2.840.10008.5.1.4.42"],
+        "C-FIND": ["1.2.840.10008.5.1.4.41", "1.2.840.10008.5.1.4.42"],
     }
 
     def SCP(self, req: "_QR", context: "PresentationContext") -> None:

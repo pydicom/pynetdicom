@@ -1,4 +1,4 @@
-"""Tests for the sop module."""
+"""Tests for the sop_class module."""
 
 import pytest
 
@@ -98,7 +98,7 @@ from pynetdicom.service_class_n import (
 PYDICOM_VERSION = __version__.split(".")[:2]
 
 
-def test_all_sopes():
+def test_all_sop_classes():
     """Test that all the SOP Class UIDs are correct."""
     for uid in _APPLICATION_EVENT_CLASSES.values():
         assert uid in UID_dictionary
@@ -166,9 +166,9 @@ def test_all_sop_instances():
 
 
 class TestUIDtoSOPlass:
-    """Tests for uid_to_sop"""
+    """Tests for uid_to_sop_class"""
 
-    def test_missing_sop_cl(self):
+    def test_missing_sop_class(self):
         """Test SOP Class if UID not found."""
         sop = uid_to_sop_class("1.2.3.4")
         assert sop == "1.2.3.4"
@@ -186,7 +186,7 @@ class TestUIDtoSOPlass:
 
 
 class TestUIDToServiceClass:
-    """Tests for sop.uid_to_service_class."""
+    """Tests for sop_class.uid_to_service_class."""
 
     def test_service_class_uid(self):
         uid = "1.2.840.10008.4.2"
@@ -318,7 +318,7 @@ class TestUIDToServiceClass:
 
 
 class TestSOPClass:
-    """Tests for sop.SOPClass."""
+    """Tests for sop_class.SOPClass."""
 
     def test_class_type(self):
         """Test the class type is correct."""

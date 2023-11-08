@@ -56,7 +56,6 @@ def register_new_uid():
     delattr(sop_class, "NewStorage")
 
 
-
 class TestStorageServiceClass:
     """Test the StorageServiceClass"""
 

@@ -455,27 +455,27 @@ _VERIFICATION_CLASSES = {
 
 
 _SERVICE_TO_UID_GROUP = {
-    VerificationServiceClass : _VERIFICATION_CLASSES,
-    QueryRetrieveServiceClass : _QR_CLASSES,
-    StorageServiceClass : _STORAGE_CLASSES,
-    ApplicationEventLoggingServiceClass : _APPLICATION_EVENT_CLASSES,
-    BasicWorklistManagementServiceClass : _BASIC_WORKLIST_CLASSES,
-    ColorPaletteQueryRetrieveServiceClass : _COLOR_PALETTE_CLASSES,
-    DefinedProcedureProtocolQueryRetrieveServiceClass : _DEFINED_PROCEDURE_CLASSES,
-    DisplaySystemManagementServiceClass : _DISPLAY_SYSTEM_CLASSES,
-    HangingProtocolQueryRetrieveServiceClass : _HANGING_PROTOCOL_CLASSES,
-    ImplantTemplateQueryRetrieveServiceClass : _IMPLANT_TEMPLATE_CLASSES,
-    InstanceAvailabilityNotificationServiceClass : _INSTANCE_AVAILABILITY_CLASSES,
-    MediaCreationManagementServiceClass : _MEDIA_CREATION_CLASSES,
-    NonPatientObjectStorageServiceClass : _NON_PATIENT_OBJECT_CLASSES,
-    PrintManagementServiceClass : _PRINT_MANAGEMENT_CLASSES,
-    ProcedureStepServiceClass : _PROCEDURE_STEP_CLASSES,
-    ProtocolApprovalQueryRetrieveServiceClass : _PROTOCOL_APPROVAL_CLASSES,
-    RelevantPatientInformationQueryServiceClass : _RELEVANT_PATIENT_QUERY_CLASSES,
-    RTMachineVerificationServiceClass : _RT_MACHINE_VERIFICATION_CLASSES,
-    StorageCommitmentServiceClass : _STORAGE_COMMITMENT_CLASSES,
-    SubstanceAdministrationQueryServiceClass : _SUBSTANCE_ADMINISTRATION_CLASSES,
-    UnifiedProcedureStepServiceClass : _UNIFIED_PROCEDURE_STEP_CLASSES,
+    VerificationServiceClass: _VERIFICATION_CLASSES,
+    QueryRetrieveServiceClass: _QR_CLASSES,
+    StorageServiceClass: _STORAGE_CLASSES,
+    ApplicationEventLoggingServiceClass: _APPLICATION_EVENT_CLASSES,
+    BasicWorklistManagementServiceClass: _BASIC_WORKLIST_CLASSES,
+    ColorPaletteQueryRetrieveServiceClass: _COLOR_PALETTE_CLASSES,
+    DefinedProcedureProtocolQueryRetrieveServiceClass: _DEFINED_PROCEDURE_CLASSES,
+    DisplaySystemManagementServiceClass: _DISPLAY_SYSTEM_CLASSES,
+    HangingProtocolQueryRetrieveServiceClass: _HANGING_PROTOCOL_CLASSES,
+    ImplantTemplateQueryRetrieveServiceClass: _IMPLANT_TEMPLATE_CLASSES,
+    InstanceAvailabilityNotificationServiceClass: _INSTANCE_AVAILABILITY_CLASSES,
+    MediaCreationManagementServiceClass: _MEDIA_CREATION_CLASSES,
+    NonPatientObjectStorageServiceClass: _NON_PATIENT_OBJECT_CLASSES,
+    PrintManagementServiceClass: _PRINT_MANAGEMENT_CLASSES,
+    ProcedureStepServiceClass: _PROCEDURE_STEP_CLASSES,
+    ProtocolApprovalQueryRetrieveServiceClass: _PROTOCOL_APPROVAL_CLASSES,
+    RelevantPatientInformationQueryServiceClass: _RELEVANT_PATIENT_QUERY_CLASSES,
+    RTMachineVerificationServiceClass: _RT_MACHINE_VERIFICATION_CLASSES,
+    StorageCommitmentServiceClass: _STORAGE_COMMITMENT_CLASSES,
+    SubstanceAdministrationQueryServiceClass: _SUBSTANCE_ADMINISTRATION_CLASSES,
+    UnifiedProcedureStepServiceClass: _UNIFIED_PROCEDURE_STEP_CLASSES,
 }
 
 
@@ -592,9 +592,7 @@ def register_uid(
         )
 
     if not inspect.isclass(service_class):
-        raise TypeError(
-            "'service_class' must be a class object not a class instance"
-        )
+        raise TypeError("'service_class' must be a class object not a class instance")
 
     if not issubclass(service_class, ServiceClass):
         raise TypeError(
@@ -618,7 +616,6 @@ def register_uid(
                 )
             service_class._SUPPORTED_UIDS[dimse_msg_type].append(uid)
         else:
-
             service_class._SUPPORTED_UIDS["C-FIND"].append(uid)
 
 

@@ -6351,7 +6351,6 @@ def register_new_uid_bwm():
     BasicWorklistManagementServiceClass._SUPPORTED_UIDS["C-FIND"].remove("1.2.3.4")
 
 
-
 class TestBasicWorklistServiceClass:
     """Tests for BasicWorklistManagementServiceClass."""
 
