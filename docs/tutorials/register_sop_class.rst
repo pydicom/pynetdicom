@@ -4,15 +4,16 @@ Registering a new SOP Class
 
 .. currentmodule:: pynetdicom
 
-You may occasionally come across a private SOP Class UID, or perhaps there's
-a public one from a recent release of the DICOM Standard that hasn't
-yet been added to *pynetdicom*. In this short tutorial you'll learn how to
-register your own UID with *pynetdicom*.
+You may occasionally come across a private SOP Class UID you like to be able
+to receive, or perhaps there's a public SOP Class from a recent release of the
+DICOM Standard that hasn't yet been added to *pynetdicom*. In this short
+tutorial you'll learn how to register your own UID so it can be used like
+the SOP Classes included by *pynetdicom*.
 
 To register new UIDs we use the :func:`~pynetdicom.sop_class.register_uid` function,
 which takes the UID to be registered, a `keyword` that will be used as the
-variable name for the new UID and the *pynetdicom* :mod:`~pynetdicom.service_class`
-to register the UID with::
+variable name for the new UID and the *pynetdicom*
+:mod:`~pynetdicom.service_class` to register the UID with::
 
     from pynetdicom import register_uid
     from pynetdicom.service_class import StorageServiceClass
@@ -39,12 +40,12 @@ used like other UIDs::
     ae = AE()
     # or ae.add_supported_context("1.2.246.352.70.1.70")
     ae.add_supported_context(PrivateRTPlanStorage)
-    ae.start_server(("localhost", 11112), evt_handlers=[evt.EVT_C_STORE, handle_store])
+    ae.start_server(("localhost", 11112), evt_handlers=[(evt.EVT_C_STORE, handle_store)])
 
 
-When registering a new UID with the :class:`~pynetdicom.QueryRetrieveServiceClass`,
-you must also specify which of the three DIMSE message types the UID is to be
-used with::
+When registering a new UID with the
+:class:`~pynetdicom.service_class.QueryRetrieveServiceClass`, you must also
+specify which of the three DIMSE-C message types the UID is to be used with::
 
     from pynetdicom import register_uid
     from pynetdicom.service_class import QueryRetrieveServiceClass

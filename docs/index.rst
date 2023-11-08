@@ -19,7 +19,7 @@ If you're new to *pynetdicom* then start here:
 * **Basics**: :doc:`Installation</tutorials/installation>` |
   :doc:`Writing your first SCU</tutorials/create_scu>` |
   :doc:`Writing your first SCP</tutorials/create_scp>` |
-  :doc:`Adding new SOP Classes`
+  :doc:`Registering a new SOP Class</tutorials/register_sop_class>`
 
 
 .. _index_guide:

@@ -1,5 +1,7 @@
 .. _api_serviceclasses:
 
+.. py:module:: pynetdicom.service_class
+
 Service Classes (:mod:`pynetdicom.service_class`)
 ==================================================
 
