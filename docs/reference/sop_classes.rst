@@ -100,6 +100,16 @@ Instance Availability
 
    InstanceAvailabilityNotification
 
+Inventory Query/Retrieve
+........................
+
+.. autosummary::
+   :toctree: generated/
+
+   InventoryFind
+   InventoryGet
+   InventoryMove
+
 Media Creation
 ..............
 
@@ -128,6 +138,7 @@ Non-patient Object
    HangingProtocolStorage
    ImplantAssemblyTemplateStorage
    ImplantTemplateGroupStorage
+   InventoryStorage
    ProtocolApprovalStorage
    XADefinedProcedureProtocolStorage
 
@@ -187,6 +198,7 @@ Query/Retrieve
    StudyRootQueryRetrieveInformationModelFind
    StudyRootQueryRetrieveInformationModelGet
    StudyRootQueryRetrieveInformationModelMove
+   RepositoryQuery
 
 Relevant Patient
 ................
@@ -255,10 +267,12 @@ Storage
    EncapsulatedOBJStorage
    EncapsulatedPDFStorage
    EncapsulatedSTLStorage
+   EnhancedContinuousRTImageStorage
    EnhancedCTImageStorage
    EnhancedMRColorImageStorage
    EnhancedMRImageStorage
    EnhancedPETImageStorage
+   EnhancedRTImageStorage
    EnhancedSRStorage
    EnhancedUSVolumeStorage
    EnhancedXAImageStorage
@@ -267,6 +281,7 @@ Storage
    ExtensibleSRStorage
    GeneralAudioWaveformStorage
    GeneralECGWaveformStorage
+   General32bitECGWaveformStorage
    GrayscalePlanarMPRVolumetricPresentationStateStorage
    GrayscaleSoftcopyPresentationStateStorage
    HemodynamicWaveformStorage
@@ -303,6 +318,7 @@ Storage
    ParametricMapStorage
    PatientRadiationDoseSRStorage
    PerformedImagingAgentAdministrationSRStorage
+   PhotoacousticImageStorage
    PlannedImagingAgentAdministrationSRStorage
    PositronEmissionTomographyImageStorage
    ProcedureLogStorage
@@ -322,6 +338,7 @@ Storage
    RTImageStorage
    RTIonBeamsTreatmentRecordStorage
    RTIonPlanStorage
+   RTPatientPositionAcquisitionInstructionStorage
    RTPhysicianIntentStorage
    RTPlanStorage
    RTRadiationRecordSetStorage
@@ -351,6 +368,7 @@ Storage
    TwelveLeadECGWaveformStorage
    UltrasoundImageStorage
    UltrasoundMultiFrameImageStorage
+   VariableModalityLUTSoftcopyPresentationStageStorage
    VideoEndoscopicImageStorage
    VideoMicroscopicImageStorage
    VideoPhotographicImageStorage
@@ -378,6 +396,14 @@ Storage Commitment
    :toctree: generated/
 
    StorageCommitmentPushModel
+
+Storage Management
+..................
+
+.. autosummary::
+   :toctree: generated/
+
+   InventoryCreation
 
 Substance Availability
 ......................
