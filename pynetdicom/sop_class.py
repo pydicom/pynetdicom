@@ -583,7 +583,7 @@ def register_uid(
         If `service_class` is
         :class:`~pynetdicom.service_class.QueryRetrieveServiceClass` then this
         should be the DIMSE service message type that the `uid` is being
-        registered to. One of ("C-FIND", "C-GET", "C-MOVE").
+        registered to. One of (``"C-FIND"``, ``"C-GET"``, ``"C-MOVE"``).
     """
     if not keyword.isidentifier() or iskeyword(keyword):
         raise ValueError(

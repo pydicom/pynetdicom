@@ -10,7 +10,7 @@ DICOM Standard that hasn't yet been added to *pynetdicom*. In this short
 tutorial you'll learn how to register your own UID so it can be used like
 the SOP Classes included by *pynetdicom*.
 
-To register new UIDs we use the :func:`~pynetdicom.sop_class.register_uid` function,
+To register new UIDs you use the :func:`~pynetdicom.sop_class.register_uid` function,
 which takes the UID to be registered, a `keyword` that will be used as the
 variable name for the new UID and the *pynetdicom*
 :mod:`~pynetdicom.service_class` to register the UID with::
