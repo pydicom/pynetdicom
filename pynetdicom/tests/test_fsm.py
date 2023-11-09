@@ -401,7 +401,7 @@ class TestStateBase:
         fsm = self.monkey_patch(assoc.dul.state_machine)
         return assoc, fsm
 
-    def wait_on_state(self, fsm, state, timeout=2):
+    def wait_on_state(self, fsm, state, timeout=5):
         start = 0
         while (
             fsm.current_state != state
@@ -2305,7 +2305,11 @@ class TestState05(TestStateBase):
         # Sta5 + Evt3 -> AE-3 -> Sta6
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         # AE-3: Issue A-ASSOCIATE (ac) primitive
-        commands = [("recv", None), ("send", a_associate_ac), ("exit", None)]
+        commands = [
+            ("recv", None),
+            ("send", a_associate_ac),
+            ("exit", None),
+        ]
         self.scp = scp = self.start_server(commands)
         self.move_to_state(self.assoc, scp)
 
@@ -2316,7 +2320,7 @@ class TestState05(TestStateBase):
         assert self.fsm._changes[:3] == [
             ("Sta1", "Evt1", "AE-1"),
             ("Sta4", "Evt2", "AE-2"),
-            ("Sta5", "Evt3", "AE-3"),
+            ("Sta5", "Evt3", "AE-3"),  # Sometimes not making it to Sta5...
         ]
         assert self.fsm._transitions[:3] == ["Sta4", "Sta5", "Sta6"]
         assert self.fsm._events[:3] == ["Evt1", "Evt2", "Evt3"]
@@ -3857,11 +3861,13 @@ class TestState08(TestStateBase):
             ("send", a_associate_ac),
             ("send", a_release_rq),
             ("send", a_associate_ac),
+            ("recv", None),
             ("exit", None),
         ]
         self.scp = scp = self.start_server(commands)
         self.move_to_state(self.assoc, scp)
 
+        scp.step()
         scp.step()
         scp.step()
         scp.shutdown()
@@ -3886,11 +3892,13 @@ class TestState08(TestStateBase):
             ("send", a_associate_ac),
             ("send", a_release_rq),
             ("send", a_associate_rj),
+            ("recv", None),
             ("exit", None),
         ]
         self.scp = scp = self.start_server(commands)
         self.move_to_state(self.assoc, scp)
 
+        scp.step()
         scp.step()
         scp.step()
         scp.shutdown()
@@ -3922,11 +3930,13 @@ class TestState08(TestStateBase):
             ("send", a_associate_ac),
             ("send", a_release_rq),
             ("send", a_associate_rq),
+            ("recv", None),
             ("exit", None),
         ]
         self.scp = scp = self.start_server(commands)
         self.move_to_state(self.assoc, scp)
 
+        scp.step()
         scp.step()
         scp.step()
         scp.shutdown()
@@ -4012,6 +4022,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("send", a_associate_ac),
             ("send", a_release_rq),
+            ("recv", None),
             ("exit", None),
         ]
         self.scp = scp = self.start_server(commands)
@@ -4019,6 +4030,7 @@ class TestState08(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_pdata())
 
+        scp.step()
         scp.step()
         scp.shutdown()
 
@@ -4041,11 +4053,13 @@ class TestState08(TestStateBase):
             ("send", a_associate_ac),
             ("send", a_release_rq),
             ("send", p_data_tf),
+            ("recv", None),
             ("exit", None),
         ]
         self.scp = scp = self.start_server(commands)
         self.move_to_state(self.assoc, scp)
 
+        scp.step()
         scp.step()
         scp.step()
         scp.shutdown()
@@ -4101,11 +4115,13 @@ class TestState08(TestStateBase):
             ("send", a_associate_ac),
             ("send", a_release_rq),
             ("send", a_release_rq),
+            ("recv", None),
             ("exit", None),
         ]
         self.scp = scp = self.start_server(commands)
         self.move_to_state(self.assoc, scp)
 
+        scp.step()
         scp.step()
         scp.step()
         scp.shutdown()
@@ -4130,11 +4146,13 @@ class TestState08(TestStateBase):
             ("send", a_associate_ac),
             ("send", a_release_rq),
             ("send", a_release_rp),
+            ("recv", None),
             ("exit", None),
         ]
         self.scp = scp = self.start_server(commands)
         self.move_to_state(self.assoc, scp)
 
+        scp.step()
         scp.step()
         scp.step()
         scp.shutdown()
@@ -4158,6 +4176,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("send", a_associate_ac),
             ("send", a_release_rq),
+            ("recv", None),
             ("exit", None),
         ]
         self.scp = scp = self.start_server(commands)
@@ -4165,6 +4184,7 @@ class TestState08(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_release(True))
 
+        scp.step()
         scp.step()
         scp.shutdown()
 
@@ -4308,11 +4328,13 @@ class TestState08(TestStateBase):
             ("send", a_associate_ac),
             ("send", a_release_rq),
             ("send", b"\x08\x00\x00\x00\x00\x00"),
+            ("recv", None),
             ("exit", None),
         ]
         self.scp = scp = self.start_server(commands)
         self.move_to_state(self.assoc, scp)
 
+        scp.step()
         scp.step()
         scp.step()
         scp.shutdown()
