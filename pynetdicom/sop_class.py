@@ -210,6 +210,11 @@ _IMPLANT_TEMPLATE_CLASSES = {
 _INSTANCE_AVAILABILITY_CLASSES = {
     "InstanceAvailabilityNotification": "1.2.840.10008.5.1.4.33",
 }
+_INVENTORY_CLASSES = {
+    "InventoryFind": "1.2.840.10008.5.1.4.1.1.201.2",
+    "InventoryMove": "1.2.840.10008.5.1.4.1.1.201.3",
+    "InventoryGet": "1.2.840.10008.5.1.4.1.1.201.4",
+}
 _MEDIA_CREATION_CLASSES = {
     "MediaCreationManagement": "1.2.840.10008.5.1.1.33",
 }
@@ -225,6 +230,7 @@ _NON_PATIENT_OBJECT_CLASSES = {
     "CTDefinedProcedureProtocolStorage": "1.2.840.10008.5.1.4.1.1.200.1",
     "ProtocolApprovalStorage": "1.2.840.10008.5.1.4.1.1.200.3",
     "XADefinedProcedureProtocolStorage": "1.2.840.10008.5.1.4.1.1.200.7",
+    "InventoryStorage": "1.2.840.10008.5.1.4.1.1.201.1",
 }
 _PRINT_MANAGEMENT_CLASSES = {
     "BasicFilmSession": "1.2.840.10008.5.1.1.1",
@@ -265,6 +271,7 @@ _QR_CLASSES = {
     "CompositeInstanceRootRetrieveMove": "1.2.840.10008.5.1.4.1.2.4.2",
     "CompositeInstanceRootRetrieveGet": "1.2.840.10008.5.1.4.1.2.4.3",
     "CompositeInstanceRetrieveWithoutBulkDataGet": "1.2.840.10008.5.1.4.1.2.5.3",
+    "RepositoryQuery": "1.2.840.10008.5.1.4.1.1.201.6",
 }
 _RELEVANT_PATIENT_QUERY_CLASSES = {
     "GeneralRelevantPatientInformationQuery": "1.2.840.10008.5.1.4.37.1",
@@ -294,6 +301,7 @@ _STORAGE_CLASSES = {
     "LegacyConvertedEnhancedMRImageStorage": "1.2.840.10008.5.1.4.1.1.4.4",  # A.71
     "UltrasoundImageStorage": "1.2.840.10008.5.1.4.1.1.6.1",  # A.6
     "EnhancedUSVolumeStorage": "1.2.840.10008.5.1.4.1.1.6.2",  # A.59
+    "PhotoacousticImageStorage": "1.2.840.10008.5.1.4.1.1.6.3",
     "SecondaryCaptureImageStorage": "1.2.840.10008.5.1.4.1.1.7",  # A.8.1
     "MultiFrameSingleBitSecondaryCaptureImageStorage": "1.2.840.10008.5.1.4.1.1.7.1",  # A.8.2
     "MultiFrameGrayscaleByteSecondaryCaptureImageStorage": "1.2.840.10008.5.1.4.1.1.7.2",  # A.8.3
@@ -302,6 +310,7 @@ _STORAGE_CLASSES = {
     "TwelveLeadECGWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.1.1",  # A.34.3
     "GeneralECGWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.1.2",  # A.34.4
     "AmbulatoryECGWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.1.3",  # A.34.5
+    "General32bitECGWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.1.4",
     "HemodynamicWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.2.1",  # A.34.6
     "CardiacElectrophysiologyWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.3.1",  # A.34.7
     "BasicVoiceAudioWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.4.1",  # A.34.2
@@ -325,6 +334,7 @@ _STORAGE_CLASSES = {
     "VolumeRenderingVolumetricPresentationStateStorage": "1.2.840.10008.5.1.4.1.1.11.9",  # A.80.2
     "SegmentedVolumeRenderingVolumetricPresentationStateStorage": "1.2.840.10008.5.1.4.1.1.11.10",  # A.80.2
     "MultipleVolumeRenderingVolumetricPresentationStateStorage": "1.2.840.10008.5.1.4.1.1.11.11",  # A.80.2
+    "VariableModalityLUTSoftcopyPresentationStageStorage": "1.2.840.10008.5.1.4.1.1.11.12",
     "XRayAngiographicImageStorage": "1.2.840.10008.5.1.4.1.1.12.1",  # A.14
     "EnhancedXAImageStorage": "1.2.840.10008.5.1.4.1.1.12.1.1",  # A.47
     "XRayRadiofluoroscopicImageStorage": "1.2.840.10008.5.1.4.1.1.12.2",  # A.16
@@ -401,10 +411,10 @@ _STORAGE_CLASSES = {
     "EncapsulatedPDFStorage": "1.2.840.10008.5.1.4.1.1.104.1",  # A.45.1
     "EncapsulatedCDAStorage": "1.2.840.10008.5.1.4.1.1.104.2",  # A.45.2
     "EncapsulatedSTLStorage": "1.2.840.10008.5.1.4.1.1.104.3",  # A.85.1
+    # 128 presentation context limit here
     "EncapsulatedOBJStorage": "1.2.840.10008.5.1.4.1.1.104.4",  # A.85.2
     "EncapsulatedMTLStorage": "1.2.840.10008.5.1.4.1.1.104.5",  # A.85.3
     "PositronEmissionTomographyImageStorage": "1.2.840.10008.5.1.4.1.1.128",  # A.21
-    # 128 presentation context limit here
     "LegacyConvertedEnhancedPETImageStorage": "1.2.840.10008.5.1.4.1.1.128.1",  # A.72
     "EnhancedPETImageStorage": "1.2.840.10008.5.1.4.1.1.130",  # A.56
     "BasicStructuredDisplayStorage": "1.2.840.10008.5.1.4.1.1.131",  # A.33.5
@@ -432,11 +442,17 @@ _STORAGE_CLASSES = {
     "RoboticArmRadiationRecordStorage": "1.2.840.10008.5.1.4.1.1.481.20",  # A.86.1.12
     "RTRadiationSetDeliveryInstructionStorage": "1.2.840.10008.5.1.4.1.1.481.21",
     "RTTreatmentPreparationStorage": "1.2.840.10008.5.1.4.1.1.481.22",
+    "EnhancedRTImageStorage": "1.2.840.10008.5.1.4.1.1.481.23",
+    "EnhancedContinuousRTImageStorage": "1.2.840.10008.5.1.4.1.1.481.24",
+    "RTPatientPositionAcquisitionInstructionStorage": "1.2.840.10008.5.1.4.1.1.481.25",
     "RTBeamsDeliveryInstructionStorage": "1.2.840.10008.5.1.4.34.7",  # A.64
     "RTBrachyApplicationSetupDeliveryInstructionsStorage": "1.2.840.10008.5.1.4.34.10",  # A.79
 }
 _STORAGE_COMMITMENT_CLASSES = {
     "StorageCommitmentPushModel": "1.2.840.10008.1.20.1",
+}
+_STORAGE_MANAGEMENT_CLASSES = {
+    "InventoryCreation": "1.2.840.10008.5.1.4.1.1.201.5",
 }
 _SUBSTANCE_ADMINISTRATION_CLASSES = {
     "ProductCharacteristicsQuery": "1.2.840.10008.5.1.4.41",
@@ -488,6 +504,7 @@ _generate_sop_classes(_DISPLAY_SYSTEM_CLASSES)
 _generate_sop_classes(_HANGING_PROTOCOL_CLASSES)
 _generate_sop_classes(_IMPLANT_TEMPLATE_CLASSES)
 _generate_sop_classes(_INSTANCE_AVAILABILITY_CLASSES)
+_generate_sop_classes(_INVENTORY_CLASSES)
 _generate_sop_classes(_MEDIA_CREATION_CLASSES)
 _generate_sop_classes(_MEDIA_STORAGE_CLASSES)
 _generate_sop_classes(_NON_PATIENT_OBJECT_CLASSES)
@@ -499,6 +516,7 @@ _generate_sop_classes(_RELEVANT_PATIENT_QUERY_CLASSES)
 _generate_sop_classes(_RT_MACHINE_VERIFICATION_CLASSES)
 _generate_sop_classes(_STORAGE_CLASSES)
 _generate_sop_classes(_STORAGE_COMMITMENT_CLASSES)
+_generate_sop_classes(_STORAGE_MANAGEMENT_CLASSES)
 _generate_sop_classes(_SUBSTANCE_ADMINISTRATION_CLASSES)
 _generate_sop_classes(_UNIFIED_PROCEDURE_STEP_CLASSES)
 _generate_sop_classes(_VERIFICATION_CLASSES)
@@ -644,6 +662,11 @@ StorageCommitmentPushModelInstance = UID("1.2.840.10008.1.20.1.1")
 """``1.2.840.10008.1.20.1.1``
 
 .. versionadded:: 1.5
+"""
+StorageManagementInstance = UID("1.2.840.10008.5.1.4.1.1.201.1.1")
+"""``1.2.840.10008.5.1.4.1.1.201.1.1``
+
+.. versionadded:: 2.1
 """
 SubstanceAdministrationLoggingInstance = UID("1.2.840.10008.1.42.1")
 """``1.2.840.10008.1.42.1``

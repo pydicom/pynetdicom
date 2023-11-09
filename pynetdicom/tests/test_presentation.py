@@ -297,6 +297,7 @@ class TestPresentationContext:
 
         _config.ENFORCE_UID_CONFORMANCE = False
         pc.abstract_syntax = UID("1.4.1.")
+
         assert pc.abstract_syntax == UID("1.4.1.")
         assert isinstance(pc.abstract_syntax, UID)
 
@@ -335,6 +336,7 @@ class TestPresentationContext:
         pc = PresentationContext()
         pc.context_id = 1
         pc.transfer_syntax = ["1.4.1.", "1.2.840.10008.1.2"]
+
         assert pc.transfer_syntax == ["1.4.1.", "1.2.840.10008.1.2"]
         assert "A non-conformant UID has been added to 'transfer_syntax'" in caplog.text
 
@@ -652,11 +654,17 @@ class TestNegotiateAsAcceptor:
         assert context.result == 0x00
         assert context.transfer_syntax == ["1.2.840.10008.1.2.1"]
 
-    @pytest.mark.skipif(PYDICOM_VERSION < ["2", "2"], reason="Old data dict")
     def test_typical(self):
         """Test a typical set of presentation context negotiations."""
         req_contexts = []
         for ii, context in enumerate(StoragePresentationContexts):
+            # Old pydicom UID dict
+            if context.abstract_syntax in (
+                "1.2.840.10008.5.1.4.1.1.6.3",
+                "1.2.840.10008.5.1.4.1.1.9.1.4",
+            ):
+                continue
+
             pc = PresentationContext()
             pc.context_id = ii * 2 + 1
             pc.abstract_syntax = context.abstract_syntax
@@ -1594,11 +1602,17 @@ class TestNegotiateAsRequestor:
         assert context.result == 0x00
         assert context.transfer_syntax == ["1.2.840.10008.1.2.1"]
 
-    @pytest.mark.skipif(PYDICOM_VERSION < ["2", "2"], reason="Old data dict")
     def test_typical(self):
         """Test a typical set of presentation context negotiations."""
         req_contexts = []
         for ii, context in enumerate(StoragePresentationContexts):
+            # Old pydicom UID dict
+            if context.abstract_syntax in (
+                "1.2.840.10008.5.1.4.1.1.6.3",
+                "1.2.840.10008.5.1.4.1.1.9.1.4",
+            ):
+                continue
+
             pc = PresentationContext()
             pc.context_id = ii * 2 + 1
             pc.abstract_syntax = context.abstract_syntax
@@ -2035,7 +2049,7 @@ class TestServiceContexts:
     def test_non_patient(self):
         """Tests with non patient object presentation contexts"""
         contexts = NonPatientObjectPresentationContexts
-        assert len(contexts) == 8
+        assert len(contexts) == 9
 
         for context in contexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
@@ -2044,11 +2058,12 @@ class TestServiceContexts:
         assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.1.1.200.1"
         assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.4.1.1.200.3"
         assert contexts[2].abstract_syntax == "1.2.840.10008.5.1.4.1.1.200.7"
-        assert contexts[3].abstract_syntax == "1.2.840.10008.5.1.4.38.1"
-        assert contexts[4].abstract_syntax == "1.2.840.10008.5.1.4.39.1"
-        assert contexts[5].abstract_syntax == "1.2.840.10008.5.1.4.43.1"
-        assert contexts[6].abstract_syntax == "1.2.840.10008.5.1.4.44.1"
-        assert contexts[7].abstract_syntax == "1.2.840.10008.5.1.4.45.1"
+        assert contexts[3].abstract_syntax == "1.2.840.10008.5.1.4.1.1.201.1"
+        assert contexts[4].abstract_syntax == "1.2.840.10008.5.1.4.38.1"
+        assert contexts[5].abstract_syntax == "1.2.840.10008.5.1.4.39.1"
+        assert contexts[6].abstract_syntax == "1.2.840.10008.5.1.4.43.1"
+        assert contexts[7].abstract_syntax == "1.2.840.10008.5.1.4.44.1"
+        assert contexts[8].abstract_syntax == "1.2.840.10008.5.1.4.45.1"
 
     def test_print_management(self):
         """Tests with print management presentation contexts"""
@@ -2100,14 +2115,14 @@ class TestServiceContexts:
     def test_qr(self):
         """Test the query/retrieve service presentation contexts."""
         contexts = QueryRetrievePresentationContexts
-        assert len(contexts) == 12
+        assert len(contexts) == 13
 
         for context in contexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.1.2.1.1"
-        assert contexts[4].abstract_syntax == "1.2.840.10008.5.1.4.1.2.2.2"
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.1.1.201.6"
+        assert contexts[4].abstract_syntax == "1.2.840.10008.5.1.4.1.2.2.1"
         assert contexts[-1].abstract_syntax == "1.2.840.10008.5.1.4.1.2.5.3"
 
     def test_relevant_patient(self):
@@ -2145,8 +2160,8 @@ class TestServiceContexts:
             assert context.context_id is None
 
         assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.1.1.1"
-        assert contexts[80].abstract_syntax == "1.2.840.10008.5.1.4.1.1.66.5"
-        assert contexts[-1].abstract_syntax == "1.2.840.10008.5.1.4.1.1.88.65"
+        assert contexts[80].abstract_syntax == "1.2.840.10008.5.1.4.1.1.77.1.6"
+        assert contexts[-1].abstract_syntax == "1.2.840.10008.5.1.4.34.7"
 
     def test_storage_commitement(self):
         """Tests with storage commitment presentation contexts"""

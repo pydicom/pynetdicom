@@ -74,9 +74,17 @@ branch (this will create a ``pynetdicom`` directory in your current directory)::
 
   git clone https://github.com/pydicom/pynetdicom
 
-Then install using pip in editable (``-e``) mode::
+Create a `new virtual environment <https://docs.python.org/3/tutorial/venv.html>`_
 
-  pip install -e pynetdicom/
+In the activated environment install `poetry <https://python-poetry.org/>`_::
+
+  pip install -U poetry
+
+Change to the ``pynetdicom`` directory and install *pynetdicom* and the required
+development packages using poetry::
+
+  cd pynetdicom/
+  poetry install --with dev
 
 When you want to update your copy of the source code, run ``git pull`` from
 within the ``pynetdicom`` directory and Git will download and apply any

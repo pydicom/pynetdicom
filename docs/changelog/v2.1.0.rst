@@ -16,6 +16,8 @@ Fixes
 Enhancements
 ............
 
+* Added :func:`~pynetdicom.sop_class.register_uid` to make registering new
+  private and public SOP Classes easier (:issue:`799`)
 
 Changes
 .......

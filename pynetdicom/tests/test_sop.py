@@ -27,6 +27,8 @@ from pynetdicom.sop_class import (
     ImplantTemplateGroupInformationModelFind,
     _INSTANCE_AVAILABILITY_CLASSES,
     InstanceAvailabilityNotification,
+    _INVENTORY_CLASSES,
+    InventoryCreation,
     _MEDIA_CREATION_CLASSES,
     MediaCreationManagement,
     _MEDIA_STORAGE_CLASSES,
@@ -51,6 +53,8 @@ from pynetdicom.sop_class import (
     CTImageStorage,
     _STORAGE_COMMITMENT_CLASSES,
     StorageCommitmentPushModel,
+    _STORAGE_MANAGEMENT_CLASSES,
+    InventoryFind,
     _SUBSTANCE_ADMINISTRATION_CLASSES,
     ProductCharacteristicsQuery,
     _UNIFIED_PROCEDURE_STEP_CLASSES,
@@ -62,6 +66,7 @@ from pynetdicom.sop_class import (
     PrinterInstance,
     ProceduralEventLoggingInstance,
     StorageCommitmentPushModelInstance,
+    StorageManagementInstance,
     SubstanceAdministrationLoggingInstance,
     UPSFilteredGlobalSubscriptionInstance,
     UPSGlobalSubscriptionInstance,
@@ -116,6 +121,8 @@ def test_all_sop_classes():
         assert uid in UID_dictionary
     for uid in _INSTANCE_AVAILABILITY_CLASSES.values():
         assert uid in UID_dictionary
+    for uid in _INVENTORY_CLASSES.values():
+        assert uid in UID_dictionary
     for uid in _MEDIA_CREATION_CLASSES.values():
         assert uid in UID_dictionary
     for uid in _MEDIA_STORAGE_CLASSES.values():
@@ -134,10 +141,14 @@ def test_all_sop_classes():
         assert uid in UID_dictionary
     for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         assert uid in UID_dictionary
-    if PYDICOM_VERSION >= ["2", "2"]:
-        for uid in _STORAGE_CLASSES.values():
-            assert uid in UID_dictionary
+    for uid in _STORAGE_CLASSES.values():
+        if uid in ("1.2.840.10008.5.1.4.1.1.6.3", "1.2.840.10008.5.1.4.1.1.9.1.4"):
+            continue
+
+        assert uid in UID_dictionary
     for uid in _STORAGE_COMMITMENT_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _STORAGE_MANAGEMENT_CLASSES.values():
         assert uid in UID_dictionary
     for uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
         assert uid in UID_dictionary
@@ -160,6 +171,7 @@ def test_all_sop_instances():
     assert PrinterInstance in UID_dictionary
     assert ProceduralEventLoggingInstance in UID_dictionary
     assert StorageCommitmentPushModelInstance in UID_dictionary
+    assert StorageManagementInstance in UID_dictionary
     assert SubstanceAdministrationLoggingInstance in UID_dictionary
     assert UPSFilteredGlobalSubscriptionInstance in UID_dictionary
     assert UPSGlobalSubscriptionInstance in UID_dictionary
