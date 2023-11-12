@@ -50,14 +50,19 @@ jobs:
         '${{ steps.diff-files.outputs.files_added }}\n${{ steps.diff-files.outputs.files_modified }}'
         | grep '\.py' | tr '\n' ' '
         )" >> $GITHUB_OUTPUT
-    - name: Activate env
-      run: |
-        source .venv/bin/activate
     - name: Check code formatting
-      run: black . --check
+      run: |
+        source .venv/bin/activate &&
+        black . --check
     - name: Check spelling
-      run: codespell -L ddress,halp,ot,pres,requestor,requestors -d pynetdicom
+      run: |
+        source .venv/bin/activate &&
+        codespell -L ddress,halp,ot,pres,requestor,requestors -d pynetdicom
     - name: Check for syntax errors
-      run: python -m flake8 --select=E901,E999,F822,F823 ${{ steps.pydiff.outputs.pyfiles }} --ignore F821
+      run: |
+        source .venv/bin/activate &&
+        python -m flake8 --select=E901,E999,F822,F823 ${{ steps.pydiff.outputs.pyfiles }} --ignore F821
     - name: Check for style warnings
-      run: python -m flake8 --exit-zero ${{ steps.pydiff.outputs.pyfiles }}
+      run: |
+        source .venv/bin/activate &&
+        python -m flake8 --exit-zero ${{ steps.pydiff.outputs.pyfiles }}
