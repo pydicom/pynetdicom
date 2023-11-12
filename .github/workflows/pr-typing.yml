@@ -2,7 +2,7 @@ name: pull-request-typing
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
 

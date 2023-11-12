@@ -49,8 +49,8 @@ get_build_type() {
         echo BUILD: not a pull request
         return
     fi
-    git_range="origin/master...$CIRCLE_SHA1"
-    git fetch origin master >&2 || (echo QUICK BUILD: failed to get changed filenames for $git_range; return)
+    git_range="origin/main...$CIRCLE_SHA1"
+    git fetch origin main >&2 || (echo QUICK BUILD: failed to get changed filenames for $git_range; return)
     filenames=$(git diff --name-only $git_range)
     if [ -z "$filenames" ]
     then
@@ -72,7 +72,7 @@ then
     exit 0
 fi
 
-if [[ "$CIRCLE_BRANCH" =~ ^master$|^[0-9]+\.[0-9]+\.X$ && -z "$CI_PULL_REQUEST" ]]
+if [[ "$CIRCLE_BRANCH" =~ ^main$|^[0-9]+\.[0-9]+\.X$ && -z "$CI_PULL_REQUEST" ]]
 then
     # PDF linked into HTML
     MAKE_TARGET="dist LATEXMKOPTS=-halt-on-error"
