@@ -51,7 +51,7 @@ jobs:
         | grep '\.py' | tr '\n' ' '
         )" >> $GITHUB_OUTPUT
     - name: Install
-      run: poetry install --no-interaction
+      run: poetry install --no-interaction --extras dev
     - name: Check code formatting
       run: black . --check
     - name: Check spelling
