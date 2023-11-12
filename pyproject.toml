@@ -53,7 +53,7 @@ black = { version = "^23.1", optional = true }
 codespell = { version = "^2.2", optional = true }
 coverage = { version = "^7.3", optional = true }
 flake8 = { version = "^6.1", optional = true }
-mypy = { version = "^1.6", optional = true }
+mypy = { version = "^1.7", optional = true }
 numpydoc = { version = "^1.6", optional = true }
 pyfakefs = { version = "^5.3", optional = true }
 pytest = { version = "^7.4", optional = true }
