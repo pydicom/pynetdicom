@@ -36,7 +36,7 @@ jobs:
         key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
+      run: poetry install --no-interaction --no-root --extras dev
     - name: Get file diff
       id: diff-files
       uses: markgilbert-git/file-changes-action@v1.2.5
@@ -50,8 +50,9 @@ jobs:
         '${{ steps.diff-files.outputs.files_added }}\n${{ steps.diff-files.outputs.files_modified }}'
         | grep '\.py' | tr '\n' ' '
         )" >> $GITHUB_OUTPUT
-    - name: Install
-      run: poetry install --no-interaction --extras dev
+    - name: Activate env
+      run: |
+        source .venv/bin/activate
     - name: Check code formatting
       run: black . --check
     - name: Check spelling
