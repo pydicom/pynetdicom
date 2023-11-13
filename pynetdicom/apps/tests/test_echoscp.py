@@ -33,7 +33,8 @@ DATASET_FILE = DATA_DIR / "CTImageStorage.dcm"
 def start_echoscp(args):
     """Start the echoscp.py app and return the process."""
     pargs = [sys.executable, APP_FILE, "11112"] + [*args]
-    return subprocess.Popen(" ".join(pargs), shell=True)
+    #print(sys.executable)
+    return subprocess.Popen(pargs)
 
 
 def start_echoscp_cli(args):

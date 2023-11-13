@@ -22,7 +22,7 @@ jobs:
       uses: actions/setup-python@v4
       id: setup-python
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: [ '3.11' ] #${{ matrix.python-version }}
     - name: Install poetry
       uses: snok/install-poetry@v1
       with:
@@ -40,7 +40,8 @@ jobs:
       run: poetry install --no-interaction --no-root --extras tests
     - name: Switch to development pydicom
       run: |
-        pip install git+https://github.com/pydicom/pydicom
+        pip install git+https://github.com/pydicom/pydicom &&
+        poetry run pip list
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
