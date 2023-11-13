@@ -25,7 +25,7 @@ try:
 except ImportError:
     sys.exit("qrscp requires the sqlalchemy package")
 
-from sqlalchemy.orm.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 from pydicom.dataset import Dataset
 
