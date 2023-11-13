@@ -45,7 +45,7 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        poetry run pytest --ignore=pynetdicom/tests
+        poetry run pytest -s --ignore=pynetdicom/tests
 
   # pydicom-release:
   #   runs-on: ubuntu-latest

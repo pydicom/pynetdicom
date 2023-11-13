@@ -48,6 +48,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install poetry
@@ -114,7 +115,7 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        poetry run pytest pynetdicom/tests/test_cli.py --cov pynetdicom --ignore=pynetdicom/apps
+        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
       if: ${{ success() }}
       uses: codecov/codecov-action@v3
