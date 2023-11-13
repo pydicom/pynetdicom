@@ -1,4 +1,4 @@
-name: pull-request-typing
+name: pull-request-type-lint-format
 
 on:
   pull_request:

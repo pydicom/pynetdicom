@@ -1278,11 +1278,11 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [extras]
 apps = ["sqlalchemy"]
-dev = ["asv", "black", "codespell", "coverage", "mypy", "pyfakefs", "pytest", "ruff", "sqlalchemy", "tomli"]
+dev = ["asv", "black", "codespell", "coverage", "mypy", "pyfakefs", "pytest", "ruff", "sqlalchemy"]
 docs = ["numpydoc", "sphinx", "sphinx-copybutton", "sphinx-rtd-theme"]
 tests = ["pyfakefs", "pytest", "sqlalchemy"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "74df211fe45f128a2090b587a7cddd33cae8006fd5533ce4d3f019b1a2947679"
+content-hash = "0dd6b90177eb4e95eaad5163b8a048e3fa7eb2dd92605d19a2422614bfdaeb94"
