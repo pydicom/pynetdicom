@@ -46,8 +46,11 @@ jobs:
         PYTHON_VERSION: ${{ matrix.python-version }}
       # /home/runner/work/pynetdicom/pynetdicom/.venv/bin/python
       run: |
-        echo $VIRTUALENVS_PATH &&
-        ls $VIRTUALENVS_PATH
+        pwd &&
+        ls -a &&
+        ls -a /home/runner/work/pynetdicom/pynetdicom/.venv/bin
+        echo $VENV &&
+        ls $VENV
     #poetry run pytest --ignore=pynetdicom/tests
 
   # pydicom-release:
