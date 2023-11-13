@@ -45,7 +45,7 @@ jobs:
 
     - name: Set up test environment
       run: |
-        poetry install --extras tests
+        poetry install --no-interaction --extras tests
         pip install -i https://test.pypi.org/simple/ pynetdicom
 
     - name: Test with pytest
