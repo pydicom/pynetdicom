@@ -29,6 +29,8 @@ APP_FILE = APP_DIR / "echoscp" / "echoscp.py"
 DATA_DIR = APP_DIR.parent / "tests" / "dicom_files"
 DATASET_FILE = DATA_DIR / "CTImageStorage.dcm"
 
+print(sys.executable)
+
 
 def start_echoscp(args):
     """Start the echoscp.py app and return the process."""

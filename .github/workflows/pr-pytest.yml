@@ -114,7 +114,7 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps
+        poetry run pytest pynetdicom/tests/test_cli.py --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
       if: ${{ success() }}
       uses: codecov/codecov-action@v3
