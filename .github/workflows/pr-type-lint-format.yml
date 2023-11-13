@@ -35,7 +35,7 @@ jobs:
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: poetry install --no-interaction --no-root --extras dev
-    - name: Run type check using mpyp
+    - name: Run type check using mypy
       run: |
         poetry run mypy
     - name: Run formatting check using black
