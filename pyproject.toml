@@ -81,8 +81,8 @@ storescu = "pynetdicom.apps.storescu.storescu:main"
 
 
 [tool.black]
-exclude = ".venv|build|/_.*_dict.py$"
-force-exclude = ".venv|/_.*_dict.py$"
+exclude = ".venv*|env*|build|/_.*_dict.py$"
+force-exclude = ".venv*|env*|/_.*_dict.py$"
 
 
 [tool.codespell]

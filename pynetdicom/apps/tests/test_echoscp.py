@@ -29,14 +29,11 @@ APP_FILE = APP_DIR / "echoscp" / "echoscp.py"
 DATA_DIR = APP_DIR.parent / "tests" / "dicom_files"
 DATASET_FILE = DATA_DIR / "CTImageStorage.dcm"
 
-print(sys.executable)
-
 
 def start_echoscp(args):
     """Start the echoscp.py app and return the process."""
-    #pargs = [sys.executable, APP_FILE, "11112"] + [*args]
-    pargs = ["poetry", "run",  APP_FILE, "11112"] + [*args]
-    return subprocess.Popen(pargs)
+    pargs = [sys.executable, APP_FILE, "11112"] + [*args]
+    return subprocess.Popen(" ".join(pargs), shell=True)
 
 
 def start_echoscp_cli(args):

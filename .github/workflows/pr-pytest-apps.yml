@@ -44,8 +44,9 @@ jobs:
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
+      # /home/runner/work/pynetdicom/pynetdicom/.venv/bin/python
       run: |
-        poetry run pytest -s --ignore=pynetdicom/tests
+        poetry run pytest --ignore=pynetdicom/tests
 
   # pydicom-release:
   #   runs-on: ubuntu-latest
