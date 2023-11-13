@@ -22,7 +22,7 @@ jobs:
       uses: actions/setup-python@v4
       id: setup-python
       with:
-        python-version: '3.11' #${{ matrix.python-version }}
+        python-version: ${{ matrix.python-version }}
     - name: Install poetry
       uses: snok/install-poetry@v1
       with:
