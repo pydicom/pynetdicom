@@ -37,7 +37,7 @@ jobs:
         key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root --extras tests
+      run: poetry install --no-interaction --extras tests
     - name: Switch to development pydicom
       run: |
         pip install git+https://github.com/pydicom/pydicom &&
@@ -45,14 +45,8 @@ jobs:
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
-      # /home/runner/work/pynetdicom/pynetdicom/.venv/bin/python
       run: |
-        pwd &&
-        ls -a &&
-        ls -a /home/runner/work/pynetdicom/pynetdicom/.venv/bin
-        echo $VENV &&
-        ls $VENV
-    #poetry run pytest --ignore=pynetdicom/tests
+        poetry run pytest --ignore=pynetdicom/tests
 
   # pydicom-release:
   #   runs-on: ubuntu-latest

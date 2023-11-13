@@ -1,8 +1,8 @@
 name: pull-request-pytest
 
 on:
-  #pull_request:
-#    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
 
@@ -65,7 +65,7 @@ jobs:
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root --extras tests
+        run: poetry install --no-interaction --extras tests
       - name: Test with pytest
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
@@ -107,7 +107,7 @@ jobs:
         key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root --extras tests
+      run: poetry install --no-interaction --extras tests
     - name: Switch to development pydicom
       run: |
         pip install git+https://github.com/pydicom/pydicom
@@ -152,7 +152,9 @@ jobs:
         key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root --extras tests
+      run: |
+        poetry install --no-interaction --extras tests &&
+        poetry run pip list
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
