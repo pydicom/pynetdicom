@@ -1,12 +1,12 @@
 .. class:: center
-.. image:: https://codecov.io/gh/pydicom/pynetdicom/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/pydicom/pynetdicom/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/pydicom/pynetdicom
 .. image:: https://github.com/pydicom/pynetdicom/workflows/unit-tests/badge.svg
     :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Aunit-tests
 .. image:: https://github.com/pydicom/pynetdicom/workflows/type-hints/badge.svg
     :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Atype-hints
-.. image:: https://circleci.com/gh/pydicom/pynetdicom/tree/master.svg?style=shield
-    :target: https://circleci.com/gh/pydicom/pynetdicom/tree/master
+.. image:: https://circleci.com/gh/pydicom/pynetdicom/tree/main.svg?style=shield
+    :target: https://circleci.com/gh/pydicom/pynetdicom/tree/main
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
 .. image:: https://badge.fury.io/py/pynetdicom.svg
