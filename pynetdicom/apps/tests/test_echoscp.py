@@ -34,7 +34,8 @@ print(sys.executable)
 
 def start_echoscp(args):
     """Start the echoscp.py app and return the process."""
-    pargs = [sys.executable, APP_FILE, "11112"] + [*args]
+    #pargs = [sys.executable, APP_FILE, "11112"] + [*args]
+    pargs = ["poetry", "run",  APP_FILE, "11112"] + [*args]
     return subprocess.Popen(pargs)
 
 
