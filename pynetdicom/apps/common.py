@@ -191,7 +191,7 @@ class ElementPath:
         try:
             # Try DICOM dictionary for public elements
             self._entry = get_entry(tag)
-        except Exception as exc:
+        except Exception:
             # Private element
             self._entry = ("UN", "1", "Unknown", False, "Unknown")
 

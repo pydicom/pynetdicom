@@ -1387,7 +1387,7 @@ class ServiceClass:
                     return
 
                 yield (result, None)
-        except Exception as exc:
+        except Exception:
             yield (None, sys.exc_info())
 
 

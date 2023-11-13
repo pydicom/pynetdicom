@@ -217,7 +217,7 @@ def add_instance(ds, session, fpath=None):
         if tsyntax:
             assert len(tsyntax) < 64
             instance.transfer_syntax_uid = tsyntax
-    except (AttributeError, AssertionError) as exc:
+    except (AttributeError, AssertionError):
         pass
 
     # SOP Class UID

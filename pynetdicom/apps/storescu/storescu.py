@@ -213,14 +213,14 @@ def get_contexts(fpaths, app_logger):
         path = os.fspath(Path(fpath).resolve())
         try:
             ds = dcmread(path)
-        except Exception as exc:
+        except Exception:
             bad.append(("Bad DICOM file", path))
             continue
 
         try:
             sop_class = ds.SOPClassUID
             tsyntax = ds.file_meta.TransferSyntaxUID
-        except Exception as exc:
+        except Exception:
             bad.append(("Unknown SOP Class or Transfer Syntax UID", path))
             continue
 
@@ -307,7 +307,7 @@ def main(args=None):
             APP_LOGGER.info(f"Sending file: {fpath}")
             try:
                 ds = dcmread(fpath)
-                status = assoc.send_c_store(ds, ii)
+                assoc.send_c_store(ds, ii)
                 ii += 1
             except InvalidDicomError:
                 APP_LOGGER.error(f"Bad DICOM file: {fpath}")

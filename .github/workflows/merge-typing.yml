@@ -7,7 +7,6 @@ on:
 jobs:
 
   check-typing:
-    # Matrix builds with released pydicom
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:

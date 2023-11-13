@@ -7,7 +7,6 @@ on:
 jobs:
 
   check-typing:
-    # Matrix builds with released pydicom
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -36,6 +35,15 @@ jobs:
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: poetry install --no-interaction --no-root --extras dev
-    - name: Run typing check with mypy
+    - name: Run type check using mpyp
       run: |
         poetry run mypy
+    - name: Run formatting check using black
+      run: |
+        poetry run black . --check
+    - name : Run linting check using ruff
+      run: |
+        poetry run ruff check .
+    - name: Run spell check using codespell
+      run: |
+        poetry run codespell -d pynetdicom
