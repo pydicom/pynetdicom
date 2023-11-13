@@ -837,7 +837,7 @@ class Event:
             self._hash = hash(bytestream)
             return self._decoded
 
-        except AttributeError as exc:
+        except AttributeError:
             pass
 
         raise AttributeError(exc_msg)

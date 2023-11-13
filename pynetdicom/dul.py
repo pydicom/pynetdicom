@@ -4,7 +4,6 @@ Implements the DICOM Upper Layer service provider.
 
 import logging
 import queue
-import socket
 import struct
 from threading import Thread
 import time
@@ -280,7 +279,7 @@ class DULServiceProvider(Thread):
             # Byte 2 is always reserved
             # Bytes 3-6 are always the PDU length
             pdu_type, _, pdu_length = struct.unpack(">BBL", bytestream)
-        except struct.error as exc:
+        except struct.error:
             # READ_PDU_EXC_B
             # LOGGER.error("Insufficient data received to decode the PDU")
             # Evt17: Transport connection closed

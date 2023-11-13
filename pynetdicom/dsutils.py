@@ -261,11 +261,12 @@ def pretty_element(elem: DataElement) -> str:
             else:
                 value = f"(Sequence with {len(elem.value)} items)"
 
-    except Exception as exc:
+    except Exception:
         value = "(pynetdicom failed to beautify value)"
 
-    return "({:04X},{:04X}) {} {: <40} # {} {}".format(
-        elem.tag.group, elem.tag.element, elem.VR, value, elem.VM, elem.keyword
+    return (
+        f"({elem.tag.group:04X},{elem.tag.element:04X}) {elem.VR} "
+        f"{value: <40} # {elem.VM} {elem.keyword}"
     )
 
 

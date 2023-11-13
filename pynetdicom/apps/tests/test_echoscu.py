@@ -2,6 +2,7 @@
 
 import logging
 import os
+from pathlib import Path
 import subprocess
 import sys
 import time
@@ -22,8 +23,8 @@ from pynetdicom.sop_class import Verification, CTImageStorage
 # debug_logger()
 
 
-APP_DIR = os.path.join(os.path.dirname(__file__), "../")
-APP_FILE = os.path.join(APP_DIR, "echoscu", "echoscu.py")
+APP_DIR = Path(__file__).parent.parent
+APP_FILE = APP_DIR / "echoscu" / "echoscu.py"
 
 
 def start_echoscu(args):

@@ -1387,7 +1387,7 @@ class ServiceClass:
                     return
 
                 yield (result, None)
-        except Exception as exc:
+        except Exception:
             yield (None, sys.exc_info())
 
 
@@ -2095,8 +2095,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             )
             ctx.error_status = 0xC515
             kwargs = {"ae_title": req.MoveDestination}
-            if len(destination) >= 3 and destination[2]:  # type: ignore
-                kwargs.update(destination[2])  # type: ignore
+            if len(destination) >= 3 and destination[2]:
+                kwargs.update(destination[2])
 
             store_assoc = self.ae.associate(
                 destination[0], destination[1], **kwargs  # type: ignore

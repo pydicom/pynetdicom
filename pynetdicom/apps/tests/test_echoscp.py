@@ -2,6 +2,7 @@
 
 import logging
 import os
+from pathlib import Path
 import subprocess
 import sys
 import time
@@ -23,10 +24,10 @@ from pynetdicom.sop_class import Verification, CTImageStorage
 # debug_logger()
 
 
-APP_DIR = os.path.join(os.path.dirname(__file__), "../")
-APP_FILE = os.path.join(APP_DIR, "echoscp", "echoscp.py")
-DATA_DIR = os.path.join(APP_DIR, "../", "tests", "dicom_files")
-DATASET_FILE = os.path.join(DATA_DIR, "CTImageStorage.dcm")
+APP_DIR = Path(__file__).parent.parent
+APP_FILE = APP_DIR / "echoscp" / "echoscp.py"
+DATA_DIR = APP_DIR.parent / "tests" / "dicom_files"
+DATASET_FILE = DATA_DIR / "CTImageStorage.dcm"
 
 
 def start_echoscp(args):

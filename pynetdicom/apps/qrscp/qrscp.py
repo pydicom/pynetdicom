@@ -14,11 +14,11 @@ from pynetdicom import (
     AE,
     _config,
     evt,
+    _handlers,
     AllStoragePresentationContexts,
     ALL_TRANSFER_SYNTAXES,
     UnifiedProcedurePresentationContexts,
 )
-from pynetdicom import _config, _handlers
 from pynetdicom.apps.common import setup_logging
 from pynetdicom.sop_class import (
     Verification,
@@ -29,7 +29,6 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelGet,
-    UnifiedProcedureStepPull,
 )
 from pynetdicom.utils import set_ae
 
@@ -242,7 +241,7 @@ def clean(db_path, instance_path, logger):
         successfully, ``False`` otherwise.
     """
     engine = create_engine(db_path)
-    with engine.connect() as conn:
+    with engine.connect() as conn:  # noqa: F841
         Session = sessionmaker(bind=engine)
         session = Session()
         query_success = True

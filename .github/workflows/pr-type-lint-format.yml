@@ -1,7 +1,7 @@
-name: type-hints
+name: pull-request-type-lint-format
 
 on:
-  push:
+  pull_request:
     branches: [ main ]
 
 jobs:
@@ -35,6 +35,15 @@ jobs:
         key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
       run: poetry install --no-interaction --no-root --extras dev
-    - name: Run typing check with mypy
+    - name: Run type check using mypy
       run: |
         poetry run mypy
+    - name: Run formatting check using black
+      run: |
+        poetry run black . --check
+    - name : Run linting check using ruff
+      run: |
+        poetry run ruff check .
+    - name: Run spell check using codespell
+      run: |
+        poetry run codespell -d pynetdicom

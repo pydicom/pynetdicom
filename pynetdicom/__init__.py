@@ -28,6 +28,7 @@ assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 
 
 # Convenience imports
+# ruff: noqa: E402,F401
 from pynetdicom import events as evt
 from pynetdicom.ae import ApplicationEntity as AE
 from pynetdicom.association import Association

@@ -4,7 +4,7 @@ import inspect
 from keyword import iskeyword
 import logging
 import sys
-from typing import Optional, Type, Any, cast, Dict
+from typing import Optional, Type, cast, Dict
 
 from pydicom.uid import UID
 

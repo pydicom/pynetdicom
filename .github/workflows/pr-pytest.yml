@@ -2,7 +2,7 @@ name: pull-request-pytest
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
 
@@ -36,29 +36,43 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
         python-version: ['3.10']
 
     steps:
-     - uses: actions/checkout@v4
-     - name: Set up Python ${{ matrix.python-version }}
-       uses: actions/setup-python@v4
-       with:
-         python-version: ${{ matrix.python-version }}
-     - name: Install dependencies
-       run: |
-         python -m pip install --upgrade pip
-         pip install pytest coverage pytest-cov pydicom
-     - name: Test with pytest
-       env:
-         PYTHON_VERSION: ${{ matrix.python-version }}
-       run: |
-         pytest --cov pynetdicom --ignore=pynetdicom/apps
-     - name: Send coverage results
-       if: ${{ success() }}
-       uses: codecov/codecov-action@v3
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        id: setup-python
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install --no-interaction --extras tests
+      - name: Test with pytest
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        run: |
+          poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps
+      - name: Send coverage results
+        if: ${{ success() }}
+        uses: codecov/codecov-action@v3
 
   pydicom-dev:
     # Matrix builds with development pydicom
@@ -75,18 +89,31 @@ jobs:
         fetch-depth: 2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
+      id: setup-python
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Install poetry
+      uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
+      run: poetry install --no-interaction --extras tests
+    - name: Switch to development pydicom
       run: |
-        python -m pip install --upgrade pip
-        pip install pytest coverage pytest-cov
         pip install git+https://github.com/pydicom/pydicom
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        pytest --cov pynetdicom --ignore=pynetdicom/apps
+        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
       if: ${{ success() }}
       uses: codecov/codecov-action@v3
@@ -105,18 +132,31 @@ jobs:
       with:
         fetch-depth: 2
     - name: Set up Python ${{ matrix.python-version }}
+      id: setup-python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Install poetry
+      uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install pytest pydicom coverage pytest-cov
+        poetry install --no-interaction --extras tests &&
+        poetry run pip list
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        pytest --cov pynetdicom --ignore=pynetdicom/apps
+        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
       if: ${{ success() }}
       uses: codecov/codecov-action@v3

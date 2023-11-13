@@ -69,7 +69,7 @@ def handle_find(event, db_path, cli_config, logger):
         yield 0x0000, None
     else:
         engine = create_engine(db_path)
-        with engine.connect() as conn:
+        with engine.connect() as conn:  # noqa: F841
             Session = sessionmaker(bind=engine)
             session = Session()
             # Search database using Identifier as the query
@@ -138,7 +138,7 @@ def handle_get(event, db_path, cli_config, logger):
     model = event.request.AffectedSOPClassUID
 
     engine = create_engine(db_path)
-    with engine.connect() as conn:
+    with engine.connect() as conn:  # noqa: F841
         Session = sessionmaker(bind=engine)
         session = Session()
         # Search database using Identifier as the query
@@ -223,7 +223,7 @@ def handle_move(event, destinations, db_path, cli_config, logger):
 
     model = event.request.AffectedSOPClassUID
     engine = create_engine(db_path)
-    with engine.connect() as conn:
+    with engine.connect() as conn:  # noqa: F841
         Session = sessionmaker(bind=engine)
         session = Session()
         # Search database using Identifier as the query
@@ -333,7 +333,7 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
 
     # Dataset successfully written, try to add to/update database
     engine = create_engine(db_path)
-    with engine.connect() as conn:
+    with engine.connect() as conn:  # noqa: F841
         Session = sessionmaker(bind=engine)
         session = Session()
 
