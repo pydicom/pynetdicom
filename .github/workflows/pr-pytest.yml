@@ -25,13 +25,13 @@ jobs:
         conda-channels: anaconda, conda-forge
     - name: Install dependencies
       run: |
-        conda install poetry
-        poetry install --extras tests
+        conda install pytest
+        conda install -c conda-forge pydicom
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        poetry run pytest --ignore=pynetdicom/apps
+        pytest --ignore=pynetdicom/apps
 
   windows:
     runs-on: windows-latest
