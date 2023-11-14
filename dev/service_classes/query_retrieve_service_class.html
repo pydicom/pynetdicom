@@ -178,6 +178,9 @@ defines a service that facilitates querying and retrieval of stored Instances.</
 <tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.2.4.3</p></td>
 <td><p>CompositeInstanceRootRetrieveGet</p></td>
 </tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.201.6</p></td>
+<td><p>RepositoryQuery</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -285,9 +288,18 @@ defines a service that facilitates querying and retrieval of stored Instances.</
 <td><p>Failure</p></td>
 <td><p>Out of resources</p></td>
 </tr>
-<tr class="row-odd"><td><p>0xA900</p></td>
+<tr class="row-odd"><td><p>0xA710</p></td>
+<td><p>Failure</p></td>
+<td><p>Invalid prior record key</p></td>
+</tr>
+<tr class="row-even"><td><p>0xA900</p></td>
 <td><p>Failure</p></td>
 <td><p>Dataset does not match SOP Class</p></td>
+</tr>
+<tr class="row-odd"><td><p>0xB001</p></td>
+<td><p>Warning</p></td>
+<td><p>Matching reached response limit, subsequent
+request may return additional matches</p></td>
 </tr>
 <tr class="row-even"><td><p>0xC000 to 0xCFFF</p></td>
 <td><p>Failure</p></td>
