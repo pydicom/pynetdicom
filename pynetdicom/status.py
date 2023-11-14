@@ -75,7 +75,7 @@ STORAGE_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # Query Retrieve - FIND specific status code values
-#   PS3.4 Annex C.4.1.1.4
+#   PS3.4 Annex C.4.1.1.4 and Annex C.6.4.3
 # Hanging Protocol - FIND specific status code values
 #   PS3.4 Annex U.4.1
 # Color Palette - FIND specific status code values
@@ -86,7 +86,12 @@ STORAGE_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 #   PS3.4 Annex HH
 QR_FIND_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA700: (STATUS_FAILURE, "Refused: Out of Resources"),
+    0xA710: (STATUS_FAILURE, "Invalid Prior Record Key"),
     0xA900: (STATUS_FAILURE, "Identifier Does Not Match SOP Class"),
+    0xB001: (
+        STATUS_WARNING,
+        "Matching reached response limit, subsequent request may return additional matches",
+    ),
     0xFF00: (STATUS_PENDING, "Matches are continuing, current match supplied"),
     0xFF01: (STATUS_PENDING, "Matches are continuing, warning"),
 }

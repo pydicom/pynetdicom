@@ -64,6 +64,7 @@ from pynetdicom.sop_class import (
     SecondaryCaptureImageStorage,
     UnifiedProcedureStepPull,
     UnifiedProcedureStepPush,
+    RepositoryQuery,
 )
 
 from .hide_modules import hide_modules
@@ -2496,6 +2497,46 @@ class TestAssociationSendCFind:
                 "UID '1.2.3.4'"
             )
             assert msg in caplog.text
+
+    def test_repository_query(self, caplog):
+        """Test receiving a success response from the peer"""
+
+        def handle(event):
+            yield 0xB001, None
+            yield 0x0000, None
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(RepositoryQuery)
+        scp = ae.start_server(
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+        )
+
+        ae.add_requested_context(RepositoryQuery)
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+
+        with caplog.at_level(logging.INFO, logger="pynetdicom"):
+            responses = assoc.send_c_find(self.ds, RepositoryQuery)
+            status, ds = next(responses)
+            assert status.Status == 0xB001
+            assert ds is None
+            status, ds = next(responses)
+            assert status.Status == 0x0000
+            assert ds is None
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        msg = (
+            f"Find SCP Response: 1 - 0xB001 (Warning - Matching reached "
+            "response limit, subsequent request may return additional matches)"
+        )
+        assert msg in caplog.text
 
 
 class TestAssociationSendCCancel:

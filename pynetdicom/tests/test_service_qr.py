@@ -42,6 +42,7 @@ from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelGet,
     PatientRootQueryRetrieveInformationModelMove,
     CompositeInstanceRetrieveWithoutBulkDataGet,
+    RepositoryQuery,
     _QR_CLASSES,
     _BASIC_WORKLIST_CLASSES,
 )
@@ -1217,6 +1218,43 @@ class TestQRFindServiceClass:
         status, identifier = next(result)
         assert status.Status == 0xFF01
         assert identifier == self.query
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
+
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
+
+    def test_repository_query(self):
+        """Test handler yielding pending then success status"""
+
+        def handle(event):
+            yield 0xFF01, self.query
+            yield 0xB001, None
+            yield 0x0000, None
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(RepositoryQuery)
+        ae.add_requested_context(RepositoryQuery, ExplicitVRLittleEndian)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(self.query, RepositoryQuery)
+
+        status, identifier = next(result)
+        assert status.Status == 0xFF01
+        assert identifier == self.query
+        status, identifier = next(result)
+        assert status.Status == 0xB001
+        assert identifier == None
         status, identifier = next(result)
         assert status.Status == 0x0000
         assert identifier is None
