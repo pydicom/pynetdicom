@@ -90,7 +90,7 @@ QR_FIND_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA900: (STATUS_FAILURE, "Identifier Does Not Match SOP Class"),
     0xB001: (
         STATUS_WARNING,
-        "Matching reached response limit, subsequent request may return additional matches"
+        "Matching reached response limit, subsequent request may return additional matches",
     ),
     0xFF00: (STATUS_PENDING, "Matches are continuing, current match supplied"),
     0xFF01: (STATUS_PENDING, "Matches are continuing, warning"),

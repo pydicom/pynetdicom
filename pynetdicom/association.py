@@ -93,10 +93,7 @@ if TYPE_CHECKING:  # pragma: no cover
 LOGGER = logging.getLogger("pynetdicom.assoc")
 HandlerType = dict[
     evt.EventType,
-    (
-        list[tuple[Callable, None | list[Any]]] |
-        tuple[Callable, None | list[Any]]
-    ),
+    (list[tuple[Callable, None | list[Any]]] | tuple[Callable, None | list[Any]]),
 ]
 
 
@@ -1925,7 +1922,9 @@ class Association(threading.Thread):
         return status
 
     def _wrap_find_responses(
-        self, transfer_syntax: UID, query_model: UID,
+        self,
+        transfer_syntax: UID,
+        query_model: UID,
     ) -> Iterator[tuple[Dataset, None | Dataset]]:
         """Wrapper for the C-FIND response generator.
 
