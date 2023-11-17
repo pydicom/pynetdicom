@@ -10,6 +10,7 @@ import sys
 from typing import Callable, Any, NamedTuple, TYPE_CHECKING, cast, Iterator, Union
 
 from pydicom.dataset import Dataset, FileMetaDataset
+from pynetdicom.dimse_primitives import C_STORE
 from pydicom.filereader import dcmread
 from pydicom.tag import BaseTag
 from pydicom.uid import UID
@@ -25,7 +26,6 @@ if TYPE_CHECKING:  # pragma: no cover
         C_FIND,
         C_GET,
         C_MOVE,
-        C_STORE,
         N_ACTION,
         N_CREATE,
         N_DELETE,
