@@ -397,11 +397,10 @@ complex code:
 
 .. code-block:: python
    :linenos:
-   :emphasize-lines: 1,3,12,14-18,21-28,32
+   :emphasize-lines: 1-2,11,13-17,19-23,27
 
-    import os
-
-    from pydicom.filewriter import write_file_meta_info
+    import uuid
+    from pathlib import Path
 
     from pynetdicom import (
         AE, debug_logger, evt, AllStoragePresentationContexts,
@@ -418,15 +417,11 @@ complex code:
             # Unable to create output dir, return failure status
             return 0xC001
 
-        # We rely on the UID from the C-STORE request instead of decoding
-        fname = os.path.join(storage_dir, event.request.AffectedSOPInstanceUID)
-        with open(fname, 'wb') as f:
-            # Write the preamble, prefix and file meta information elements
-            f.write(b'\x00' * 128)
-            f.write(b'DICM')
-            write_file_meta_info(f, event.file_meta)
-            # Write the raw encoded dataset
-            f.write(event.request.DataSet.getvalue())
+        path = Path(storage_dir) / f"{uuid.uuid4()}"
+        with path.open('wb') as f:
+            # Write the preamble, prefix, file meta information elements
+            #   and the raw encoded dataset to `f`
+            f.write(event.encoded_dataset())
 
         return 0x0000
 
@@ -441,12 +436,11 @@ complex code:
 
     ae.start_server(("127.0.0.1", 11112), block=True, evt_handlers=handlers)
 
-We've modified the handler to write the preamble and prefix to file,
-encode and write the file meta information elements using *pydicom's*
-:func:`~pydicom.filewriter.write_file_meta_info` function, then finally write
-the encoded dataset using the :attr:`raw dataset
-<dimse_primitives.C_STORE.DataSet>` received directly from the C-STORE
-request via the ``event.request`` attribute.
+We've modified the handler to use :meth:`~pynetdicom.events.Event.encoded_dataset`,
+which writes the preamble, prefix, file meta information elements and the
+:attr:`raw dataset<dimse_primitives.C_STORE.DataSet>` received in the C-STORE
+request directly to file. If you need separate access to the raw encoded dataset
+then you can get it via the ``event.request.DataSet`` attribute.
 
 The second change we've made is to demonstrate how extra parameters can be
 passed to the handler by binding using a 3-tuple rather than a 2-tuple. The

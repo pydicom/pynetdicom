@@ -7,26 +7,14 @@ import inspect
 import logging
 from pathlib import Path
 import sys
-from typing import (
-    Union,
-    Callable,
-    Any,
-    Tuple,
-    List,
-    NamedTuple,
-    Optional,
-    TYPE_CHECKING,
-    Dict,
-    cast,
-    Iterator,
-)
+from typing import Callable, Any, NamedTuple, TYPE_CHECKING, cast, Iterator, Union
 
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.filereader import dcmread
 from pydicom.tag import BaseTag
 from pydicom.uid import UID
 
-from pynetdicom.dsutils import decode, create_file_meta
+from pynetdicom.dsutils import decode, encode, create_file_meta
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association
@@ -46,33 +34,31 @@ if TYPE_CHECKING:  # pragma: no cover
     )
     from pynetdicom.pdu import _PDUType
     from pynetdicom.pdu_primitives import SOPClassCommonExtendedNegotiation
-    from pynetdicom.presentation import PresentationContextTuple
+    from pynetdicom.presentation import PresentationContexttuple
 
-    _RequestType = Union[
-        C_ECHO,
-        C_FIND,
-        C_GET,
-        C_MOVE,
-        C_STORE,
-        N_ACTION,
-        N_CREATE,
-        N_DELETE,
-        N_EVENT_REPORT,
-        N_GET,
-        N_SET,
-    ]
+    _RequestType = (
+        C_ECHO
+        | C_FIND
+        | C_GET
+        | C_MOVE
+        | C_STORE
+        | N_ACTION
+        | N_CREATE
+        | N_DELETE
+        | N_EVENT_REPORT
+        | N_GET
+        | N_SET
+    )
 
 
 LOGGER = logging.getLogger("pynetdicom.events")
 
 
 EventType = Union["NotificationEvent", "InterventionEvent"]
-EventHandlerType = Union[
-    Tuple[EventType, Callable], Tuple[EventType, Callable, List[Any]]
-]
-_BasicReturnType = Union[Dataset, int]
-_DatasetReturnType = Tuple[_BasicReturnType, Optional[Dataset]]
-_IteratorType = Iterator[Tuple[_BasicReturnType, Optional[Dataset]]]
+EventHandlerType = tuple[EventType, Callable] | tuple[EventType, Callable, list[Any]]
+_BasicReturnType = Dataset | int
+_DatasetReturnType = tuple[_BasicReturnType, Dataset | None]
+_IteratorType = Iterator[tuple[_BasicReturnType, Dataset | None]]
 
 
 # Notification events
@@ -222,11 +208,11 @@ _NOTIFICATION_EVENTS = [
 ]
 
 
-_HandlerBase = Tuple[Callable, Optional[List[Any]]]
-_NotificationHandlerAttr = List[_HandlerBase]
+_HandlerBase = tuple[Callable, list[Any] | None]
+_NotificationHandlerAttr = list[_HandlerBase]
 _InterventionHandlerAttr = _HandlerBase
-HandlerArgType = Union[_NotificationHandlerAttr, _InterventionHandlerAttr]
-_HandlerAttr = Dict[EventType, HandlerArgType]
+HandlerArgType = _NotificationHandlerAttr | _InterventionHandlerAttr
+_HandlerAttr = dict[EventType, HandlerArgType]
 
 
 def _add_handler(
@@ -239,11 +225,10 @@ def _add_handler(
     event : NotificationEvent or InterventionEvent
         The event the handler should be bound to.
     handlers_attr : dict
-        The object attribute of {event: Union[
-            [(handler, Optional[args])],
-            (handler, Optional[args])
-        ]} used to record bindings.
-    handler_arg : Tuple[Callable, Optional[List[Any]]]
+        The object attribute of
+        {event: [(handler, None | args)] | (handler, None | args)} used to
+        record bindings.
+    handler_arg : tuple[Callable, None | list[Any]]
         The handler and optional arguments to be bound.
     """
     if isinstance(event, NotificationEvent):
@@ -270,12 +255,8 @@ def _remove_handler(
         The event the handler should be unbound from.
     handlers_attr : dict
         The object attribute of
-        {
-            event: Union[
-                List[(handler, Optional[args])],
-                (handler, Optional[args])
-            ]
-        } used to record bindings.
+        {event: list[(handler, None | args)] | (handler, None | args)} used
+        to record bindings.
     handler_arg : Callable
         The handler to be unbound.
     """
@@ -320,8 +301,8 @@ def get_default_handler(event: InterventionEvent) -> Callable[["Event"], Any]:
 
 
 def trigger(
-    assoc: "Association", event: EventType, attrs: Optional[Dict[str, Any]] = None
-) -> Optional[Any]:
+    assoc: "Association", event: EventType, attrs: dict[str, Any] | None = None
+) -> Any | None:
     """Trigger an `event` and call any bound handler(s).
 
     .. versionadded:: 1.3
@@ -342,11 +323,11 @@ def trigger(
     * an N-ACTION `request` key then :attr:`Event.action_information` will
       return the decoded *Action Information* parameter value.
     * an N-CREATE `request` key then :attr:`Event.attribute_list` will return
-      the decoded *Attribute List* parameter value.
+      the decoded *Attribute list* parameter value.
     * an N-EVENT-REPORT `request` key then :attr:`Event.event_information` will
       return the decoded *Event Information* parameter value.
     * an N-SET `request` key then :attr:`Event.modification_list` will return
-      the decoded *Modification List* parameter value.
+      the decoded *Modification list* parameter value.
 
     Parameters
     ----------
@@ -435,7 +416,7 @@ class Event:
         self,
         assoc: "Association",
         event: EventType,
-        attrs: Optional[Dict[str, Any]] = None,
+        attrs: dict[str, Any] | None = None,
     ) -> None:
         """Create a new Event.
 
@@ -454,13 +435,13 @@ class Event:
         self.timestamp = datetime.now()
 
         # Only decode a dataset when necessary
-        self._hash: Optional[int] = None
-        self._decoded: Optional[Dataset] = None
+        self._hash: int | None = None
+        self._decoded: Dataset | None = None
 
         # Define type hints for dynamic attributes
         self.request: "_RequestType"
         self._is_cancelled: Callable[[int], bool]
-        self.context: "PresentationContextTuple"
+        self.context: "PresentationContexttuple"
         self.current_state: str
         self.fsm_event: str
         self.next_state: str
@@ -503,7 +484,7 @@ class Event:
         return self._get_dataset("ActionInformation", msg)
 
     @property
-    def action_type(self) -> Optional[int]:
+    def action_type(self) -> int | None:
         """Return an N-ACTION request's `Action Type ID` as an :class:`int`.
 
         .. versionadded:: 1.4
@@ -528,15 +509,15 @@ class Event:
             )
 
     @property
-    def attribute_identifiers(self) -> List[BaseTag]:
-        """Return an N-GET request's `Attribute Identifier List` as a
+    def attribute_identifiers(self) -> list[BaseTag]:
+        """Return an N-GET request's `Attribute Identifier list` as a
         :class:`list` of *pydicom* :class:`~pydicom.tag.BaseTag`.
 
         Returns
         -------
         list of pydicom.tag.BaseTag
-            The (0000,1005) *Attribute Identifier List* tags, may be an empty
-            list if no *Attribute Identifier List* was included in the C-GET
+            The (0000,1005) *Attribute Identifier list* tags, may be an empty
+            list if no *Attribute Identifier list* was included in the C-GET
             request.
 
         Raises
@@ -545,7 +526,7 @@ class Event:
             If the corresponding event is not an N-GET request.
         """
         try:
-            attr_list = cast("N_GET", self.request).AttributeIdentifierList
+            attr_list = cast("N_GET", self.request).AttributeIdentifierlist
             if attr_list is None:
                 return []
 
@@ -558,12 +539,12 @@ class Event:
 
         raise AttributeError(
             "The corresponding event is not an N-GET request and has no "
-            "'Attribute Identifier List' parameter"
+            "'Attribute Identifier list' parameter"
         )
 
     @property
     def attribute_list(self) -> Dataset:
-        """Return an N-CREATE request's `Attribute List` as a *pydicom*
+        """Return an N-CREATE request's `Attribute list` as a *pydicom*
         :class:`~pydicom.dataset.Dataset`.
 
         Because *pydicom* defers data parsing during decoding until an element
@@ -575,7 +556,7 @@ class Event:
         Returns
         -------
         pydicom.dataset.Dataset
-            The decoded *Attribute List* dataset.
+            The decoded *Attribute list* dataset.
 
         Raises
         ------
@@ -584,9 +565,9 @@ class Event:
         """
         msg = (
             "The corresponding event is not an N-CREATE request and has no "
-            "'Attribute List' parameter"
+            "'Attribute list' parameter"
         )
-        return self._get_dataset("AttributeList", msg)
+        return self._get_dataset("Attributelist", msg)
 
     @property
     def dataset(self) -> Dataset:
@@ -644,6 +625,50 @@ class Event:
 
         return cast(Path, path)
 
+    def encoded_dataset(self, include_meta: bool = True) -> bytes:
+        """Return the encoded dataset sent by the peer without decoding it.
+
+        Examples
+        --------
+        Write the encoded dataset to file in the DICOM File Format without
+        having to first decode it::
+
+          def handle_store(event: pynetdicom.evt.Event, dst: pathlib.Path) -> int:
+              with dst.open("wb") as f:
+                  f.write(event.encoded_dataset())
+
+              return 0x0000
+
+        Parameters
+        ----------
+        include_meta : bool, optional
+            If ``True`` (default) then include the encoded DICOM preamble,
+            prefix and file meta information with the returned bytestream.
+
+        Returns
+        -------
+        bytes
+            The encoded dataset as sent by the peer, with or without the file
+            meta information.
+        """
+        try:
+            dataset = self.request.DataSet.getvalue()
+        except AttributeError:
+            raise AttributeError(
+                "The corresponding event is not a C-STORE request and has no "
+                "'Data Set' parameter"
+            )
+
+        if not include_meta:
+            return dataset
+
+        return b"".join([
+            b"\x00" * 128,
+            b"DICM",
+            encode(self.file_meta, is_implicit_VR=False, is_little_endian=True),
+            dataset,
+        ])
+
     @property
     def event(self) -> EventType:
         """Return the corresponding event.
@@ -686,7 +711,7 @@ class Event:
         return self._get_dataset("EventInformation", msg)
 
     @property
-    def event_type(self) -> Optional[int]:
+    def event_type(self) -> int | None:
         """Return an N-EVENT-REPORT request's `Event Type ID` as an
         :class:`int`.
 
@@ -747,7 +772,8 @@ class Event:
 
         Encode the File Meta Information in a new file and append the encoded
         *Data Set* to it. This skips having to decode/re-encode the *Data Set*
-        as in the previous example.
+        as in the previous example (or alternatively, just use the
+        :meth:`~pynetdicom.events.Event.encoded_dataset` method).
 
         .. code-block:: python
 
@@ -790,7 +816,7 @@ class Event:
         ----------
         attr : str
             The name of the DIMSE primitive's dataset-like parameter, one of
-            'DataSet', 'Identifier', 'AttributeList', 'ModificationList',
+            'DataSet', 'Identifier', 'Attributelist', 'Modificationlist',
             'EventInformation', 'ActionInformation'.
         exc_msg : str
             The exception message to use if the request primitive has no
@@ -919,7 +945,7 @@ class Event:
 
     @property
     def modification_list(self) -> Dataset:
-        """Return an N-SET request's `Modification List` as a *pydicom*
+        """Return an N-SET request's `Modification list` as a *pydicom*
         :class:`~pydicom.dataset.Dataset`.
 
         Because *pydicom* defers data parsing during decoding until an element
@@ -931,7 +957,7 @@ class Event:
         Returns
         -------
         pydicom.dataset.Dataset
-            The decoded *Modification List* dataset.
+            The decoded *Modification list* dataset.
 
         Raises
         ------
@@ -940,12 +966,12 @@ class Event:
         """
         msg = (
             "The corresponding event is not an N-SET request and has no "
-            "'Modification List' parameter"
+            "'Modification list' parameter"
         )
-        return self._get_dataset("ModificationList", msg)
+        return self._get_dataset("Modificationlist", msg)
 
     @property
-    def move_destination(self) -> Optional[str]:
+    def move_destination(self) -> str | None:
         """Return a C-MOVE request's `Move Destination` as :class:`str`.
 
         .. versionadded:: 1.4
@@ -976,7 +1002,7 @@ class Event:
 
 
 # Default extended negotiation event handlers
-def _async_ops_handler(event: Event) -> Tuple[int, int]:
+def _async_ops_handler(event: Event) -> tuple[int, int]:
     """Default handler for when an Asynchronous Operations Window Negotiation
     item is include in the association request.
 
@@ -989,7 +1015,7 @@ def _async_ops_handler(event: Event) -> Tuple[int, int]:
     )
 
 
-def _sop_common_handler(event: Event) -> Dict[UID, "SOPClassCommonExtendedNegotiation"]:
+def _sop_common_handler(event: Event) -> dict[UID, "SOPClassCommonExtendedNegotiation"]:
     """Default handler for when one or more SOP Class Common Extended
     Negotiation items are included in the association request.
 
@@ -998,7 +1024,7 @@ def _sop_common_handler(event: Event) -> Dict[UID, "SOPClassCommonExtendedNegoti
     return {}
 
 
-def _sop_extended_handler(event: Event) -> Dict[UID, bytes]:
+def _sop_extended_handler(event: Event) -> dict[UID, bytes]:
     """Default handler for when one or more SOP Class Extended Negotiation
     items are included in the association request.
 
@@ -1007,7 +1033,7 @@ def _sop_extended_handler(event: Event) -> Dict[UID, bytes]:
     return {}
 
 
-def _user_identity_handler(event: Event) -> Tuple[bool, Optional[bytes]]:
+def _user_identity_handler(event: Event) -> tuple[bool, bytes | None]:
     """Default handler for when a user identity negotiation item is included
     with the association request.
 
