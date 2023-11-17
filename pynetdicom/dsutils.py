@@ -182,7 +182,11 @@ def encode(
 
 
 def encode_file_meta(file_meta: FileMetaDataset) -> bytes:
-    """Return the encoded File Meta Information elements in `file_meta`."""
+    """Return the encoded File Meta Information elements in `file_meta`.
+
+    .. versionadded:: 2.1
+
+    """
 
     buffer = DicomBytesIO()
     buffer.is_little_endian = True

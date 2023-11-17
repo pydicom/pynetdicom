@@ -630,6 +630,8 @@ class Event:
         """Return the encoded C-STORE dataset sent by the peer without first
         decoding it.
 
+        .. versionadded:: 2.1
+
         Examples
         --------
         Retrieve the encoded dataset as sent by the peer::
@@ -677,12 +679,12 @@ class Event:
         if not include_meta:
             return stream
 
-        return b"".join([
+        return b"".join((
             b"\x00" * 128,
             b"DICM",
             encode_file_meta(self.file_meta),
             stream,
-        ])
+        ))
 
     @property
     def event(self) -> EventType:
