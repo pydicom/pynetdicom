@@ -628,7 +628,7 @@ def handle_store(event, args, app_logger):
         if event.context.transfer_syntax == DeflatedExplicitVRLittleEndian:
             # Workaround for pydicom issue #1086
             with open(filename, "wb") as f:
-                f.write(event.encoded_dataset()
+                f.write(event.encoded_dataset())
         else:
             # We use `write_like_original=False` to ensure that a compliant
             #   File Meta Information Header is written
