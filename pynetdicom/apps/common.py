@@ -8,7 +8,6 @@ from struct import pack
 from pydicom import dcmread
 from pydicom.datadict import tag_for_keyword, repeater_has_keyword, get_entry
 from pydicom.dataset import Dataset
-from pydicom.filewriter import write_file_meta_info
 from pydicom.tag import Tag
 from pydicom.uid import DeflatedExplicitVRLittleEndian
 
@@ -629,10 +628,7 @@ def handle_store(event, args, app_logger):
         if event.context.transfer_syntax == DeflatedExplicitVRLittleEndian:
             # Workaround for pydicom issue #1086
             with open(filename, "wb") as f:
-                f.write(b"\x00" * 128)
-                f.write(b"DICM")
-                write_file_meta_info(f, event.file_meta)
-                f.write(encode(ds, False, True, True))
+                f.write(event.encoded_dataset()
         else:
             # We use `write_like_original=False` to ensure that a compliant
             #   File Meta Information Header is written
