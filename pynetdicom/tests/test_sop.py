@@ -254,9 +254,7 @@ class TestUIDToServiceClass:
     def test_inventory_uids(self):
         """Test that the Inventory QR SOP Class UIDs work correctly."""
         for uid in _INVENTORY_CLASSES.values():
-            assert (
-                uid_to_service_class(uid)== InventoryQueryRetrieveServiceClass
-            )
+            assert uid_to_service_class(uid) == InventoryQueryRetrieveServiceClass
 
     def test_media_creation_uids(self):
         """Test that the Media Creation SOP Class UIDs work correctly."""
@@ -407,9 +405,7 @@ class TestSOPClass:
 
     def test_instance_sop(self):
         assert InventoryFind == "1.2.840.10008.5.1.4.1.1.201.2"
-        assert (
-            InventoryFind.service_class == InventoryQueryRetrieveServiceClass
-        )
+        assert InventoryFind.service_class == InventoryQueryRetrieveServiceClass
 
     def test_media_creation_sop(self):
         assert MediaCreationManagement == "1.2.840.10008.5.1.1.33"
