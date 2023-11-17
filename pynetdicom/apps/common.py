@@ -11,8 +11,6 @@ from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 from pydicom.uid import DeflatedExplicitVRLittleEndian
 
-from pynetdicom.dsutils import encode
-
 
 def create_dataset(args, logger=None):
     """Return a new or updated dataset.

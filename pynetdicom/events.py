@@ -14,7 +14,7 @@ from pydicom.filereader import dcmread
 from pydicom.tag import BaseTag
 from pydicom.uid import UID
 
-from pynetdicom.dsutils import decode, encode, create_file_meta, encode_file_meta
+from pynetdicom.dsutils import decode, create_file_meta, encode_file_meta
 
 if TYPE_CHECKING:  # pragma: no cover
     from io import BytesIO

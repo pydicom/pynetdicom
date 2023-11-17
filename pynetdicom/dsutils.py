@@ -3,7 +3,6 @@
 from io import BytesIO
 import logging
 from pathlib import Path
-from struct import pack
 import zlib
 
 from pydicom import Dataset
