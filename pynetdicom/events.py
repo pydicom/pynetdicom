@@ -17,6 +17,7 @@ from pydicom.uid import UID
 from pynetdicom.dsutils import decode, encode, create_file_meta, encode_file_meta
 
 if TYPE_CHECKING:  # pragma: no cover
+    from io import BytesIO
     from pynetdicom.association import Association
     from pynetdicom.dimse_messages import DIMSEMessage
     from pynetdicom.dimse_primitives import (
@@ -665,7 +666,8 @@ class Event:
             If the corresponding event is not a C-STORE request.
         """
         try:
-            stream = self.request.DataSet.getvalue()
+            request = cast(C_STORE, self.request)
+            stream = cast(BytesIO, request.DataSet).getvalue()
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not a C-STORE request and has no "
