@@ -157,21 +157,16 @@ multiple C-STORE requests, depending on the size of the datasets:
 
 .. code-block:: python
 
-    from pydicom.filewriter import write_file_meta_info
-
+    import uuid
     from pynetdicom import AE, evt, AllStoragePresentationContexts
 
     # Implement a handler for evt.EVT_C_STORE
     def handle_store(event):
         """Handle a C-STORE request event."""
-        with open(event.request.AffectedSOPInstanceUID, 'wb') as f:
-            # Write the preamble and prefix
-            f.write(b'\x00' * 128)
-            f.write(b'DICM')
-            # Encode and write the File Meta Information
-            write_file_meta_info(f, event.file_meta)
-            # Write the encoded dataset
-            f.write(event.request.DataSet.getvalue())
+        with open(f"{uuid.uuid4()}", 'wb') as f:
+            # Write the preamble, prefix, file meta information
+            #   and encoded dataset to `f`
+            f.write(event.encoded_dataset())
 
         # Return a 'Success' status
         return 0x0000

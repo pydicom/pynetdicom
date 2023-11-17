@@ -3,7 +3,6 @@
 from io import BytesIO
 import logging
 from pathlib import Path
-from typing import Optional, List, Tuple
 import zlib
 
 from pydicom import Dataset
@@ -11,7 +10,7 @@ from pydicom.dataset import FileMetaDataset
 from pydicom.dataelem import DataElement
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset, read_preamble
-from pydicom.filewriter import write_dataset
+from pydicom.filewriter import write_dataset, write_file_meta_info
 from pydicom.tag import BaseTag
 from pydicom.uid import UID
 
@@ -128,7 +127,7 @@ def decode(
 
 def encode(
     ds: Dataset, is_implicit_vr: bool, is_little_endian: bool, deflated: bool = False
-) -> Optional[bytes]:
+) -> bytes | None:
     """Encode a *pydicom* :class:`~pydicom.dataset.Dataset` `ds`.
 
     .. versionchanged:: 1.5
@@ -182,7 +181,21 @@ def encode(
     return bytestring
 
 
-def pretty_dataset(ds: Dataset, indent: int = 0, indent_char: str = "  ") -> List[str]:
+def encode_file_meta(file_meta: FileMetaDataset) -> bytes:
+    """Return the encoded File Meta Information elements in `file_meta`.
+
+    .. versionadded:: 2.1
+
+    """
+
+    buffer = DicomBytesIO()
+    buffer.is_little_endian = True
+    buffer.is_implicit_VR = False
+    write_file_meta_info(buffer, file_meta)
+    return buffer.getvalue()
+
+
+def pretty_dataset(ds: Dataset, indent: int = 0, indent_char: str = "  ") -> list[str]:
     """Return a list of pretty dataset strings.
 
     .. versionadded:: 1.5
@@ -270,7 +283,7 @@ def pretty_element(elem: DataElement) -> str:
     )
 
 
-def split_dataset(path: Path) -> Tuple[Dataset, int]:
+def split_dataset(path: Path) -> tuple[Dataset, int]:
     """Return the file meta elements and the offset to the start of the dataset
 
     .. versionadded:: 2.0
@@ -288,7 +301,7 @@ def split_dataset(path: Path) -> Tuple[Dataset, int]:
         no File Meta is present.
     """
 
-    def _not_group_0002(tag: BaseTag, VR: Optional[str], length: int) -> bool:
+    def _not_group_0002(tag: BaseTag, VR: str | None, length: int) -> bool:
         """Return True if the tag is not in group 0x0002, False otherwise."""
         return tag.group != 2
 

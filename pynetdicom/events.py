@@ -3,30 +3,20 @@ the state machine events.
 """
 
 from datetime import datetime
+from io import BytesIO
 import inspect
 import logging
 from pathlib import Path
 import sys
-from typing import (
-    Union,
-    Callable,
-    Any,
-    Tuple,
-    List,
-    NamedTuple,
-    Optional,
-    TYPE_CHECKING,
-    Dict,
-    cast,
-    Iterator,
-)
+from typing import Callable, Any, NamedTuple, TYPE_CHECKING, cast, Iterator, Union
 
 from pydicom.dataset import Dataset, FileMetaDataset
+from pynetdicom.dimse_primitives import C_STORE
 from pydicom.filereader import dcmread
 from pydicom.tag import BaseTag
 from pydicom.uid import UID
 
-from pynetdicom.dsutils import decode, create_file_meta
+from pynetdicom.dsutils import decode, create_file_meta, encode_file_meta
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association
@@ -36,7 +26,6 @@ if TYPE_CHECKING:  # pragma: no cover
         C_FIND,
         C_GET,
         C_MOVE,
-        C_STORE,
         N_ACTION,
         N_CREATE,
         N_DELETE,
@@ -48,31 +37,29 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import SOPClassCommonExtendedNegotiation
     from pynetdicom.presentation import PresentationContextTuple
 
-    _RequestType = Union[
-        C_ECHO,
-        C_FIND,
-        C_GET,
-        C_MOVE,
-        C_STORE,
-        N_ACTION,
-        N_CREATE,
-        N_DELETE,
-        N_EVENT_REPORT,
-        N_GET,
-        N_SET,
-    ]
+    _RequestType = (
+        C_ECHO
+        | C_FIND
+        | C_GET
+        | C_MOVE
+        | C_STORE
+        | N_ACTION
+        | N_CREATE
+        | N_DELETE
+        | N_EVENT_REPORT
+        | N_GET
+        | N_SET
+    )
 
 
 LOGGER = logging.getLogger("pynetdicom.events")
 
 
 EventType = Union["NotificationEvent", "InterventionEvent"]
-EventHandlerType = Union[
-    Tuple[EventType, Callable], Tuple[EventType, Callable, List[Any]]
-]
-_BasicReturnType = Union[Dataset, int]
-_DatasetReturnType = Tuple[_BasicReturnType, Optional[Dataset]]
-_IteratorType = Iterator[Tuple[_BasicReturnType, Optional[Dataset]]]
+EventHandlerType = tuple[EventType, Callable] | tuple[EventType, Callable, list[Any]]
+_BasicReturnType = Dataset | int
+_DatasetReturnType = tuple[_BasicReturnType, Dataset | None]
+_IteratorType = Iterator[tuple[_BasicReturnType, Dataset | None]]
 
 
 # Notification events
@@ -222,11 +209,11 @@ _NOTIFICATION_EVENTS = [
 ]
 
 
-_HandlerBase = Tuple[Callable, Optional[List[Any]]]
-_NotificationHandlerAttr = List[_HandlerBase]
+_HandlerBase = tuple[Callable, list[Any] | None]
+_NotificationHandlerAttr = list[_HandlerBase]
 _InterventionHandlerAttr = _HandlerBase
-HandlerArgType = Union[_NotificationHandlerAttr, _InterventionHandlerAttr]
-_HandlerAttr = Dict[EventType, HandlerArgType]
+HandlerArgType = _NotificationHandlerAttr | _InterventionHandlerAttr
+_HandlerAttr = dict[EventType, HandlerArgType]
 
 
 def _add_handler(
@@ -239,11 +226,10 @@ def _add_handler(
     event : NotificationEvent or InterventionEvent
         The event the handler should be bound to.
     handlers_attr : dict
-        The object attribute of {event: Union[
-            [(handler, Optional[args])],
-            (handler, Optional[args])
-        ]} used to record bindings.
-    handler_arg : Tuple[Callable, Optional[List[Any]]]
+        The object attribute of
+        {event: [(handler, None | args)] | (handler, None | args)} used to
+        record bindings.
+    handler_arg : tuple[Callable, None | list[Any]]
         The handler and optional arguments to be bound.
     """
     if isinstance(event, NotificationEvent):
@@ -270,12 +256,8 @@ def _remove_handler(
         The event the handler should be unbound from.
     handlers_attr : dict
         The object attribute of
-        {
-            event: Union[
-                List[(handler, Optional[args])],
-                (handler, Optional[args])
-            ]
-        } used to record bindings.
+        {event: list[(handler, None | args)] | (handler, None | args)} used
+        to record bindings.
     handler_arg : Callable
         The handler to be unbound.
     """
@@ -320,8 +302,8 @@ def get_default_handler(event: InterventionEvent) -> Callable[["Event"], Any]:
 
 
 def trigger(
-    assoc: "Association", event: EventType, attrs: Optional[Dict[str, Any]] = None
-) -> Optional[Any]:
+    assoc: "Association", event: EventType, attrs: dict[str, Any] | None = None
+) -> Any | None:
     """Trigger an `event` and call any bound handler(s).
 
     .. versionadded:: 1.3
@@ -435,7 +417,7 @@ class Event:
         self,
         assoc: "Association",
         event: EventType,
-        attrs: Optional[Dict[str, Any]] = None,
+        attrs: dict[str, Any] | None = None,
     ) -> None:
         """Create a new Event.
 
@@ -454,8 +436,8 @@ class Event:
         self.timestamp = datetime.now()
 
         # Only decode a dataset when necessary
-        self._hash: Optional[int] = None
-        self._decoded: Optional[Dataset] = None
+        self._hash: int | None = None
+        self._decoded: Dataset | None = None
 
         # Define type hints for dynamic attributes
         self.request: "_RequestType"
@@ -503,7 +485,7 @@ class Event:
         return self._get_dataset("ActionInformation", msg)
 
     @property
-    def action_type(self) -> Optional[int]:
+    def action_type(self) -> int | None:
         """Return an N-ACTION request's `Action Type ID` as an :class:`int`.
 
         .. versionadded:: 1.4
@@ -528,7 +510,7 @@ class Event:
             )
 
     @property
-    def attribute_identifiers(self) -> List[BaseTag]:
+    def attribute_identifiers(self) -> list[BaseTag]:
         """Return an N-GET request's `Attribute Identifier List` as a
         :class:`list` of *pydicom* :class:`~pydicom.tag.BaseTag`.
 
@@ -644,6 +626,66 @@ class Event:
 
         return cast(Path, path)
 
+    def encoded_dataset(self, include_meta: bool = True) -> bytes:
+        """Return the encoded C-STORE dataset sent by the peer without first
+        decoding it.
+
+        .. versionadded:: 2.1
+
+        Examples
+        --------
+        Retrieve the encoded dataset as sent by the peer::
+
+          def handle_store(event: pynetdicom.events.Event) -> int:
+              stream: bytes = event.encoded_dataset(inclue_meta=False)
+
+              return 0x0000
+
+        Write the encoded dataset to file in the DICOM File Format without
+        having to first decode it::
+
+          def handle_store(event: pynetdicom.events.Event, dst: pathlib.Path) -> int:
+              with dst.open("wb") as f:
+                  f.write(event.encoded_dataset())
+
+              return 0x0000
+
+        Parameters
+        ----------
+        include_meta : bool, optional
+            If ``True`` (default) then include the encoded DICOM preamble,
+            prefix and file meta information with the returned bytestream.
+
+        Returns
+        -------
+        bytes
+            The encoded dataset as sent by the peer, with or without the file
+            meta information.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not a C-STORE request.
+        """
+        try:
+            request = cast(C_STORE, self.request)
+            stream = cast(BytesIO, request.DataSet).getvalue()
+        except AttributeError:
+            raise AttributeError(
+                "The corresponding event is not a C-STORE request and has no "
+                "'Data Set' parameter"
+            )
+
+        if not include_meta:
+            return stream
+
+        return b"".join((
+            b"\x00" * 128,
+            b"DICM",
+            encode_file_meta(self.file_meta),
+            stream,
+        ))
+
     @property
     def event(self) -> EventType:
         """Return the corresponding event.
@@ -686,7 +728,7 @@ class Event:
         return self._get_dataset("EventInformation", msg)
 
     @property
-    def event_type(self) -> Optional[int]:
+    def event_type(self) -> int | None:
         """Return an N-EVENT-REPORT request's `Event Type ID` as an
         :class:`int`.
 
@@ -747,7 +789,8 @@ class Event:
 
         Encode the File Meta Information in a new file and append the encoded
         *Data Set* to it. This skips having to decode/re-encode the *Data Set*
-        as in the previous example.
+        as in the previous example (or alternatively, just use the
+        :meth:`~pynetdicom.events.Event.encoded_dataset` method).
 
         .. code-block:: python
 
@@ -945,7 +988,7 @@ class Event:
         return self._get_dataset("ModificationList", msg)
 
     @property
-    def move_destination(self) -> Optional[str]:
+    def move_destination(self) -> str | None:
         """Return a C-MOVE request's `Move Destination` as :class:`str`.
 
         .. versionadded:: 1.4
@@ -976,7 +1019,7 @@ class Event:
 
 
 # Default extended negotiation event handlers
-def _async_ops_handler(event: Event) -> Tuple[int, int]:
+def _async_ops_handler(event: Event) -> tuple[int, int]:
     """Default handler for when an Asynchronous Operations Window Negotiation
     item is include in the association request.
 
@@ -989,7 +1032,7 @@ def _async_ops_handler(event: Event) -> Tuple[int, int]:
     )
 
 
-def _sop_common_handler(event: Event) -> Dict[UID, "SOPClassCommonExtendedNegotiation"]:
+def _sop_common_handler(event: Event) -> dict[UID, "SOPClassCommonExtendedNegotiation"]:
     """Default handler for when one or more SOP Class Common Extended
     Negotiation items are included in the association request.
 
@@ -998,7 +1041,7 @@ def _sop_common_handler(event: Event) -> Dict[UID, "SOPClassCommonExtendedNegoti
     return {}
 
 
-def _sop_extended_handler(event: Event) -> Dict[UID, bytes]:
+def _sop_extended_handler(event: Event) -> dict[UID, bytes]:
     """Default handler for when one or more SOP Class Extended Negotiation
     items are included in the association request.
 
@@ -1007,7 +1050,7 @@ def _sop_extended_handler(event: Event) -> Dict[UID, bytes]:
     return {}
 
 
-def _user_identity_handler(event: Event) -> Tuple[bool, Optional[bytes]]:
+def _user_identity_handler(event: Event) -> tuple[bool, bytes | None]:
     """Default handler for when a user identity negotiation item is included
     with the association request.
 
