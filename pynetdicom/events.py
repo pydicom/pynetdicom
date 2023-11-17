@@ -14,7 +14,7 @@ from pydicom.filereader import dcmread
 from pydicom.tag import BaseTag
 from pydicom.uid import UID
 
-from pynetdicom.dsutils import decode, encode, create_file_meta
+from pynetdicom.dsutils import decode, encode, create_file_meta, encode_file_meta
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association
@@ -323,11 +323,11 @@ def trigger(
     * an N-ACTION `request` key then :attr:`Event.action_information` will
       return the decoded *Action Information* parameter value.
     * an N-CREATE `request` key then :attr:`Event.attribute_list` will return
-      the decoded *Attribute list* parameter value.
+      the decoded *Attribute List* parameter value.
     * an N-EVENT-REPORT `request` key then :attr:`Event.event_information` will
       return the decoded *Event Information* parameter value.
     * an N-SET `request` key then :attr:`Event.modification_list` will return
-      the decoded *Modification list* parameter value.
+      the decoded *Modification List* parameter value.
 
     Parameters
     ----------
@@ -510,14 +510,14 @@ class Event:
 
     @property
     def attribute_identifiers(self) -> list[BaseTag]:
-        """Return an N-GET request's `Attribute Identifier list` as a
+        """Return an N-GET request's `Attribute Identifier List` as a
         :class:`list` of *pydicom* :class:`~pydicom.tag.BaseTag`.
 
         Returns
         -------
         list of pydicom.tag.BaseTag
-            The (0000,1005) *Attribute Identifier list* tags, may be an empty
-            list if no *Attribute Identifier list* was included in the C-GET
+            The (0000,1005) *Attribute Identifier List* tags, may be an empty
+            list if no *Attribute Identifier List* was included in the C-GET
             request.
 
         Raises
@@ -526,7 +526,7 @@ class Event:
             If the corresponding event is not an N-GET request.
         """
         try:
-            attr_list = cast("N_GET", self.request).AttributeIdentifierlist
+            attr_list = cast("N_GET", self.request).AttributeIdentifierList
             if attr_list is None:
                 return []
 
@@ -539,12 +539,12 @@ class Event:
 
         raise AttributeError(
             "The corresponding event is not an N-GET request and has no "
-            "'Attribute Identifier list' parameter"
+            "'Attribute Identifier List' parameter"
         )
 
     @property
     def attribute_list(self) -> Dataset:
-        """Return an N-CREATE request's `Attribute list` as a *pydicom*
+        """Return an N-CREATE request's `Attribute List` as a *pydicom*
         :class:`~pydicom.dataset.Dataset`.
 
         Because *pydicom* defers data parsing during decoding until an element
@@ -556,7 +556,7 @@ class Event:
         Returns
         -------
         pydicom.dataset.Dataset
-            The decoded *Attribute list* dataset.
+            The decoded *Attribute List* dataset.
 
         Raises
         ------
@@ -565,9 +565,9 @@ class Event:
         """
         msg = (
             "The corresponding event is not an N-CREATE request and has no "
-            "'Attribute list' parameter"
+            "'Attribute List' parameter"
         )
-        return self._get_dataset("Attributelist", msg)
+        return self._get_dataset("AttributeList", msg)
 
     @property
     def dataset(self) -> Dataset:
@@ -652,7 +652,7 @@ class Event:
             meta information.
         """
         try:
-            dataset = self.request.DataSet.getvalue()
+            stream = self.request.DataSet.getvalue()
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not a C-STORE request and has no "
@@ -660,13 +660,13 @@ class Event:
             )
 
         if not include_meta:
-            return dataset
+            return stream
 
         return b"".join([
             b"\x00" * 128,
             b"DICM",
-            encode(self.file_meta, is_implicit_VR=False, is_little_endian=True),
-            dataset,
+            encode_file_meta(self.file_meta),
+            stream,
         ])
 
     @property
@@ -816,7 +816,7 @@ class Event:
         ----------
         attr : str
             The name of the DIMSE primitive's dataset-like parameter, one of
-            'DataSet', 'Identifier', 'Attributelist', 'Modificationlist',
+            'DataSet', 'Identifier', 'AttributeList', 'ModificationList',
             'EventInformation', 'ActionInformation'.
         exc_msg : str
             The exception message to use if the request primitive has no
@@ -945,7 +945,7 @@ class Event:
 
     @property
     def modification_list(self) -> Dataset:
-        """Return an N-SET request's `Modification list` as a *pydicom*
+        """Return an N-SET request's `Modification List` as a *pydicom*
         :class:`~pydicom.dataset.Dataset`.
 
         Because *pydicom* defers data parsing during decoding until an element
@@ -957,7 +957,7 @@ class Event:
         Returns
         -------
         pydicom.dataset.Dataset
-            The decoded *Modification list* dataset.
+            The decoded *Modification List* dataset.
 
         Raises
         ------
@@ -966,9 +966,9 @@ class Event:
         """
         msg = (
             "The corresponding event is not an N-SET request and has no "
-            "'Modification list' parameter"
+            "'Modification List' parameter"
         )
-        return self._get_dataset("Modificationlist", msg)
+        return self._get_dataset("ModificationList", msg)
 
     @property
     def move_destination(self) -> str | None:

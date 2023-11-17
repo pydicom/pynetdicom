@@ -511,6 +511,40 @@ class TestEvent:
 
         assert event.event_type == 2
 
+    def test_encode_dataset(self):
+        """Test Event.encode_dataset()"""
+        request = C_STORE()
+        request.AffectedSOPClassUID = "1.2"
+        request.AffectedSOPInstanceUID = "1.3"
+        request.DataSet = BytesIO(b"\x00\x01")
+
+        event = Event(
+            None,
+            evt.EVT_C_STORE,
+            {"request": request, "context": self.context.as_tuple},
+        )
+        bs = event.encoded_dataset()
+
+        from pynetdicom.utils import pretty_bytes
+
+        assert bs[:128] == b"\x00" * 128
+        assert bs[128:132] == b"DICM"
+        assert bs[132:144] == b"\x02\x00\x00\x00\x55\x4c\x04\x00\x7e\x00\x00\x00"
+        assert bs[144:144 + 64] == (
+            b"\x02\x00\x01\x00\x4f\x42\x00\x00\x02\x00\x00\x00\x00\x01"
+            b"\x02\x00\x02\x00\x55\x49\x04\x00\x31\x2e\x32\x00"
+            b"\x02\x00\x03\x00\x55\x49\x04\x00\x31\x2e\x33\x00"
+            b"\x02\x00\x10\x00\x55\x49\x12\x00\x31\x2e\x32\x2e\x38\x34"
+            b"\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x00"
+        )
+
+        # Note: may not be 126 if Implementation Class and Version change
+        assert 128 + 4 + 12 + 126 + 2== len(bs)
+
+        # Test without file_meta
+        bs = event.encoded_dataset(include_meta=False)
+        assert bs == b"\x00\x01"
+
 
 # TODO: Should be able to remove in v1.4
 INTERVENTION_HANDLERS = [

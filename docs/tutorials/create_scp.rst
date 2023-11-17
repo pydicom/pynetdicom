@@ -439,8 +439,8 @@ complex code:
 We've modified the handler to use :meth:`~pynetdicom.events.Event.encoded_dataset`,
 which writes the preamble, prefix, file meta information elements and the
 :attr:`raw dataset<dimse_primitives.C_STORE.DataSet>` received in the C-STORE
-request directly to file. If you need separate access to the raw encoded dataset
-then you can get it via the ``event.request.DataSet`` attribute.
+request directly to file. If you need separate access to just encoded dataset
+then you can call ``encoded_dataset(include_meta=False)`` instead.
 
 The second change we've made is to demonstrate how extra parameters can be
 passed to the handler by binding using a 3-tuple rather than a 2-tuple. The

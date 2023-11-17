@@ -3,6 +3,7 @@
 from io import BytesIO
 import logging
 from pathlib import Path
+from struct import pack
 import zlib
 
 from pydicom import Dataset
@@ -10,7 +11,7 @@ from pydicom.dataset import FileMetaDataset
 from pydicom.dataelem import DataElement
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset, read_preamble
-from pydicom.filewriter import write_dataset
+from pydicom.filewriter import write_dataset, write_file_meta_info
 from pydicom.tag import BaseTag
 from pydicom.uid import UID
 
@@ -179,6 +180,16 @@ def encode(
         bytestring += b"\x00" if len(bytestring) % 2 else b""
 
     return bytestring
+
+
+def encode_file_meta(file_meta: FileMetaDataset) -> bytes:
+    """Return the encoded File Meta Information elements in `file_meta`."""
+
+    buffer = DicomBytesIO()
+    buffer.is_little_endian = True
+    buffer.is_implicit_VR = False
+    write_file_meta_info(buffer, file_meta)
+    return buffer.getvalue()
 
 
 def pretty_dataset(ds: Dataset, indent: int = 0, indent_char: str = "  ") -> list[str]:
