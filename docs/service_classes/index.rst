@@ -13,6 +13,7 @@ Supported Service Classes
    display_system_service_class
    hanging_protocol_service_class
    implant_template_service_class
+   inventory_service_class
    instance_availability
    media_creation
    modality_performed_procedure_step

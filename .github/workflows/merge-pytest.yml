@@ -69,7 +69,8 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps
+          poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
+          poetry run coverage xml
       - name: Send coverage results
         if: ${{ success() }}
         uses: codecov/codecov-action@v3
@@ -113,7 +114,8 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps
+        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
+        poetry run coverage xml
     - name: Send coverage results
       if: ${{ success() }}
       uses: codecov/codecov-action@v3
@@ -156,7 +158,8 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps
+        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
+        poetry run coverage xml
     - name: Send coverage results
       if: ${{ success() }}
       uses: codecov/codecov-action@v3

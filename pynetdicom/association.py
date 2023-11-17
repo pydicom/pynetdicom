@@ -1112,10 +1112,10 @@ class Association(threading.Thread):
             Hanging Protocol Query/Retrieve Service, Defined Procedure Protocol
             Query/Retrieve Service, Substance Administration Query Service,
             Color Palette Query/Retrieve Service*, *Implant Template
-            Query/Retrieve Service*, *Protocol Approval Query/Retrieve
-            Service* and *Unified Protocol Step Service* specific
-            (DICOM Standard, Part 4, Annexes C.4.1, K.4.1.1.4, U.4.1, HH,
-            V.4.1.1.4, X, BB, II and CC):
+            Query/Retrieve Service*, *Inventory Query/Retrieve Service*,
+            *Protocol Approval Query/Retrieve Service* and *Unified Protocol
+            Step Service* specific (DICOM Standard, Part 4, Annexes C.4.1,
+            K.4.1.1.4, U.4.1, HH, V.4.1.1.4, X, BB, II, JJ and CC):
 
             Failure
               | ``0xA700`` - Out of resources
@@ -1179,6 +1179,7 @@ class Association(threading.Thread):
         :class:`~pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass`
         :class:`~pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass`
         :class:`~pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.InventoryQueryRetrieveServiceClass`
         :class:`~pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass`
         :class:`~pynetdicom.service_class.QueryRetrieveServiceClass`
         :class:`~pynetdicom.service_class.RelevantPatientInformationQueryServiceClass`
@@ -1198,6 +1199,7 @@ class Association(threading.Thread):
         * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
         * DICOM Standard, Part 4, :dcm:`Annex HH<part04/chapter_HH.html>`
         * DICOM Standard, Part 4, :dcm:`Annex II<part04/chapter_II.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex JJ<part04/chapter_JJ.html>`
         * DICOM Standard, Part 7, Sections
           :dcm:`9.1.2<part07/chapter_9.html#sect_9.1.2>`,
           :dcm:`9.3.2<part07/sect_9.3.2.html>` and
@@ -1344,9 +1346,9 @@ class Association(threading.Thread):
             *Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
             Query/Retrieve Service*, *Implant Template Query/Retrieve
-            Service* and *Protocol Approval Query/Retrieve Service* specific
-            (DICOM Standard, Part 4, Annexes C.4.3,
-            Y.C.4.2.1.4, Z.4.2.1.4, U.4.3, X, BB, HH and II):
+            Service*, *Inventory Query/Retrieve Service* and *Protocol Approval
+            Query/Retrieve Service* specific (DICOM Standard, Part 4, Annexes
+            C.4.3, Y.C.4.2.1.4, Z.4.2.1.4, U.4.3, X, BB, HH, II and JJ):
 
             Pending
               | ``0xFF00`` - Sub-operations are continuing
@@ -1397,6 +1399,7 @@ class Association(threading.Thread):
         :class:`~pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass`
         :class:`~pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass`
         :class:`~pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.InventoryQueryRetrieveServiceClass`
         :class:`~pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass`
 
         References
@@ -1410,6 +1413,7 @@ class Association(threading.Thread):
         * DICOM Standard, Part 4, :dcm:`Annex BB<part04/chapter_BB.html>`
         * DICOM Standard, Part 4, :dcm:`Annex HH<part04/chapter_HH.html>`
         * DICOM Standard, Part 4, :dcm:`Annex II<part04/chapter_II.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex JJ<part04/chapter_JJ.html>`
         * DICOM Standard, Part 7, Sections
           :dcm:`9.1.3<part07/chapter_9.html#sect_9.1.3>`,
           :dcm:`9.3.3<part07/sect_9.3.3.html>` and
@@ -1555,8 +1559,9 @@ class Association(threading.Thread):
             *Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
             Query/Retrieve Service* , *Implant Template Query/Retrieve
-            Service* and *Protocol Approval Query/Retrieve Service*
-            specific (DICOM Standard, Part 4, Annexes C, U, Y, X, BB and HH):
+            Service*, *Inventory Query/Retrieve Service* and *Protocol Approval
+            Query/Retrieve Service* specific (DICOM Standard, Part 4, Annexes
+            C, U, Y, X, BB, HH and JJ):
 
             Failure
               | ``0xA701`` - Out of resources: unable to calculate number of
@@ -1603,6 +1608,7 @@ class Association(threading.Thread):
         :class:`~pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass`
         :class:`~pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass`
         :class:`~pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.InventoryQueryRetrieveServiceClass`
         :class:`~pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass`
 
         References
@@ -1615,6 +1621,7 @@ class Association(threading.Thread):
         * DICOM Standard, Part 4, :dcm:`Annex BB<part04/chapter_BB.html>`
         * DICOM Standard, Part 4, :dcm:`Annex HH<part04/chapter_HH.html>`
         * DICOM Standard, Part 4, :dcm:`Annex II<part04/chapter_II.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex JJ<part04/chapter_JJ.html>`
         * DICOM Standard, Part 7, Sections
           :dcm:`9.1.4<part07/chapter_9.html#sect_9.1.4>`,
           :dcm:`9.3.4<part07/sect_9.3.4.html>` and
