@@ -3,6 +3,7 @@ the state machine events.
 """
 
 from datetime import datetime
+from io import BytesIO
 import inspect
 import logging
 from pathlib import Path
@@ -18,7 +19,6 @@ from pydicom.uid import UID
 from pynetdicom.dsutils import decode, create_file_meta, encode_file_meta
 
 if TYPE_CHECKING:  # pragma: no cover
-    from io import BytesIO
     from pynetdicom.association import Association
     from pynetdicom.dimse_messages import DIMSEMessage
     from pynetdicom.dimse_primitives import (
