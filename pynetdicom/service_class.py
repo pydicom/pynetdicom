@@ -1550,6 +1550,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             "1.2.840.10008.5.1.4.44.2",
             "1.2.840.10008.5.1.4.45.2",
             "1.2.840.10008.5.1.4.1.1.200.4",
+            "1.2.840.10008.5.1.4.1.1.201.2",
         ],
         "C-GET": [
             "1.2.840.10008.5.1.4.1.2.1.3",
@@ -1564,6 +1565,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             "1.2.840.10008.5.1.4.44.4",
             "1.2.840.10008.5.1.4.45.4",
             "1.2.840.10008.5.1.4.1.1.200.6",
+            "1.2.840.10008.5.1.4.1.1.201.4",
         ],
         "C-MOVE": [
             "1.2.840.10008.5.1.4.1.2.1.2",
@@ -1577,6 +1579,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             "1.2.840.10008.5.1.4.44.3",
             "1.2.840.10008.5.1.4.45.3",
             "1.2.840.10008.5.1.4.1.1.200.5",
+            "1.2.840.10008.5.1.4.1.1.201.3",
         ],
     }
 
@@ -2435,6 +2438,12 @@ class HangingProtocolQueryRetrieveServiceClass(QueryRetrieveServiceClass):
 
 class ImplantTemplateQueryRetrieveServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Implant Template QR Service."""
+
+    pass
+
+
+class InventoryQueryRetrieveServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Inventory QR Service."""
 
     pass
 

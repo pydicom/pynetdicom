@@ -18,6 +18,8 @@ Enhancements
 
 * Added :func:`~pynetdicom.sop_class.register_uid` to make registering new
   private and public SOP Classes easier (:issue:`799`)
+* Added support for :class:`Inventory Query/Retrieve Service Class
+  <pynetdicom.service_class.InventoryQueryRetrieveServiceClass>` (:issue:`879`)
 
 Changes
 .......

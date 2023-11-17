@@ -77,6 +77,7 @@ Supported Service Classes
 * :doc:`Hanging Protocol Query/Retrieve <service_classes/hanging_protocol_service_class>`
 * :doc:`Implant Template Query/Retrieve <service_classes/implant_template_service_class>`
 * :doc:`Instance Availability Notification <service_classes/instance_availability>`
+* :doc:`Inventory Query/Retrieve <service_classes/inventory_service_class>`
 * :doc:`Media Creation Management <service_classes/media_creation>`
 * :doc:`Non-Patient Object Storage <service_classes/non_patient_service_class>`
 * :doc:`Print Management <service_classes/print_management>`

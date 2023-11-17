@@ -14,6 +14,7 @@ from pynetdicom.service_class import (
     DefinedProcedureProtocolQueryRetrieveServiceClass,
     HangingProtocolQueryRetrieveServiceClass,
     ImplantTemplateQueryRetrieveServiceClass,
+    InventoryQueryRetrieveServiceClass,
     NonPatientObjectStorageServiceClass,
     ProtocolApprovalQueryRetrieveServiceClass,
     QueryRetrieveServiceClass,
@@ -90,6 +91,9 @@ def uid_to_service_class(uid: str) -> Type[ServiceClass]:
 
     if uid in _INSTANCE_AVAILABILITY_CLASSES.values():
         return InstanceAvailabilityNotificationServiceClass
+
+    if uid in _INVENTORY_CLASSES.values():
+        return InventoryQueryRetrieveServiceClass
 
     if uid in _MEDIA_CREATION_CLASSES.values():
         return MediaCreationManagementServiceClass

@@ -17,6 +17,7 @@ pynetdicom supports the following Service Classes
    DefinedProcedureProtocolQueryRetrieveServiceClass
    HangingProtocolQueryRetrieveServiceClass
    ImplantTemplateQueryRetrieveServiceClass
+   InventoryQueryRetrieveServiceClass
    NonPatientObjectStorageServiceClass
    ProtocolApprovalQueryRetrieveServiceClass
    QueryRetrieveServiceClass

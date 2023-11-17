@@ -54,7 +54,7 @@ Basic Worklist Management Service Statuses
 +==================+==========+==============================================+
 | 0xA700           | Failure  | Out of resources                             |
 +------------------+----------+----------------------------------------------+
-| 0xA900           | Failure  | Identifier does not match SOP Class          |
+| 0xA900           | Failure  | Data Set does not match SOP Class            |
 +------------------+----------+----------------------------------------------+
 | 0xC000 to 0xCFFF | Failure  | Unable to process                            |
 +------------------+----------+----------------------------------------------+
