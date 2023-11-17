@@ -198,12 +198,17 @@ class ServiceClass:
           | ``0xFF00`` Matches are continuing, current match supplied
           | ``0xFF01`` Matches are continuing, warning
 
+        Warning
+          | ``0xB001`` Matching reached response limit, subsequent request may
+            return additional matches
+
         Cancel
           | ``0xFE00`` Cancel
 
         Failure
           | ``0x0122`` SOP class not supported
           | ``0xA700`` Out of resources
+          | ``0xA710`` Invalid prior record key
           | ``0xA900`` Identifier does not match SOP class
           | ``0xC000`` to ``0xCFFF`` Unable to process
 
@@ -316,7 +321,8 @@ class ServiceClass:
                 LOGGER.info(f"Find SCP Response {ii + 1}: 0x{rsp.Status:04X} (Cancel)")
                 self.dimse.send_msg(rsp, cx_id)
                 return
-            elif status[0] == STATUS_FAILURE:
+
+            if status[0] == STATUS_FAILURE:
                 # If failed, then dataset is None
                 LOGGER.info(
                     f"Find SCP Response {ii + 1}: 0x{rsp.Status:04X} "
@@ -324,13 +330,23 @@ class ServiceClass:
                 )
                 self.dimse.send_msg(rsp, cx_id)
                 return
-            elif status[0] == STATUS_SUCCESS:
+
+            if status[0] == STATUS_SUCCESS:
                 # User isn't supposed to send these, but handle anyway
                 # If success, then dataset is None
                 LOGGER.info(f"Find SCP Response {ii + 1}: 0x0000 (Success)")
                 self.dimse.send_msg(rsp, cx_id)
                 return
-            elif status[0] == STATUS_PENDING:
+
+            if status[0] == STATUS_WARNING:
+                LOGGER.info(
+                    f"Find SCP Response {ii + 1}: 0x{rsp.Status:04X} "
+                    f"(Warning - {status[1]})"
+                )
+                self.dimse.send_msg(rsp, cx_id)
+                continue
+
+            if status[0] == STATUS_PENDING:
                 # If pending, `dataset` is the Identifier
                 dataset = cast(Dataset, dataset)
                 enc = encode(
@@ -1551,6 +1567,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             "1.2.840.10008.5.1.4.45.2",
             "1.2.840.10008.5.1.4.1.1.200.4",
             "1.2.840.10008.5.1.4.1.1.201.2",
+            "1.2.840.10008.5.1.4.1.1.201.6",
         ],
         "C-GET": [
             "1.2.840.10008.5.1.4.1.2.1.3",
