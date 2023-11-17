@@ -34,7 +34,7 @@ if TYPE_CHECKING:  # pragma: no cover
     )
     from pynetdicom.pdu import _PDUType
     from pynetdicom.pdu_primitives import SOPClassCommonExtendedNegotiation
-    from pynetdicom.presentation import PresentationContexttuple
+    from pynetdicom.presentation import PresentationContextTuple
 
     _RequestType = (
         C_ECHO
@@ -441,7 +441,7 @@ class Event:
         # Define type hints for dynamic attributes
         self.request: "_RequestType"
         self._is_cancelled: Callable[[int], bool]
-        self.context: "PresentationContexttuple"
+        self.context: "PresentationContextTuple"
         self.current_state: str
         self.fsm_event: str
         self.next_state: str
@@ -626,14 +626,22 @@ class Event:
         return cast(Path, path)
 
     def encoded_dataset(self, include_meta: bool = True) -> bytes:
-        """Return the encoded dataset sent by the peer without decoding it.
+        """Return the encoded C-STORE dataset sent by the peer without first
+        decoding it.
 
         Examples
         --------
+        Retrieve the encoded dataset as sent by the peer::
+
+          def handle_store(event: pynetdicom.events.Event) -> int:
+              stream: bytes = event.encoded_dataset(inclue_meta=False)
+
+              return 0x0000
+
         Write the encoded dataset to file in the DICOM File Format without
         having to first decode it::
 
-          def handle_store(event: pynetdicom.evt.Event, dst: pathlib.Path) -> int:
+          def handle_store(event: pynetdicom.events.Event, dst: pathlib.Path) -> int:
               with dst.open("wb") as f:
                   f.write(event.encoded_dataset())
 
@@ -650,6 +658,11 @@ class Event:
         bytes
             The encoded dataset as sent by the peer, with or without the file
             meta information.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not a C-STORE request.
         """
         try:
             stream = self.request.DataSet.getvalue()

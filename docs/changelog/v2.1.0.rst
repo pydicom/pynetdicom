@@ -9,9 +9,9 @@ Fixes
 * Fixed reserved A-ASSOCIATE-AC parameters being tested (:issue:`746`)
 * Fixed datasets not transferring correctly when using
   :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` (:issue:`756`)
-* Fixed maximum length of PatientID attribute in qrscp app (:issue:`785`)
-* Sanitize filenames for received datasets for non-conformant SOP Instance UIDs
-  (:issue:`823`)
+* Fixed maximum length of *Patient ID* attribute in ``qrscp`` app (:issue:`785`)
+* Sanitise filenames for received datasets for non-conformant SOP Instance
+  UIDs (:issue:`823`)
 
 Enhancements
 ............
@@ -23,10 +23,11 @@ Enhancements
   :class:`~pynetdicom.service_class.QueryRetrieveServiceClass` (:issue:`878`)
 * Added support for :class:`Inventory Query/Retrieve Service Class
   <pynetdicom.service_class.InventoryQueryRetrieveServiceClass>` (:issue:`879`)
-* Added :meth:`pynetdicom.event.Event.encoded_dataset` to simplify writing
-  the raw encoded dataset to file
+* Added :meth:`~pynetdicom.events.Event.encoded_dataset` to simplify accessing
+  the encoded dataset without first decoding it
 
 Changes
 .......
 
-* Add preliminary support for Python 3.12
+* Dropped support for Python 3.7, 3.8 and 3.9
+* Added support for Python 3.12

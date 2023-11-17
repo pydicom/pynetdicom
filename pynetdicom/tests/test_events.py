@@ -150,6 +150,13 @@ class TestEvent:
             event.dataset
 
         msg = (
+            r"The corresponding event is not a C-STORE request "
+            r"and has no 'Data Set' parameter"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            event.encoded_dataset()
+
+        msg = (
             r"The corresponding event is not a C-FIND, C-GET or C-MOVE request "
             r"and has no 'Identifier' parameter"
         )
