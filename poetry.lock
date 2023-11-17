@@ -761,13 +761,13 @@ docs = ["matplotlib", "numpy", "numpydoc", "pillow", "sphinx", "sphinx-copybutto
 
 [[package]]
 name = "pyfakefs"
-version = "5.3.0"
+version = "5.3.1"
 description = "pyfakefs implements a fake file system that mocks the Python file system modules."
 optional = true
 python-versions = ">=3.7"
 files = [
-    {file = "pyfakefs-5.3.0-py3-none-any.whl", hash = "sha256:33c1f891078c727beec465e75cb314120635e2298456493cc2cc0539e2130cbb"},
-    {file = "pyfakefs-5.3.0.tar.gz", hash = "sha256:e3e35f65ce55ee8ecc5e243d55cfdbb5d0aa24938f6e04e19f0fab062f255020"},
+    {file = "pyfakefs-5.3.1-py3-none-any.whl", hash = "sha256:dbe268b70da64f1506baf7d7a2a2248b96b56d28d61a68859272b5fdc321c39e"},
+    {file = "pyfakefs-5.3.1.tar.gz", hash = "sha256:dd1fb374039fadccf35d3f3df7aa5d239482e0650dcd240e053d3b9e78740918"},
 ]
 
 [[package]]
@@ -1282,18 +1282,17 @@ files = [
 
 [[package]]
 name = "urllib3"
-version = "2.0.7"
+version = "2.1.0"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = true
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "urllib3-2.0.7-py3-none-any.whl", hash = "sha256:fdb6d215c776278489906c2f8916e6e7d4f5a9b602ccbcfdf7f016fc8da0596e"},
-    {file = "urllib3-2.0.7.tar.gz", hash = "sha256:c97dfde1f7bd43a71c8d2a58e369e9b2bf692d1334ea9f9cae55add7d0dd0f84"},
+    {file = "urllib3-2.1.0-py3-none-any.whl", hash = "sha256:55901e917a5896a349ff771be919f8bd99aff50b79fe58fec595eb37bbc56bb3"},
+    {file = "urllib3-2.1.0.tar.gz", hash = "sha256:df7aa8afb0148fa78488e7899b2c59b5f4ffcfa82e6c54ccb9dd37c1d7b52d54"},
 ]
 
 [package.extras]
 brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)"]
-secure = ["certifi", "cryptography (>=1.9)", "idna (>=2.0.0)", "pyopenssl (>=17.1.0)", "urllib3-secure-extra"]
 socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
@@ -1301,9 +1300,9 @@ zstd = ["zstandard (>=0.18.0)"]
 apps = ["sqlalchemy"]
 dev = ["asv", "black", "codespell", "coverage", "mypy", "pyfakefs", "pytest", "pytest-cov", "ruff", "sqlalchemy"]
 docs = ["numpydoc", "sphinx", "sphinx-copybutton", "sphinx-rtd-theme"]
-tests = ["pyfakefs", "pytest", "pytest-cov", "sqlalchemy"]
+tests = ["coverage", "pyfakefs", "pytest", "pytest-cov", "sqlalchemy"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "27294d999c54b6f92dad17f40e730be3f2c7ce4b4de62ea73ad6cd22905ca49d"
+content-hash = "be1caef77a4472b4ec8937c89a7be1ba8409743cc4b9e555bf68f03b2c58c6c8"

@@ -67,7 +67,7 @@ sqlalchemy = { version = "^2.0", optional = true }
 apps = ["sqlalchemy"]
 dev = ["asv", "black", "codespell", "coverage", "mypy", "pyfakefs", "pytest", "pytest-cov", "ruff", "sqlalchemy"]
 docs = ["numpydoc", "sphinx", "sphinx-copybutton", "sphinx-rtd-theme"]
-tests = ["pyfakefs", "pytest", "pytest-cov", "sqlalchemy"]
+tests = ["coverage", "pyfakefs", "pytest", "pytest-cov", "sqlalchemy"]
 
 [tool.poetry.scripts]
 echoscp = "pynetdicom.apps.echoscp.echoscp:main"
