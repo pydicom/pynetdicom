@@ -96,6 +96,7 @@ Supported Service Classes
   * Structured Reporting
   * Volumetric Presentation State
 * :doc:`Storage Commitment <service_classes/storage_commitment>`
+* :doc:`Storage Management <service_classes/storage_management>`
 * :doc:`Substance Administration Query <service_classes/substance_admin_service_class>`
 * :doc:`Unified Procedure Step <service_classes/ups>`
 * :doc:`Verification <service_classes/verification_service_class>`

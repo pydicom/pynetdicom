@@ -1,7 +1,7 @@
 """Implements the supported Service Classes that make use of DIMSE-N."""
 
 import logging
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from pynetdicom.dimse_primitives import (
     N_ACTION,
@@ -20,6 +20,7 @@ from pynetdicom.status import (
     PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS,
     PROCEDURE_STEP_STATUS,
     STORAGE_COMMITMENT_SERVICE_CLASS_STATUS,
+    STORAGE_MANAGEMENT_SERVICE_CLASS_STATUS,
     RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS,
     UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS,
 )
@@ -27,11 +28,12 @@ from pynetdicom.status import (
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.presentation import PresentationContext
 
-    _MCM = Union[N_CREATE, N_GET, N_ACTION]
-    _PJ = Union[N_CREATE, N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_DELETE]
-    _PS = Union[N_CREATE, N_EVENT_REPORT, N_GET, N_SET]
-    _SCS = Union[N_EVENT_REPORT, N_ACTION]
-    _UPS = Union[N_CREATE, N_EVENT_REPORT, N_GET, N_SET, N_ACTION, C_FIND]
+    _MCM = N_CREATE | N_GET | N_ACTION
+    _PJ = N_CREATE | N_EVENT_REPORT | N_GET | N_SET | N_ACTION | N_DELETE
+    _PS = N_CREATE | N_EVENT_REPORT | N_GET | N_SET
+    _SCS = N_EVENT_REPORT | N_ACTION
+    _SMS = N_ACTION | N_EVENT_REPORT
+    _UPS = N_CREATE | N_EVENT_REPORT | N_GET | N_SET | N_ACTION | C_FIND
 
 
 LOGGER = logging.getLogger("pynetdicom.service-n")
@@ -286,6 +288,35 @@ class StorageCommitmentServiceClass(ServiceClass):
             raise ValueError(
                 f"Invalid DIMSE primitive '{req.__class__.__name__}' used "
                 f"with Storage Commitment"
+            )
+
+
+class StorageManagementServiceClass(ServiceClass):
+    """Implementation of the Storage Management Service Class
+
+    .. versionadded:: 2.1
+    """
+
+    statuses = STORAGE_MANAGEMENT_SERVICE_CLASS_STATUS
+
+    def SCP(self, req: "_SMS", context: "PresentationContext") -> None:
+        """The SCP implementation for Storage Management Service Class.
+
+        Parameters
+        ----------
+        req : dimse_primitives.N_EVENT_REPORT or N_ACTION
+            The N-ACTION or N-EVENT-REPORT request primitive sent by the peer.
+        context : presentation.PresentationContext
+            The presentation context that the service is operating under.
+        """
+        if isinstance(req, N_EVENT_REPORT):
+            self._n_event_report_scp(req, context)
+        elif isinstance(req, N_ACTION):
+            self._n_action_scp(req, context)
+        else:
+            raise ValueError(
+                f"Invalid DIMSE primitive '{req.__class__.__name__}' used "
+                f"with Storage Management"
             )
 
 

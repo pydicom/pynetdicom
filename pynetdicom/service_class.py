@@ -8,16 +8,12 @@ import traceback
 from types import TracebackType
 from typing import (
     TYPE_CHECKING,
-    Optional,
     Type,
     cast,
-    Union,
-    Tuple,
     Any,
     TypeVar,
     Iterator,
     Sequence,
-    Dict,
 )
 
 from pydicom.dataset import Dataset
@@ -67,17 +63,17 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.presentation import PresentationContext
     from pynetdicom.transport import AssociationSocket
 
-    _QR = Union[C_FIND, C_MOVE, C_GET]
+    _QR = C_FIND | C_MOVE | C_GET
 
 
-StatusType = Union[int, Dataset]
-DatasetType = Optional[Dataset]
-UserReturnType = Tuple[StatusType, DatasetType]
+StatusType = int | Dataset
+DatasetType = Dataset | None
+UserReturnType = tuple[StatusType, DatasetType]
 _T = TypeVar("_T", bound=DIMSEPrimitive)
-_ExcInfoType = Union[
-    Tuple[None, None, None], Tuple[Type[BaseException], BaseException, TracebackType]
-]
-DestinationType = Union[Tuple[str, int], Tuple[str, int, Dict[str, Any]]]
+_ExcInfoType = (
+    tuple[None, None, None] | tuple[Type[BaseException], BaseException, TracebackType]
+)
+DestinationType = tuple[str, int] | tuple[str, int, dict[str, Any]]
 
 
 LOGGER = logging.getLogger("pynetdicom.service-c")
@@ -108,10 +104,10 @@ class attempt:
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
-    ) -> Optional[bool]:
+        exc_type: Type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> bool | None:
         if exc_type is None:
             # No exceptions raised
             return None
@@ -285,7 +281,7 @@ class ServiceClass:
         for ii, (result, exc) in enumerate(self._wrap_handler(generator)):
             # Reset the response Identifier
             rsp.Identifier = None
-            dataset: Optional[Dataset]
+            dataset: Dataset | None
             rsp_status: StatusType
 
             # Exception raised by user's generator
@@ -1319,7 +1315,7 @@ class ServiceClass:
         )
         raise NotImplementedError(msg)
 
-    def validate_status(self, status: Union[int, Dataset], rsp: _T) -> _T:
+    def validate_status(self, status: int | Dataset, rsp: _T) -> _T:
         """Validate `status` and set `rsp.Status` accordingly.
 
         Parameters
@@ -1375,7 +1371,7 @@ class ServiceClass:
 
     def _wrap_handler(
         self, handler: Iterator
-    ) -> Iterator[Union[Tuple[None, _ExcInfoType], Tuple[UserReturnType, None]]]:
+    ) -> Iterator[tuple[None, _ExcInfoType] | tuple[UserReturnType, None]]:
         """Wrap a generator handler to catch exceptions.
 
         Parameters
@@ -2460,7 +2456,10 @@ class ImplantTemplateQueryRetrieveServiceClass(QueryRetrieveServiceClass):
 
 
 class InventoryQueryRetrieveServiceClass(QueryRetrieveServiceClass):
-    """Implementation of the Inventory QR Service."""
+    """Implementation of the Inventory QR Service.
+
+    .. versionadded:: 2.1
+    """
 
     pass
 

@@ -33,6 +33,7 @@ from pynetdicom.service_class_n import (
     ProcedureStepServiceClass,
     RTMachineVerificationServiceClass,
     StorageCommitmentServiceClass,
+    StorageManagementServiceClass,
     UnifiedProcedureStepServiceClass,
 )
 
@@ -121,6 +122,9 @@ def uid_to_service_class(uid: str) -> Type[ServiceClass]:
 
     if uid in _STORAGE_COMMITMENT_CLASSES.values():
         return StorageCommitmentServiceClass
+
+    if uid in _STORAGE_MANAGEMENT_CLASSES.values():
+        return StorageManagementServiceClass
 
     if uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
         return SubstanceAdministrationQueryServiceClass

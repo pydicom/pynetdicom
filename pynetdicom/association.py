@@ -2269,6 +2269,13 @@ class Association(threading.Thread):
               | ``0x0212`` - Mistyped argument
               | ``0x0213`` - Resource limitation
 
+            *Storage Management Service* specific (DICOM
+            Standard Part 4, Annex KK.2.2.3):
+
+            Warning
+              | ``0xB010`` - Attribute list error - One or more of Key
+                Attributes are not supported for matching
+
         action_reply : pydicom.dataset.Dataset or None
             If the status category is 'Success' or 'Warning' then a
             :class:`~pydicom.dataset.Dataset` containing attributes
@@ -2288,6 +2295,7 @@ class Association(threading.Thread):
         :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
         :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
         :class:`~pynetdicom.service_class_n.StorageCommitmentServiceClass`
+        :class:`~pynetdicom.service_class_n.StorageManagementServiceClass`
         :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
         References
@@ -2299,6 +2307,7 @@ class Association(threading.Thread):
         * DICOM Standard, Part 4, :dcm:`Annex S<part04/chapter_S.html>`
         * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
         * DICOM Standard, Part 4, :dcm:`Annex DD<part04/chapter_DD.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex KK<part04/chapter_KK.html>`
         * DICOM Standard, Part 7, Sections
           :dcm:`10.1.4<part07/chapter_10.html#sect_10.1.4>`,
           :dcm:`10.3.4<part07/sect_10.3.4.html>` and
@@ -2864,6 +2873,7 @@ class Association(threading.Thread):
         :class:`~pynetdicom.service_class_n.ProcedureStepServiceClass`
         :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
         :class:`~pynetdicom.service_class_n.StorageCommitmentServiceClass`
+        :class:`~pynetdicom.service_class_n.StorageManagementServiceClass`
         :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
         References
@@ -2874,6 +2884,7 @@ class Association(threading.Thread):
         * DICOM Standard, Part 4, :dcm:`Annex J <part04/chapter_J.html>`
         * DICOM Standard, Part 4, :dcm:`Annex CC <part04/chapter_CC.html>`
         * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex KK <part04/chapter_KK.html>`
         * DICOM Standard, Part 7, Sections
           :dcm:`10.1.1 <part07/chapter_10.html#sect_10.1.1>`,
           :dcm:`10.3.1 <part07/sect_10.3.html#sect_10.3.1>`

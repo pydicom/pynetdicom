@@ -1,7 +1,6 @@
 """Implementation of the DIMSE Status values."""
 
 from enum import IntEnum
-from typing import Dict, Tuple
 
 from pydicom.dataset import Dataset
 
@@ -15,7 +14,7 @@ from pynetdicom._globals import (
 )
 
 
-StatusDictType = Dict[int, Tuple[str, str]]
+StatusDictType = dict[int, tuple[str, str]]
 
 
 # Non-Service Class specific statuses - PS3.7 Annex C
@@ -354,6 +353,19 @@ PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 STORAGE_COMMITMENT_SERVICE_CLASS_STATUS = GENERAL_STATUS
 
 
+# Storage Management Service Class specific status code values
+STORAGE_MANAGEMENT_SERVICE_CLASS_STATUS: StatusDictType = {
+    0xB010: (
+        STATUS_WARNING,
+        (
+            "Attribute list error - One or more of Key Attributes are not "
+            "supported for matching"
+        ),
+    ),
+}
+STORAGE_MANAGEMENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
+
+
 # Application Event Logging Service Class specific status code values
 APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS: StatusDictType = {
     0xB101: (
@@ -520,8 +532,8 @@ def code_to_status(code: int) -> Dataset:
         ds = Dataset()
         ds.Status = code
         return ds
-    else:
-        raise ValueError("'code' must be a positive integer.")
+
+    raise ValueError("'code' must be a positive integer.")
 
 
 def code_to_category(code: int) -> str:
@@ -532,11 +544,14 @@ def code_to_category(code: int) -> str:
     if isinstance(code, int) and code >= 0:
         if code == 0x0000:
             return STATUS_SUCCESS
-        elif code in [0xFF00, 0xFF01]:
+
+        if code in [0xFF00, 0xFF01]:
             return STATUS_PENDING
-        elif code == 0xFE00:
+
+        if code == 0xFE00:
             return STATUS_CANCEL
-        elif code in [
+
+        if code in [
             0x0105,
             0x0106,
             0x0110,
@@ -559,20 +574,25 @@ def code_to_category(code: int) -> str:
             0x0213,
         ]:
             return STATUS_FAILURE
-        elif code in range(0xA000, 0xB000):
+
+        if code in range(0xA000, 0xB000):
             return STATUS_FAILURE
-        elif code in range(0xC000, 0xD000):
+
+        if code in range(0xC000, 0xD000):
             return STATUS_FAILURE
-        elif code in [0x0107, 0x0116]:
+
+        if code in [0x0107, 0x0116]:
             return STATUS_WARNING
-        elif code in range(0xB000, 0xC000):
+
+        if code in range(0xB000, 0xC000):
             return STATUS_WARNING
-        elif code == 0x0001:
+
+        if code == 0x0001:
             return STATUS_WARNING
 
         return STATUS_UNKNOWN
-    else:
-        raise ValueError("'code' must be a positive integer.")
+
+    raise ValueError("'code' must be a positive integer.")
 
 
 class Status(IntEnum):

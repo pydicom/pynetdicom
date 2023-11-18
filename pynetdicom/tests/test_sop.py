@@ -28,7 +28,7 @@ from pynetdicom.sop_class import (
     _INSTANCE_AVAILABILITY_CLASSES,
     InstanceAvailabilityNotification,
     _INVENTORY_CLASSES,
-    InventoryCreation,
+    InventoryFind,
     _MEDIA_CREATION_CLASSES,
     MediaCreationManagement,
     _MEDIA_STORAGE_CLASSES,
@@ -54,7 +54,7 @@ from pynetdicom.sop_class import (
     _STORAGE_COMMITMENT_CLASSES,
     StorageCommitmentPushModel,
     _STORAGE_MANAGEMENT_CLASSES,
-    InventoryFind,
+    InventoryCreation,
     _SUBSTANCE_ADMINISTRATION_CLASSES,
     ProductCharacteristicsQuery,
     _UNIFIED_PROCEDURE_STEP_CLASSES,
@@ -97,6 +97,7 @@ from pynetdicom.service_class_n import (
     ProcedureStepServiceClass,
     RTMachineVerificationServiceClass,
     StorageCommitmentServiceClass,
+    StorageManagementServiceClass,
     UnifiedProcedureStepServiceClass,
 )
 
@@ -315,6 +316,11 @@ class TestUIDToServiceClass:
         for uid in _STORAGE_COMMITMENT_CLASSES.values():
             assert uid_to_service_class(uid) == StorageCommitmentServiceClass
 
+    def test_storage_management_uids(self):
+        """Test that the Storage Management SOP Class UIDs work correctly."""
+        for uid in _STORAGE_MANAGEMENT_CLASSES.values():
+            assert uid_to_service_class(uid) == StorageManagementServiceClass
+
     def test_substance_admin_uids(self):
         """Test that the Substance Administration SOP Class UIDs work correctly."""
         for uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
@@ -473,6 +479,10 @@ class TestSOPClass:
     def test_storage_commitment_sop(self):
         assert StorageCommitmentPushModel == "1.2.840.10008.1.20.1"
         assert StorageCommitmentPushModel.service_class == StorageCommitmentServiceClass
+
+    def test_storage_management_sop(self):
+        assert InventoryCreation == "1.2.840.10008.5.1.4.1.1.201.5"
+        assert InventoryCreation.service_class == StorageManagementServiceClass
 
     def test_substance_admin_sop(self):
         """Test s Substance Administration Query Service SOP Class."""
