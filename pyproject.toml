@@ -118,6 +118,9 @@ disallow_untyped_defs = true
 disallow_incomplete_defs = true
 
 
+[tool.ruff]
+include = ["pynetdicom/*.py"]
+
 [tool.ruff.lint]
 exclude = [
     "pynetdicom/apps/tests/*",

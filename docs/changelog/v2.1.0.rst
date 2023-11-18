@@ -32,4 +32,6 @@ Changes
 .......
 
 * Dropped support for Python 3.7, 3.8 and 3.9
-* Added support for Python 3.12
+* Added support for Python 3.11 and 3.12
+* With `Python 3.10 requiring OpenSSL v1.1.1 or newer
+  <https://peps.python.org/pep-0644/>`_, TLS v1.3 is now officially supported

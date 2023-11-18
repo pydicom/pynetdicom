@@ -172,6 +172,8 @@ class TestAssociationSocket:
         sock.close()
         assert sock.socket is None
         # Tries to connect, sets to None if fails
+        # Ensure we fail if *something* is listening
+        self.assoc.connection_timeout = 1
         request = A_ASSOCIATE()
         request.called_presentation_address = ("123", 12)
         sock.connect(T_CONNECT(request))
@@ -312,29 +314,28 @@ class TestAssociationSocket:
         assert 2 == len(events)
 
 
-@pytest.fixture
-def server_context(request):
-    """Return a good server SSLContext."""
-    # TLS v1.3 is not currently supported :(
-    # The actual available attributes/protocols depend on OS, OpenSSL version
-    #   and Python version, ugh
-    if hasattr(ssl, "TLSVersion"):
-        # This is the current and future, but heavily depends on OpenSSL
-        # Python 3.7+, w/ OpenSSL 1.1.0g+
-        context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        context.verify_mode = ssl.CERT_REQUIRED
-        context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
-        context.load_verify_locations(cafile=CLIENT_CERT)
-        context.maximum_version = ssl.TLSVersion.TLSv1_2
-
-        return context
-
-    # Should work with older Python and OpenSSL versions
-    # Python 3.6
-    context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLSv1_2)
+def server_context_v1_2():
+    """Return a good TLs v1.2 server SSLContext."""
+    # Python 3.10 and PEP 644, the ssl module requires OpenSSL 1.1.1 or newer
+    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     context.verify_mode = ssl.CERT_REQUIRED
     context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
     context.load_verify_locations(cafile=CLIENT_CERT)
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
+    context.maximum_version = ssl.TLSVersion.TLSv1_2
+
+    return context
+
+
+def server_context_v1_3():
+    """Return a good TLS v1.3 server SSLContext."""
+    # Python 3.10 and PEP 644, the ssl module requires OpenSSL 1.1.1 or newer
+    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    context.verify_mode = ssl.CERT_REQUIRED
+    context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
+    context.load_verify_locations(cafile=CLIENT_CERT)
+    context.minimum_version = ssl.TLSVersion.TLSv1_3
+    context.maximum_version = ssl.TLSVersion.TLSv1_3
 
     return context
 
@@ -348,6 +349,14 @@ def client_context(request):
     context.check_hostname = False
 
     return context
+
+
+TLS_SERVER_CONTEXTS = [(server_context_v1_2, "TLSv1.2")]
+if ssl.OPENSSL_VERSION_INFO >= (1, 1, 1):
+    TLS_SERVER_CONTEXTS = [
+        (server_context_v1_2, "TLSv1.2"),
+        (server_context_v1_3, "TLSv1.3"),
+    ]
 
 
 class TestTLS:
@@ -405,7 +414,8 @@ class TestTLS:
 
         assert len(server.active_associations) == 0
 
-    def test_tls_yes_server_not_client(self, server_context, caplog):
+    @pytest.mark.parametrize("server_context, tls_version", TLS_SERVER_CONTEXTS)
+    def test_tls_yes_server_not_client(self, server_context, tls_version, caplog):
         """Test wrapping the acceptor socket with TLS (and not client)."""
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             self.ae = ae = AE()
@@ -413,7 +423,7 @@ class TestTLS:
             server = ae.start_server(
                 ("localhost", 11112),
                 block=False,
-                ssl_context=server_context,
+                ssl_context=server_context(),
             )
 
             ae.add_requested_context("1.2.840.10008.1.1")
@@ -425,7 +435,10 @@ class TestTLS:
             assert len(server.active_associations) == 0
             assert "Connection closed before the entire PDU was received" in caplog.text
 
-    def test_tls_yes_server_yes_client(self, server_context, client_context):
+    @pytest.mark.parametrize("server_context, tls_version", TLS_SERVER_CONTEXTS)
+    def test_tls_yes_server_yes_client(
+        self, server_context, tls_version, client_context
+    ):
         """Test associating with TLS on both ends."""
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -435,13 +448,14 @@ class TestTLS:
         server = ae.start_server(
             ("localhost", 11112),
             block=False,
-            ssl_context=server_context,
+            ssl_context=server_context(),
         )
 
         wait_for_server_socket(server, 1)
 
         ae.add_requested_context("1.2.840.10008.1.1")
         assoc = ae.associate("localhost", 11112, tls_args=(client_context, None))
+        assert assoc.dul.socket.socket.version() == tls_version
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -450,7 +464,8 @@ class TestTLS:
 
         assert len(server.active_associations) == 0
 
-    def test_tls_transfer(self, server_context, client_context):
+    @pytest.mark.parametrize("server_context, tls_version", TLS_SERVER_CONTEXTS)
+    def test_tls_transfer(self, server_context, tls_version, client_context):
         """Test transferring data after associating with TLS."""
         ds = []
 
@@ -469,7 +484,7 @@ class TestTLS:
         server = ae.start_server(
             ("localhost", 11112),
             block=False,
-            ssl_context=server_context,
+            ssl_context=server_context(),
             evt_handlers=handlers,
         )
 
@@ -524,7 +539,8 @@ class TestTLS:
         with pytest.raises(RuntimeError, match=msg):
             ae.associate("localhost", 11112, tls_args=(["random", "object"], None))
 
-    def test_multiple_pdu_req(self, server_context, client_context):
+    @pytest.mark.parametrize("server_context, tls_version", TLS_SERVER_CONTEXTS)
+    def test_multiple_pdu_req(self, server_context, tls_version, client_context):
         """Test what happens if two PDUs are sent before the select call."""
         events = []
 
@@ -542,7 +558,7 @@ class TestTLS:
         server = ae.start_server(
             ("localhost", 11112),
             block=False,
-            ssl_context=server_context,
+            ssl_context=server_context(),
         )
 
         assoc = ae.associate(
@@ -567,7 +583,8 @@ class TestTLS:
 
         assert assoc.is_released
 
-    def test_multiple_pdu_acc(self, server_context, client_context):
+    @pytest.mark.parametrize("server_context, tls_version", TLS_SERVER_CONTEXTS)
+    def test_multiple_pdu_acc(self, server_context, tls_version, client_context):
         """Test what happens if two PDUs are sent before the select call."""
         events = []
 
@@ -585,7 +602,7 @@ class TestTLS:
         server = ae.start_server(
             ("localhost", 11112),
             block=False,
-            ssl_context=server_context,
+            ssl_context=server_context(),
             evt_handlers=[(evt.EVT_C_ECHO, handle_echo)],
         )
 
