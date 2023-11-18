@@ -25,6 +25,7 @@ Supported Service Classes
    rt_machine
    storage_service_class
    storage_commitment
+   storage_management
    substance_admin_service_class
    ups
    verification_service_class
