@@ -27,11 +27,14 @@ jobs:
       run: |
         conda install pytest
         conda install -c conda-forge pydicom
+    - name: Get OpenSSL version
+      run: |
+        python -c "import ssl; print("OpenSSL:", ssl.OPENSSL_VERSION_INFO)"
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        pytest --ignore=pynetdicom/apps
+        pytest -x --ignore=pynetdicom/apps
 
   windows:
     runs-on: windows-latest
@@ -65,11 +68,14 @@ jobs:
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
         run: poetry install --no-interaction --extras tests
+      - name: Get OpenSSL version
+        run: |
+          poetry run python -c "import ssl; print("OpenSSL:", ssl.OPENSSL_VERSION_INFO)"
       - name: Test with pytest
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
+          poetry run pytest -x --cov pynetdicom --ignore=pynetdicom/apps &&
           poetry run coverage xml
       - name: Send coverage results
         if: ${{ success() }}
@@ -114,7 +120,7 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
+        poetry run pytest -x --cov pynetdicom --ignore=pynetdicom/apps &&
         poetry run coverage xml
     - name: Send coverage results
       if: ${{ success() }}
@@ -154,11 +160,14 @@ jobs:
       run: |
         poetry install --no-interaction --extras tests &&
         poetry run pip list
+    - name: Get OpenSSL version
+      run: |
+        poetry run python -c "import ssl; print("OpenSSL:", ssl.OPENSSL_VERSION_INFO)"
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
+        poetry run pytest -x --cov pynetdicom --ignore=pynetdicom/apps &&
         poetry run coverage xml
     - name: Send coverage results
       if: ${{ success() }}
