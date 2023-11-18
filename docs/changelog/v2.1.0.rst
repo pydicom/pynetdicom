@@ -23,6 +23,8 @@ Enhancements
   :class:`~pynetdicom.service_class.QueryRetrieveServiceClass` (:issue:`878`)
 * Added support for :class:`Inventory Query/Retrieve Service Class
   <pynetdicom.service_class.InventoryQueryRetrieveServiceClass>` (:issue:`879`)
+  * Added support for :class:`Storage Management Service Class
+    <pynetdicom.service_class.StorageManagementServiceClass>` (:issue:`880`)
 * Added :meth:`~pynetdicom.events.Event.encoded_dataset` to simplify accessing
   the encoded dataset without first decoding it
 

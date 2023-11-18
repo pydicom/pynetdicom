@@ -29,6 +29,8 @@ from pynetdicom.sop_class import (
     PrintJob,  # N-EVENT-REPORT, N-GET
     # Storage Commitment - N-ACTION, N-EVENT-REPORT
     StorageCommitmentPushModel,
+    # Storage Management - N-ACTION, N-EVENT-REPORT
+    InventoryCreation,
     # Application Event Logging - N-ACTION
     ProceduralEventLogging,
     # Instance Availability - N-CREATE
@@ -62,6 +64,8 @@ REFERENCE_REQUESTS = [
     (PrintJob, "N-GET", None, None),
     (StorageCommitmentPushModel, "N-ACTION", None, None),
     (StorageCommitmentPushModel, "N-EVENT-REPORT", None, None),
+    (InventoryCreation, "N-ACTION", 0xB010, None),
+    (InventoryCreation, "N-EVENT-REPORT", None, None),
     (ProceduralEventLogging, "N-ACTION", 0xB101, 0xC101),
     (InstanceAvailabilityNotification, "N-CREATE", None, None),
     (MediaCreationManagement, "N-ACTION", None, 0xC201),

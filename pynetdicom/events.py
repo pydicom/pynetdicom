@@ -637,7 +637,7 @@ class Event:
         Retrieve the encoded dataset as sent by the peer::
 
           def handle_store(event: pynetdicom.events.Event) -> int:
-              stream: bytes = event.encoded_dataset(inclue_meta=False)
+              stream: bytes = event.encoded_dataset(include_meta=False)
 
               return 0x0000
 
