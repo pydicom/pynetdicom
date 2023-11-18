@@ -95,7 +95,7 @@ class ApplicationEntity:
 
         # Default timeouts - None means no timeout
         self._acse_timeout: Optional[float] = 30
-        self._connection_timeout: Optional[float] = None
+        self._connection_timeout: Optional[float] = 30
         self._dimse_timeout: Optional[float] = 30
         self._network_timeout: Optional[float] = 60
 
@@ -652,8 +652,8 @@ class ApplicationEntity:
         ----------
         value : int, float or None
             The maximum amount of time (in seconds) to wait for a TCP
-            connection to be established. A value of ``None`` (default) means
-            no timeout. The value is passed to `socket.settimeout()
+            connection to be established (default 30). A value of ``None``
+             means no timeout. The value is passed to `socket.settimeout()
             <https://docs.python.org/3/library/
             socket.html#socket.socket.settimeout>`_
             and is only used during the connection phase of an association
