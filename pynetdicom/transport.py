@@ -14,6 +14,8 @@ try:
 
     _HAS_SSL = True
 except ImportError:
+    # NOTE: Must check `_HAS_SSL` before all use of `ssl` module
+    #   and must use "ssl.SSLContext" in type hints
     _HAS_SSL = False
 import threading
 from typing import TYPE_CHECKING, Any, cast, Callable, Optional
