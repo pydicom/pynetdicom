@@ -97,6 +97,7 @@ from pynetdicom.service_class_n import (
     ProcedureStepServiceClass,
     RTMachineVerificationServiceClass,
     StorageCommitmentServiceClass,
+    StorageManagementServiceClass,
     UnifiedProcedureStepServiceClass,
 )
 
@@ -318,7 +319,7 @@ class TestUIDToServiceClass:
     def test_storage_management_uids(self):
         """Test that the Storage Management SOP Class UIDs work correctly."""
         for uid in _STORAGE_MANAGEMENT_CLASSES.values():
-            assert uid_to_service_class(uid) == StorageManagementInstance
+            assert uid_to_service_class(uid) == StorageManagementServiceClass
 
     def test_substance_admin_uids(self):
         """Test that the Substance Administration SOP Class UIDs work correctly."""
