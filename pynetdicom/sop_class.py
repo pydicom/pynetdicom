@@ -383,6 +383,8 @@ _STORAGE_CLASSES = {
     "OphthlamicOpticalCoherenceTomographyBscanVolumeAnalysisStorage": "1.2.840.10008.5.1.4.1.1.77.1.5.8",  # A.84
     "VLWholeSlideMicroscopyImageStorage": "1.2.840.10008.5.1.4.1.1.77.1.6",  # A.32.8
     "DermoscopicPhotographyImageStorage": "1.2.840.10008.5.1.4.1.1.77.1.7",  # A.32.11
+    "ConfocalMicroscopyImageStorage": "1.2.840.10008.5.1.4.1.1.77.1.8",
+    "ConfocalMicroscopyTiledPyramidalImageStorage": "1.2.840.10008.5.1.4.1.1.77.1.9",
     "LensometryMeasurementsStorage": "1.2.840.10008.5.1.4.1.1.78.1",  # A.60.1
     "AutorefractionMeasurementsStorage": "1.2.840.10008.5.1.4.1.1.78.2",  # A.60.2
     "KeratometryMeasurementsStorage": "1.2.840.10008.5.1.4.1.1.78.3",  # A.60.3

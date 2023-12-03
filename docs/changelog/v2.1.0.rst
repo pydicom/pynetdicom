@@ -31,6 +31,7 @@ Enhancements
 * Added a check to :meth:`~pynetdicom.association.Association.send_c_store` to
   ensure that the *Transfer Syntax UID* matches the encoding of the dataset
   (:issue:`891`)
+* Updated SOP Classes to version 2023e of the DICOM Standard
 
 
 Changes
