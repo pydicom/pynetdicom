@@ -140,6 +140,9 @@ private and public SOP Classes easier (<a class="reference external" href="https
 <li><p>Added support for <code class="xref py py-class docutils literal notranslate"><span class="pre">Storage</span> <span class="pre">Management</span> <span class="pre">Service</span> <span class="pre">Class</span></code> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/880">#880</a>)</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.encoded_dataset" title="pynetdicom.events.Event.encoded_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encoded_dataset()</span></code></a> to simplify accessing
 the encoded dataset without first decoding it</p></li>
+<li><p>Added a check to <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> to
+ensure that the <em>Transfer Syntax UID</em> matches the encoding of the dataset
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/891">#891</a>)</p></li>
 </ul>
 </section>
 <section id="changes">
