@@ -7,7 +7,7 @@ import re
 __version__ = "2.1.0.dev0"
 
 # DICOM Standard version used for SOP classes and instances
-__dicom_version__: str = "2023d"
+__dicom_version__: str = "2023e"
 
 VERSION_PATTERN = r"""
     v?

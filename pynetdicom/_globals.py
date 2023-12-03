@@ -32,10 +32,10 @@ ALL_TRANSFER_SYNTAXES: List[str] = [
     "1.2.840.10008.1.2.1",  # Explicit VR Little Endian,
     "1.2.840.10008.1.2.1.99",  # Deflated Explicit VR Little Endian
     "1.2.840.10008.1.2.2",  # Explicit VR Big Endian,
-    "1.2.840.10008.1.2.4.50",  # JPEG Baseline
-    "1.2.840.10008.1.2.4.51",  # JPEG Extended
-    "1.2.840.10008.1.2.4.57",  # JPEG Lossless P14
-    "1.2.840.10008.1.2.4.70",  # JPEG Lossless
+    "1.2.840.10008.1.2.4.50",  # JPEG Baseline 8 Bit
+    "1.2.840.10008.1.2.4.51",  # JPEG Extended 12 Bit
+    "1.2.840.10008.1.2.4.57",  # JPEG Lossless
+    "1.2.840.10008.1.2.4.70",  # JPEG Lossless SV1
     "1.2.840.10008.1.2.4.80",  # JPEG-LS Lossless
     "1.2.840.10008.1.2.4.81",  # JPEG-LS Lossy
     "1.2.840.10008.1.2.4.90",  # JPEG 2000 Lossless
@@ -46,13 +46,24 @@ ALL_TRANSFER_SYNTAXES: List[str] = [
     "1.2.840.10008.1.2.4.95",  # JPIP Referenced Deflate
     "1.2.840.10008.1.2.4.100",  # MPEG2 Main Profile / Main Level
     "1.2.840.10008.1.2.4.101",  # MPEG2 Main Profile / High Level
+    "1.2.840.10008.1.2.4.101.1",  # Fragmentable MPEG2 Main Profile / High Level
     "1.2.840.10008.1.2.4.102",  # MPEG-4 AVC/H.264 High Profile / Level 4.1
+    "1.2.840.10008.1.2.4.102.1",  # Fragmentable MPEG-4 AVC/H.264 High Profile / Level 4.1
     "1.2.840.10008.1.2.4.103",  # MPEG-4 AVC/H.264 BD-compatible High Profile
+    "1.2.840.10008.1.2.4.103.1",  # Fragmentable MPEG-4 AVC/H.264 BD-compatible High Profile
     "1.2.840.10008.1.2.4.104",  # MPEG-4 AVC/H.264 High Profile For 2D Video
+    "1.2.840.10008.1.2.4.104.1",  # Fragmentable MPEG-4 AVC/H.264 High Profile For 2D Video
     "1.2.840.10008.1.2.4.105",  # MPEG-4 AVC/H.264 High Profile For 3D Video
+    "1.2.840.10008.1.2.4.105.1",  # Fragmentable MPEG-4 AVC/H.264 High Profile For 3D Video
     "1.2.840.10008.1.2.4.106",  # MPEG-4 AVC/H.264 Stereo High Profile
+    "1.2.840.10008.1.2.4.106.1",  # Fragmentable MPEG-4 AVC/H.264 Stereo High Profile
     "1.2.840.10008.1.2.4.107",  # HEVC/H.265 Main Profile / Level 5.1
     "1.2.840.10008.1.2.4.108",  # HEVC/H.265 Main 10 Profile / Level 5.1
+    "1.2.840.10008.1.2.4.201",  # High-Throughput JPEG 2000 Lossless
+    "1.2.840.10008.1.2.4.202",  # High-Throughput JPEG 2000 RPCL
+    "1.2.840.10008.1.2.4.203",  # High-Throughput JPEG 2000
+    "1.2.840.10008.1.2.4.204",  # JPIP HT2K Referenced
+    "1.2.840.10008.1.2.4.205",  # JPIP HTJ2k Referenced Deflate
     "1.2.840.10008.1.2.5",  # RLE Lossless
 ]
 """All current transfer syntaxes and explicit VR big endian.
@@ -74,14 +85,26 @@ ALL_TRANSFER_SYNTAXES: List[str] = [
 * JPIP Referenced
 * JPIP Referenced Deflate
 * MPEG2 Main Profile / Main Level
+* Fragmentable MPEG2 Main Profile / Main Level
 * MPEG2 Main Profile / High Level
+* Fragmentable MPEG2 Main Profile / High Level
 * MPEG-4 AVC/H.264 High Profile / Level 4.1
+* Fragmentable MPEG-4 AVC/H.264 High Profile / Level 4.1
 * MPEG-4 AVC/H.264 BD-compatible High Profile
+* Fragmentable MPEG-4 AVC/H.264 BD-compatible High Profile
 * MPEG-4 AVC/H.264 High Profile For 2D Video
+* Fragmentable MPEG-4 AVC/H.264 High Profile For 2D Video
 * MPEG-4 AVC/H.264 High Profile For 3D Video
+* Fragmentable MPEG-4 AVC/H.264 High Profile For 3D Video
 * MPEG-4 AVC/H.264 Stereo High Profile
+* Fragmentable MPEG-4 AVC/H.264 Stereo High Profile
 * HEVC/H.265 Main Profile / Level 5.1
 * HEVC/H.265 Main 10 Profile / Level 5.1
+* High-Throughput JPEG 2000 Lossless
+* High-Throughput JPEG 2000 with RPCL Lossless
+* High-Throughput JPEG 2000
+* JPIP HTK2K Referenced
+* JPIP HTK2K Referenced Deflate
 * RLE Lossless
 """
 

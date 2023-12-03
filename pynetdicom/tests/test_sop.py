@@ -144,7 +144,12 @@ def test_all_sop_classes():
     for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         assert uid in UID_dictionary
     for uid in _STORAGE_CLASSES.values():
-        if uid in ("1.2.840.10008.5.1.4.1.1.6.3", "1.2.840.10008.5.1.4.1.1.9.1.4"):
+        if uid in (
+            "1.2.840.10008.5.1.4.1.1.6.3",
+            "1.2.840.10008.5.1.4.1.1.9.1.4",
+            "1.2.840.10008.5.1.4.1.1.77.1.8",
+            "1.2.840.10008.5.1.4.1.1.77.1.9",
+        ):
             continue
 
         assert uid in UID_dictionary
