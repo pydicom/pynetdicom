@@ -248,6 +248,8 @@ Storage
    ComprehensiveSRStorage
    Comprehensive3DSRStorage
    ComputedRadiographyImageStorage
+   ConfocalMicroscopyImageStorage
+   ConfocalMicroscopyTiledPyramidalImageStorage
    ContentAssessmentResultsStorage
    CornealTopographyMapStorage
    CTImageStorage

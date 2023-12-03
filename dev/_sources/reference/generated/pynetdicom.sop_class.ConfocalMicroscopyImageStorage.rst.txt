@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.ConfocalMicroscopyImageStorage
+====================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ConfocalMicroscopyImageStorage
