@@ -45,8 +45,8 @@ LOGGER = logging.getLogger("pynetdicom.ae")
 
 
 _T = TypeVar("_T")
-ListCXType = List[PresentationContext]
-TSyntaxType = Optional[Union[str, UID, Sequence[Union[str, UID]]]]
+ListCXType = list[PresentationContext]
+TSyntaxType = None | str | UID | Sequence[str] | Sequence[UID]
 
 
 class ApplicationEntity:
