@@ -318,6 +318,14 @@ requesting an association, which takes a 2-tuple of (<a class="reference externa
 <span class="gp">&gt;&gt;&gt; </span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">bind_address</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11113</span><span class="p">))</span>  
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When using <em>bind_address</em> you may sometimes be unable to immediately
+reconnect with the same bound address and port due to an exception about
+the socket or address already being in use. This occurs because
+the <a class="reference external" href="https://hea-www.harvard.edu/~fine/Tech/addrinuse.html">previous TCP connection using the bound socket</a> remains in a
+<code class="docutils literal notranslate"><span class="pre">TIME_WAIT</span></code> state which must expire before you are able to re-use the socket.</p>
+</div>
 </section>
 <section id="association">
 <h3>Association<a class="headerlink" href="#association" title="Link to this heading">¶</a></h3>

@@ -230,6 +230,14 @@ requesting an association, which takes a 2-tuple of (:class:`str` *host*,
     >>> ae.add_requested_context('1.2.840.10008.1.1')
     >>> assoc = ae.associate("127.0.0.1", 11112, bind_address=("127.0.0.1", 11113))  # doctest: +SKIP
 
+.. note::
+
+    When using *bind_address* you may sometimes be unable to immediately
+    reconnect with the same bound address and port due to an exception about
+    the socket or address already being in use. This occurs because
+    the `previous TCP connection using the bound socket
+    <https://hea-www.harvard.edu/~fine/Tech/addrinuse.html>`_ remains in a
+    ``TIME_WAIT`` state which must expire before you are able to re-use the socket.
 
 Association
 ...........
