@@ -1885,17 +1885,15 @@ class Association(threading.Thread):
                 tsyntax.is_implicit_VR,
                 tsyntax.is_little_endian,
             )
-            ds_encoding = cast(
-                tuple[bool, bool],
-                getattr(
-                    dataset,
-                    "original_encoding",
-                    (dataset.is_implicit_VR, dataset.is_little_endian),
-                ),
+            # `dataset` might also be created from scratch
+            ds_encoding = getattr(
+                dataset,
+                "original_encoding",
+                (dataset.is_implicit_VR, dataset.is_little_endian),
             )
-            if ts_encoding != ds_encoding:
-                s = ("explicit VR", "implicit VR")[ds_encoding[0]]
-                s += (" big endian", " little endian")[ds_encoding[1]]
+            if None not in ds_encoding and ts_encoding != ds_encoding:
+                s = ("explicit VR", "implicit VR")[cast(bool, ds_encoding[0])]
+                s += (" big endian", " little endian")[cast(bool, ds_encoding[1])]
                 msg = (
                     f"'dataset' is encoded as {s} but the file meta has a "
                     f"(0002,0010) Transfer Syntax UID of '{tsyntax.name}'"
