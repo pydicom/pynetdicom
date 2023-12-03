@@ -421,7 +421,6 @@ _STORAGE_CLASSES = {
     "EncapsulatedPDFStorage": "1.2.840.10008.5.1.4.1.1.104.1",  # A.45.1
     "EncapsulatedCDAStorage": "1.2.840.10008.5.1.4.1.1.104.2",  # A.45.2
     "EncapsulatedSTLStorage": "1.2.840.10008.5.1.4.1.1.104.3",  # A.85.1
-    # 128 presentation context limit here
     "EncapsulatedOBJStorage": "1.2.840.10008.5.1.4.1.1.104.4",  # A.85.2
     "EncapsulatedMTLStorage": "1.2.840.10008.5.1.4.1.1.104.5",  # A.85.3
     "PositronEmissionTomographyImageStorage": "1.2.840.10008.5.1.4.1.1.128",  # A.21
