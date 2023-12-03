@@ -18,7 +18,7 @@ import warnings
 from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.tag import BaseTag
-from pydicom.uid import UID
+from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRBigEndian
 
 # pylint: disable=no-name-in-module
 from pynetdicom.acse import ACSE
@@ -1880,6 +1880,36 @@ class Association(threading.Thread):
                     "`dataset` as it contains no '(0002,0010) Transfer Syntax "
                     "UID' file meta information element"
                 )
+
+            ts_encoding: tuple[bool, bool] = (
+                tsyntax.is_implicit_VR,
+                tsyntax.is_little_endian,
+            )
+            ds_encoding = cast(
+                tuple[bool, bool],
+                getattr(
+                    dataset,
+                    "original_encoding",
+                    (dataset.is_implicit_VR, dataset.is_little_endian),
+                ),
+            )
+            if ts_encoding != ds_encoding:
+                s = ("explicit VR", "implicit VR")[ds_encoding[0]]
+                s += (" big endian", " little endian")[ds_encoding[1]]
+                msg = (
+                    f"'dataset' is encoded as {s} but the file meta has a "
+                    f"(0002,0010) Transfer Syntax UID of '{tsyntax.name}'"
+                )
+                if ds_encoding == (True, True):
+                    LOGGER.warning(f"{msg} - using 'Implicit VR Little Endian' instead")
+                    tsyntax = ImplicitVRLittleEndian
+                elif ds_encoding == (False, False):
+                    LOGGER.warning(f"{msg} - using 'Explicit VR Big Endian' instead")
+                    tsyntax = ExplicitVRBigEndian
+                else:
+                    raise AttributeError(
+                        f"{msg} - please set an appropriate Transfer Syntax"
+                    )
 
         # Get a Presentation Context to use for sending the message
         context = self._get_valid_context(

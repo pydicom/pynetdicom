@@ -13,6 +13,7 @@ Fixes
 * Sanitise filenames for received datasets for non-conformant SOP Instance
   UIDs (:issue:`823`)
 
+
 Enhancements
 ............
 
@@ -27,6 +28,10 @@ Enhancements
   <pynetdicom.service_class.StorageManagementServiceClass>` (:issue:`880`)
 * Added :meth:`~pynetdicom.events.Event.encoded_dataset` to simplify accessing
   the encoded dataset without first decoding it
+* Added a check to :meth:`~pynetdicom.association.Association.send_c_store` to
+  ensure that the *Transfer Syntax UID* matches the encoding of the dataset
+  (:issue:`891`)
+
 
 Changes
 .......
