@@ -252,8 +252,14 @@ Troubleshooting associations
 ----------------------------
 
 By itself our output isn't very helpful in understanding what's going on.
-Fortunately, by default *pynetdicom* has lots of logging output, which can be
-sent to the terminal by calling :func:`~debug_logger`:
+Fortunately *pynetdicom* has lots of logging output, but by default its
+configured to send it all to the :class:`~logging.NullHandler` which prevents
+warnings and errors being printed to ``sys.stderr``. This can be undone by
+importing :mod:`logging` and setting ``logging.getLogger("pynetdicom").handlers = []``
+or by adding your own logging handlers.
+
+If you need to troubleshoot, then a quick way to send the debugging output to
+``sys.stderr`` is by calling :func:`~debug_logger`:
 
 .. code-block:: python
    :linenos:

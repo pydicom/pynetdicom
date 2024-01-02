@@ -312,8 +312,13 @@ associate, move on to the next section on troubleshooting associations.</p>
 <section id="troubleshooting-associations">
 <h3>Troubleshooting associations<a class="headerlink" href="#troubleshooting-associations" title="Link to this heading">¶</a></h3>
 <p>By itself our output isn’t very helpful in understanding what’s going on.
-Fortunately, by default <em>pynetdicom</em> has lots of logging output, which can be
-sent to the terminal by calling <a class="reference internal" href="../reference/generated/pynetdicom.debug_logger.html#pynetdicom.debug_logger" title="pynetdicom.debug_logger"><code class="xref py py-func docutils literal notranslate"><span class="pre">debug_logger()</span></code></a>:</p>
+Fortunately <em>pynetdicom</em> has lots of logging output, but by default its
+configured to send it all to the <a class="reference external" href="https://docs.python.org/3/library/logging.handlers.html#logging.NullHandler" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NullHandler</span></code></a> which prevents
+warnings and errors being printed to <code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code>. This can be undone by
+importing <a class="reference external" href="https://docs.python.org/3/library/logging.html#module-logging" title="(in Python v3.12)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code></a> and setting <code class="docutils literal notranslate"><span class="pre">logging.getLogger(&quot;pynetdicom&quot;).handlers</span> <span class="pre">=</span> <span class="pre">[]</span></code>
+or by adding your own logging handlers.</p>
+<p>If you need to troubleshoot, then a quick way to send the debugging output to
+<code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code> is by calling <a class="reference internal" href="../reference/generated/pynetdicom.debug_logger.html#pynetdicom.debug_logger" title="pynetdicom.debug_logger"><code class="xref py py-func docutils literal notranslate"><span class="pre">debug_logger()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="linenos">1</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
 </span><span class="linenos">2</span>
 <span class="hll"><span class="linenos">3</span> <span class="n">debug_logger</span><span class="p">()</span>
