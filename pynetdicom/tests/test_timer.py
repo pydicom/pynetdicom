@@ -8,7 +8,7 @@ import pytest
 from pynetdicom.timer import Timer
 from .utils import sleep
 
-LOGGER = logging.getLogger("pynetdicom")
+LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.CRITICAL)
 
 

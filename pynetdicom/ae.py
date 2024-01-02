@@ -41,7 +41,7 @@ from pynetdicom._globals import (
 )
 
 
-LOGGER = logging.getLogger("pynetdicom.ae")
+LOGGER = logging.getLogger(__name__)
 
 
 _T = TypeVar("_T")

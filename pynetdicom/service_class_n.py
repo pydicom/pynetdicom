@@ -36,7 +36,7 @@ if TYPE_CHECKING:  # pragma: no cover
     _UPS = N_CREATE | N_EVENT_REPORT | N_GET | N_SET | N_ACTION | C_FIND
 
 
-LOGGER = logging.getLogger("pynetdicom.service-n")
+LOGGER = logging.getLogger(__name__)
 
 
 class ApplicationEventLoggingServiceClass(ServiceClass):

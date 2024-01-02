@@ -38,7 +38,7 @@ from pynetdicom.service_class_n import (
 )
 
 
-LOGGER = logging.getLogger("pynetdicom.sop")
+LOGGER = logging.getLogger(__name__)
 
 
 def uid_to_service_class(uid: str) -> Type[ServiceClass]:

@@ -69,7 +69,7 @@ if hasattr(PYD_CONFIG, "settings"):
     PYD_CONFIG.settings.reading_validation_mode = 0
 
 
-LOGGER = logging.getLogger("pynetdicom")
+LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.CRITICAL)
 
 

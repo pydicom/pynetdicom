@@ -44,7 +44,7 @@ from .encoded_dimse_msg import (
 )
 
 
-LOGGER = logging.getLogger("pynetdicom")
+LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.CRITICAL)
 
 

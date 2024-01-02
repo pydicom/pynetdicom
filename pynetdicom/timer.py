@@ -6,7 +6,7 @@ import time
 from typing import Optional
 
 
-LOGGER = logging.getLogger("pynetdicom.artim")
+LOGGER = logging.getLogger(__name__)
 
 
 class Timer:

@@ -24,7 +24,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import A_ASSOCIATE, P_DATA, A_RELEASE
 
 
-LOGGER = logging.getLogger("pynetdicom.sm")
+LOGGER = logging.getLogger(__name__)
 
 
 class InvalidEventError(Exception):

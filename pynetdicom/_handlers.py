@@ -61,7 +61,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_items import SOPClassCommonExtendedNegotiation
 
 
-LOGGER = logging.getLogger("pynetdicom.events")
+LOGGER = logging.getLogger(__name__)
 
 
 # Debugging handlers

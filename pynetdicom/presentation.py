@@ -47,7 +47,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 
-LOGGER = logging.getLogger("pynetdicom.presentation")
+LOGGER = logging.getLogger(__name__)
 
 
 # Used with the event handlers to give the users access to the context

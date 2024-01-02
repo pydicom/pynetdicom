@@ -172,7 +172,7 @@ DOC_HANDLERS = [
 
 def test_debug_logger():
     """Test __init__.debug_logger()."""
-    logger = logging.getLogger("pynetdicom")
+    logger = logging.getLogger(__name__)
     assert len(logger.handlers) == 1
     assert isinstance(logger.handlers[0], logging.NullHandler)
 

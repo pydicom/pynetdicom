@@ -22,7 +22,7 @@ from pynetdicom.presentation import PresentationContext
 from pynetdicom.utils import validate_uid, decode_bytes, set_ae, set_uid
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
 
-LOGGER = logging.getLogger("pynetdicom.pdu_primitives")
+LOGGER = logging.getLogger(__name__)
 
 _PDUPrimitiveType = Union["A_ASSOCIATE", "A_RELEASE", "A_ABORT", "A_P_ABORT", "P_DATA"]
 _UserInformationPrimitiveType = List[

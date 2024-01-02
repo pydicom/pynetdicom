@@ -7,7 +7,7 @@ import unicodedata
 from pydicom.uid import UID
 
 
-LOGGER = logging.getLogger("pynetdicom._validators")
+LOGGER = logging.getLogger(__name__)
 
 
 def validate_ae(value: str) -> Tuple[bool, str]:

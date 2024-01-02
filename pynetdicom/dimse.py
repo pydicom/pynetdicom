@@ -62,7 +62,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import P_DATA
 
 
-LOGGER = logging.getLogger("pynetdicom.dimse")
+LOGGER = logging.getLogger(__name__)
 
 _RQ_TO_MESSAGE = {
     C_ECHO: C_ECHO_RQ,
