@@ -99,7 +99,7 @@ from .encoded_dimse_n_msg import (
     n_set_rq_cmd_empty,
 )
 
-LOGGER = logging.getLogger("pynetdicom")
+LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.CRITICAL)
 
 

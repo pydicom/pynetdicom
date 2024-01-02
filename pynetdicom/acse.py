@@ -29,7 +29,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.transport import AssociationSocket
 
 
-LOGGER = logging.getLogger("pynetdicom.acse")
+LOGGER = logging.getLogger(__name__)
 
 
 class ACSE:

@@ -57,7 +57,7 @@ if TYPE_CHECKING:  # pragma: no cover
     )
 
 
-LOGGER = logging.getLogger("pynetdicom.pdu")
+LOGGER = logging.getLogger(__name__)
 
 _PDVItem = List[PresentationDataValueItem]
 _AbortType = Union["A_ABORT", "A_P_ABORT"]

@@ -58,7 +58,7 @@ from .encoded_pdu_items import (
 from pynetdicom.sop_class import Verification
 from pynetdicom.utils import pretty_bytes
 
-LOGGER = logging.getLogger("pynetdicom")
+LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.CRITICAL)
 
 

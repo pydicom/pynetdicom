@@ -40,7 +40,7 @@ if TYPE_CHECKING:  # pragma: no cover
     _QueueType = queue.Queue[Union[_PDUPrimitiveType, T_CONNECT]]
 
 
-LOGGER = logging.getLogger("pynetdicom.dul")
+LOGGER = logging.getLogger(__name__)
 
 
 class DULServiceProvider(Thread):

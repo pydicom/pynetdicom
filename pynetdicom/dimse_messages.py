@@ -36,7 +36,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.dimse_primitives import NTF
 
 
-LOGGER = logging.getLogger("pynetdicom.dimse")
+LOGGER = logging.getLogger(__name__)
 
 
 # PS3.7 Section 9.3

@@ -52,7 +52,7 @@ if TYPE_CHECKING:  # pragma: no cover
     )
 
 
-LOGGER = logging.getLogger("pynetdicom.events")
+LOGGER = logging.getLogger(__name__)
 
 
 EventType = Union["NotificationEvent", "InterventionEvent"]

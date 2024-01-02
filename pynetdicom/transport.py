@@ -37,7 +37,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.dul import _QueueType
 
 
-LOGGER = logging.getLogger("pynetdicom.transport")
+LOGGER = logging.getLogger(__name__)
 
 
 class T_CONNECT:

@@ -90,7 +90,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 # pylint: enable=no-name-in-module
-LOGGER = logging.getLogger("pynetdicom.assoc")
+LOGGER = logging.getLogger(__name__)
 HandlerType = dict[
     evt.EventType,
     (list[tuple[Callable, None | list[Any]]] | tuple[Callable, None | list[Any]]),

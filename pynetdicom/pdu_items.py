@@ -75,7 +75,7 @@ if TYPE_CHECKING:  # pragma: no cover
     )
 
 
-LOGGER = logging.getLogger("pynetdicom.pdu_items")
+LOGGER = logging.getLogger(__name__)
 
 # Predefine some structs to make decoding and encoding faster
 UCHAR = Struct("B")

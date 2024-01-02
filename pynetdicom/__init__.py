@@ -68,12 +68,12 @@ from pynetdicom.sop_class import register_uid
 
 
 # Setup default logging
-logging.getLogger("pynetdicom").addHandler(logging.NullHandler())
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 def debug_logger() -> None:
     """Setup the logging for debugging."""
-    logger = logging.getLogger("pynetdicom")
+    logger = logging.getLogger(__name__)
     # Ensure only have one StreamHandler
     logger.handlers = []
     handler = logging.StreamHandler()

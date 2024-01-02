@@ -18,7 +18,7 @@ from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID, PYNETDICOM_IMPLEMENTATION_
 from pynetdicom.utils import pretty_bytes
 
 
-LOGGER = logging.getLogger("pynetdicom.dsutils")
+LOGGER = logging.getLogger(__name__)
 
 
 def create_file_meta(

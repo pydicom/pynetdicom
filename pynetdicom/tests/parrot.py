@@ -13,7 +13,7 @@ import time
 from pynetdicom.transport import AssociationServer
 
 
-LOGGER = logging.getLogger("pynetdicom")
+LOGGER = logging.getLogger(__name__)
 
 
 class ParrotRequest(BaseRequestHandler):

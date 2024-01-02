@@ -36,7 +36,7 @@ if TYPE_CHECKING:  # pragma: no cover
             ...
 
 
-LOGGER = logging.getLogger("pynetdicom.dimse_primitives")
+LOGGER = logging.getLogger(__name__)
 
 
 DimseServiceType = Union[

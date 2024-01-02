@@ -27,7 +27,7 @@ from pydicom.uid import UID
 from pynetdicom import _config
 
 
-LOGGER = logging.getLogger("pynetdicom.utils")
+LOGGER = logging.getLogger(__name__)
 
 
 def decode_bytes(encoded_value: bytes) -> str:

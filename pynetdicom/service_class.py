@@ -76,7 +76,7 @@ _ExcInfoType = (
 DestinationType = tuple[str, int] | tuple[str, int, dict[str, Any]]
 
 
-LOGGER = logging.getLogger("pynetdicom.service-c")
+LOGGER = logging.getLogger(__name__)
 
 
 class attempt:
