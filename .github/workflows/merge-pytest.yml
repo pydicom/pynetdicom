@@ -73,7 +73,7 @@ jobs:
           poetry run coverage xml
       - name: Send coverage results
         if: ${{ success() }}
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
 
   pydicom-dev:
     # Matrix builds with development pydicom
@@ -118,7 +118,7 @@ jobs:
         poetry run coverage xml
     - name: Send coverage results
       if: ${{ success() }}
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
 
   pydicom-release:
     # Matrix builds with released pydicom
@@ -162,4 +162,4 @@ jobs:
         poetry run coverage xml
     - name: Send coverage results
       if: ${{ success() }}
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
