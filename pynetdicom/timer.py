@@ -1,6 +1,7 @@
 """
 A generic timer class suitable for use as the DICOM UL's ARTIM timer.
 """
+
 import logging
 import time
 from typing import Optional

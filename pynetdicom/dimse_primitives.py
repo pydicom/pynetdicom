@@ -29,11 +29,9 @@ if TYPE_CHECKING:  # pragma: no cover
         name: str
         file: BufferedWriter
 
-        def write(self, data: bytes) -> bytes:
-            ...
+        def write(self, data: bytes) -> bytes: ...
 
-        def close(self) -> None:
-            ...
+        def close(self) -> None: ...
 
 
 LOGGER = logging.getLogger(__name__)
@@ -475,6 +473,7 @@ class C_STORE(DIMSEPrimitive):
         An optional status related field containing a text description
         of the error detected. 64 characters maximum.
     """
+
     STATUS_OPTIONAL_KEYWORDS = (
         "OffendingElement",
         "ErrorComment",
@@ -681,6 +680,7 @@ class C_FIND(DIMSEPrimitive):
         An optional status related field containing a text
         description of the error detected. 64 characters maximum.
     """
+
     STATUS_OPTIONAL_KEYWORDS = (
         "OffendingElement",
         "ErrorComment",
@@ -806,6 +806,7 @@ class C_GET(DIMSEPrimitive):
         An optional status related field containing a text
         description of the error detected. 64 characters maximum.
     """
+
     STATUS_OPTIONAL_KEYWORDS = (
         "ErrorComment",
         "OffendingElement",
@@ -991,6 +992,7 @@ class C_MOVE(DIMSEPrimitive):
         An optional status related field containing a text
         description of the error detected. 64 characters maximum.
     """
+
     STATUS_OPTIONAL_KEYWORDS = (
         "ErrorComment",
         "OffendingElement",
@@ -1185,6 +1187,7 @@ class C_ECHO(DIMSEPrimitive):
         An optional status related field containing a text description
         of the error detected. 64 characters maximum.
     """
+
     STATUS_OPTIONAL_KEYWORDS = ("ErrorComment",)
     REQUEST_KEYWORDS = ("MessageID", "AffectedSOPClassUID")
 
@@ -1315,6 +1318,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
     Status : int
         The error or success notification of the operation.
     """
+
     # Optional status element keywords other than 'Status'
     STATUS_OPTIONAL_KEYWORDS = (
         "AffectedSOPClassUID",
@@ -1463,6 +1467,7 @@ class N_GET(DIMSEPrimitive):
     Status : int
         The error or success notification of the operation.
     """
+
     STATUS_OPTIONAL_KEYWORDS = (
         "AttributeIdentifierList",
         "ErrorComment",
@@ -1645,6 +1650,7 @@ class N_SET(DIMSEPrimitive):
     Status : int
         The error or success notification of the operation.
     """
+
     STATUS_OPTIONAL_KEYWORDS = ("ErrorComment", "ErrorID", "AttributeIdentifierList")
     REQUEST_KEYWORDS = (
         "MessageID",
@@ -1804,6 +1810,7 @@ class N_ACTION(DIMSEPrimitive):
     Status : int
         The error or success notification of the operation.
     """
+
     STATUS_OPTIONAL_KEYWORDS = ("ErrorComment", "ErrorID", "AttributeIdentifierList")
     REQUEST_KEYWORDS = (
         "MessageID",
@@ -1974,6 +1981,7 @@ class N_CREATE(DIMSEPrimitive):
         The error or success notification of the operation. It shall be
         one of the following values:
     """
+
     STATUS_OPTIONAL_KEYWORDS = (
         "ErrorComment",
         "ErrorID",
@@ -2071,6 +2079,7 @@ class N_DELETE(DIMSEPrimitive):
     Status : int
         The error or success notification of the operation.
     """
+
     STATUS_OPTIONAL_KEYWORDS = (
         "ErrorComment",
         "ErrorID",
