@@ -1,6 +1,7 @@
 """
 The main user class, represents a DICOM Application Entity
 """
+
 from copy import deepcopy
 from datetime import datetime
 import logging

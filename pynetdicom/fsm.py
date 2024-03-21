@@ -1,6 +1,7 @@
 """
 The DUL's finite state machine representation.
 """
+
 import logging
 import queue
 from typing import TYPE_CHECKING, cast
