@@ -15,7 +15,7 @@
   <![endif]-->
   
         <script src="../../_static/documentation_options.js?v=591fcf0d"></script>
-        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../../_static/copybutton.js?v=ccdb6887"></script>
@@ -122,10 +122,10 @@
 <h1>pynetdicom.status.Status<a class="headerlink" href="#pynetdicom-status-status" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.status.Status">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.status.</span></span><span class="sig-name descname"><span class="pre">Status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6ab3908b2/pynetdicom/status.py#L598"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.status.</span></span><span class="sig-name descname"><span class="pre">Status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c4a367d13/pynetdicom/status.py#L598"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status" title="Link to this definition">¶</a></dt>
 <dd><p>Constants for common status codes.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 1.5.</span></p>
+<p><span class="versionmodified added">Added in version 1.5.</span></p>
 </div>
 <p>New constants can be added with the <code class="docutils literal notranslate"><span class="pre">Status.add(name,</span> <span class="pre">code)</span></code> method but
 the documentation for it is missing due to a bug in Sphinx. <cite>name</cite> is
@@ -154,6 +154,24 @@ the corresponding status code as an <a class="reference external" href="https://
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">conjugate</span></code></p></td>
+<td><p>Returns self, the complex conjugate of any int.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_length</span></code>()</p></td>
+<td><p>Number of bits necessary to represent self in binary.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_count</span></code>()</p></td>
+<td><p>Number of ones in the binary representation of the absolute value of self.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bytes</span></code>(length, byteorder, *[, signed])</p></td>
+<td><p>Return an array of bytes representing an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bytes</span></code>(byteorder, *[, signed])</p></td>
+<td><p>Return the integer represented by the given array of bytes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code>()</p></td>
+<td><p>Return integer ratio.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.status.Status.add" title="pynetdicom.status.Status.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></a>(name, code)</p></td>
 <td><p>Add a new constant to <cite>Status</cite>.</p></td>
 </tr>
@@ -162,6 +180,18 @@ the corresponding status code as an <a class="reference external" href="https://
 <p class="rubric">Attributes</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></p></td>
+<td><p>the real part of a complex number</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></p></td>
+<td><p>the imaginary part of a complex number</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numerator</span></code></p></td>
+<td><p>the numerator of a rational number in lowest terms</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">denominator</span></code></p></td>
+<td><p>the denominator of a rational number in lowest terms</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.status.Status.SUCCESS" title="pynetdicom.status.Status.SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SUCCESS</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Success</p></td>
 </tr>
@@ -178,31 +208,31 @@ the corresponding status code as an <a class="reference external" href="https://
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pynetdicom.status.Status.CANCEL">
-<span class="sig-name descname"><span class="pre">CANCEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">65024</span></em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6ab3908b2/pynetdicom/status.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status.CANCEL" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">CANCEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">65024</span></em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c4a367d13/pynetdicom/status.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status.CANCEL" title="Link to this definition">¶</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">0xFE00</span></code> - Operation terminated</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pynetdicom.status.Status.MOVE_DESTINATION_UNKNOWN">
-<span class="sig-name descname"><span class="pre">MOVE_DESTINATION_UNKNOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">43009</span></em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6ab3908b2/pynetdicom/status.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status.MOVE_DESTINATION_UNKNOWN" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">MOVE_DESTINATION_UNKNOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">43009</span></em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c4a367d13/pynetdicom/status.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status.MOVE_DESTINATION_UNKNOWN" title="Link to this definition">¶</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">0xA801</span></code> - Move destination unknown</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pynetdicom.status.Status.PENDING">
-<span class="sig-name descname"><span class="pre">PENDING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">65280</span></em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6ab3908b2/pynetdicom/status.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status.PENDING" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">PENDING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">65280</span></em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c4a367d13/pynetdicom/status.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status.PENDING" title="Link to this definition">¶</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">0xFF00</span></code> - Matches or sub-operations are continuing</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pynetdicom.status.Status.SUCCESS">
-<span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6ab3908b2/pynetdicom/status.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status.SUCCESS" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c4a367d13/pynetdicom/status.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status.SUCCESS" title="Link to this definition">¶</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Success</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.status.Status.add">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6ab3908b2/pynetdicom/status.py#L637"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status.add" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c4a367d13/pynetdicom/status.py#L637"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.status.Status.add" title="Link to this definition">¶</a></dt>
 <dd><p>Add a new constant to <cite>Status</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

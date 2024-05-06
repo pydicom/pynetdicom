@@ -13,6 +13,12 @@
 
    .. autosummary::
    
+      ~Status.conjugate
+      ~Status.bit_length
+      ~Status.bit_count
+      ~Status.to_bytes
+      ~Status.from_bytes
+      ~Status.as_integer_ratio
       ~Status.add
    
    
@@ -23,6 +29,10 @@
 
    .. autosummary::
    
+      ~Status.real
+      ~Status.imag
+      ~Status.numerator
+      ~Status.denominator
       ~Status.SUCCESS
       ~Status.CANCEL
       ~Status.PENDING
