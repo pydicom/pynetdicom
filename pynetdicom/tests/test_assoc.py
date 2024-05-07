@@ -93,6 +93,14 @@ def enable_unrestricted():
     _config.UNRESTRICTED_STORAGE_SERVICE = False
 
 
+@pytest.fixture
+def disable_identifer_logging():
+    original = _config.LOG_REQUEST_IDENTIFIERS
+    _config.LOG_REQUEST_IDENTIFIERS = False
+    yield
+    _config.LOG_REQUEST_IDENTIFIERS = original
+
+
 class DummyDIMSE:
     def __init__(self):
         self.status = None
@@ -2601,6 +2609,39 @@ class TestAssociationSendCFind:
         )
         assert msg in caplog.text
 
+    def test_identifier_logging(self, caplog, disable_identifer_logging):
+        """Test identifiers not logged if config option set"""
+
+        def handle(event):
+            yield 0x0000, None
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(
+            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+
+        with caplog.at_level(logging.INFO, logger="pynetdicom"):
+            for status, ds in assoc.send_c_find(
+                self.ds, PatientRootQueryRetrieveInformationModelFind
+            ):
+                assert status.Status == 0x0000
+                assert ds is None
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert "(0010,0010) PN" not in caplog.text
+
 
 class TestAssociationSendCCancel:
     """Run tests on Association send_c_cancel."""
@@ -3665,6 +3706,63 @@ class TestAssociationSendCGet:
 
         scp.shutdown()
 
+    def test_identifier_logging(self, caplog, disable_identifer_logging):
+        """Test identifiers not logged if config option set"""
+
+        def handle_get(event):
+            yield 2
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
+
+        def handle_store(event):
+            return 0x0000
+
+        scu_handler = [(evt.EVT_C_STORE, handle_store)]
+        scp_handler = [(evt.EVT_C_GET, handle_get)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+
+        scp = ae.start_server(
+            ("localhost", 11112), block=False, evt_handlers=scp_handler
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+
+        role = build_role(CTImageStorage, scp_role=True, scu_role=True)
+
+        assoc = ae.associate(
+            "localhost", 11112, evt_handlers=scu_handler, ext_neg=[role]
+        )
+
+        assert assoc.is_established
+
+        with caplog.at_level(logging.INFO, logger="pynetdicom"):
+            result = assoc.send_c_get(
+                self.ds, PatientRootQueryRetrieveInformationModelGet
+            )
+            (status, ds) = next(result)
+            assert status.Status == 0xFF00
+            assert ds is None
+            (status, ds) = next(result)
+            assert status.Status == 0xFF00
+            assert ds is None
+            (status, ds) = next(result)
+            assert status.Status == 0x0000
+            assert ds is None
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert "(0010,0010) PN" not in caplog.text
+
 
 class TestAssociationSendCMove:
     """Run tests on Association send_c_move."""
@@ -4553,6 +4651,70 @@ class TestAssociationSendCMove:
                 "UID '1.2.3.4'"
             )
             assert msg in caplog.text
+
+    def test_identifier_logging(self, caplog, disable_identifer_logging):
+        """Test identifiers not logged if config option set"""
+
+        def handle_store(event):
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+
+        # Storage SCP
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ("localhost", 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)],
+        )
+
+        # Move SCP
+        def handle_move(event):
+            yield "localhost", 11112
+            yield 2
+            yield 0xFF00, self.good
+
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ("localhost", 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
+        )
+
+        # Move SCU
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+
+        assoc = ae.associate("localhost", 11113)
+        assert assoc.is_established
+
+        with caplog.at_level(logging.INFO, logger="pynetdicom"):
+            result = assoc.send_c_move(
+                self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
+            )
+            (status, ds) = next(result)
+            assert status.Status == 0xFF00
+            assert ds is None
+            (status, ds) = next(result)
+            assert status.Status == 0x0000
+            assert ds is None
+            with pytest.raises(StopIteration):
+                next(result)
+
+        assoc.release()
+        assert assoc.is_released
+
+        store_scp.shutdown()
+        move_scp.shutdown()
+
+        assert "(0010,0010) PN" not in caplog.text
 
 
 class TestGetValidContext:
