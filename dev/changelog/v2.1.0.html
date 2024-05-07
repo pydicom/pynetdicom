@@ -126,6 +126,10 @@
 <li><p>Fixed maximum length of <em>Patient ID</em> attribute in <code class="docutils literal notranslate"><span class="pre">qrscp</span></code> app (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/785">#785</a>)</p></li>
 <li><p>Sanitise filenames for received datasets for non-conformant SOP Instance
 UIDs (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/823">#823</a>)</p></li>
+<li><p>Fixed :attr:~pynetdicom._config.LOG_REQUEST_IDENTIFIERS` not applying to
+meth:<cite>Association.send_c_find()&lt;pynetdicom.association.Association.send_c_find&gt;</cite>,
+meth:<cite>Association.send_c_move()&lt;pynetdicom.association.Association.send_c_move&gt;</cite> and
+meth:<cite>Association.send_c_get()&lt;pynetdicom.association.Association.send_c_get&gt;</cite> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/911">#911</a>)</p></li>
 </ul>
 </section>
 <section id="enhancements">
@@ -151,7 +155,7 @@ ensure that the <em>Transfer Syntax UID</em> matches the encoding of the dataset
 <ul class="simple">
 <li><p>Dropped support for Python 3.7, 3.8 and 3.9</p></li>
 <li><p>Added support for Python 3.11 and 3.12</p></li>
-<li><p>With <a class="reference external" href="https://peps.python.org/pep-0644/">Python 3.10 requiring OpenSSL v1.1.1 or newer</a>, TLS v1.3 is now officially supported</p></li>
+<li><p>With <a class="reference external" href="https://peps.python.org/pep-0644/">Python 3.10 requiring OpenSSL v1.1.1 or newer</a>, TLS v1.3 is now supported</p></li>
 </ul>
 </section>
 </section>
