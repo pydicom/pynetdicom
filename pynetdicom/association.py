@@ -1252,10 +1252,12 @@ class Association(threading.Thread):
 
         LOGGER.info(f"Sending Find Request: MsgID {msg_id}")
         LOGGER.info("")
-        LOGGER.info("# Request Identifier")
-        for line in pretty_dataset(dataset):
-            LOGGER.info(line)
-        LOGGER.info("")
+        if _config.LOG_REQUEST_IDENTIFIERS:
+            LOGGER.info("# Request Identifier")
+            for line in pretty_dataset(dataset):
+                LOGGER.info(line)
+
+            LOGGER.info("")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -1458,10 +1460,12 @@ class Association(threading.Thread):
 
         LOGGER.info(f"Sending Get Request: MsgID {msg_id}")
         LOGGER.info("")
-        LOGGER.info("# Request Identifier")
-        for line in pretty_dataset(dataset):
-            LOGGER.info(line)
-        LOGGER.info("")
+        if _config.LOG_REQUEST_IDENTIFIERS:
+            LOGGER.info("# Request Identifier")
+            for line in pretty_dataset(dataset):
+                LOGGER.info(line)
+
+            LOGGER.info("")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -1668,10 +1672,12 @@ class Association(threading.Thread):
 
         LOGGER.info(f"Sending Move Request: MsgID {msg_id}")
         LOGGER.info("")
-        LOGGER.info("# Request Identifier")
-        for line in pretty_dataset(dataset):
-            LOGGER.info(line)
-        LOGGER.info("")
+        if _config.LOG_REQUEST_IDENTIFIERS:
+            LOGGER.info("# Request Identifier")
+            for line in pretty_dataset(dataset):
+                LOGGER.info(line)
+
+            LOGGER.info("")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()

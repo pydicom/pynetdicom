@@ -1364,7 +1364,7 @@ class ServiceClass:
             # Failure: Cannot Understand - Unknown status returned by the
             #   callback
             LOGGER.warning(
-                f"Unknown status value returned by callback - " f"0x{rsp.Status:04X}"
+                f"Unknown status value returned by callback - 0x{rsp.Status:04X}"
             )
 
         return rsp
@@ -1897,10 +1897,9 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                     if _bulk_data:
                         LOGGER.warning(
-                            f"The Query/Retrieve - Composite Instance "
-                            f"Retrieve Without Bulk Data service is "
-                            f"requested but a yielded dataset contains the "
-                            f"following (to be removed) bulk data "
+                            "The Query/Retrieve - Composite Instance Retrieve "
+                            "Without Bulk Data service is requested but a yielded "
+                            "dataset contains the following (to be removed) bulk data "
                             f"elements: {','.join(_bulk_data)}"
                         )
 
@@ -1929,9 +1928,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                         f"0x{store_status_int:04X} ({store_status[0]})"
                     )
                 else:
-                    msg = (
-                        f"Get SCP: Received Store SCP response " f"({store_status[0]})"
-                    )
+                    msg = f"Get SCP: Received Store SCP response ({store_status[0]})"
                 LOGGER.info(msg)
 
                 # Update the C-STORE sub-operation result tracker
@@ -2329,13 +2326,11 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                 if store_status_int is not None:
                     msg = (
-                        f"Move SCP: Received Store SCP response "
+                        "Move SCP: Received Store SCP response "
                         f"0x{store_status_int:04X} ({store_status[0]})"
                     )
                 else:
-                    msg = (
-                        f"Move SCP: Received Store SCP response " f"({store_status[0]})"
-                    )
+                    msg = f"Move SCP: Received Store SCP response ({store_status[0]})"
 
                 LOGGER.info(msg)
 
