@@ -1,24 +1,31 @@
-.. class:: center
-.. image:: https://codecov.io/gh/pydicom/pynetdicom/branch/main/graph/badge.svg
-    :target: https://codecov.io/gh/pydicom/pynetdicom
-.. image:: https://github.com/pydicom/pynetdicom/workflows/unit-tests/badge.svg
-    :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Aunit-tests
-.. image:: https://github.com/pydicom/pynetdicom/workflows/type-hints/badge.svg
-    :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Atype-hints
-.. image:: https://circleci.com/gh/pydicom/pynetdicom/tree/main.svg?style=shield
-    :target: https://circleci.com/gh/pydicom/pynetdicom/tree/main
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
-.. image:: https://badge.fury.io/py/pynetdicom.svg
-    :target: https://badge.fury.io/py/pynetdicom
-.. image:: https://img.shields.io/pypi/pyversions/pynetdicom.svg
-    :target: https://img.shields.io/pypi/pyversions/pynetdicom.svg
-.. image:: https://img.shields.io/conda/vn/conda-forge/pynetdicom.svg
+|coverage| |unit-tests| |type-hints| |docs| |black| |pypi-versions| |python-versions| |conda| |zenodo|
+
+.. |coverage| image:: https://codecov.io/gh/pydicom/pynetdicom/branch/main/graph/badge.svg 
+   :target: https://codecov.io/gh/pydicom/pynetdicom
+
+.. |unit-tests| image:: https://github.com/pydicom/pynetdicom/workflows/unit-tests/badge.svg
+   :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Aunit-tests
+
+.. |type-hints| image:: https://github.com/pydicom/pynetdicom/workflows/type-hints/badge.svg
+   :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Atype-hints
+
+.. |docs| image:: https://circleci.com/gh/pydicom/pynetdicom/tree/main.svg?style=shield
+   :target: https://circleci.com/gh/pydicom/pynetdicom/tree/main
+
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+
+.. |pypi-versions| image:: https://badge.fury.io/py/pynetdicom.svg
+   :target: https://badge.fury.io/py/pynetdicom
+
+.. |python-versions| image:: https://img.shields.io/pypi/pyversions/pynetdicom.svg
+   :target: https://img.shields.io/pypi/pyversions/pynetdicom.svg
+
+.. |conda| image:: https://img.shields.io/conda/vn/conda-forge/pynetdicom.svg
    :target: https://anaconda.org/conda-forge/pynetdicom
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3880767.svg
+
+.. |zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3880767.svg
    :target: https://doi.org/10.5281/zenodo.3880767
-.. image:: https://badges.gitter.im/pydicom/Lobby.svg
-    :target: https://gitter.im/pydicom/Lobby
 
 
 pynetdicom
