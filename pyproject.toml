@@ -29,7 +29,6 @@ include = [
     "pynetdicom/tests/dicom_files/*",
     "pynetdicom/apps/qrscp/default.ini",
     "pynetdicom/py.typed",
-
     "LICENCE",
 ]
 
@@ -40,7 +39,7 @@ maintainers = [
 ]
 name = "pynetdicom"
 readme = "README.rst"
-version = "2.1.0.dev0"
+version = "2.1.0"
 
 
 [tool.poetry.dependencies]

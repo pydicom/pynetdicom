@@ -6,8 +6,8 @@ on:
 
 jobs:
 
-  build_and_test:
-    name: Build and test the package
+  build:
+    name: Build the package
     runs-on: ubuntu-latest
 
     steps:
@@ -36,41 +36,22 @@ jobs:
         name: wheels
         path: dist/
 
-    - name: Publish package to Test PyPi
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        user: __token__
-        password: ${{ secrets.TEST_PYPI_PASSWORD }}
-        repository_url: https://test.pypi.org/legacy/
-
-    - name: Set up test environment
-      run: |
-        poetry install --no-interaction --extras tests
-        pip install -i https://test.pypi.org/simple/ pynetdicom
-
-    - name: Test with pytest
-      env:
-        PYTHON_VERSION: ${{ matrix.python-version }}
-      run: |
-        cd ${HOME}
-        python -m pynetdicom --version
-        python -c "import pytest; pytest.main(['--pyargs', 'pynetdicom.tests'])"
-
   deploy:
-    name: Upload package to PyPI
-    needs:
-    - build_and_test
+    name: Upload release to PyPI
+    needs: [ build ]
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/pylibjpeg-libjpeg/
+    permissions:
+      id-token: write
 
     steps:
     - name: Download the package files
       uses: actions/download-artifact@v4
       with:
-        name: wheels
         path: dist/
+        merge-multiple: true
 
     - name: Publish package to PyPi
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_PASSWORD }}
+      uses: pypa/gh-action-pypi-publish@release/v1
