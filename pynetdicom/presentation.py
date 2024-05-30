@@ -129,7 +129,14 @@ SCP_SCU_ROLES: _RoleType = {
         (False, True): CONTEXT_REJECTED,  # Invalid
     },
 }
-
+# Transfer Syntaxes not in pydicom v2.4
+_PYDICOM_ADDITIONS = [
+    "1.2.840.10008.1.2.4.201",  # HTJ2KLossless
+    "1.2.840.10008.1.2.4.202",  # HTJ2KLosslessRPCL
+    "1.2.840.10008.1.2.4.203",  # HTJ2K
+    "1.2.840.10008.1.2.4.204",  # JPIPHTJ2KReferenced
+    "1.2.840.10008.1.2.4.205",  # JPIPHTJ2KReferencedDeflate
+]
 
 class PresentationContext:
     """A Presentation Context primitive.
@@ -282,10 +289,14 @@ class PresentationContext:
                     "A non-conformant UID has been added to 'transfer_syntax'"
                 )
 
-            if not syntax.is_private and not syntax.is_transfer_syntax:
+            if (
+                not syntax.is_private
+                and not syntax.is_transfer_syntax
+                and syntax not in _PYDICOM_ADDITIONS
+            ):
                 LOGGER.warning(
                     "A UID has been added to 'transfer_syntax' that is not a "
-                    "transfer syntax"
+                    f"transfer syntax: '{syntax}'"
                 )
 
             self._transfer_syntax.append(syntax)
