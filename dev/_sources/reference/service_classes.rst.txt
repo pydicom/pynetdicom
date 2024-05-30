@@ -39,4 +39,5 @@ pynetdicom supports the following Service Classes
    ProcedureStepServiceClass
    RTMachineVerificationServiceClass
    StorageCommitmentServiceClass
+   StorageManagementServiceClass
    UnifiedProcedureStepServiceClass
