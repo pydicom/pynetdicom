@@ -81,14 +81,14 @@ def which(program):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
     fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
+    if fpath and is_exe(program):
+        return program
+
+    # for path in os.environ["PATH"].split(os.pathsep):
+    for path in sorted(os.environ["PATH"].split(os.pathsep), reverse=True):
+        exe_file = os.path.join(path, program)
+        if is_exe(exe_file):
+            return exe_file
 
 
 def start_storescp():
@@ -103,6 +103,11 @@ def start_storescp():
     return subprocess.Popen(args)
 
 
+def start_pynetdicom_storescp():
+    args = ["python", "-m", "pynetdicom", "storescp", "11112", "--ignore"]
+    return subprocess.Popen(args)
+
+
 def start_storescu(test_ds, ds_per_assoc):
     """Run DCMTK's storescu in a background process.
 
@@ -114,7 +119,7 @@ def start_storescu(test_ds, ds_per_assoc):
         The number of datasets to send using `storescu`.
     """
     fpath = test_ds.filename
-    args = [which("storescu"), "localhost", "11112"] + [fpath] * ds_per_assoc
+    args = [which("storescu"), "localhost", "11112", "--repeat", f"{ds_per_assoc}", fpath]
     return subprocess.Popen(args)
 
 
@@ -217,33 +222,13 @@ def receive_store_internal(
     if use_yappi:
         init_yappi()
 
-    def handle(event):
-        if write_ds == 1:
-            with tempfile.TemporaryFile("w+b") as tfile:
-                ds = event.dataset
-                ds.file_meta = event.file_meta
-                ds.save_as(tfile)
-        elif write_ds in (2, 3):
-            with tempfile.TemporaryFile("w+b") as tfile:
-                tfile.write(b"\x00" * 128)
-                tfile.write(b"DICM")
-                write_file_meta_info(tfile, event.file_meta)
-                tfile.write(event.request.DataSet.getvalue())
-
-        return 0x0000
+    server = start_pynetdicom_storescp()
 
     ae = AE()
     ae.acse_timeout = 5
     ae.dimse_timeout = 5
     ae.network_timeout = 5
-    if write_ds == 3:
-        ae.maximum_pdu_size = 0
-    ae.add_supported_context(test_ds.SOPClassUID, ImplicitVRLittleEndian)
     ae.add_requested_context(test_ds.SOPClassUID, ImplicitVRLittleEndian)
-
-    server = ae.start_server(
-        ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
-    )
 
     time.sleep(0.5)
     start_time = time.time()
@@ -258,17 +243,16 @@ def receive_store_internal(
             assoc.release()
 
     if is_successful:
-        write_msg = ["", " (write)", " (write fast)", " (write fastest)"][write_ds]
         print(
             f"C-STORE SCU/SCP transferred {nr_assoc * ds_per_assoc} total "
             f"{os.path.basename(test_ds.filename)} datasets over "
-            f"{nr_assoc} association{'' if nr_assoc == 1 else 's'}{write_msg} "
+            f"{nr_assoc} association{'' if nr_assoc == 1 else 's'} "
             f"in {time.time() - start_time:.2f} s"
         )
     else:
         print("C-STORE SCU/SCP benchmark failed")
 
-    server.shutdown()
+    server.terminate()
 
 
 def receive_store_dcmtk(test_ds, nr_assoc, ds_per_assoc, use_yappi=False):
@@ -433,12 +417,13 @@ def send_store(test_ds, nr_assoc, ds_per_assoc, use_yappi=False):
             is_successful = False
             break
 
+    end_time = time.time()
     if is_successful:
         print(
             f"C-STORE SCU transferred {nr_assoc * ds_per_assoc} total "
             f"{os.path.basename(test_ds.filename)} datasets over "
             f"{nr_assoc} association{'' if nr_assoc == 1 else 's'} "
-            f"in {time.time() - start_time:.2f} s"
+            f"in {end_time - start_time:.2f} s"
         )
     else:
         print("C-STORE SCU benchmark failed")
@@ -448,14 +433,14 @@ def send_store(test_ds, nr_assoc, ds_per_assoc, use_yappi=False):
 
 
 if __name__ == "__main__":
-    print("Use yappi? (y/n:)")
+    print("Use yappi? (y/n): ", end="")
     use_yappi = input()
     if use_yappi in ["y", "Y"]:
         use_yappi = True
     else:
         use_yappi = False
 
-    print("Use large dataset? (y/n:)")
+    print("Use large dataset? (y/n): ", end="")
     use_large_dcm = input()
     if use_large_dcm in ["y", "Y"]:
         use_large_dcm = True
@@ -469,7 +454,7 @@ if __name__ == "__main__":
         ds_name = "CTImageStorage.dcm"  # 39 kB
         default_nr_ds = 1000
 
-    print(f"number of datasets? (default = {default_nr_ds})")
+    print(f"number of datasets? (default = {default_nr_ds}): ", end="")
     try:
         nr_ds = int(input())
     except ValueError:
