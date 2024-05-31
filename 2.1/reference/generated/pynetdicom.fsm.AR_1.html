@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pynetdicom.fsm.AR_1 &mdash; pynetdicom 2.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/documentation_options.js?v=20623aea"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=ccdb6887"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pynetdicom.fsm.AR_2" href="pynetdicom.fsm.AR_2.html" />
+    <link rel="prev" title="pynetdicom.fsm.DT_2" href="pynetdicom.fsm.DT_2.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../init.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../fsm.html#state-machine">State Machine</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../fsm.html#actions">Actions</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../fsm.html#association-establishment">Association Establishment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fsm.html#data-transfer">Data Transfer</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../fsm.html#association-release">Association Release</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fsm.html#association-abort">Association Abort</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+      <li class="breadcrumb-item active">pynetdicom.fsm.AR_1</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pynetdicom-fsm-ar-1">
+<h1>pynetdicom.fsm.AR_1<a class="headerlink" href="#pynetdicom-fsm-ar-1" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="pynetdicom.fsm.AR_1">
+<span class="sig-prename descclassname"><span class="pre">pynetdicom.fsm.</span></span><span class="sig-name descname"><span class="pre">AR_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dul</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider" title="pynetdicom.dul.DULServiceProvider"><span class="pre">DULServiceProvider</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d29de2530/pynetdicom/fsm.py#L462"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.fsm.AR_1" title="Link to this definition">¶</a></dt>
+<dd><p>Association release AR-1.</p>
+<p>Send Association release request</p>
+<p>State-event triggers: Sta6 + Evt11</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dul</strong> (<a class="reference internal" href="pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider" title="pynetdicom.dul.DULServiceProvider"><em>dul.DULServiceProvider</em></a>) – The DICOM Upper Layer Service instance for the local AE</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">'Sta7'</span></code>, the next state of the state machine</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pynetdicom.fsm.DT_2.html" class="btn btn-neutral float-left" title="pynetdicom.fsm.DT_2" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pynetdicom.fsm.AR_2.html" class="btn btn-neutral float-right" title="pynetdicom.fsm.AR_2" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

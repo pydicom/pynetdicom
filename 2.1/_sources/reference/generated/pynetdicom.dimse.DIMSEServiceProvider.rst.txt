@@ -1,0 +1,35 @@
+﻿pynetdicom.dimse.DIMSEServiceProvider
+=====================================
+
+.. currentmodule:: pynetdicom.dimse
+
+.. autoclass:: DIMSEServiceProvider
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DIMSEServiceProvider.__init__
+      ~DIMSEServiceProvider.get_msg
+      ~DIMSEServiceProvider.peek_msg
+      ~DIMSEServiceProvider.receive_primitive
+      ~DIMSEServiceProvider.send_msg
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DIMSEServiceProvider.assoc
+      ~DIMSEServiceProvider.dimse_timeout
+      ~DIMSEServiceProvider.dul
+      ~DIMSEServiceProvider.maximum_pdu_size
+   
+   

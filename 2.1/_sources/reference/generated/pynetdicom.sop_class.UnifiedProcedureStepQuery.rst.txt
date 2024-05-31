@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.UnifiedProcedureStepQuery
+===============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: UnifiedProcedureStepQuery

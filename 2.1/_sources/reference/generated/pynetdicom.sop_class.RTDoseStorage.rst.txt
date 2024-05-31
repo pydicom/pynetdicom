@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.RTDoseStorage
+===================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: RTDoseStorage

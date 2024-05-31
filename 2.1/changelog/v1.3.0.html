@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1.3.0 &mdash; pynetdicom 2.1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/documentation_options.js?v=20623aea"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="1.2.0" href="v1.2.0.html" />
+    <link rel="prev" title="1.3.1" href="v1.3.1.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="v2.1.0.html">2.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v2.0.1.html">2.0.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v2.0.0.html">2.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.7.html">1.5.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.6.html">1.5.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.5.html">1.5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.4.html">1.5.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.3.html">1.5.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.2.html">1.5.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.1.html">1.5.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.0.html">1.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.4.1.html">1.4.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.4.0.html">1.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.3.1.html">1.3.1</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.3.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fixes">Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enhancements">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changes">Changes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="v1.2.0.html">1.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.1.0.html">1.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.0.0.html">1.0.0</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Release Notes</a></li>
+      <li class="breadcrumb-item active">1.3.0</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="v1-3-0">
+<span id="id1"></span><h1>1.3.0<a class="headerlink" href="#v1-3-0" title="Link to this heading">¶</a></h1>
+<section id="fixes">
+<h2>Fixes<a class="headerlink" href="#fixes" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Exceptions raised during generator operation for C-GET and C-MOVE services
+now handled properly.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fsm.AA_4</span></code> and <code class="docutils literal notranslate"><span class="pre">fsm.AA_8</span></code> now send A-P-ABORT to the service user rather
+than an A-ABORT</p></li>
+<li><p>Fixed rejected contexts not being included in the Presentation Context
+Definition Results List when acting as the association Acceptor.</p></li>
+<li><p>The Message ID values for C-MOVE and C-GET sub-operations now iterate instead
+of just re-using 1. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/315">#315</a>)</p></li>
+<li><p>The default <code class="docutils literal notranslate"><span class="pre">logging</span></code> configuration no longer uses a non-NullHandler
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/321">#321</a>)</p></li>
+<li><p>Fixed Unified Procedure Step’s SOP Class UID variable names</p></li>
+<li><p>Fixed memory leak caused by keeping old <code class="docutils literal notranslate"><span class="pre">Association</span></code> threads around after
+they died (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/328">#328</a>)</p></li>
+</ul>
+</section>
+<section id="enhancements">
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Added event-handler system as a replacement for the callback
+system</p>
+<ul>
+<li><p>Added <cite>events.py</cite> module with the defined events, <cite>Event</cite> class and
+event-related support functions.</p></li>
+<li><p>Added <cite>_handlers.py</cite> module with standard logging handlers</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">bind()</span></code>, <code class="docutils literal notranslate"><span class="pre">unbind()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_handlers()</span></code> and <code class="docutils literal notranslate"><span class="pre">get_events()</span></code>
+to <code class="docutils literal notranslate"><span class="pre">Association</span></code> and <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code> classes.</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">assoc</span></code> properties to <code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider</span></code> and <code class="docutils literal notranslate"><span class="pre">ACSE</span></code> classes</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_config.ENFORCE_UID_CONFORMANCE</span></code> added which determines the level of
+conformance required for UIDs. If <code class="docutils literal notranslate"><span class="pre">True</span></code> then all UIDs are required to
+meet the UID rules in the DICOM Standard, if <code class="docutils literal notranslate"><span class="pre">False</span></code> (default) then UIDs
+only need to meet the length requirement. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/316">#316</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/322">#322</a>)</p></li>
+<li><p>Support added for Modality Performed Procedure Step Management - only with
+the event-handler system. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/56">#56</a>)</p></li>
+</ul>
+</section>
+<section id="changes">
+<h2>Changes<a class="headerlink" href="#changes" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>The following have been removed as per planned deprecation:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">AE.start()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.stop()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.address</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.bind_address</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.local_socket</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.port</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Association.send_c_cancel_find()</span></code>, <code class="docutils literal notranslate"><span class="pre">Association.send_c_cancel_get()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Association.send_c_cancel_move()</span></code></p></li>
+</ul>
+</li>
+<li><p>All callback related class methods are deprecated and will be removed in
+v1.4. Use the event-handler system instead.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_config.DECODE_STORE_DATASETS</span></code> is deprecated and will be removed in v1.4.
+Use the event-handler system instead.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider</span></code> init now takes the <code class="docutils literal notranslate"><span class="pre">Association</span></code> as its only
+parameter. <code class="docutils literal notranslate"><span class="pre">dul</span></code>, <code class="docutils literal notranslate"><span class="pre">dimse_timeout</span></code> and <code class="docutils literal notranslate"><span class="pre">maximum_pdu_size</span></code> properties
+added instead.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="v1.3.1.html" class="btn btn-neutral float-left" title="1.3.1" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="v1.2.0.html" class="btn btn-neutral float-right" title="1.2.0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

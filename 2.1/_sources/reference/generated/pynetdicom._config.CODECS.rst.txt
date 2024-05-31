@@ -1,0 +1,6 @@
+﻿pynetdicom.\_config.CODECS
+==========================
+
+.. currentmodule:: pynetdicom._config
+
+.. autodata:: CODECS

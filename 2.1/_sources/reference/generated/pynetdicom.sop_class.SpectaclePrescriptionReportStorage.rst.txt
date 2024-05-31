@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.SpectaclePrescriptionReportStorage
+========================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: SpectaclePrescriptionReportStorage

@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.General32bitECGWaveformStorage
+====================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: General32bitECGWaveformStorage

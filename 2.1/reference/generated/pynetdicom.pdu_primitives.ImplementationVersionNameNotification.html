@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pynetdicom.pdu_primitives.ImplementationVersionNameNotification &mdash; pynetdicom 2.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/documentation_options.js?v=20623aea"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=ccdb6887"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" href="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html" />
+    <link rel="prev" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification" href="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../init.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../dul.provider.html">DUL Service Provider (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dul</span></code>)</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../dul.pdu_primitives.html">Service Primitives (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_primitives</span></code>)</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../dul.pdu_primitives.a_associate.html">A-ASSOCIATE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_release.html">A-RELEASE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_abort.html">A-ABORT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_p_abort.html">A-P-ABORT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.p_data.html">P-DATA</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dul.pdu_items.html">PDU Items and Sub-items (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_items</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../dul.html">DICOM Upper Layer</a></li>
+          <li class="breadcrumb-item"><a href="../dul.pdu_primitives.html">Service Primitives (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_primitives</span></code>)</a></li>
+          <li class="breadcrumb-item"><a href="../dul.pdu_primitives.a_associate.html">A-ASSOCIATE</a></li>
+      <li class="breadcrumb-item active">pynetdicom.pdu_primitives.ImplementationVersionNameNotification</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pynetdicom-pdu-primitives-implementationversionnamenotification">
+<h1>pynetdicom.pdu_primitives.ImplementationVersionNameNotification<a class="headerlink" href="#pynetdicom-pdu-primitives-implementationversionnamenotification" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.ImplementationVersionNameNotification">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></span><span class="sig-name descname"><span class="pre">ImplementationVersionNameNotification</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d29de2530/pynetdicom/pdu_primitives.py#L1177"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="Link to this definition">¶</a></dt>
+<dd><p>A representation of a Implementation Version Name Notification primitive.</p>
+<p>The implementation identification notification allows implementations of
+communicating AEs to identify each other at Association establishment time.
+It is intended to provider respective and non-ambiguous identification in
+the event of communication problems encountered between two nodes. This
+negotiation is required.</p>
+<p>Implementation identification relies on two pieces of information:</p>
+<ul class="simple">
+<li><p>Implementation Class UID (required)</p></li>
+<li><p>Implementation Version Name (optional)</p></li>
+</ul>
+<p>The Implementation Version Name is optional and there may only be a single
+<a class="reference internal" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplementationVersionNameNotification</span></code></a> item.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="gp">... </span>    <span class="n">ImplementationVersionNameNotification</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">ImplementationVersionNameNotification</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;SOME_NAME&#39;</span>
+</pre></div>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standard, Part 7, <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.2.html">Annex D.3.3.2</a></p></li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d29de2530/pynetdicom/pdu_primitives.py#L1210"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.__init__" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.from_primitive" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.from_primitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_primitive</span></code></a>()</p></td>
+<td><p>Convert the primitive to a PDU item ready to be encoded.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.implementation_version_name" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.implementation_version_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_version_name</span></code></a></p></td>
+<td><p>Get or set the <em>Implementation Version Name</em>.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.from_primitive">
+<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pynetdicom.pdu_items.ImplementationVersionNameSubItem.html#pynetdicom.pdu_items.ImplementationVersionNameSubItem" title="pynetdicom.pdu_items.ImplementationVersionNameSubItem"><span class="pre">ImplementationVersionNameSubItem</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d29de2530/pynetdicom/pdu_primitives.py#L1213"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.from_primitive" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>item</strong></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="pynetdicom.pdu_items.ImplementationVersionNameSubItem.html#pynetdicom.pdu_items.ImplementationVersionNameSubItem" title="pynetdicom.pdu_items.ImplementationVersionNameSubItem">pdu_items.ImplementationVersionNameSubItem</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.12)"><strong>ValueError</strong></a> – If no name is set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.implementation_version_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">implementation_version_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.implementation_version_name" title="Link to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Implementation Version Name</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.12)"><em>bytes</em></a>) – The value for the Implementation Version Name</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.12)"><strong>TypeError</strong></a> – If <cite>value</cite> is not a str or bytes</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.12)"><strong>ValueError</strong></a> – If <cite>value</cite> is empty or longer than 16 characters</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.html" class="btn btn-neutral float-left" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html" class="btn btn-neutral float-right" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

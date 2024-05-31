@@ -1,0 +1,40 @@
+﻿pynetdicom.dimse\_primitives.N\_DELETE
+======================================
+
+.. currentmodule:: pynetdicom.dimse_primitives
+
+.. autoclass:: N_DELETE
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~N_DELETE.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~N_DELETE.AffectedSOPClassUID
+      ~N_DELETE.AffectedSOPInstanceUID
+      ~N_DELETE.MessageID
+      ~N_DELETE.MessageIDBeingRespondedTo
+      ~N_DELETE.REQUEST_KEYWORDS
+      ~N_DELETE.RESPONSE_KEYWORDS
+      ~N_DELETE.RequestedSOPClassUID
+      ~N_DELETE.RequestedSOPInstanceUID
+      ~N_DELETE.STATUS_OPTIONAL_KEYWORDS
+      ~N_DELETE.Status
+      ~N_DELETE.is_valid_request
+      ~N_DELETE.is_valid_response
+      ~N_DELETE.msg_type
+   
+   

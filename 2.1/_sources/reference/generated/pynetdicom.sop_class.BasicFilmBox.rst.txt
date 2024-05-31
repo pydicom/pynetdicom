@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.BasicFilmBox
+==================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: BasicFilmBox

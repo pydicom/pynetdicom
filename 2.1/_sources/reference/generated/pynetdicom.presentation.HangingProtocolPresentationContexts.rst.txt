@@ -1,0 +1,6 @@
+﻿pynetdicom.presentation.HangingProtocolPresentationContexts
+===========================================================
+
+.. currentmodule:: pynetdicom.presentation
+
+.. autodata:: HangingProtocolPresentationContexts

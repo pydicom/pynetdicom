@@ -1,0 +1,47 @@
+.. _v2.1.0:
+
+2.1.0
+=====
+
+Fixes
+.....
+
+* Fixed reserved A-ASSOCIATE-AC parameters being tested (:issue:`746`)
+* Fixed datasets not transferring correctly when using
+  :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` (:issue:`756`)
+* Fixed maximum length of *Patient ID* attribute in ``qrscp`` app (:issue:`785`)
+* Sanitise filenames for received datasets for non-conformant SOP Instance
+  UIDs (:issue:`823`)
+* Fixed :attr:`~pynetdicom._config.LOG_REQUEST_IDENTIFIERS` not applying to
+  :meth:`Association.send_c_find()<pynetdicom.association.Association.send_c_find>`,
+  :meth:`Association.send_c_move()<pynetdicom.association.Association.send_c_move>` and
+  :meth:`Association.send_c_get()<pynetdicom.association.Association.send_c_get>` (:issue:`911`)
+
+
+Enhancements
+............
+
+* Added :func:`~pynetdicom.sop_class.register_uid` to make registering new
+  private and public SOP Classes easier (:issue:`799`)
+* Added support for *Repository Query* to
+  :meth:`~pynetdicom.association.Association.send_c_find` and
+  :class:`~pynetdicom.service_class.QueryRetrieveServiceClass` (:issue:`878`)
+* Added support for :class:`Inventory Query/Retrieve Service Class
+  <pynetdicom.service_class.InventoryQueryRetrieveServiceClass>` (:issue:`879`)
+* Added support for :class:`Storage Management Service Class
+  <pynetdicom.service_class_n.StorageManagementServiceClass>` (:issue:`880`)
+* Added :meth:`~pynetdicom.events.Event.encoded_dataset` to simplify accessing
+  the encoded dataset without first decoding it
+* Added a check to :meth:`~pynetdicom.association.Association.send_c_store` to
+  ensure that the *Transfer Syntax UID* matches the encoding of the dataset
+  (:issue:`891`)
+* Updated SOP Classes to version 2024b of the DICOM Standard
+
+
+Changes
+.......
+
+* Dropped support for Python 3.7, 3.8 and 3.9
+* Added support for Python 3.11 and 3.12
+* With `Python 3.10 requiring OpenSSL v1.1.1 or newer
+  <https://peps.python.org/pep-0644/>`_, TLS v1.3 is now supported

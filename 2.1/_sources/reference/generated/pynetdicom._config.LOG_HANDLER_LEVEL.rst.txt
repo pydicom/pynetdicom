@@ -1,0 +1,6 @@
+﻿pynetdicom.\_config.LOG\_HANDLER\_LEVEL
+=======================================
+
+.. currentmodule:: pynetdicom._config
+
+.. autodata:: LOG_HANDLER_LEVEL

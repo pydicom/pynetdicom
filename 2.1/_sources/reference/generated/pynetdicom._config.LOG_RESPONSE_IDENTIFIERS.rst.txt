@@ -1,0 +1,6 @@
+﻿pynetdicom.\_config.LOG\_RESPONSE\_IDENTIFIERS
+==============================================
+
+.. currentmodule:: pynetdicom._config
+
+.. autodata:: LOG_RESPONSE_IDENTIFIERS

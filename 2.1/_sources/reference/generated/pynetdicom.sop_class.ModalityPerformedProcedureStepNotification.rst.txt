@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.ModalityPerformedProcedureStepNotification
+================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ModalityPerformedProcedureStepNotification

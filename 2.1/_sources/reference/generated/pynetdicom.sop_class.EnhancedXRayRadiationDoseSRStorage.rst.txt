@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.EnhancedXRayRadiationDoseSRStorage
+========================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: EnhancedXRayRadiationDoseSRStorage

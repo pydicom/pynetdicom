@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>getscu &mdash; pynetdicom 2.1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/documentation_options.js?v=20623aea"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="movescu" href="movescu.html" />
+    <link rel="prev" title="findscu" href="findscu.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Applications</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="echoscp.html">echoscp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="echoscu.html">echoscu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="findscu.html">findscu</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">getscu</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#options">Options</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#general-options">General Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#network-options">Network Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#query-information-model-options">Query Information Model Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#query-options">Query Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extended-negotiation-options">Extended Negotiation Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#output-options">Output Options</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#keyword-pathing">Keyword pathing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#query-retrieve-service">Query/Retrieve Service</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="movescu.html">movescu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qrscp.html">qrscp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storescp.html">storescp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Applications</a></li>
+      <li class="breadcrumb-item active">getscu</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getscu">
+<h1>getscu<a class="headerlink" href="#getscu" title="Link to this heading">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.5.</span></p>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom getscu [options] addr port (-k keyword and/or -f file-in)
+</pre></div>
+</div>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">getscu</span></code> application implements a Service Class User (SCU) for
+the <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve</a> service class. It requests an
+association with a peer Application Entity and once established, sends a C-GET
+query to be matched against the Query/Retrieve SCP’s managed SOP Instances.
+The QR SCP then responds by sending a copy of the matching SOP Instances (i.e.
+the peer acts as a Storage SCU with <code class="docutils literal notranslate"><span class="pre">getscu</span></code> the Storage SCP).</p>
+<p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/getscu">here</a></p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<p>The following example shows what happens when it is successfully run on
+an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the
+Query/Retrieve (Get) service:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom getscu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
+I: Requesting Association
+I: Association Accepted
+I: Sending Get Request: MsgID 1
+I:
+I: # Request Identifier
+I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
+I: (0010,0010) PN (no value available)                     # 0 PatientName
+I:
+I: Received Store Request
+I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
+I: Get SCP Response: 1 - 0xFF00 (Pending)
+I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
+I: Get SCP Result: 0x0000 (Success)
+I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
+I: Releasing Association
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">addr</span></code></dt><dd><p>TCP/IP address or hostname of DICOM peer</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">port</span></code></dt><dd><p>TCP/IP port number of peer</p>
+</dd>
+</dl>
+</section>
+<section id="options">
+<h2>Options<a class="headerlink" href="#options" title="Link to this heading">¶</a></h2>
+<section id="general-options">
+<h3>General Options<a class="headerlink" href="#general-options" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">-q</span>&#160;&#160;&#160; <span class="pre">--quiet</span></code></dt><dd><p>quiet mode, prints no warnings or errors</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-v</span>&#160;&#160;&#160; <span class="pre">--verbose</span></code></dt><dd><p>verbose mode, prints processing details</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-d</span>&#160;&#160;&#160; <span class="pre">--debug</span></code></dt><dd><p>debug mode, prints debugging information</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-ll</span>&#160;&#160; <span class="pre">--log-level</span> <span class="pre">[l]evel</span> <span class="pre">(str)</span></code></dt><dd><p>One of [<code class="docutils literal notranslate"><span class="pre">'critical'</span></code>, <code class="docutils literal notranslate"><span class="pre">'error'</span></code>, <code class="docutils literal notranslate"><span class="pre">'warning'</span></code>, <code class="docutils literal notranslate"><span class="pre">'info'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'debug'</span></code>], prints logging messages with corresponding level
+or higher</p>
+</dd>
+</dl>
+</section>
+<section id="network-options">
+<h3>Network Options<a class="headerlink" href="#network-options" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">-aet</span>&#160; <span class="pre">--calling-aet</span> <span class="pre">[a]etitle</span> <span class="pre">(str)</span></code></dt><dd><p>set the local AE title (default: GETSCU)</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-aec</span>&#160; <span class="pre">--called-aet</span> <span class="pre">[a]etitle</span> <span class="pre">(str)</span></code></dt><dd><p>set the called AE title for the peer AE (default: ANY-SCP)</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-ta</span>&#160;&#160; <span class="pre">--acse-timeout</span> <span class="pre">[s]econds</span> <span class="pre">(float)</span></code></dt><dd><p>timeout for ACSE messages (default: 30)</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-td</span>&#160;&#160; <span class="pre">--dimse-timeout</span> <span class="pre">[s]econds</span> <span class="pre">(float)</span></code></dt><dd><p>timeout for DIMSE messages (default: 30)</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-tn</span>&#160;&#160; <span class="pre">--network-timeout</span> <span class="pre">[s]econds</span> <span class="pre">(float)</span></code></dt><dd><p>timeout for the network (default: 30)</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-pdu</span>&#160; <span class="pre">--max-pdu</span> <span class="pre">[n]umber</span> <span class="pre">of</span> <span class="pre">bytes</span> <span class="pre">(int)</span></code></dt><dd><p>set maximum receive PDU bytes to n bytes (default: 16382)</p>
+</dd>
+</dl>
+</section>
+<section id="query-information-model-options">
+<h3>Query Information Model Options<a class="headerlink" href="#query-information-model-options" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">-P</span>&#160;&#160;&#160; <span class="pre">--patient</span></code></dt><dd><p>use patient root information model (default)</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-S</span>&#160;&#160;&#160; <span class="pre">--study</span></code></dt><dd><p>use study root information model</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-O</span>&#160;&#160;&#160; <span class="pre">--psonly</span></code></dt><dd><p>use patient/study only information model</p>
+</dd>
+</dl>
+</section>
+<section id="query-options">
+<h3>Query Options<a class="headerlink" href="#query-options" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">-k</span> <span class="pre">[k]eyword:</span> <span class="pre">(gggg,eeee)=str,</span> <span class="pre">keyword=str</span></code></dt><dd><p>add or override a query element using either an element tag as
+(group,element) or the element’s keyword (such as PatientName).
+See the <em>keyword pathing</em> section for more information.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">path</span> <span class="pre">to</span> <span class="pre">[f]ile</span> <span class="pre">(str)</span></code></dt><dd><p>use a DICOM file as the query dataset, if used with <code class="docutils literal notranslate"><span class="pre">-k</span></code>
+then the elements will be added to or overwrite those
+present in the file</p>
+</dd>
+</dl>
+</section>
+<section id="extended-negotiation-options">
+<h3>Extended Negotiation Options<a class="headerlink" href="#extended-negotiation-options" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">--relational-retrieval</span></code></dt><dd><p>request the use of relational retrieval</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--enhanced-conversion</span></code></dt><dd><p>request the use of enhanced multi-frame image conversion</p>
+</dd>
+</dl>
+</section>
+<section id="output-options">
+<h3>Output Options<a class="headerlink" href="#output-options" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">-od</span> <span class="pre">[d]irectory,</span> <span class="pre">--output-directory</span> <span class="pre">[d]irectory</span> <span class="pre">(str)</span></code></dt><dd><p>write received objects to directory <code class="docutils literal notranslate"><span class="pre">d</span></code></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--ignore</span></code></dt><dd><p>receive data but don’t store it</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="keyword-pathing">
+<h2>Keyword pathing<a class="headerlink" href="#keyword-pathing" title="Link to this heading">¶</a></h2>
+<p>When using the <cite>-k keyword</cite> option it becomes possible to specify the
+query dataset (the <em>Identifier</em>) without needing to create a DICOM file.
+Multiple instances of <cite>-k</cite> can be used to build up the <em>Identifier</em>. For
+example, this will produce an <em>Identifier</em> with (0008,0052) <em>Query Retrieve
+Level</em> and (0010,0010) <em>Patient Name</em> elements:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k QueryRetrieveLevel=PATIENT -k PatientName=
+</pre></div>
+</div>
+<p>The value after the <code class="docutils literal notranslate"><span class="pre">=</span></code> is interpreted as the element’s value, so including
+any single or double quotation marks will result in
+an incorrect element value. <code class="docutils literal notranslate"><span class="pre">PatientName=Citizen^Jan</span></code> is correct,
+<code class="docutils literal notranslate"><span class="pre">PatientName=&quot;Citizen^Jan&quot;</span></code> is not.</p>
+<p>Alternatively the element tags can be used instead:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k (0008,0052)=PATIENT -k (0010,0010)=
+</pre></div>
+</div>
+<p>Sequences can be specified using the same Python indexing syntax as used by
+<em>pydicom</em>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k OtherPatientIDsSequence[2].PatientID=12345678
+</pre></div>
+</div>
+<p>When both the <cite>-f file</cite> and <cite>-k keyword</cite> options are used then the keywords
+will be used to update the elements in the file.</p>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>Empty (0010,0010) <em>Patient Name</em> element:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k PatientName=
+-k (0010,0010)=
+
+(0010, 0010) Patient&#39;s Name                      PN: &#39;&#39;
+</pre></div>
+</div>
+<p><em>Patient Name</em> set to <code class="docutils literal notranslate"><span class="pre">Citizen^Jan</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k PatientName=Citizen^Jan
+-k (0010,0010)=Citizen^Jan
+
+(0010, 0010) Patient&#39;s Name                      PN: &#39;Citizen^Jan&#39;
+</pre></div>
+</div>
+<p>Numeric VRs like <strong>US</strong> and <strong>FL</strong> are converted to either <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>
+or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> depending on the VR:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k Columns=1024
+
+(0028, 0011) Columns                             US: 1024
+</pre></div>
+</div>
+<p>Byte VRs like <strong>OB</strong> and <strong>OW</strong> are converted to <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k PixelData=00FFEA08
+
+(7fe0, 0010) Pixel Data                          OW: b&#39;\x00\xff\xea\x08&#39;
+</pre></div>
+</div>
+<p>Elements with VM &gt; 1 can be set by using <code class="docutils literal notranslate"><span class="pre">\\</span></code> (where appropriate):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k AcquisitionIndex=1\\2\\3\\4
+
+(0020, 9518) Acquisition Index                   US: [1, 2, 3, 4]
+</pre></div>
+</div>
+<p>Empty (300A,00B0) <em>Beam Sequence</em>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k BeamSequence=
+-k (300a,00b0)=
+
+(300a, 00b0)  Beam Sequence   0 item(s) ----
+</pre></div>
+</div>
+<p><em>Beam Sequence</em> with one empty item:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k BeamSequence[0]=
+
+(300a, 00b0)  Beam Sequence   1 item(s) ----
+
+   ---------
+</pre></div>
+</div>
+<p><em>Beam Sequence</em> with four empty items:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k BeamSequence[3]=
+
+(300a, 00b0)  Beam Sequence   4 item(s) ----
+
+   ---------
+
+   ---------
+
+   ---------
+
+   ---------
+</pre></div>
+</div>
+<p><em>Beam Sequence</em> with one non-empty item:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k BeamSequence[0].PatientName=CITIZEN^Jan
+
+(300a, 00b0)  Beam Sequence   1 item(s) ----
+   (0010, 0010) Patient&#39;s Name                      PN: &#39;Citizen^Jan&#39;
+   ---------
+</pre></div>
+</div>
+<p>Nested sequence items:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>-k BeamSequence[0].BeamLimitingDeviceSequence[0].NumberOfLeafJawPairs=1
+
+(300a, 00b0)  Beam Sequence   1 item(s) ----
+   (300a, 00b6)  Beam Limiting Device Sequence   1 item(s) ----
+      (300a, 00bc) Number of Leaf/Jaw Pairs            IS: &quot;1&quot;
+      ---------
+   ---------
+</pre></div>
+</div>
+</section>
+</section>
+<section id="dicom-conformance">
+<h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">getscu</span></code> application supports the Query/Retrieve service classes as an
+SCU. The following SOP classes are supported:</p>
+<section id="query-retrieve-service">
+<h3>Query/Retrieve Service<a class="headerlink" href="#query-retrieve-service" title="Link to this heading">¶</a></h3>
+<section id="sop-classes">
+<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.2.1.3</p></td>
+<td><p>Patient Root Query/Retrieve Information Model
+- GET</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.2.2.3</p></td>
+<td><p>Study Root Query/Retrieve Information Model
+- GET</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.2.3.3</p></td>
+<td><p>Patient Study Only/Query Retrieve Information
+- GET</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="transfer-syntaxes">
+<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.1.2</p></td>
+<td><p>Implicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
+<td><p>Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
+</tr>
+</tbody>
+</table>
+<p>When receiving datasets sent from the peer the <code class="docutils literal notranslate"><span class="pre">getscu</span></code> application
+supports the following SOP classes as an SCP:</p>
+</section>
+<section id="id1">
+<h4>SOP Classes<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>SOP Class</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.1</p></td>
+<td><p>Computed Radiography Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.1.1</p></td>
+<td><p>Digital X-Ray Image Storage
+- For Presentation</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.1.1.1.1</p></td>
+<td><p>Digital X-Ray Image Storage
+- For Processing</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.1.2</p></td>
+<td><p>Digital Mammography X-Ray Image Storage
+- For Presentation</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.1.2.1</p></td>
+<td><p>Digital Mammography X-Ray Image Storage
+- For Processing</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.1.3</p></td>
+<td><p>Digital Intra-Oral X-Ray Image Storage
+- For Presentation</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.1.4.1.1.3.1</p></td>
+<td><p>Digital Intra-Oral X-Ray Image Storage
+- For Processing</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.2</p></td>
+<td><p>CT Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.2.1</p></td>
+<td><p>Enhanced CT Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.2.2</p></td>
+<td><p>Legacy Converted Enhanced CT Image
+Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.3.1</p></td>
+<td><p>Ultrasound Multi-frame Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.4</p></td>
+<td><p>MR Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.4.1</p></td>
+<td><p>Enhanced MR Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.4.2</p></td>
+<td><p>MR Spectroscopy Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.4.3</p></td>
+<td><p>Enhanced MR Color Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.4.4</p></td>
+<td><p>Legacy Converted Enhanced MR Image
+Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.6.1</p></td>
+<td><p>Ultrasound Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.6.2</p></td>
+<td><p>Enhanced US Volume Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.7</p></td>
+<td><p>Secondary Capture Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.7.1</p></td>
+<td><p>Multi-frame Single Bit Secondary Capture
+Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.7.2</p></td>
+<td><p>Multi-frame Grayscale Byte Secondary
+Capture Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.7.3</p></td>
+<td><p>Multi-frame Grayscale Word Secondary
+Capture Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.7.4</p></td>
+<td><p>Multi-frame True Color Secondary Capture
+Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.1.1</p></td>
+<td><p>12-lead ECG Waveform Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.9.1.2</p></td>
+<td><p>General ECG Waveform Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.1.3</p></td>
+<td><p>Ambulatory ECG Waveform Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.9.2.1</p></td>
+<td><p>Hemodynamic Waveform Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.3.1</p></td>
+<td><p>Cardiac Electrophysiology Waveform
+Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.9.4.1</p></td>
+<td><p>Basic Voice Audio Waveform Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.4.2</p></td>
+<td><p>General Audio Waveform Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.9.5.1</p></td>
+<td><p>Arterial Pulse Waveform Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.6.1</p></td>
+<td><p>Respiratory Waveform Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.9.6.2</p></td>
+<td><p>Multichannel Respiratory Waveform Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.7.1</p></td>
+<td><p>Routine Scalp SleepElectroencephalogram
+Waveform Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.9.7.2</p></td>
+<td><p>Electromyogram Waveform Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.7.3</p></td>
+<td><p>Electrooculogram Waveform Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.9.7.4</p></td>
+<td><p>Sleep Electroencephalogram Waveform
+Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.8.1</p></td>
+<td><p>Body Position Waveform Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.1</p></td>
+<td><p>Grayscale Softcopy Presentation State
+Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.11.2</p></td>
+<td><p>Color Softcopy Presentation State
+Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.3</p></td>
+<td><p>Pseudo-Color Softcopy Presentation State
+Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.11.4</p></td>
+<td><p>Blending Softcopy Presentation State
+Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.5</p></td>
+<td><p>XA/XRF Grayscale Softcopy Presentation
+State Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.11.6</p></td>
+<td><p>Grayscale Planar MPR Volumetric
+Presentation State Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.7</p></td>
+<td><p>Compositing Planar MPR Volumetric
+Presentation State Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.11.8</p></td>
+<td><p>Advanced Blending Presentation State
+Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.9</p></td>
+<td><p>Volume Rendering Volumetric Presentation
+State Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.11.10</p></td>
+<td><p>Segmented Volume Rendering Volumetric
+Presentation State Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.11</p></td>
+<td><p>Multiple Volume Rendering Volumetric
+Presentation State Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.12.1</p></td>
+<td><p>X-Ray Angiographic Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.12.1.1</p></td>
+<td><p>Enhanced XA Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.12.2</p></td>
+<td><p>X-Ray Radiofluoroscopic Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.12.2.1</p></td>
+<td><p>Enhanced XRF Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.13.1.1</p></td>
+<td><p>X-Ray 3D Angiographic Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.13.1.2</p></td>
+<td><p>X-Ray 3D Craniofacial Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.13.1.3</p></td>
+<td><p>Breast Tomosynthesis Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.13.1.4</p></td>
+<td><p>Breast Projection X-Ray Image Storage
+- For Presentation</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.13.1.5</p></td>
+<td><p>Breast Projection X-Ray Image Storage
+- For Processing</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.14.1</p></td>
+<td><p>Intravascular Optical Coherence
+Tomography Image Storage - For
+Presentation</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.14.2</p></td>
+<td><p>Intravascular Optical Coherence
+Tomography Image Storage - For
+Processing</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.20</p></td>
+<td><p>Nuclear Medicine Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.30</p></td>
+<td><p>Parametric Map Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.66</p></td>
+<td><p>Raw Data Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.66.1</p></td>
+<td><p>Spatial Registration Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.66.2</p></td>
+<td><p>Spatial Fiducials Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.66.3</p></td>
+<td><p>Deformable Spatial Registration Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.66.4</p></td>
+<td><p>Segmentation Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.66.5</p></td>
+<td><p>Surface Segmentation Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.66.6</p></td>
+<td><p>Tractography Results Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.67</p></td>
+<td><p>Real World Value Mapping Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.68.1</p></td>
+<td><p>Surface Scan Mesh Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.68.2</p></td>
+<td><p>Surface Scan Point Cloud Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.1</p></td>
+<td><p>VL Endoscopic Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.1.1</p></td>
+<td><p>Video Endoscopic Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.2</p></td>
+<td><p>VL Microscopic Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.2.1</p></td>
+<td><p>Video Microscopic Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.3</p></td>
+<td><p>VL Slide-Coordinates Microscopic Image
+Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.4</p></td>
+<td><p>VL Photographic Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.4.1</p></td>
+<td><p>Video Photographic Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.1</p></td>
+<td><p>Ophthalmic Photography 8 Bit Image
+Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.2</p></td>
+<td><p>Ophthalmic Photography 16 Bit Image
+Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.3</p></td>
+<td><p>Stereometric Relationship Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.4</p></td>
+<td><p>Ophthalmic Tomography Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.5</p></td>
+<td><p>Wide Field Ophthalmic Photography
+Stereographic Projection Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.6</p></td>
+<td><p>Wide Field Ophthalmic Photography 3D
+Coordinates Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.7</p></td>
+<td><p>Ophthalmic Optical Coherence Tomography
+En Face Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.8</p></td>
+<td><p>Ophthalmic Optical Coherence Tomography
+B-scan Volume Analysis Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.6</p></td>
+<td><p>VL Whole Slide Microscopy Image Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.7</p></td>
+<td><p>Dermoscopic Photography Image Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.78.1</p></td>
+<td><p>Lensometry Measurements Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.78.2</p></td>
+<td><p>Autorefraction Measurements Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.78.3</p></td>
+<td><p>Keratometry Measurements Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.78.4</p></td>
+<td><p>Subjective Refraction Measurements
+Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.78.5</p></td>
+<td><p>Visual Acuity Measurements Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.78.6</p></td>
+<td><p>Spectacle Prescription Report Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.78.7</p></td>
+<td><p>Ophthalmic Axial Measurements Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.78.8</p></td>
+<td><p>Intraocular Lens Calculations Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.79.1</p></td>
+<td><p>Macular Grid Thickness and Volume Report
+Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.80.1</p></td>
+<td><p>Ophthalmic Visual Field Static Perimetry
+Measurements Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.81.1</p></td>
+<td><p>Ophthalmic Thickness Map Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.82.1</p></td>
+<td><p>Corneal Topography Map Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.11</p></td>
+<td><p>Basic Text SR Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.22</p></td>
+<td><p>Enhanced SR Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.33</p></td>
+<td><p>Comprehensive SR Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.34</p></td>
+<td><p>Comprehensive 3D SR Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.35</p></td>
+<td><p>Extensible SR Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.40</p></td>
+<td><p>Procedure Log Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.50</p></td>
+<td><p>Mammography CAD SR Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.59</p></td>
+<td><p>Key Object Selection Document Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.65</p></td>
+<td><p>Chest CAD SR Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.67</p></td>
+<td><p>X-Ray Radiation Dose SR Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.68</p></td>
+<td><p>Radiopharmaceutical Radiation Dose SR
+Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.69</p></td>
+<td><p>Colon CAD SR Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.70</p></td>
+<td><p>Implantation Plan SR Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.71</p></td>
+<td><p>Acquisition Context SR Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.72</p></td>
+<td><p>Simplified Adult Echo SR Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.73</p></td>
+<td><p>Patient Radiation Dose SR Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.74</p></td>
+<td><p>Planned Imaging Agent Administration SR
+Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.75</p></td>
+<td><p>Performed Imaging Agent Administration
+SR Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.76</p></td>
+<td><p>Enhanced X-Ray Radiation Dose SR Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.90.1</p></td>
+<td><p>Content Assessment Results Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.91.1</p></td>
+<td><p>Microscopy Bulk Simple Annotations
+Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.104.1</p></td>
+<td><p>Encapsulated PDF Storage</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.104.2</p></td>
+<td><p>Encapsulated CDA Storage</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.128</p></td>
+<td><p>Positron Emission Tomography Image
+Storage</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id2">
+<h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.1.2</p></td>
+<td><p>Implicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
+<td><p>Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="findscu.html" class="btn btn-neutral float-left" title="findscu" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="movescu.html" class="btn btn-neutral float-right" title="movescu" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

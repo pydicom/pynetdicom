@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.CArmPhotonElectronRadiationRecordStorage
+==============================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: CArmPhotonElectronRadiationRecordStorage

@@ -1,0 +1,102 @@
+.. _v1.2.0:
+
+1.2.0
+=====
+
+Fixes
+.....
+* Fixed ``network_timeout`` not working when acting as the association requestor
+  and an A-ABORT not being sent when the timeout expired. (:issue:`286`)
+* Fixed changing ``network_timeout`` value not propagating to the actual timer.
+* All DIMSE service requests should now properly abort the association if no
+  response is received within the DIMSE timeout window and return/yield
+  expected values. (:issue:`119`)
+* Any outgoing primitives are now sent to the peer before incoming PDUs are
+  processed (:issue:`120`)
+* Fixed not setting requestor presentation context roles to False when only
+  one role is specified during Role Selection negotiation. (:issue:`293`)
+
+
+Enhancements
+............
+
+* Added ``_config`` module and the ability to skip the dataset decoding step in
+  C-STORE operations by setting ``_config.DECODE_STORE_DATASETS`` to False
+  (:issue:`282`)
+* Consolidated and improved the robustness of the transport related code
+  (:issue:`42`):
+
+  * Added ``transport`` module
+  * Added ``AssociationSocket`` class that wraps a client ``socket.socket`` to
+    provide integration with the Association state machine. In particular all
+    receive and send operations should emit state machine event 'Evt17' when
+    the connection is closed. (:issue:`204`)
+  * Added ``AssociationServer``, and ``ThreadedAssociationServer`` classes
+    to provide association acceptor services.
+  * ``fsm.AE_1`` is now properly implemented and state machine event 'Evt2' is
+    now emitted in a non-trivial manner.
+  * Added ``AE.start_server()`` which allows operation in both blocking and
+    non-blocking modes.
+  * Added ``AE.shutdown()`` which allows the user to shutdown all non-blocking
+    association servers that may be running.
+  * Support for TLS added via the ``tls_args`` keyword parameter for
+    ``AE.associate()`` and ``ssl_context`` keyword parameter for
+    ``AE.start_server()`` (:pr:`175`, :pr:`71`)
+  * It should now be possible to both request a C-MOVE operation and act as the
+    destination for the request's C-STORE sub-operations over a new association
+    within the same AE instance by running a non-blocking Storage SCP.
+    (:issue:`5`, :issue:`181`)
+* Received P-DATA primitives are now processed when received rather than when
+  processing is requested.
+* Added ``DIMSEServiceProvider.get_msg()``,
+  ``DIMSEServiceProvider.receive_primitive()``,
+  ``DIMSEServiceProvider.peek_msg()`` and ``DIMSEServiceProvider.msg_queue``
+  to be used with the new P-DATA processing.
+* Time required to start an association improved significantly.
+* Implemented C-CANCEL support
+
+  * Added ``ServiceClass.is_cancelled()`` method to allow
+    checking whether a C-CANCEL message corresponding to a message ID value
+    has been received.
+  * Added 'cancelled' key to the ``info`` parameter passed to
+    ``AE.on_c_get()``, ``AE.on_c_find()`` and ``AE.on_c_move()``. The
+    corresponding value is a callable function (``is_cancelled()``) that
+    takes a *Message ID* value and returns True if a C-CANCEL message with
+    a corresponding *Message ID Being Responded To* value has been received.
+* Added thread names ('threadtype@timestamp').
+* Added ``build_role()`` to simplify creating SCP/SCU Role Selection
+  Negotiation items.
+
+
+Changes
+.......
+
+* ``AE.quit()``, ``DIMSEMessage.ID``, ``ACSE.is_released()`` and
+  ``ACSE.release_association()`` removed as per planned deprecation.
+* ``AE.start()`` is deprecated and will be removed in v1.3, use
+  ``AE.start_server()`` instead.
+* ``AE.stop()`` is deprecated and will be removed in v1.3, use
+  ``AE.shutdown()`` instead.
+* The ``AE.port`` property and ``port`` argument for ``AE()`` are deprecated
+  and will be removed in v1.3. Use the ``address`` parameter for
+  ``AE.start_server()`` and the ``bind_address`` keyword parameter for
+  ``AE.associate()`` instead.
+* The ``AE.local_socket`` attribute is deprecated and will be removed in v1.3.
+* The ``AE.address`` attribute is deprecated and will be removed in v1.3.
+* The ``AE.bind_addr`` attribute is deprecated and will be removed in v1.3. Use
+  the ``address`` parameter for ``AE.start_server()`` and the ``bind_address``
+  keyword parameter for ``AE.associate()`` instead.
+* Changed the default DIMSE timeout to 30 s.
+* Changed the default number of maximum associations to 10.
+* The ``acse_timeout`` parameter to ``ACSE()`` and ``ACSE.acse_timeout``
+  attribute removed, the ``Association.acse_timeout`` value is used instead.
+* ``AE.active_associations`` changed from an attribute to a property and
+  returns a list of all the AE's active Association threads.
+* ``AE.associate()`` is now synchronous until association negotiation has
+  completed or the connection closed (:issue:`108`).
+* Removed ``DIMSEServiceProvider.receive_msg()``.
+* ``Association.send_c_cancel_get()``, ``send_c_cancel_find()`` and
+  ``send_c_cancel_move()`` are deprecated and will be removed in v1.3. Use
+  ``Association.send_c_cancel()`` instead.
+* Removed ``AE.on_c_get_cancel()``, ``AE.on_c_find_cancel()``,
+  ``AE.on_c_move_cancel()``.

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pynetdicom &mdash; pynetdicom 2.1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/documentation_options.js?v=20623aea"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pynetdicom._globals.ALL_TRANSFER_SYNTAXES" href="generated/pynetdicom._globals.ALL_TRANSFER_SYNTAXES.html" />
+    <link rel="prev" title="API Reference" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pynetdicom
+              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lists-of-transfer-syntaxes">Lists of Transfer Syntaxes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/pynetdicom._globals.ALL_TRANSFER_SYNTAXES.html">pynetdicom._globals.ALL_TRANSFER_SYNTAXES</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES.html">pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#variables">Variables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/pynetdicom.PYNETDICOM_IMPLEMENTATION_UID.html">pynetdicom.PYNETDICOM_IMPLEMENTATION_UID</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/pynetdicom.PYNETDICOM_IMPLEMENTATION_VERSION.html">pynetdicom.PYNETDICOM_IMPLEMENTATION_VERSION</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/pynetdicom.PYNETDICOM_UID_PREFIX.html">pynetdicom.PYNETDICOM_UID_PREFIX</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#utilities">Utilities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/pynetdicom.debug_logger.html">pynetdicom.debug_logger</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dul.html">DICOM Upper Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pynetdicom">
+<span id="api-init"></span><h1><a class="reference internal" href="index.html#module-pynetdicom" title="pynetdicom"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom</span></code></a><a class="headerlink" href="#pynetdicom" title="Link to this heading">¶</a></h1>
+<section id="lists-of-transfer-syntaxes">
+<h2>Lists of Transfer Syntaxes<a class="headerlink" href="#lists-of-transfer-syntaxes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._globals.ALL_TRANSFER_SYNTAXES.html#pynetdicom._globals.ALL_TRANSFER_SYNTAXES" title="pynetdicom._globals.ALL_TRANSFER_SYNTAXES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALL_TRANSFER_SYNTAXES</span></code></a></p></td>
+<td><p>All current transfer syntaxes and explicit VR big endian.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES.html#pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES" title="pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_TRANSFER_SYNTAXES</span></code></a></p></td>
+<td><p>Default transfer syntaxes used when creating presentation contexts.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.PYNETDICOM_IMPLEMENTATION_UID.html#pynetdicom.PYNETDICOM_IMPLEMENTATION_UID" title="pynetdicom.PYNETDICOM_IMPLEMENTATION_UID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PYNETDICOM_IMPLEMENTATION_UID</span></code></a></p></td>
+<td><p>The (0002,0012) <em>Implementation Class UID</em> used by <em>pynetdicom</em></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.PYNETDICOM_IMPLEMENTATION_VERSION.html#pynetdicom.PYNETDICOM_IMPLEMENTATION_VERSION" title="pynetdicom.PYNETDICOM_IMPLEMENTATION_VERSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PYNETDICOM_IMPLEMENTATION_VERSION</span></code></a></p></td>
+<td><p>The (0002,0013) <em>Implementation Version Name</em> used by <em>pynetdicom</em></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.PYNETDICOM_UID_PREFIX.html#pynetdicom.PYNETDICOM_UID_PREFIX" title="pynetdicom.PYNETDICOM_UID_PREFIX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PYNETDICOM_UID_PREFIX</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1.2.826.0.1.3680043.9.3811.</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.debug_logger.html#pynetdicom.debug_logger" title="pynetdicom.debug_logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_logger</span></code></a>()</p></td>
+<td><p>Setup the logging for debugging.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/pynetdicom._globals.ALL_TRANSFER_SYNTAXES.html" class="btn btn-neutral float-right" title="pynetdicom._globals.ALL_TRANSFER_SYNTAXES" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

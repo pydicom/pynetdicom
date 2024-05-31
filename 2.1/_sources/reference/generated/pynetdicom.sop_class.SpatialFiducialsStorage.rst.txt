@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.SpatialFiducialsStorage
+=============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: SpatialFiducialsStorage

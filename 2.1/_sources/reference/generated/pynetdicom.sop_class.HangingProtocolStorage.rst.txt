@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.HangingProtocolStorage
+============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: HangingProtocolStorage
