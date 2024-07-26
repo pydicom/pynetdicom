@@ -7532,9 +7532,10 @@ class TestAssociationWindows:
         """Get the current timer resolution."""
         dll = ctypes.WinDLL("NTDLL.DLL")
 
-        minimum = ctypes.c_ulong()
-        maximum = ctypes.c_ulong()
-        current = ctypes.c_ulong()
+        # in 100-ns units
+        minimum = ctypes.c_ulong()  # smallest possible delay
+        maximum = ctypes.c_ulong()  # largest possible delay
+        current = ctypes.c_ulong()  # current delay
 
         dll.NtQueryTimerResolution(
             ctypes.byref(maximum), ctypes.byref(minimum), ctypes.byref(current)
@@ -7571,8 +7572,11 @@ class TestAssociationWindows:
     def test_set_timer_resolution(self):
         """Test setting the windows timer resolution works."""
         min_val, max_val, pre_timer = self.get_timer_info()
-        # Set the timer resolution to the minimum plus 10%
-        pynetdicom._config.WINDOWS_TIMER_RESOLUTION = min_val * 1.10 / 10000
+        print("Initial", min_val, max_val, pre_timer)
+        # Set the timer resolution to the current plus 10%
+        # e.g. (5000 -> 5500) * 100 ns
+        # Set in terms of ms
+        pynetdicom._config.WINDOWS_TIMER_RESOLUTION = pre_timer * 1.10 / 10000
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -7586,11 +7590,14 @@ class TestAssociationWindows:
         assoc = ae.associate("localhost", 11112)
 
         min_val, max_val, during_timer = self.get_timer_info()
-        assert during_timer < pre_timer
+        print("During", min_val, max_val, during_timer)
+        # e.g. 5500 > 5000
+        assert during_timer > pre_timer
         assoc.release()
         assert assoc.is_released
 
         scp.shutdown()
 
         min_val, max_val, post_timer = self.get_timer_info()
-        assert post_timer > during_timer
+        print("Post", min_val, max_val, post_timer)
+        assert post_timer < during_timer
