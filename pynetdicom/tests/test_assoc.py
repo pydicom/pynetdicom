@@ -7572,11 +7572,12 @@ class TestAssociationWindows:
     def test_set_timer_resolution(self):
         """Test setting the windows timer resolution works."""
         min_val, max_val, pre_timer = self.get_timer_info()
-        print("Initial", min_val, max_val, pre_timer)
+        # print("Initial", min_val, max_val, pre_timer)
+        # Initial 5000 156250 156250
         # Set the timer resolution to the current plus 10%
         # e.g. (5000 -> 5500) * 100 ns
         # Set in terms of ms
-        pynetdicom._config.WINDOWS_TIMER_RESOLUTION = pre_timer * 1.10 / 10000
+        pynetdicom._config.WINDOWS_TIMER_RESOLUTION = min_val * 1.10 / 10000
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -7590,9 +7591,8 @@ class TestAssociationWindows:
         assoc = ae.associate("localhost", 11112)
 
         min_val, max_val, during_timer = self.get_timer_info()
-        print("During", min_val, max_val, during_timer)
-        # e.g. 5500 > 5000
-        assert during_timer > pre_timer
+        # e.g. 5500 < 156250
+        assert during_timer < pre_timer
         assoc.release()
         assert assoc.is_released
 
@@ -7600,4 +7600,5 @@ class TestAssociationWindows:
 
         min_val, max_val, post_timer = self.get_timer_info()
         print("Post", min_val, max_val, post_timer)
+        # e.g. 5000 < 5500
         assert post_timer < during_timer
