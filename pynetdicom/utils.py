@@ -295,6 +295,7 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
         dll.NtQueryTimerResolution(
             ctypes.byref(maximum), ctypes.byref(minimum), ctypes.byref(current)
         )
+        original = current.value
 
         # Make sure the desired resolution is in the valid range
         # Timer resolution is in 100 ns units -> 10,000 == 1 ms
@@ -307,8 +308,9 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
 
         yield None
 
-        # Reset the timer resolution
-        dll.NtSetTimerResolution(resolution, 0, ctypes.byref(current))
+        # Reset the timer resolution to the original
+        dll.NtSetTimerResolution(original, 1, ctypes.byref(current))
+
     else:
         yield None
 
