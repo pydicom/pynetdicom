@@ -1,6 +1,6 @@
 |coverage| |unit-tests| |type-hints| |docs| |black| |pypi-versions| |python-versions| |conda| |zenodo|
 
-.. |coverage| image:: https://codecov.io/gh/pydicom/pynetdicom/branch/main/graph/badge.svg 
+.. |coverage| image:: https://codecov.io/gh/pydicom/pynetdicom/branch/main/graph/badge.svg
    :target: https://codecov.io/gh/pydicom/pynetdicom
 
 .. |unit-tests| image:: https://github.com/pydicom/pynetdicom/workflows/unit-tests/badge.svg
@@ -44,7 +44,7 @@ medical images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and other
 medical domains.
 
-*pynetdicom* is a pure Python 3.7+ package that implements the DICOM
+*pynetdicom* is a pure Python package that implements the DICOM
 networking protocol. Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM *Service Class Users* (SCUs) and *Service Class Providers* (SCPs).
