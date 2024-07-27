@@ -5,7 +5,6 @@ dependency on jQuery.
 from pathlib import Path
 import re
 
-
 search_html = Path("./_build/html/search.html")
 assert search_html.exists()
 
