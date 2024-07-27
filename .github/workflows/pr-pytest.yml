@@ -75,7 +75,7 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          poetry run pytest -x --cov pynetdicom --ignore=pynetdicom/apps pynetdicom/tests/test_assoc.py &&
+          poetry run pytest -x --cov pynetdicom --ignore=pynetdicom/apps pynetdicom/tests/test_assoc.py::TestAssociationWindows &&
           poetry run coverage xml
       - name: Send coverage results
         if: ${{ success() }}

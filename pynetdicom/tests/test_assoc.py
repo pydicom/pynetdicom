@@ -66,6 +66,7 @@ from pynetdicom.sop_class import (
     UnifiedProcedureStepPush,
     RepositoryQuery,
 )
+from pynetdicom.utils import set_timer_resolution
 
 from .hide_modules import hide_modules
 
