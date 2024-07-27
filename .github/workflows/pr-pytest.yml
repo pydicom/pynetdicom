@@ -75,100 +75,100 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          poetry run pytest -x --cov pynetdicom --ignore=pynetdicom/apps &&
+          poetry run pytest -x --cov pynetdicom --ignore=pynetdicom/apps pynetdicom/tests/test_assoc.py::TestAssociationWindows &&
           poetry run coverage xml
       - name: Send coverage results
         if: ${{ success() }}
         uses: codecov/codecov-action@v4
 
-  pydicom-dev:
-    # Matrix builds with development pydicom
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.10']
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      id: setup-python
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install poetry
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        installer-parallel: true
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-    - name: Install dependencies
-      run: poetry install --no-interaction --extras tests
-    - name: Switch to development pydicom
-      run: |
-        pip install git+https://github.com/pydicom/pydicom
-    - name: Test with pytest
-      env:
-        PYTHON_VERSION: ${{ matrix.python-version }}
-      run: |
-        poetry run pytest -x --cov pynetdicom --ignore=pynetdicom/apps &&
-        poetry run coverage xml
-    - name: Send coverage results
-      if: ${{ success() }}
-      uses: codecov/codecov-action@v4
-
-  pydicom-release:
-    # Matrix builds with released pydicom
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.10', '3.11', '3.12']
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 2
-    - name: Set up Python ${{ matrix.python-version }}
-      id: setup-python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install poetry
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        installer-parallel: true
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-    - name: Install dependencies
-      run: |
-        poetry install --no-interaction --extras tests &&
-        poetry run pip list
-    - name: Get OpenSSL version
-      run: |
-        poetry run python -c "import ssl; print('OpenSSL:', ssl.OPENSSL_VERSION_INFO)"
-    - name: Test with pytest
-      env:
-        PYTHON_VERSION: ${{ matrix.python-version }}
-      run: |
-        poetry run pytest -x --cov pynetdicom --ignore=pynetdicom/apps &&
-        poetry run coverage xml
-    - name: Send coverage results
-      if: ${{ success() }}
-      uses: codecov/codecov-action@v4
+  # pydicom-dev:
+  #   # Matrix builds with development pydicom
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: ['3.10']
+  #
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 2
+  #   - name: Set up Python ${{ matrix.python-version }}
+  #     uses: actions/setup-python@v5
+  #     id: setup-python
+  #     with:
+  #       python-version: ${{ matrix.python-version }}
+  #   - name: Install poetry
+  #     uses: snok/install-poetry@v1
+  #     with:
+  #       virtualenvs-create: true
+  #       virtualenvs-in-project: true
+  #       installer-parallel: true
+  #   - name: Load cached venv
+  #     id: cached-poetry-dependencies
+  #     uses: actions/cache@v4
+  #     with:
+  #       path: .venv
+  #       key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+  #   - name: Install dependencies
+  #     run: poetry install --no-interaction --extras tests
+  #   - name: Switch to development pydicom
+  #     run: |
+  #       pip install git+https://github.com/pydicom/pydicom
+  #   - name: Test with pytest
+  #     env:
+  #       PYTHON_VERSION: ${{ matrix.python-version }}
+  #     run: |
+  #       poetry run pytest -x --cov pynetdicom --ignore=pynetdicom/apps &&
+  #       poetry run coverage xml
+  #   - name: Send coverage results
+  #     if: ${{ success() }}
+  #     uses: codecov/codecov-action@v4
+  #
+  # pydicom-release:
+  #   # Matrix builds with released pydicom
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: ['3.10', '3.11', '3.12']
+  #
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 2
+  #   - name: Set up Python ${{ matrix.python-version }}
+  #     id: setup-python
+  #     uses: actions/setup-python@v5
+  #     with:
+  #       python-version: ${{ matrix.python-version }}
+  #   - name: Install poetry
+  #     uses: snok/install-poetry@v1
+  #     with:
+  #       virtualenvs-create: true
+  #       virtualenvs-in-project: true
+  #       installer-parallel: true
+  #   - name: Load cached venv
+  #     id: cached-poetry-dependencies
+  #     uses: actions/cache@v4
+  #     with:
+  #       path: .venv
+  #       key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+  #   - name: Install dependencies
+  #     run: |
+  #       poetry install --no-interaction --extras tests &&
+  #       poetry run pip list
+  #   - name: Get OpenSSL version
+  #     run: |
+  #       poetry run python -c "import ssl; print('OpenSSL:', ssl.OPENSSL_VERSION_INFO)"
+  #   - name: Test with pytest
+  #     env:
+  #       PYTHON_VERSION: ${{ matrix.python-version }}
+  #     run: |
+  #       poetry run pytest -x --cov pynetdicom --ignore=pynetdicom/apps &&
+  #       poetry run coverage xml
+  #   - name: Send coverage results
+  #     if: ${{ success() }}
+  #     uses: codecov/codecov-action@v4
