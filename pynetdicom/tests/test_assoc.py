@@ -7592,7 +7592,7 @@ class TestAssociationWindows:
             assoc = ae.associate("localhost", 11112)
 
             min_val, max_val, during_timer = self.get_timer_info()
-            print("During", min_val, max_val, during)
+            print("During", min_val, max_val, during_timer)
             assert during_timer < pre_timer
             assoc.release()
             assert assoc.is_released
