@@ -7571,12 +7571,12 @@ class TestAssociationWindows:
     @pytest.mark.skipif(not HAVE_CTYPES, reason="No ctypes module")
     def test_set_timer_resolution(self):
         """Test setting the windows timer resolution works."""
-        min_val, max_val, pre_timer = self.get_timer_info()
+        min_val, max_val, now = self.get_timer_info()
         # Ensure we always start with the worst resolution
-        print("Initial", min_val, max_val, pre_timer)
+        print("Initial", min_val, max_val, now)
         with set_timer_resolution(max_val / 10000):
-            min_val, max_val, now = self.get_timer_info()
-            print("Setup", min_val, max_val, now)
+            min_val, max_val, pre_timer = self.get_timer_info()
+            print("Setup", min_val, max_val, pre_timer)
             # Set the timer resolution to the minimum plus 10%
             pynetdicom._config.WINDOWS_TIMER_RESOLUTION = min_val * 1.10 / 10000
 
