@@ -308,7 +308,7 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
         yield None
 
         # Reset the timer resolution
-        dll.NtSetTimerResolution(current, 1, ctypes.byref(current))
+        dll.NtSetTimerResolution(current.value, 1, ctypes.byref(current))
     else:
         yield None
 
