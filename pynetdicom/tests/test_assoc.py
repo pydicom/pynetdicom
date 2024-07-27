@@ -7592,5 +7592,7 @@ class TestAssociationWindows:
 
         scp.shutdown()
 
+        time.sleep(1)
+
         min_val, max_val, post_timer = self.get_timer_info()
         assert post_timer > during_timer
