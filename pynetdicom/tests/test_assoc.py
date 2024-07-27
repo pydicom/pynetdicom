@@ -7571,28 +7571,30 @@ class TestAssociationWindows:
     def test_set_timer_resolution(self):
         """Test setting the windows timer resolution works."""
         min_val, max_val, pre_timer = self.get_timer_info()
-        # Set the timer resolution to the minimum plus 10%
-        pynetdicom._config.WINDOWS_TIMER_RESOLUTION = min_val * 1.10 / 10000
+        # Ensure we always start with the worst resolution
+        with set_timer_resolution(max_val):
+            # Set the timer resolution to the minimum plus 10%
+            pynetdicom._config.WINDOWS_TIMER_RESOLUTION = min_val * 1.10 / 10000
 
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_supported_context(Verification)
-        ae.add_requested_context(Verification)
+            self.ae = ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
 
-        scp = ae.start_server(("localhost", 11112), block=False)
+            scp = ae.start_server(("localhost", 11112), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", 11112)
 
-        min_val, max_val, during_timer = self.get_timer_info()
-        assert during_timer < pre_timer
-        assoc.release()
-        assert assoc.is_released
+            min_val, max_val, during_timer = self.get_timer_info()
+            assert during_timer < pre_timer
+            assoc.release()
+            assert assoc.is_released
 
-        scp.shutdown()
+            scp.shutdown()
 
-        time.sleep(1)
+            time.sleep(1)
 
-        min_val, max_val, post_timer = self.get_timer_info()
-        assert post_timer > during_timer
+            min_val, max_val, post_timer = self.get_timer_info()
+            assert post_timer > during_timer
