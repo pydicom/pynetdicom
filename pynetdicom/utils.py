@@ -291,12 +291,11 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
         minimum = ctypes.c_ulong()  # Minimum delay allowed
         maximum = ctypes.c_ulong()  # Maximum delay allowed
         current = ctypes.c_ulong()  # Current delay
-        now = ctypes.c_ulong()  # Current delay
 
         dll.NtQueryTimerResolution(
             ctypes.byref(maximum), ctypes.byref(minimum), ctypes.byref(current)
         )
-        print("Initial", minimum.value, maximum.value, current.value)
+        original = current.value
 
         # Make sure the desired resolution is in the valid range
         # Timer resolution is in 100 ns units -> 10,000 == 1 ms
@@ -304,25 +303,13 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
         resolution = max(int(resolution * 10000), minimum.value)
         resolution = min(resolution, maximum.value)
 
-        original = current.value
-
         # Set the timer resolution
         dll.NtSetTimerResolution(resolution, 1, ctypes.byref(current))
 
-        dll.NtQueryTimerResolution(
-            ctypes.byref(maximum), ctypes.byref(minimum), ctypes.byref(now)
-        )
-        print("During", minimum.value, maximum.value, now.value)
-
         yield None
 
-        # Reset the timer resolution
+        # Reset the timer resolution to the original
         dll.NtSetTimerResolution(original, 1, ctypes.byref(current))
-
-        dll.NtQueryTimerResolution(
-            ctypes.byref(maximum), ctypes.byref(minimum), ctypes.byref(now)
-        )
-        print("After", minimum.value, maximum.value, now.value, original)
 
     else:
         yield None
