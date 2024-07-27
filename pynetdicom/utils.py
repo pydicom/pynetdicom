@@ -304,6 +304,8 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
         resolution = max(int(resolution * 10000), minimum.value)
         resolution = min(resolution, maximum.value)
 
+        original = current.value
+
         # Set the timer resolution
         dll.NtSetTimerResolution(resolution, 1, ctypes.byref(current))
 
@@ -315,12 +317,12 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
         yield None
 
         # Reset the timer resolution
-        dll.NtSetTimerResolution(current.value, 1, ctypes.byref(current))
+        dll.NtSetTimerResolution(original, 1, ctypes.byref(current))
 
         dll.NtQueryTimerResolution(
             ctypes.byref(maximum), ctypes.byref(minimum), ctypes.byref(now)
         )
-        print("After", minimum.value, maximum.value, now.value)
+        print("After", minimum.value, maximum.value, now.value, original)
 
     else:
         yield None
