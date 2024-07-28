@@ -72,8 +72,10 @@ jobs:
           poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
           poetry run coverage xml
       - name: Send coverage results
-        if: ${{ success() }}
+        if: success()
         uses: codecov/codecov-action@v4
+        env:
+          codecov_token: ${{ secrets.codecov_token }}
 
   pydicom-dev:
     # Matrix builds with development pydicom
@@ -117,8 +119,10 @@ jobs:
         poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
         poetry run coverage xml
     - name: Send coverage results
-      if: ${{ success() }}
+      if: success()
       uses: codecov/codecov-action@v4
+      env:
+        codecov_token: ${{ secrets.codecov_token }}
 
   pydicom-release:
     # Matrix builds with released pydicom
@@ -161,5 +165,7 @@ jobs:
         poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
         poetry run coverage xml
     - name: Send coverage results
-      if: ${{ success() }}
+      if: success()
       uses: codecov/codecov-action@v4
+      env:
+        codecov_token: ${{ secrets.codecov_token }}
