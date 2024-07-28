@@ -75,7 +75,7 @@ jobs:
         if: success()
         uses: codecov/codecov-action@v4
         env:
-          codecov_token: ${{ secrets.CODECOV_TOKEN }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   pydicom-dev:
     # Matrix builds with development pydicom
@@ -122,7 +122,7 @@ jobs:
       if: success()
       uses: codecov/codecov-action@v4
       env:
-        codecov_token: ${{ secrets.CODECOV_TOKEN }}
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   pydicom-release:
     # Matrix builds with released pydicom
@@ -168,4 +168,4 @@ jobs:
       if: success()
       uses: codecov/codecov-action@v4
       env:
-        codecov_token: ${{ secrets.CODECOV_TOKEN }}
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
