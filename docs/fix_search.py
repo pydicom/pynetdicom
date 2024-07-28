@@ -2,6 +2,7 @@
 A temporary fix for #953 while waiting for upstream sphinx_rtd_theme to fix/remove their
 dependency on jQuery.
 """
+
 from pathlib import Path
 import re
 
