@@ -1,0 +1,10 @@
+.. _v2.1.1:
+
+2.1.1
+=====
+
+Fixes
+.....
+
+* Fixed being unable to run the `movescp` app (:issue:`950`)
+* Fixed search being broken in the documentation (:issue:`953`)
