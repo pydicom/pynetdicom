@@ -7,5 +7,4 @@ Fixes
 .....
 
 * Fixed being unable to run the `movescp` app (:issue:`950`)
-* Fixed the Windows timer resolution not being reset for recent Windows versions (:issue:`954`)
 * Fixed search being broken in the documentation (:issue:`953`)
