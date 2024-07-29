@@ -94,10 +94,11 @@ def _log_config(config, logger):
     logger.debug("")
 
 
-def _setup_argparser():
+def _setup_argparser(args=None):
     """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
+        prog="qrscp",
         description=(
             "The qrscp application implements a Service Class Provider (SCP) "
             "for the Verification, Storage and Query/Retrieve (QR) Service "
@@ -218,7 +219,7 @@ def _setup_argparser():
         action="store_true",
     )
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def clean(db_path, instance_path, logger):
@@ -289,10 +290,7 @@ def clean(db_path, instance_path, logger):
 
 def main(args=None):
     """Run the application."""
-    if args is not None:
-        sys.argv = args
-
-    args = _setup_argparser()
+    args = _setup_argparser(args)
 
     if args.version:
         print(f"qrscp.py v{__version__}")

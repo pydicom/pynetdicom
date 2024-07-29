@@ -25,4 +25,4 @@ if __name__ == "__main__":
     else:
         app_path = _APPS[args[0]]
         app = importlib.import_module(app_path)
-        app.main(args)
+        app.main(args[1:])

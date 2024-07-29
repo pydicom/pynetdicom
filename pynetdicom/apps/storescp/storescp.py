@@ -26,10 +26,11 @@ from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
 __version__ = "0.6.0"
 
 
-def _setup_argparser():
+def _setup_argparser(args=None):
     """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
+        prog="storescp",
         description=(
             "The storescp application implements a Service Class "
             "Provider (SCP) for the Storage and Verification SOP Classes. It "
@@ -185,15 +186,13 @@ def _setup_argparser():
         "--no-echo", help="don't act as a verification SCP", action="store_true"
     )
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def main(args=None):
     """Run the application."""
-    if args is not None:
-        sys.argv = args
+    args = _setup_argparser(args)
 
-    args = _setup_argparser()
     if args.version:
         print(f"storescp.py v{__version__}")
         sys.exit()

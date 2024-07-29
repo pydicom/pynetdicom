@@ -19,10 +19,11 @@ from pynetdicom.sop_class import Verification
 __version__ = "0.7.0"
 
 
-def _setup_argparser():
+def _setup_argparser(args=None):
     """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
+        prog="echoscp",
         description=(
             "The echoscp application implements a Service Class "
             "Provider (SCP) for the Verification SOP Class. It "
@@ -160,7 +161,7 @@ def _setup_argparser():
         action="store_true",
     )
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def handle_echo(event):
@@ -173,10 +174,7 @@ def handle_echo(event):
 
 def main(args=None):
     """Run the application."""
-    if args is not None:
-        sys.argv = args
-
-    args = _setup_argparser()
+    args = _setup_argparser(args)
 
     if args.version:
         print(f"echoscp.py v{__version__}")
