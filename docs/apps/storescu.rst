@@ -127,7 +127,7 @@ Transfer Syntax Options
 
 Miscellaneous Options
 ---------------------
-``-cx   --single-context``
+``-cx   --required-contexts``
             only request the presentation contexts required for the
             input DICOM file(s)
 
