@@ -29,10 +29,11 @@ from pynetdicom.sop_class import (
 __version__ = "0.4.0"
 
 
-def _setup_argparser():
+def _setup_argparser(args):
     """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
+        prog="getscu",
         description=(
             "The getscu application implements a Service Class User "
             "(SCU) for the Query/Retrieve (QR) Service Class. getscu only "
@@ -214,7 +215,7 @@ def _setup_argparser():
         "--ignore", help="receive data but don't store it", action="store_true"
     )
 
-    ns = parser.parse_args()
+    ns = parser.parse_args(args)
     if ns.version:
         pass
     elif not bool(ns.file) and not bool(ns.keyword):
@@ -225,10 +226,7 @@ def _setup_argparser():
 
 def main(args=None):
     """Run the application."""
-    if args is not None:
-        sys.argv = args
-
-    args = _setup_argparser()
+    args = _setup_argparser(args)
 
     if args.version:
         print(f"getscu.py v{__version__}")

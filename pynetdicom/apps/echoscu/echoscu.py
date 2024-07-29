@@ -24,10 +24,11 @@ from pynetdicom.sop_class import Verification
 __version__ = "0.7.0"
 
 
-def _setup_argparser():
+def _setup_argparser(args=None):
     """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
+        prog="echoscu",
         description=(
             "The echoscu application implements a Service Class User "
             "(SCU) for the Verification Service Class. It sends a DICOM "
@@ -171,15 +172,12 @@ def _setup_argparser():
         "--abort", help="abort association instead of releasing it", action="store_true"
     )
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def main(args=None):
     """Run the application."""
-    if args is not None:
-        sys.argv = args
-
-    args = _setup_argparser()
+    args = _setup_argparser(args)
 
     if args.version:
         print(f"echoscu.py v{__version__}")

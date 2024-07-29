@@ -26,10 +26,11 @@ from pynetdicom._globals import DEFAULT_MAX_LENGTH
 __version__ = "0.3.0"
 
 
-def _setup_argparser():
+def _setup_argparser(args=None):
     """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
+        prog="storescu",
         description=(
             "The storescu application implements a Service Class User "
             "(SCU) for the Storage Service Class. For each DICOM "
@@ -189,7 +190,7 @@ def _setup_argparser():
         action="store_true",
     )
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def get_contexts(fpaths, app_logger):
@@ -238,10 +239,7 @@ def get_contexts(fpaths, app_logger):
 
 def main(args=None):
     """Run the application."""
-    if args is not None:
-        sys.argv = args
-
-    args = _setup_argparser()
+    args = _setup_argparser(args)
 
     if args.version:
         print(f"storescu.py v{__version__}")
