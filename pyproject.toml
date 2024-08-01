@@ -65,7 +65,7 @@ sqlalchemy = { version = "^2.0", optional = true }
 [tool.poetry.extras]
 apps = ["sqlalchemy"]
 dev = ["asv", "black", "codespell", "coverage", "mypy", "pyfakefs", "pytest", "pytest-cov", "ruff", "sqlalchemy"]
-docs = ["numpydoc", "sphinx", "sphinx-copybutton", "sphinx-rtd-theme"]
+docs = ["numpydoc", "sphinx", "sphinx-copybutton", "sphinx-rtd-theme", "sphinxcontrib-jquery"]
 tests = ["coverage", "pyfakefs", "pytest", "pytest-cov", "sqlalchemy"]
 
 [tool.poetry.scripts]
