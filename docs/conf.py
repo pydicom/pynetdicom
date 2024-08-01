@@ -77,6 +77,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.linkcode",
     "sphinx.ext.extlinks",
+    "sphinxcontrib.jquery",  # Needed by sphinx_rtd_theme
     # Custom
     "sphinx_copybutton",
 ]
