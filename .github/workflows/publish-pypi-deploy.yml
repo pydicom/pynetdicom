@@ -18,16 +18,13 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install poetry
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        installer-parallel: true
+    - name: Install flit
+      run: |
+        pip install -U flit
 
     - name: Build package
       run: |
-        poetry build
+        flit build
 
     - name: Upload artifacts
       if: ${{ success() }}
@@ -42,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/project/pylibjpeg-libjpeg/
+      url: https://pypi.org/project/pynetdicom/
     permissions:
       id-token: write
 

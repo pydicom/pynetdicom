@@ -21,29 +21,17 @@ jobs:
       id: setup-python
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install poetry
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        installer-parallel: true
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
-      run: poetry install --no-interaction --no-root --extras dev
+      run: pip install -e .[dev]
     - name: Run type check using mypy
       run: |
-        poetry run mypy
+        mypy
     - name: Run formatting check using black
       run: |
-        poetry run black . --check
+        black . --check
     - name : Run linting check using ruff
       run: |
-        poetry run ruff check .
+        ruff check .
     - name: Run spell check using codespell
       run: |
-        poetry run codespell -d pynetdicom
+        codespell -d pynetdicom

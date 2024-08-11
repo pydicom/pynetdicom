@@ -100,3 +100,7 @@ env*/
 
 # mypy
 .mypy*
+
+# Misc
+issues/*
+.asv/*
