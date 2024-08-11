@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>1.3.0 &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+
+  
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
@@ -130,12 +132,12 @@ than an A-ABORT</p></li>
 <li><p>Fixed rejected contexts not being included in the Presentation Context
 Definition Results List when acting as the association Acceptor.</p></li>
 <li><p>The Message ID values for C-MOVE and C-GET sub-operations now iterate instead
-of just re-using 1. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/315">#315</a>)</p></li>
+of just re-using 1. (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/315">#315</a>)</p></li>
 <li><p>The default <code class="docutils literal notranslate"><span class="pre">logging</span></code> configuration no longer uses a non-NullHandler
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/321">#321</a>)</p></li>
+(<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/321">#321</a>)</p></li>
 <li><p>Fixed Unified Procedure Step’s SOP Class UID variable names</p></li>
 <li><p>Fixed memory leak caused by keeping old <code class="docutils literal notranslate"><span class="pre">Association</span></code> threads around after
-they died (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/328">#328</a>)</p></li>
+they died (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/328">#328</a>)</p></li>
 </ul>
 </section>
 <section id="enhancements">
@@ -155,9 +157,9 @@ to <code class="docutils literal notranslate"><span class="pre">Association</spa
 <li><p><code class="docutils literal notranslate"><span class="pre">_config.ENFORCE_UID_CONFORMANCE</span></code> added which determines the level of
 conformance required for UIDs. If <code class="docutils literal notranslate"><span class="pre">True</span></code> then all UIDs are required to
 meet the UID rules in the DICOM Standard, if <code class="docutils literal notranslate"><span class="pre">False</span></code> (default) then UIDs
-only need to meet the length requirement. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/316">#316</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/322">#322</a>)</p></li>
+only need to meet the length requirement. (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/316">#316</a>, <a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/322">#322</a>)</p></li>
 <li><p>Support added for Modality Performed Procedure Step Management - only with
-the event-handler system. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/56">#56</a>)</p></li>
+the event-handler system. (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/56">#56</a>)</p></li>
 </ul>
 </section>
 <section id="changes">

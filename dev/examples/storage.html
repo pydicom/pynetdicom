@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Storage Service Examples &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+
+  
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
@@ -110,7 +112,7 @@
              
   <section id="storage-service-examples">
 <h1>Storage Service Examples<a class="headerlink" href="#storage-service-examples" title="Link to this heading">¶</a></h1>
-<p>The DICOM <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage Service</a>
+<p>The DICOM <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage Service</a>
 provides a mechanism for an SCU to request the transfer
 of supported <a class="reference internal" href="../service_classes/storage_service_class.html#storage-sops"><span class="std std-ref">Storage SOP Class</span></a> instances to
 the service provider. Transfer is accomplished by utilising the
@@ -200,7 +202,7 @@ received over the association we write the dataset to file and then return
 <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">0x0000</span></code> <em>Success</em> <a class="reference internal" href="../service_classes/storage_service_class.html#storage-statuses"><span class="std std-ref">status</span></a>.</p>
 <p>If you’re going to write SOP instances (datasets) to file it’s recommended
 that you ensure the file is conformant with the
-<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html">DICOM File Format</a>,
+<a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html">DICOM File Format</a>,
 which requires adding the File Meta Information.</p>
 <p>Check the
 <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a>

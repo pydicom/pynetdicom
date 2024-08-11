@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom._handlers.doc_handle_sop_common &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/pynetdicom.css?v=b0f7bde4" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/pynetdicom.css?v=b0f7bde4" />
+
+  
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
@@ -141,10 +143,10 @@
 <h1>pynetdicom._handlers.doc_handle_sop_common<a class="headerlink" href="#pynetdicom-handlers-doc-handle-sop-common" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="pynetdicom._handlers.doc_handle_sop_common">
-<span class="sig-prename descclassname"><span class="pre">pynetdicom._handlers.</span></span><span class="sig-name descname"><span class="pre">doc_handle_sop_common</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><span class="pre">Event</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.12)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.4.4)"><span class="pre">UID</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><span class="pre">SOPClassCommonExtendedNegotiation</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/03ca7fb18/pynetdicom/_handlers.py#L3846"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_sop_common" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pynetdicom._handlers.</span></span><span class="sig-name descname"><span class="pre">doc_handle_sop_common</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><span class="pre">Event</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.12)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.4.4)"><span class="pre">UID</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><span class="pre">SOPClassCommonExtendedNegotiation</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bc5f1ae4f/pynetdicom/_handlers.py#L3846"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_sop_common" title="Link to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_SOP_COMMON</span></code>.</p>
 <p>User implementation of this event handler is required only if
-<a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html">SOP Class Common Extended Negotiation</a>
+<a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html">SOP Class Common Extended Negotiation</a>
 is to be supported by the association.</p>
 <p><strong>Event</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">evt.EVT_SOP_COMMON</span></code></p>
@@ -188,7 +190,7 @@ the corresponding Service Class will be used (if available).</p>
 </dl>
 <p class="rubric">References</p>
 <ul class="simple">
-<li><p>DICOM Standard, Part 7, <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html">Annex D.3.3.6</a></p></li>
+<li><p>DICOM Standard, Part 7, <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html">Annex D.3.3.6</a></p></li>
 </ul>
 </dd></dl>
 

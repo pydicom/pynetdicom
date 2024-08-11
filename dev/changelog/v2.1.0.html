@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>2.1.0 &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+
+  
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
@@ -123,33 +125,33 @@
 <section id="fixes">
 <h2>Fixes<a class="headerlink" href="#fixes" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>Fixed reserved A-ASSOCIATE-AC parameters being tested (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/746">#746</a>)</p></li>
+<li><p>Fixed reserved A-ASSOCIATE-AC parameters being tested (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/746">#746</a>)</p></li>
 <li><p>Fixed datasets not transferring correctly when using
-<a class="reference internal" href="../reference/generated/pynetdicom._config.STORE_RECV_CHUNKED_DATASET.html#pynetdicom._config.STORE_RECV_CHUNKED_DATASET" title="pynetdicom._config.STORE_RECV_CHUNKED_DATASET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">STORE_RECV_CHUNKED_DATASET</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/756">#756</a>)</p></li>
-<li><p>Fixed maximum length of <em>Patient ID</em> attribute in <code class="docutils literal notranslate"><span class="pre">qrscp</span></code> app (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/785">#785</a>)</p></li>
+<a class="reference internal" href="../reference/generated/pynetdicom._config.STORE_RECV_CHUNKED_DATASET.html#pynetdicom._config.STORE_RECV_CHUNKED_DATASET" title="pynetdicom._config.STORE_RECV_CHUNKED_DATASET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">STORE_RECV_CHUNKED_DATASET</span></code></a> (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/756">#756</a>)</p></li>
+<li><p>Fixed maximum length of <em>Patient ID</em> attribute in <code class="docutils literal notranslate"><span class="pre">qrscp</span></code> app (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/785">#785</a>)</p></li>
 <li><p>Sanitise filenames for received datasets for non-conformant SOP Instance
-UIDs (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/823">#823</a>)</p></li>
+UIDs (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/823">#823</a>)</p></li>
 <li><p>Fixed <a class="reference internal" href="../reference/generated/pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html#pynetdicom._config.LOG_REQUEST_IDENTIFIERS" title="pynetdicom._config.LOG_REQUEST_IDENTIFIERS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">LOG_REQUEST_IDENTIFIERS</span></code></a> not applying to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find" title="pynetdicom.association.Association.send_c_find"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_find()</span></code></a>,
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move" title="pynetdicom.association.Association.send_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_move()</span></code></a> and
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get" title="pynetdicom.association.Association.send_c_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_get()</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/911">#911</a>)</p></li>
+<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get" title="pynetdicom.association.Association.send_c_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_get()</span></code></a> (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/911">#911</a>)</p></li>
 </ul>
 </section>
 <section id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.sop_class.register_uid.html#pynetdicom.sop_class.register_uid" title="pynetdicom.sop_class.register_uid"><code class="xref py py-func docutils literal notranslate"><span class="pre">register_uid()</span></code></a> to make registering new
-private and public SOP Classes easier (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/799">#799</a>)</p></li>
+private and public SOP Classes easier (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/799">#799</a>)</p></li>
 <li><p>Added support for <em>Repository Query</em> to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find" title="pynetdicom.association.Association.send_c_find"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_find()</span></code></a> and
-<a class="reference internal" href="../reference/generated/pynetdicom.service_class.QueryRetrieveServiceClass.html#pynetdicom.service_class.QueryRetrieveServiceClass" title="pynetdicom.service_class.QueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">QueryRetrieveServiceClass</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/878">#878</a>)</p></li>
-<li><p>Added support for <a class="reference internal" href="../reference/generated/pynetdicom.service_class.InventoryQueryRetrieveServiceClass.html#pynetdicom.service_class.InventoryQueryRetrieveServiceClass" title="pynetdicom.service_class.InventoryQueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">Inventory</span> <span class="pre">Query/Retrieve</span> <span class="pre">Service</span> <span class="pre">Class</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/879">#879</a>)</p></li>
-<li><p>Added support for <a class="reference internal" href="../reference/generated/pynetdicom.service_class_n.StorageManagementServiceClass.html#pynetdicom.service_class_n.StorageManagementServiceClass" title="pynetdicom.service_class_n.StorageManagementServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">Storage</span> <span class="pre">Management</span> <span class="pre">Service</span> <span class="pre">Class</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/880">#880</a>)</p></li>
+<a class="reference internal" href="../reference/generated/pynetdicom.service_class.QueryRetrieveServiceClass.html#pynetdicom.service_class.QueryRetrieveServiceClass" title="pynetdicom.service_class.QueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">QueryRetrieveServiceClass</span></code></a> (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/878">#878</a>)</p></li>
+<li><p>Added support for <a class="reference internal" href="../reference/generated/pynetdicom.service_class.InventoryQueryRetrieveServiceClass.html#pynetdicom.service_class.InventoryQueryRetrieveServiceClass" title="pynetdicom.service_class.InventoryQueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">Inventory</span> <span class="pre">Query/Retrieve</span> <span class="pre">Service</span> <span class="pre">Class</span></code></a> (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/879">#879</a>)</p></li>
+<li><p>Added support for <a class="reference internal" href="../reference/generated/pynetdicom.service_class_n.StorageManagementServiceClass.html#pynetdicom.service_class_n.StorageManagementServiceClass" title="pynetdicom.service_class_n.StorageManagementServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">Storage</span> <span class="pre">Management</span> <span class="pre">Service</span> <span class="pre">Class</span></code></a> (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/880">#880</a>)</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.encoded_dataset" title="pynetdicom.events.Event.encoded_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encoded_dataset()</span></code></a> to simplify accessing
 the encoded dataset without first decoding it</p></li>
 <li><p>Added a check to <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> to
 ensure that the <em>Transfer Syntax UID</em> matches the encoding of the dataset
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/891">#891</a>)</p></li>
+(<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/891">#891</a>)</p></li>
 <li><p>Updated SOP Classes to version 2024b of the DICOM Standard</p></li>
 </ul>
 </section>

@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>1.5.0 &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+
+  
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
@@ -127,25 +129,25 @@ bugs being available for a year after the release date.</p>
 <h2>Fixes<a class="headerlink" href="#fixes" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Fixed the <a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a> not properly
-closing its sockets (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/382">#382</a>)</p></li>
-<li><p>Improved the robustness of determining the local IP address (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/394">#394</a>)</p></li>
+closing its sockets (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/382">#382</a>)</p></li>
+<li><p>Improved the robustness of determining the local IP address (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/394">#394</a>)</p></li>
 <li><p>Fixed not being able to set an <em>Implementation Version Name</em> of length 1
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/414">#414</a>)</p></li>
+(<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/414">#414</a>)</p></li>
 <li><p>Changed <code class="docutils literal notranslate"><span class="pre">ImplantationPlanSRDocumentStorage</span></code> to
 <a class="reference internal" href="../reference/generated/pynetdicom.sop_class.ImplantationPlanSRStorage.html#pynetdicom.sop_class.ImplantationPlanSRStorage" title="pynetdicom.sop_class.ImplantationPlanSRStorage"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ImplantationPlanSRStorage</span></code></a> to match the name
 from Part 6 of the DICOM Standard rather than Part 4.</p></li>
 <li><p>Stopped the QR Move SCP from associating with the move destination when no
-sub-operations were required (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/436">#436</a>)</p></li>
-<li><p>Fixed a possible race condition during DIMSE message exchange (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/435">#435</a>)</p></li>
+sub-operations were required (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/436">#436</a>)</p></li>
+<li><p>Fixed a possible race condition during DIMSE message exchange (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/435">#435</a>)</p></li>
 <li><p>Fixed the association acceptor selecting the first matching proposed
 transfer syntax rather than the first matching supported transfer syntax
-during presentation context negotiation (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/445">#445</a>)</p></li>
-<li><p>Fixed incorrect Pending status value for Modality Worklist (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/462">#462</a>)</p></li>
+during presentation context negotiation (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/445">#445</a>)</p></li>
+<li><p>Fixed incorrect Pending status value for Modality Worklist (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/462">#462</a>)</p></li>
 <li><p>Fixed an <code class="docutils literal notranslate"><span class="pre">InvalidEventError</span></code> due to two A-ABORT messages being sent. Issue
 is triggered when the DIMSE and network timeouts have the same value and
-both expire while sending a DIMSE request. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/460">#460</a>)</p></li>
+both expire while sending a DIMSE request. (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/460">#460</a>)</p></li>
 <li><p>Fixed datasets encoding using <em>Deflated Explicit VR Little Endian</em> not
-transferring correctly (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/482">#482</a>)</p></li>
+transferring correctly (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/482">#482</a>)</p></li>
 </ul>
 </section>
 <section id="enhancements">
@@ -153,10 +155,10 @@ transferring correctly (<a class="reference external" href="https://github.com/p
 <ul class="simple">
 <li><p>Added configuration option <a class="reference internal" href="../reference/generated/pynetdicom._config.USE_SHORT_DIMSE_AET.html#pynetdicom._config.USE_SHORT_DIMSE_AET" title="pynetdicom._config.USE_SHORT_DIMSE_AET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.USE_SHORT_DIMSE_AET</span></code></a> so elements with a VR of <strong>AE</strong> in
 DIMSE messages are no longer padded to the maximum 16 characters.
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/403">#403</a>)</p></li>
+(<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/403">#403</a>)</p></li>
 <li><p>When acting as the association Acceptor check that the user hasn’t sent
 an A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/408">#408</a>)</p></li>
+(<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/408">#408</a>)</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a> to
 <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> for use when receiving a DIMSE service
 request</p></li>
@@ -164,7 +166,7 @@ request</p></li>
 <a class="reference internal" href="../reference/sop_classes.html#module-pynetdicom.sop_class" title="pynetdicom.sop_class"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sop_class</span></code></a>.</p></li>
 <li><p>Added support for the DIMSE intervention event handlers aborting or releasing
 the association during service class operation.</p></li>
-<li><p>Add new SOP classes up to 2019e version of the standard (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/424">#424</a>)</p></li>
+<li><p>Add new SOP classes up to 2019e version of the standard (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/424">#424</a>)</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.presentation.AllStoragePresentationContexts.html#pynetdicom.presentation.AllStoragePresentationContexts" title="pynetdicom.presentation.AllStoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AllStoragePresentationContexts</span></code></a> which
 contains all of the Storage Service Class’ SOP Class UIDs rather than just
 the first 128 as in
@@ -183,20 +185,20 @@ the first 128 as in
 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pynetdicom</span> <span class="pre">[appname]</span> <span class="pre">[options]</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pynetdicom</span>
 <span class="pre">echoscu</span> <span class="pre">127.0.0.1</span> <span class="pre">11112</span> <span class="pre">-d</span></code></p></li>
 <li><p>Added ability to pass optional extra arguments to event handlers by using
-<code class="docutils literal notranslate"><span class="pre">(evt.EVT_NAME,</span> <span class="pre">handler,</span> <span class="pre">['list',</span> <span class="pre">'of',</span> <span class="pre">'args'])</span></code> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/447">#447</a>)</p></li>
+<code class="docutils literal notranslate"><span class="pre">(evt.EVT_NAME,</span> <span class="pre">handler,</span> <span class="pre">['list',</span> <span class="pre">'of',</span> <span class="pre">'args'])</span></code> (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/447">#447</a>)</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.make_server" title="pynetdicom.ae.ApplicationEntity.make_server"><code class="xref py py-func docutils literal notranslate"><span class="pre">AE.make_server()</span></code></a>
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/453">#453</a>)</p></li>
+(<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/453">#453</a>)</p></li>
 <li><p>Added <cite>request_handler</cite> keyword parameter to
-<a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/453">#453</a>)</p></li>
+<a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a> (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/453">#453</a>)</p></li>
 <li><p>Added hook in <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> for creating
-<a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket" title="pynetdicom.transport.AssociationSocket"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationSocket</span></code></a> objects (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/455">#455</a>)</p></li>
+<a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket" title="pynetdicom.transport.AssociationSocket"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationSocket</span></code></a> objects (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/455">#455</a>)</p></li>
 <li><p>Added a customisable <a class="reference internal" href="../reference/generated/pynetdicom.status.Status.html#pynetdicom.status.Status" title="pynetdicom.status.Status"><code class="xref py py-class docutils literal notranslate"><span class="pre">Status</span></code></a>
 convenience class for comparing, returning and yielding status values
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/454">#454</a>)</p></li>
+(<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/454">#454</a>)</p></li>
 <li><p>Added hook in <a class="reference internal" href="../reference/generated/pynetdicom.transport.RequestHandler.html#pynetdicom.transport.RequestHandler" title="pynetdicom.transport.RequestHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">RequestHandler</span></code></a> for creating
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> objects (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/455">#455</a>)</p></li>
+<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> objects (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/455">#455</a>)</p></li>
 <li><p>Prefer an exact match when selecting a valid presentation context over
-a convertible one (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/472">#472</a>)</p></li>
+a convertible one (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/472">#472</a>)</p></li>
 <li><p>Added configuration options <a class="reference internal" href="../reference/generated/pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html#pynetdicom._config.LOG_REQUEST_IDENTIFIERS" title="pynetdicom._config.LOG_REQUEST_IDENTIFIERS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.LOG_REQUEST_IDENTIFIERS</span></code></a> and
 <a class="reference internal" href="../reference/generated/pynetdicom._config.LOG_RESPONSE_IDENTIFIERS.html#pynetdicom._config.LOG_RESPONSE_IDENTIFIERS" title="pynetdicom._config.LOG_RESPONSE_IDENTIFIERS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.LOG_RESPONSE_IDENTIFIERS</span></code></a> for controlling whether or
 not the contents of C-FIND, C-GET and C-MOVE request and response
@@ -224,7 +226,7 @@ UID directly instead.</p></li>
 officially supported</p></li>
 <li><p>If an A-ABORT is received while waiting for a DIMSE message the
 <code class="docutils literal notranslate"><span class="pre">Association.send_*</span></code> methods will now return immediately rather than
-waiting for the DIMSE timeout. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/430">#430</a>)</p></li>
+waiting for the DIMSE timeout. (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/430">#430</a>)</p></li>
 <li><p>Added <cite>abort_type</cite> keyword parameter to <a class="reference internal" href="../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.is_aborted" title="pynetdicom.acse.ACSE.is_aborted"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ACSE.is_aborted()</span></code></a></p></li>
 <li><p>Added <cite>args</cite> keyword parameter to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.bind" title="pynetdicom.association.Association.bind"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.bind()</span></code></a> and
@@ -244,7 +246,7 @@ in version 2.0</p></li>
 <h2>Known Issues<a class="headerlink" href="#known-issues" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>TLS v1.3 (with OpenSSL 1.1.1 or higher) is not currently supported
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/364">#364</a>)</p></li>
+(<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/364">#364</a>)</p></li>
 </ul>
 </section>
 </section>
