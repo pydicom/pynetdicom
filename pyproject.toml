@@ -23,13 +23,13 @@ classifiers=[
 ]
 description = "A Python implementation of the DICOM networking protocol"
 keywords = ["dicom", "networking", "pydicom"]
-license = {file = "LICENSE"}
+license = {file = "LICENCE"}
 maintainers = [
     {name = "scaramallion", email = "scaramallion@users.noreply.github.com"},
 ]
 name = "pynetdicom"
 readme = "README.rst"
-version = "2.1.1"
+version = "2.2.0.dev0"
 requires-python = ">=3.10"
 dependencies = ["pydicom >=2.4"]
 
@@ -76,13 +76,6 @@ movescu = "pynetdicom.apps.movescu.movescu:main"
 qrscp = "pynetdicom.apps.qrscp.qrscp:main"
 storescp = "pynetdicom.apps.storescp.storescp:main"
 storescu = "pynetdicom.apps.storescu.storescu:main"
-
-# [tool.flit.sdist]
-# include = [
-#     "pynetdicom/tests/cert_files/*",
-#     "pynetdicom/tests/dicom_files/*",
-#     "pynetdicom/apps/qrscp/default.ini",
-# ]
 
 
 [tool.black]

@@ -51,26 +51,13 @@ jobs:
         id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
-        run: poetry install --no-interaction --extras tests
+        run: pip install .[tests]
       - name: Test with pytest
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
-          poetry run coverage xml
+          pytest --cov pynetdicom --ignore=pynetdicom/apps && coverage xml
       - name: Send coverage results
         if: success()
         uses: codecov/codecov-action@v4
@@ -95,20 +82,8 @@ jobs:
       id: setup-python
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install poetry
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        installer-parallel: true
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
-      run: poetry install --no-interaction --extras tests
+      run: pip install .[tests]
     - name: Switch to development pydicom
       run: |
         pip install git+https://github.com/pydicom/pydicom
@@ -116,8 +91,7 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
-        poetry run coverage xml
+        pytest --cov pynetdicom --ignore=pynetdicom/apps && coverage xml
     - name: Send coverage results
       if: success()
       uses: codecov/codecov-action@v4
@@ -142,28 +116,14 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install poetry
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        installer-parallel: true
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
       run: |
-        poetry install --no-interaction --extras tests &&
-        poetry run pip list
+        pip install -e .[tests]
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        poetry run pytest --cov pynetdicom --ignore=pynetdicom/apps &&
-        poetry run coverage xml
+        pytest --cov pynetdicom --ignore=pynetdicom/apps && coverage xml
     - name: Send coverage results
       if: success()
       uses: codecov/codecov-action@v4
