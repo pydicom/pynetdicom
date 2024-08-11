@@ -63,7 +63,7 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          pytest -x --cov pynetdicom --ignore=pynetdicom/apps && coverage xml
+          pytest -x --cov pynetdicom --ignore=pynetdicom/apps
       - name: Send coverage results
         if: ${{ success() }}
         uses: codecov/codecov-action@v4
@@ -128,7 +128,7 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        pytest -x --cov pynetdicom --ignore=pynetdicom/apps && coverage xml
+        pytest -x --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
       if: ${{ success() }}
       uses: codecov/codecov-action@v4
