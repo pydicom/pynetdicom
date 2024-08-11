@@ -31,7 +31,7 @@ name = "pynetdicom"
 readme = "README.rst"
 version = "2.2.0.dev0"
 requires-python = ">=3.10"
-dependencies = ["pydicom >=2.4"]
+dependencies = ["pydicom >=2.4, <3"]
 
 [project.urls]
 documentation = "https://pydicom.github.io/pynetdicom"
@@ -48,7 +48,7 @@ dev = [
     "pyfakefs >=5.3",
     "pytest >=7.4",
     "pytest-cov >=4.1",
-    "ruff >=0.1.5",
+    "ruff >=0.1",
     "sqlalchemy >=2.0",
 ]
 docs = [

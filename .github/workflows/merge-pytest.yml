@@ -64,39 +64,39 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  pydicom-dev:
-    # Matrix builds with development pydicom
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.10', '3.11', '3.12']
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      id: setup-python
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: pip install .[tests]
-    - name: Switch to development pydicom
-      run: |
-        pip install git+https://github.com/pydicom/pydicom
-    - name: Test with pytest
-      env:
-        PYTHON_VERSION: ${{ matrix.python-version }}
-      run: |
-        pytest --cov pynetdicom --ignore=pynetdicom/apps && coverage xml
-    - name: Send coverage results
-      if: success()
-      uses: codecov/codecov-action@v4
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # pydicom-dev:
+  #   # Matrix builds with development pydicom
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: ['3.10', '3.11', '3.12']
+  #
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 2
+  #   - name: Set up Python ${{ matrix.python-version }}
+  #     uses: actions/setup-python@v5
+  #     id: setup-python
+  #     with:
+  #       python-version: ${{ matrix.python-version }}
+  #   - name: Install dependencies
+  #     run: pip install .[tests]
+  #   - name: Switch to development pydicom
+  #     run: |
+  #       pip install git+https://github.com/pydicom/pydicom
+  #   - name: Test with pytest
+  #     env:
+  #       PYTHON_VERSION: ${{ matrix.python-version }}
+  #     run: |
+  #       pytest --cov pynetdicom --ignore=pynetdicom/apps && coverage xml
+  #   - name: Send coverage results
+  #     if: success()
+  #     uses: codecov/codecov-action@v4
+  #     env:
+  #       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   pydicom-release:
     # Matrix builds with released pydicom
