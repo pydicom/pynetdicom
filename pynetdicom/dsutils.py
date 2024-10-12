@@ -61,10 +61,6 @@ def create_file_meta(
     file_meta.ImplementationClassUID = implementation_uid
     file_meta.ImplementationVersionName = implementation_version
 
-    # File Meta Information is always encoded as Explicit VR Little Endian
-    file_meta.is_little_endian = True
-    file_meta.is_implicit_VR = False
-
     return file_meta
 
 
@@ -268,11 +264,13 @@ def pretty_element(elem: DataElement) -> str:
                 value = "\\".join([str(ii) for ii in elem.value])
                 value = f"[{value}]"
         elif elem.VR == "SQ":
-            # Sequence elements
-            if elem.VM == 1:
-                value = f"(Sequence with {len(elem.value)} item)"
+            # Sequence elements always have a VM of 1
+            assert elem.VM == 1
+            length = len(elem.value)
+            if length == 1:
+                value = f"(Sequence with {length} item)"
             else:
-                value = f"(Sequence with {len(elem.value)} items)"
+                value = f"(Sequence with {length} items)"
 
     except Exception:
         value = "(pynetdicom failed to beautify value)"

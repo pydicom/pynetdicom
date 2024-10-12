@@ -868,9 +868,6 @@ class Event:
                     t_syntax.is_deflated,
                 )
 
-                ds.is_little_endian = t_syntax.is_little_endian
-                ds.is_implicit_VR = t_syntax.is_implicit_VR
-
                 # Store the decoded dataset in case its accessed again
                 self._decoded = ds
             else:
