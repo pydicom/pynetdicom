@@ -1892,10 +1892,13 @@ class Association(threading.Thread):
                 tsyntax.is_little_endian,
             )
             # `dataset` might also be created from scratch
-            ds_encoding = getattr(
-                dataset,
-                "original_encoding",
-                (dataset.is_implicit_VR, dataset.is_little_endian),
+            ds_encoding: tuple[bool | None, bool | None] = (
+                dataset.is_implicit_VR
+                if dataset.original_encoding[0] is None
+                else dataset.original_encoding[0],
+                dataset.is_little_endian
+                if dataset.original_encoding[1] is None
+                else dataset.original_encoding[1],
             )
             if None not in ds_encoding and ts_encoding != ds_encoding:
                 s = ("explicit VR", "implicit VR")[cast(bool, ds_encoding[0])]

@@ -21,6 +21,7 @@ import pytest
 from pydicom import dcmread
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import (
+    generate_uid,
     ImplicitVRLittleEndian,
     ExplicitVRLittleEndian,
     JPEGBaseline8Bit,
@@ -1876,51 +1877,49 @@ class TestAssociationSendCStore:
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ExplicitVRBigEndian)
         assoc = ae.associate("localhost", 11112)
-
         assert assoc.is_established
-        ds = dcmread(DATASET_PATH)
-        assert ds.is_little_endian
-        assert not ds.is_implicit_VR
-        assert ds.file_meta.TransferSyntaxUID == ExplicitVRLittleEndian
 
-        is_implicit_vr_warning = (
-            "'FileDataset.is_implicit_VR' will be removed in v4.0, set the "
-            "Transfer Syntax UID or use the 'implicit_vr' argument with "
-            r"FileDataset.save_as\(\) or dcmwrite\(\) instead"
-        )
+        ds = Dataset()
+        ds.SOPClassUID = CTImageStorage
+        ds.SOPInstanceUID = generate_uid()
+        file_meta = FileMetaDataset()
+        file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
+        ds.file_meta = file_meta
 
-        is_little_endian_warning = (
-            "'FileDataset.is_little_endian' will be removed in v4.0, set the "
-            "Transfer Syntax UID or use the 'little_endian' argument with "
-            r"FileDataset.save_as\(\) or dcmwrite\(\) instead"
-        )
+        with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+            with pytest.warns(DeprecationWarning):
+                ds.is_implicit_VR = True
+                ds.is_little_endian = True
+            status = assoc.send_c_store(ds)
+            assert status.Status == 0x0000
 
-        with pytest.warns(DeprecationWarning, match=is_implicit_vr_warning):
-            ds.is_implicit_VR = True
+            with pytest.warns(DeprecationWarning):
+                ds.is_implicit_VR = False
+                ds.is_little_endian = False
+            status = assoc.send_c_store(ds)
+            assert status.Status == 0x0000
 
-        status = assoc.send_c_store(ds)
-        assert status.Status == 0x0000
+        assert (
+            "'dataset' is encoded as implicit VR little endian but the file "
+            "meta has a (0002,0010) Transfer Syntax UID of 'Explicit VR "
+            "Little Endian' - using 'Implicit VR Little Endian' instead"
+        ) in caplog.text
+        assert (
+            "'dataset' is encoded as explicit VR big endian but the file "
+            "meta has a (0002,0010) Transfer Syntax UID of 'Explicit VR "
+            "Little Endian' - using 'Explicit VR Big Endian' instead"
+        ) in caplog.text
 
-        with pytest.warns(DeprecationWarning, match=is_implicit_vr_warning):
+        with pytest.warns(DeprecationWarning):
             ds.is_implicit_VR = False
-        with pytest.warns(DeprecationWarning, match=is_little_endian_warning):
-            ds.is_little_endian = False
-
-        status = assoc.send_c_store(ds)
-        assert status.Status == 0x0000
-
-        with pytest.warns(DeprecationWarning, match=is_implicit_vr_warning):
-            ds.is_implicit_VR = False
-        with pytest.warns(DeprecationWarning, match=is_little_endian_warning):
             ds.is_little_endian = True
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
-
-        encoding_mismatch_msg = (
+        msg = (
             "'dataset' is encoded as explicit VR little endian but the file "
             r"meta has a \(0002,0010\) Transfer Syntax UID of 'Implicit VR "
             "Little Endian' - please set an appropriate Transfer Syntax"
         )
-        with pytest.raises(AttributeError, match=encoding_mismatch_msg):
+        with pytest.raises(AttributeError, match=msg):
             status = assoc.send_c_store(ds)
 
         assoc.release()
