@@ -52,6 +52,7 @@
       ~SOPClass.rpartition
       ~SOPClass.rsplit
       ~SOPClass.rstrip
+      ~SOPClass.set_private_encoding
       ~SOPClass.split
       ~SOPClass.splitlines
       ~SOPClass.startswith
