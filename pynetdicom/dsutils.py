@@ -61,6 +61,9 @@ def create_file_meta(
     file_meta.ImplementationClassUID = implementation_uid
     file_meta.ImplementationVersionName = implementation_version
 
+    # File Meta Information is always encoded as Explicit VR Little Endian
+    file_meta.set_original_encoding(False, True)
+
     return file_meta
 
 
@@ -264,8 +267,6 @@ def pretty_element(elem: DataElement) -> str:
                 value = "\\".join([str(ii) for ii in elem.value])
                 value = f"[{value}]"
         elif elem.VR == "SQ":
-            # Sequence elements always have a VM of 1
-            assert elem.VM == 1
             length = len(elem.value)
             if length == 1:
                 value = f"(Sequence with {length} item)"

@@ -1879,23 +1879,16 @@ class TestAssociationSendCStore:
         assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
-        ds = Dataset()
-        ds.SOPClassUID = CTImageStorage
-        ds.SOPInstanceUID = generate_uid()
-        file_meta = FileMetaDataset()
-        file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
-        ds.file_meta = file_meta
+        ds = dcmread(DATASET_PATH)
+        assert ds.original_encoding == (False, True)
+        assert ds.file_meta.TransferSyntaxUID == ExplicitVRLittleEndian
 
         with caplog.at_level(logging.WARNING, logger="pynetdicom"):
-            with pytest.warns(DeprecationWarning):
-                ds.is_implicit_VR = True
-                ds.is_little_endian = True
+            ds.set_original_encoding(True, True)
             status = assoc.send_c_store(ds)
             assert status.Status == 0x0000
 
-            with pytest.warns(DeprecationWarning):
-                ds.is_implicit_VR = False
-                ds.is_little_endian = False
+            ds.set_original_encoding(False, False)
             status = assoc.send_c_store(ds)
             assert status.Status == 0x0000
 
@@ -1910,9 +1903,7 @@ class TestAssociationSendCStore:
             "Little Endian' - using 'Explicit VR Big Endian' instead"
         ) in caplog.text
 
-        with pytest.warns(DeprecationWarning):
-            ds.is_implicit_VR = False
-            ds.is_little_endian = True
+        ds.set_original_encoding(False, True)
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         msg = (
             "'dataset' is encoded as explicit VR little endian but the file "

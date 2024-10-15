@@ -868,6 +868,8 @@ class Event:
                     t_syntax.is_deflated,
                 )
 
+                ds.set_original_encoding(t_syntax.is_implicit_VR, t_syntax.is_little_endian)
+
                 # Store the decoded dataset in case its accessed again
                 self._decoded = ds
             else:
