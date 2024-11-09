@@ -3064,11 +3064,11 @@ class TestQRGetServiceClass:
 
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.requested_contexts = StoragePresentationContexts[:120]
+        ae.requested_contexts = StoragePresentationContexts
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
 
         roles = []
-        for cx in StoragePresentationContexts[:120]:
+        for cx in StoragePresentationContexts:
             roles.append(build_role(cx.abstract_syntax, scp_role=True))
             ae.add_supported_context(cx.abstract_syntax, scu_role=False, scp_role=True)
 
