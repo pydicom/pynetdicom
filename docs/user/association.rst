@@ -95,15 +95,13 @@ also acting as a Storage SCP), plus a *User Identity Negotiation* item:
 
     ae = AE()
     # Contexts supported as a Storage SCP - requires Role Selection
-    #   Note that we are limited to a maximum of 128 contexts so we
-    #   only include 127 to make room for the QR Get context
-    ae.requested_contexts = StoragePresentationContexts[:127]
+    ae.requested_contexts = StoragePresentationContexts
     # Contexts proposed as a QR SCU
     ae.add_requested_context = PatientRootQueryRetrieveInformationModelGet
 
     # Add role selection items for the contexts we will be supporting as an SCP
     negotiation_items = []
-    for context in StoragePresentationContexts[:127]:
+    for context in StoragePresentationContexts:
         role = build_role(context.abstract_syntax, scp_role=True)
         negotiation_items.append(role)
 
