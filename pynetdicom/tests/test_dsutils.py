@@ -422,7 +422,7 @@ class TestPrettyElement:
         ds = Dataset()
         ds.EventCodeSequence = []
         assert (
-            "(0008,2135) SQ (Sequence with 0 items)                  # 0"
+            "(0008,2135) SQ (Sequence with 0 items)                  # 1"
             " EventCodeSequence"
         ) == pretty_element(ds["EventCodeSequence"])
 
@@ -440,7 +440,7 @@ class TestPrettyElement:
         ds = Dataset()
         ds.EventCodeSequence = [Dataset(), Dataset()]
         assert (
-            "(0008,2135) SQ (Sequence with 2 items)                  # 2"
+            "(0008,2135) SQ (Sequence with 2 items)                  # 1"
             " EventCodeSequence"
         ) == pretty_element(ds["EventCodeSequence"])
 
@@ -570,7 +570,7 @@ class TestPrettyDataset:
         """Test using a dataset with an empty sequence."""
         ref = [
             "(0010,0010) PN [Citizen^Jan]                            # 1 PatientName",
-            "(0014,2002) SQ (Sequence with 0 items)                  # 0 EvaluatorSequence",
+            "(0014,2002) SQ (Sequence with 0 items)                  # 1 EvaluatorSequence",
             "(7FE0,0010) OB (no value available)                     # 0 PixelData",
         ]
         ds = Dataset()
@@ -608,7 +608,7 @@ class TestPrettyDataset:
         """Test using a dataset with a sequence with multiple items."""
         ref = [
             "(0010,0010) PN [Citizen^Jan]                            # 1 PatientName",
-            "(0014,2002) SQ (Sequence with 3 items)                  # 3 EvaluatorSequence",
+            "(0014,2002) SQ (Sequence with 3 items)                  # 1 EvaluatorSequence",
             "  (Sequence item #1)",
             "    (0010,0020) LO (no value available)                     # 0 PatientID",
             "    (0010,0030) DA [20011201]                               # 1 PatientBirthDate",

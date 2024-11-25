@@ -21,6 +21,7 @@ import pytest
 from pydicom import dcmread
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import (
+    generate_uid,
     ImplicitVRLittleEndian,
     ExplicitVRLittleEndian,
     JPEGBaseline8Bit,
@@ -1876,24 +1877,33 @@ class TestAssociationSendCStore:
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ExplicitVRBigEndian)
         assoc = ae.associate("localhost", 11112)
-
         assert assoc.is_established
+
         ds = dcmread(DATASET_PATH)
-        assert ds.is_little_endian
-        assert not ds.is_implicit_VR
+        assert ds.original_encoding == (False, True)
         assert ds.file_meta.TransferSyntaxUID == ExplicitVRLittleEndian
-        ds.is_implicit_VR = True
+
         with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+            ds.set_original_encoding(True, True)
             status = assoc.send_c_store(ds)
             assert status.Status == 0x0000
 
-            ds.is_implicit_VR = False
-            ds.is_little_endian = False
+            ds.set_original_encoding(False, False)
             status = assoc.send_c_store(ds)
             assert status.Status == 0x0000
 
-        ds.is_implicit_VR = False
-        ds.is_little_endian = True
+        assert (
+            "'dataset' is encoded as implicit VR little endian but the file "
+            "meta has a (0002,0010) Transfer Syntax UID of 'Explicit VR "
+            "Little Endian' - using 'Implicit VR Little Endian' instead"
+        ) in caplog.text
+        assert (
+            "'dataset' is encoded as explicit VR big endian but the file "
+            "meta has a (0002,0010) Transfer Syntax UID of 'Explicit VR "
+            "Little Endian' - using 'Explicit VR Big Endian' instead"
+        ) in caplog.text
+
+        ds.set_original_encoding(False, True)
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         msg = (
             "'dataset' is encoded as explicit VR little endian but the file "
@@ -1906,17 +1916,6 @@ class TestAssociationSendCStore:
         assoc.release()
         assert assoc.is_released
         scp.shutdown()
-
-        assert (
-            "'dataset' is encoded as implicit VR little endian but the file "
-            "meta has a (0002,0010) Transfer Syntax UID of 'Explicit VR "
-            "Little Endian' - using 'Implicit VR Little Endian' instead"
-        ) in caplog.text
-        assert (
-            "'dataset' is encoded as explicit VR big endian but the file "
-            "meta has a (0002,0010) Transfer Syntax UID of 'Explicit VR "
-            "Little Endian' - using 'Explicit VR Big Endian' instead"
-        ) in caplog.text
 
     # Regression tests
     def test_no_send_mismatch(self):
