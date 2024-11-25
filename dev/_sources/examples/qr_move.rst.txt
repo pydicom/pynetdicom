@@ -4,7 +4,7 @@ Query/Retrieve (Move) Service Examples
 The DICOM :dcm:`Query/Retrieve Service <part04/chapter_C.html>`
 provides a mechanism for a service user to query and retrieve the SOP Instances
 managed by a QR SCP. The QR (Move) SOP classes allow an SCU to request an SCP
-send matching SOP Instances to a known Storage SCP over a new association.
+send up to 65535 matching SOP Instances to a known Storage SCP over a new association.
 This is accomplished through the DIMSE C-MOVE and C-STORE services.
 
 One limitation of the C-MOVE service is that the Move SCP/Storage SCU must

@@ -110,7 +110,7 @@
 <p>The DICOM <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve Service</a>
 provides a mechanism for a service user to query and retrieve the SOP Instances
 managed by a QR SCP. The QR (Move) SOP classes allow an SCU to request an SCP
-send matching SOP Instances to a known Storage SCP over a new association.
+send up to 65535 matching SOP Instances to a known Storage SCP over a new association.
 This is accomplished through the DIMSE C-MOVE and C-STORE services.</p>
 <p>One limitation of the C-MOVE service is that the Move SCP/Storage SCU must
 know in advance the details (AE title, IP address, port number) of the
