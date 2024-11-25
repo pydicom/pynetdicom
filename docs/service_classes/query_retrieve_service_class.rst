@@ -236,6 +236,9 @@ pynetdicom Query/Retrieve (Get) Statuses
 | 0xC413           | Failure  | The handler bound to ``evt.EVT_C_GET``        |
 |                  |          | yielded an invalid number of sub-operations   |
 +------------------+----------+-----------------------------------------------+
+| 0xC416           | Failure  | The handler bound to ``evt.EVT_C_GET``        |
+|                  |          | yielded more than 65535 matches               |
++------------------+----------+-----------------------------------------------+
 
 
 .. _qr_move_statuses:
@@ -327,4 +330,7 @@ pynetdicom Query/Retrieve (Move) Statuses
 +------------------+----------+-----------------------------------------------+
 | 0xC515           | Failure  | The handler bound to ``evt.EVT_C_MOVE``       |
 |                  |          | failed to yield a valid (address, port) pair  |
++------------------+----------+-----------------------------------------------+
+| 0xC516           | Failure  | The handler bound to ``evt.EVT_C_MOVE``       |
+|                  |          | yielded more than 65535 matches               |
 +------------------+----------+-----------------------------------------------+

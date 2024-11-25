@@ -1694,23 +1694,31 @@ class QueryRetrieveServiceClass(ServiceClass):
                 "sub-operations value"
             )
             ctx.error_status = 0xC413
-            no_suboperations = int(next(generator))
+            nr_suboperations = int(next(generator))
 
         if not ctx.success:
             return
 
-        if no_suboperations < 1:
+        if nr_suboperations < 1:
             rsp.Status = 0x0000
-            rsp.NumberOfRemainingSuboperations = 0
             rsp.NumberOfFailedSuboperations = 0
             rsp.NumberOfWarningSuboperations = 0
             rsp.NumberOfCompletedSuboperations = 0
             self.dimse.send_msg(rsp, cx_id)
             return
 
+        if nr_suboperations > 65535:
+            # Since Number of * Suboperations are US and have a maximum value of 65535,
+            #   and Sections C.4.3.2 and C.4.3.3 require them in the final response,
+            #   that implies no more than 65535 matches
+            LOGGER.error("The C-GET request handler yielded more than 65535 matches")
+            rsp.Status = 0xC416
+            self.dimse.send_msg(rsp, cx_id)
+            return
+
         # Track the sub operation results
         #   [remaining, failed, warning, complete]
-        store_results = [no_suboperations, 0, 0, 0]
+        store_results = [nr_suboperations, 0, 0, 0]
 
         # Store the SOP Instance UIDs from any failed C-STORE sub-operations
         failed_instances = []
@@ -1797,7 +1805,6 @@ class QueryRetrieveServiceClass(ServiceClass):
                     f"Get SCP Result {ii + 1}: 0x{rsp.Status:04X} "
                     f"({status[0]} - {status[1]})"
                 )
-                rsp.NumberOfRemainingSuboperations = None
                 rsp.NumberOfFailedSuboperations = store_results[1] + store_results[0]
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
@@ -1838,7 +1845,6 @@ class QueryRetrieveServiceClass(ServiceClass):
                     LOGGER.info(f"Get SCP Response {ii + 1}: 0x0000 (Success)")
                     rsp.Identifier = None
 
-                rsp.NumberOfRemainingSuboperations = None
                 rsp.NumberOfFailedSuboperations = store_results[1]
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
@@ -1857,6 +1863,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     rsp.NumberOfFailedSuboperations = store_results[1]
                     rsp.NumberOfWarningSuboperations = store_results[2]
                     rsp.NumberOfCompletedSuboperations = store_results[3]
+
                     self.dimse.send_msg(rsp, cx_id)
                     continue
 
@@ -1961,7 +1968,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             rsp.Status = 0x0000
             rsp.Identifier = None
         else:
-            if no_suboperations == store_results[1]:
+            if nr_suboperations == store_results[1]:
                 # Failure response - all sub-operations failed
                 LOGGER.info(f"Get SCP Response {ii + 2}: 0xA702 (Failure)")
                 rsp.Status = 0xA702  # Unable to perform sub-ops
@@ -1982,7 +1989,6 @@ class QueryRetrieveServiceClass(ServiceClass):
             )
             rsp.Identifier = BytesIO(cast(bytes, bytestream))
 
-        rsp.NumberOfRemainingSuboperations = None
         rsp.NumberOfFailedSuboperations = store_results[1]
         rsp.NumberOfWarningSuboperations = store_results[2]
         rsp.NumberOfCompletedSuboperations = store_results[3]
@@ -2085,18 +2091,26 @@ class QueryRetrieveServiceClass(ServiceClass):
                 "sub-operations value"
             )
             ctx.error_status = 0xC513
-            no_suboperations = int(next(generator))
+            nr_suboperations = int(next(generator))
 
         # Exception in context or handler aborted/released - second yield
         if not ctx.success or not self.assoc.is_established:
             return
 
-        if no_suboperations < 1:
+        if nr_suboperations < 1:
             rsp.Status = 0x0000
-            rsp.NumberOfRemainingSuboperations = 0
             rsp.NumberOfFailedSuboperations = 0
             rsp.NumberOfWarningSuboperations = 0
             rsp.NumberOfCompletedSuboperations = 0
+            self.dimse.send_msg(rsp, cx_id)
+            return
+
+        if nr_suboperations > 65535:
+            # Since Number of * Suboperations are US and have a maximum value of 65535,
+            #   and Sections C.4.2.2 and C.4.2.3 require them in the final response,
+            #   that implies no more than 65535 matches
+            LOGGER.error("The C-MOVE request handler yielded more than 65535 matches")
+            rsp.Status = 0xC516
             self.dimse.send_msg(rsp, cx_id)
             return
 
@@ -2131,7 +2145,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Track the sub operation results
         #   [remaining, failed, warning, complete]
-        store_results = [no_suboperations, 0, 0, 0]
+        store_results = [nr_suboperations, 0, 0, 0]
 
         # Store the SOP Instance UIDs from any failed C-STORE sub-operations
         failed_instances = []
@@ -2243,7 +2257,6 @@ class QueryRetrieveServiceClass(ServiceClass):
                 )
 
                 rsp.Identifier = BytesIO(cast(bytes, bytestream))
-                rsp.NumberOfRemainingSuboperations = None
                 rsp.NumberOfFailedSuboperations = store_results[1] + store_results[0]
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
@@ -2275,7 +2288,6 @@ class QueryRetrieveServiceClass(ServiceClass):
                     LOGGER.info(f"Move SCP Response {ii + 1}: 0x0000 (Success)")
                     rsp.Identifier = None
 
-                rsp.NumberOfRemainingSuboperations = None
                 rsp.NumberOfFailedSuboperations = store_results[1]
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
@@ -2367,7 +2379,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             rsp.Status = 0x0000
             rsp.Identifier = None
         else:
-            if no_suboperations == store_results[1]:
+            if nr_suboperations == store_results[1]:
                 # Failure response - all sub-operations failed
                 LOGGER.info(f"Move SCP Response {ii + 2}: 0xA702 (Failure)")
                 rsp.Status = 0xA702  # Unable to perform sub-ops
@@ -2388,7 +2400,6 @@ class QueryRetrieveServiceClass(ServiceClass):
             )
             rsp.Identifier = BytesIO(cast(bytes, bytestream))
 
-        rsp.NumberOfRemainingSuboperations = None
         rsp.NumberOfFailedSuboperations = store_results[1]
         rsp.NumberOfWarningSuboperations = store_results[2]
         rsp.NumberOfCompletedSuboperations = store_results[3]

@@ -10,6 +10,7 @@
 """
 
 from io import BytesIO
+import logging
 import os
 import time
 
@@ -1389,6 +1390,50 @@ class TestQRGetServiceClass:
         assoc.release()
         assert assoc.is_released
         scp.shutdown()
+
+    def test_get_handler_too_many_subops(self, caplog):
+        """Test handler yielding more than 65535 subops"""
+
+        def handle(event):
+            yield 65536
+            status = Dataset()
+            status.Status = 0xFF00
+            yield status, self.ds
+            yield 0x0000, None
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate("localhost", 11112, ext_neg=[role])
+        assert assoc.is_established
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            result = assoc.send_c_get(
+                self.query, PatientRootQueryRetrieveInformationModelGet
+            )
+            status, identifier = next(result)
+            assert status.Status == 0xC416
+            pytest.raises(StopIteration, next, result)
+
+            assoc.release()
+            assert assoc.is_released
+            scp.shutdown()
+
+        assert (
+            "The C-GET request handler yielded more than 65535 matches" in caplog.text
+        )
 
     def test_get_handler_status_dataset(self):
         """Test handler yielding a Dataset status"""
@@ -3868,6 +3913,42 @@ class TestQRMoveServiceClass:
 
         assoc.release()
         scp.shutdown()
+
+    def test_move_handler_too_many_subops(self, caplog):
+        """Test handler yielding more than 65535 subops"""
+
+        def handle(event):
+            yield ("127.0.0.1", 11112)
+            yield 65536
+            yield 0xFF00, self.ds
+
+        handlers = [(evt.EVT_C_MOVE, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            result = assoc.send_c_move(
+                self.query, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
+            )
+            status, identifier = next(result)
+            assert status.Status == 0xC516
+            pytest.raises(StopIteration, next, result)
+
+            assoc.release()
+            scp.shutdown()
+
+        assert (
+            "The C-MOVE request handler yielded more than 65535 matches" in caplog.text
+        )
 
     def test_move_handler_bad_aet(self):
         """Test handler yielding a bad move aet"""

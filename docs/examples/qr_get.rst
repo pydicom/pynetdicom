@@ -3,7 +3,7 @@ Query/Retrieve (Get) Service Examples
 
 The DICOM :dcm:`Query/Retrieve Service <part04/chapter_C.html>`
 provides a mechanism for a service user to query and retrieve the SOP Instances
-managed by a QR SCP. The QR (Get) SOP classes allow an SCU to receive SOP
+managed by a QR SCP. The QR (Get) SOP classes allow an SCU to receive up to 65535 SOP
 Instances that match the requested query. This is accomplished through the
 DIMSE C-GET and C-STORE services. Both query and
 retrieval occur over the same association, with the SCP of the Query/Retrieve
