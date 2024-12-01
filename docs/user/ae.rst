@@ -88,8 +88,8 @@ Adding presentation contexts all at once:
     >>> ae.requested_contexts = StoragePresentationContexts
 
 Here :attr:`~pynetdicom.presentation.StoragePresentationContexts` is a
-prebuilt list of presentation contexts containing (almost) all the Storage
-Service Class' :dcm:`supported SOP Classes <part04/sect_B.5.html>`,
+prebuilt list of presentation contexts containing 120 of the most commonly used Storage
+Service Classes' :dcm:`supported SOP Classes <part04/sect_B.5.html>`,
 and there's a :ref:`similar list<api_presentation_prebuilt>` for all
 the supported service classes.
 Alternatively you can build your own list of presentation contexts, either
@@ -115,12 +115,13 @@ Combining the all-at-once and one-by-one approaches:
     >>> from pynetdicom import AE, StoragePresentationContexts
     >>> from pynetdicom.sop_class import Verification
     >>> ae = AE()
-    >>> ae.requested_contexts = StoragePresentationContexts[:127]
+    >>> ae.requested_contexts = StoragePresentationContexts
     >>> ae.add_requested_context(Verification)
 
 As the association *Requestor* you're limited to a total of 128 requested
 presentation contexts, so attempting to add more than 128 contexts will raise
-a :class:`ValueError` exception.
+a :class:`ValueError` exception. StoragePresentationContexts consists of 120 of most commonly used Storage
+Service Classes, therefore you are able to add 8 additional Service Classes without rasing a :class:`ValueError` exception.
 
 When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:
@@ -285,8 +286,8 @@ Adding presentation contexts all at once:
     >>> ae.supported_contexts = StoragePresentationContexts
 
 Here :attr:`~pynetdicom.presentation.StoragePresentationContexts` is a prebuilt
-:class:`list` of presentation contexts containing (almost) all the Storage
-Service Class' :dcm:`supported SOP Classes<part04/sect_B.5.html>`,
+:class:`list` of presentation contexts containing 120 of the most commonly used Storage
+Service Classes' :dcm:`supported SOP Classes<part04/sect_B.5.html>`,
 and there's a :ref:`similar list<api_presentation_prebuilt>` for
 all the supported service classes. Alternatively you can build your own list
 of presentation contexts, either through creating new
