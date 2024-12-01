@@ -66,7 +66,7 @@ jobs:
           pytest -x --cov pynetdicom --ignore=pynetdicom/apps
       - name: Send coverage results
         if: ${{ success() }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
 
   # pydicom-dev:
   #   # Matrix builds with development pydicom
@@ -98,7 +98,7 @@ jobs:
   #       pytest -x --cov pynetdicom --ignore=pynetdicom/apps && coverage xml
   #   - name: Send coverage results
   #     if: ${{ success() }}
-  #     uses: codecov/codecov-action@v4
+  #     uses: codecov/codecov-action@v5
 
   pydicom-release:
     # Matrix builds with released pydicom
@@ -131,4 +131,4 @@ jobs:
         pytest -x --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
       if: ${{ success() }}
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
