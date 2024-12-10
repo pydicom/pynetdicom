@@ -95,6 +95,9 @@ also acting as a Storage SCP), plus a *User Identity Negotiation* item:
 
     ae = AE()
     # Contexts supported as a Storage SCP - requires Role Selection
+    #   Note that we are limited to a maximum of 128 contexts.
+    #   StoragePresentationContexts includes 120, it is therefore 
+    #   possible to add 8 additional presentation contexts if needed.
     ae.requested_contexts = StoragePresentationContexts
     # Contexts proposed as a QR SCU
     ae.add_requested_context = PatientRootQueryRetrieveInformationModelGet
