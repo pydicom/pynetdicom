@@ -20,9 +20,6 @@ from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
     PatientStudyOnlyQueryRetrieveInformationModelGet,
-    EncapsulatedSTLStorage,
-    EncapsulatedOBJStorage,
-    EncapsulatedMTLStorage,
 )
 
 
@@ -248,16 +245,6 @@ def main(args=None):
         APP_LOGGER.exception(exc)
         sys.exit(1)
 
-    # Exclude these SOP Classes
-    _exclusion = [
-        EncapsulatedSTLStorage,
-        EncapsulatedOBJStorage,
-        EncapsulatedMTLStorage,
-    ]
-    store_contexts = [
-        cx for cx in StoragePresentationContexts if cx.abstract_syntax not in _exclusion
-    ]
-
     # Create application entity
     # Binding to port 0 lets the OS pick an available port
     ae = AE(ae_title=args.calling_aet)
@@ -270,7 +257,7 @@ def main(args=None):
     ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
     ae.add_requested_context(StudyRootQueryRetrieveInformationModelGet)
     ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
-    for cx in store_contexts:
+    for cx in StoragePresentationContexts:
         ae.add_requested_context(cx.abstract_syntax)
         # Add SCP/SCU Role Selection Negotiation to the extended negotiation
         # We want to act as a Storage SCP

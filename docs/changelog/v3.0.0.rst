@@ -1,0 +1,10 @@
+.. _v3.0.0:
+
+3.0.0
+=====
+
+The major breaking changes with the version 3.0 release are:
+
+  * Support for pydicom v3
+  * Changed ``StoragePresentationContexts`` to match DCMTK implementation
+     * Some presentation contexts were replaced
