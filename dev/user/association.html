@@ -194,15 +194,16 @@ also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="c1"># Contexts supported as a Storage SCP - requires Role Selection</span>
-<span class="c1">#   Note that we are limited to a maximum of 128 contexts so we</span>
-<span class="c1">#   only include 127 to make room for the QR Get context</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span><span class="p">[:</span><span class="mi">127</span><span class="p">]</span>
+<span class="c1">#   Note that we are limited to a maximum of 128 contexts.</span>
+<span class="c1">#   StoragePresentationContexts includes 120, it is therefore</span>
+<span class="c1">#   possible to add 8 additional presentation contexts if needed.</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
 <span class="c1"># Contexts proposed as a QR SCU</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span> <span class="o">=</span> <span class="n">PatientRootQueryRetrieveInformationModelGet</span>
 
 <span class="c1"># Add role selection items for the contexts we will be supporting as an SCP</span>
 <span class="n">negotiation_items</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">StoragePresentationContexts</span><span class="p">[:</span><span class="mi">127</span><span class="p">]:</span>
+<span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">StoragePresentationContexts</span><span class="p">:</span>
     <span class="n">role</span> <span class="o">=</span> <span class="n">build_role</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">negotiation_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
 

@@ -184,8 +184,8 @@ afterwards.</p></li>
 </pre></div>
 </div>
 <p>Here <a class="reference internal" href="../reference/generated/pynetdicom.presentation.StoragePresentationContexts.html#pynetdicom.presentation.StoragePresentationContexts" title="pynetdicom.presentation.StoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code></a> is a
-prebuilt list of presentation contexts containing (almost) all the Storage
-Service Class’ <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">supported SOP Classes</a>,
+prebuilt list of presentation contexts containing 120 of the most commonly used Storage
+Service Classes’ <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">supported SOP Classes</a>,
 and there’s a <a class="reference internal" href="../reference/presentation.html#api-presentation-prebuilt"><span class="std std-ref">similar list</span></a> for all
 the supported service classes.
 Alternatively you can build your own list of presentation contexts, either
@@ -206,13 +206,14 @@ convenience function:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span><span class="p">[:</span><span class="mi">127</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>As the association <em>Requestor</em> you’re limited to a total of 128 requested
 presentation contexts, so attempting to add more than 128 contexts will raise
-a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> exception.</p>
+a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> exception.  <a class="reference internal" href="../reference/generated/pynetdicom.presentation.StoragePresentationContexts.html#pynetdicom.presentation.StoragePresentationContexts" title="pynetdicom.presentation.StoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code></a> consists of 120 of most commonly used Storage
+Service Classes, therefore you are able to add 8 additional presentation contexts without rasing a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> exception.</p>
 <p>When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:</p>
 <table class="docutils align-default">
@@ -366,8 +367,8 @@ afterwards.</p></li>
 </pre></div>
 </div>
 <p>Here <a class="reference internal" href="../reference/generated/pynetdicom.presentation.StoragePresentationContexts.html#pynetdicom.presentation.StoragePresentationContexts" title="pynetdicom.presentation.StoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code></a> is a prebuilt
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of presentation contexts containing (almost) all the Storage
-Service Class’ <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">supported SOP Classes</a>,
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of presentation contexts containing 120 of the most commonly used Storage
+Service Classes’ <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">supported SOP Classes</a>,
 and there’s a <a class="reference internal" href="../reference/presentation.html#api-presentation-prebuilt"><span class="std std-ref">similar list</span></a> for
 all the supported service classes. Alternatively you can build your own list
 of presentation contexts, either through creating new

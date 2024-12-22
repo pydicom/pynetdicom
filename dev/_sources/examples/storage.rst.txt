@@ -57,7 +57,7 @@ single CT dataset.
 Of course it's rarely the case that someone wants to store just CT images,
 so you can also use the inbuilt
 :attr:`~pynetdicom.presentation.StoragePresentationContexts` which contains
-presentation contexts for the first 128 storage SOP Classes when setting
+presentation contexts for the first 120 storage SOP Classes when setting
 the requested contexts, or just add as many contexts as you need.
 
 .. code-block:: python
