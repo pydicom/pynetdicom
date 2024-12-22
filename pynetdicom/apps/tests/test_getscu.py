@@ -111,14 +111,14 @@ class GetSCUBase:
         assert "GETSCU" == requestor.ae_title
         assert 16382 == requestor.maximum_length
         assert "ANY-SCP" == requestor.primitive.called_ae_title
-        assert 125 == len(requestor.extended_negotiation)
+        assert 120 == len(requestor.extended_negotiation)
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
         assert {} == requestor.sop_class_extended
         assert requestor.role_selection != {}
         assert requestor.user_identity == None
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 128
+        assert len(cxs) == 123
         cxs = {cx.abstract_syntax: cx for cx in cxs}
         assert PatientRootQueryRetrieveInformationModelGet in cxs
         cx = cxs[PatientRootQueryRetrieveInformationModelGet]
