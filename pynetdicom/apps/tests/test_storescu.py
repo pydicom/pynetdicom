@@ -104,7 +104,7 @@ class StoreSCUBase:
         assert {} == requestor.sop_class_extended
         assert requestor.user_identity == None
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 128
+        assert len(cxs) == 120
         cxs = {cx.abstract_syntax: cx for cx in cxs}
         assert CTImageStorage in cxs
         assert cxs[CTImageStorage].transfer_syntax == [
@@ -422,7 +422,7 @@ class StoreSCUBase:
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 128
+        assert len(cxs) == 120
         cxs = {cx.abstract_syntax: cx for cx in cxs}
         assert CTImageStorage in cxs
         assert cxs[CTImageStorage].transfer_syntax == [ExplicitVRLittleEndian]
@@ -459,7 +459,7 @@ class StoreSCUBase:
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 128
+        assert len(cxs) == 120
         cxs = {cx.abstract_syntax: cx for cx in cxs}
         assert CTImageStorage in cxs
         assert cxs[CTImageStorage].transfer_syntax == [ExplicitVRBigEndian]
@@ -496,7 +496,7 @@ class StoreSCUBase:
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 128
+        assert len(cxs) == 120
         cxs = {cx.abstract_syntax: cx for cx in cxs}
         assert CTImageStorage in cxs
         assert cxs[CTImageStorage].transfer_syntax == [ImplicitVRLittleEndian]

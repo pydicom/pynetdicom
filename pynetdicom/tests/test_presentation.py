@@ -2153,14 +2153,17 @@ class TestServiceContexts:
     def test_storage(self):
         """Test the storage service presentation contexts"""
         contexts = StoragePresentationContexts
-        assert len(contexts) == 128
+        assert len(contexts) == 120
+
+        # If this assert fails and the previous passes, there is a duplicate in the list
+        assert len(contexts) == len(set(contexts))
 
         for context in contexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.1.1.1"
-        assert contexts[80].abstract_syntax == "1.2.840.10008.5.1.4.1.1.77.1.6"
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.1.27"
+        assert contexts[80].abstract_syntax == "1.2.840.10008.5.1.4.1.1.77.1.5.1"
         assert contexts[-1].abstract_syntax == "1.2.840.10008.5.1.4.34.7"
 
     def test_storage_commitement(self):
