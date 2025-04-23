@@ -1,11 +1,10 @@
 """Version information for pynetdicom based on PEP396 and 440"""
 
-from importlib.metadata import version
 import re
 
 
 # pynetdicom version
-__version__: str = version("pynetdicom")
+__version__: str = "3.0.0.dev0"
 
 # DICOM Standard version used for SOP classes and instances
 __dicom_version__: str = "2025b"

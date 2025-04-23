@@ -5,6 +5,7 @@
 
 The major breaking changes with the version 3.0 release are:
 
-* Support for pydicom v3
+* Minimum required pydicom version is 3.0
 * Changed :attr:`~pynetdicom.presentation.StoragePresentationContexts` to match DCMTK
   implementation
+* Updated SOP classes to version 2025b of the DICOM Standard
