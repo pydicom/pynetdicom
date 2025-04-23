@@ -2181,7 +2181,7 @@ class TestNEventReport:
         assoc = ae.associate("localhost", 11112, evt_handlers=scu_hh)
         assert assoc.is_established
 
-        status, attr = assoc.send_n_get([(0x00080008)], PrintJob, "1.2.3.4")
+        status, attr = assoc.send_n_get([0x00080008], PrintJob, "1.2.3.4")
 
         assoc.release()
         assert assoc.is_released

@@ -202,7 +202,7 @@ class TestDIMSEProvider:
 
         p_data_tf = (
             #     |   | length
-            b"\x04\x00\x00\x00\x00\x4E"  # P-DATA-TF 78
+            b"\x04\x00\x00\x00\x00\x4e"  # P-DATA-TF 78
             b"\x00\x00\x00\x4a\x01"  # PDV Item 70
             b"\x03"  # PDV: 2 -> 69
             # C-ECHO-RQ

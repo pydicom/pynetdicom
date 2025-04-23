@@ -42,18 +42,7 @@
 
 import logging
 from struct import Struct
-from typing import (
-    Optional,
-    Any,
-    Union,
-    TYPE_CHECKING,
-    List,
-    Iterator,
-    Dict,
-    Tuple,
-    cast,
-    Callable,
-)
+from typing import Any, TYPE_CHECKING, Iterator, cast, Callable, TypeAlias
 
 from pydicom.uid import UID
 
@@ -91,43 +80,27 @@ PACK_UINT2 = UINT2.pack
 PACK_UINT4 = UINT4.pack
 
 
-_DecoderType = List[Tuple[int, Optional[int], str, Callable[[Any], bytes], List[Any]]]
-_EncoderType = List[Tuple[str, Callable[[Any], bytes], List[Any]]]
-_PDUItemType = List[
-    Union[
-        "ApplicationContextItem",
-        "PresentationContextItemRQ",
-        "PresentationContextItemAC",
-        "UserInformationItem",
-    ]
+_DecoderType = list[tuple[int, int | None, str, Callable[[Any], bytes], list[Any]]]
+_EncoderType = list[tuple[str, Callable[[Any], bytes], list[Any]]]
+_PDUItemType = list[
+    "ApplicationContextItem | PresentationContextItemRQ | PresentationContextItemAC | "
+    "UserInformationItem"
 ]
-_AllItemType = Union[
-    "MaximumLengthSubItem",
-    "ImplementationClassUIDSubItem",
-    "ImplementationVersionNameSubItem",
-    "AsynchronousOperationsWindowSubItem",
-    "SCP_SCU_RoleSelectionSubItem",
-    "SOPClassExtendedNegotiationSubItem",
-    "SOPClassCommonExtendedNegotiationSubItem",
-    "UserIdentitySubItemAC",
-    "UserIdentitySubItemRQ",
-    "TransferSyntaxSubItem",
-    "AbstractSyntaxSubItem",
-    "PresentationContextItemRQ",
-    "PresentationContextItemAC",
-    "ApplicationContextItem",
-]
-_UIType = Union[
-    "MaximumLengthSubItem",
-    "ImplementationClassUIDSubItem",
-    "ImplementationVersionNameSubItem",
-    "AsynchronousOperationsWindowSubItem",
-    "SCP_SCU_RoleSelectionSubItem",
-    "SOPClassExtendedNegotiationSubItem",
-    "SOPClassCommonExtendedNegotiationSubItem",
-    "UserIdentitySubItemAC",
-    "UserIdentitySubItemRQ",
-]
+_AllItemType: TypeAlias = (
+    "MaximumLengthSubItem | ImplementationClassUIDSubItem | "
+    "ImplementationVersionNameSubItem | AsynchronousOperationsWindowSubItem | "
+    "SCP_SCU_RoleSelectionSubItem | SOPClassExtendedNegotiationSubItem | "
+    "SOPClassCommonExtendedNegotiationSubItem | UserIdentitySubItemAC | "
+    "UserIdentitySubItemRQ | TransferSyntaxSubItem | AbstractSyntaxSubItem | "
+    "PresentationContextItemRQ | PresentationContextItemAC | ApplicationContextItem "
+)
+_UIType: TypeAlias = (
+    "MaximumLengthSubItem | ImplementationClassUIDSubItem | "
+    "ImplementationVersionNameSubItem | AsynchronousOperationsWindowSubItem | "
+    "SCP_SCU_RoleSelectionSubItem | SOPClassExtendedNegotiationSubItem | "
+    "SOPClassCommonExtendedNegotiationSubItem | UserIdentitySubItemAC | "
+    "UserIdentitySubItemRQ"
+)
 
 
 class PDUItem:
@@ -200,7 +173,7 @@ class PDUItem:
         return NotImplemented
 
     @staticmethod
-    def _generate_items(bytestream: bytes) -> Iterator[Tuple[int, bytes]]:
+    def _generate_items(bytestream: bytes) -> Iterator[tuple[int, bytes]]:
         """Yield PDU item data from `bytestream`.
 
          Parameters
@@ -300,7 +273,7 @@ class PDUItem:
         return bytestream
 
     @staticmethod
-    def _wrap_encode_items(items: List[_AllItemType]) -> bytes:
+    def _wrap_encode_items(items: list[_AllItemType]) -> bytes:
         """Return `items` encoded as bytes.
 
         Parameters
@@ -354,7 +327,7 @@ class PDUItem:
         """
         return value.encode("ascii", errors="strict")
 
-    def _wrap_generate_items(self, b: bytes) -> List[_AllItemType]:
+    def _wrap_generate_items(self, b: bytes) -> list[_AllItemType]:
         """Return a list of encoded PDU items generated from `bytestream`."""
         item_list = []
         for item_type, item_bytes in self._generate_items(b):
@@ -384,7 +357,7 @@ class PDUItem:
         return packer(value)
 
     @staticmethod
-    def _wrap_unpack(bytestream: bytes, unpacker: Callable[[bytes], Tuple[Any]]) -> Any:
+    def _wrap_unpack(bytestream: bytes, unpacker: Callable[[bytes], tuple[Any]]) -> Any:
         """Return the first value when `unpacker` is run on `bytestream`.
 
         Parameters
@@ -475,7 +448,7 @@ class ApplicationContextItem(PDUItem):
         return self._application_context_name
 
     @application_context_name.setter
-    def application_context_name(self, value: Union[str, bytes, UID]) -> None:
+    def application_context_name(self, value: str | bytes | UID) -> None:
         """Set the *Application Context Name* field value.
 
         Parameters
@@ -606,9 +579,9 @@ class PresentationContextItemRQ(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new Presentation Context (RQ) Item."""
-        self.presentation_context_id: Optional[int] = None
-        self.abstract_transfer_syntax_sub_items: List[
-            Union[AbstractSyntaxSubItem, TransferSyntaxSubItem]
+        self.presentation_context_id: int | None = None
+        self.abstract_transfer_syntax_sub_items: list[
+            AbstractSyntaxSubItem | TransferSyntaxSubItem
         ] = []
 
     def from_primitive(self, primitive: PresentationContext) -> None:
@@ -654,7 +627,7 @@ class PresentationContextItemRQ(PDUItem):
         return context
 
     @property
-    def abstract_syntax(self) -> Optional[UID]:
+    def abstract_syntax(self) -> UID | None:
         """Return the *Abstract Syntax*, if available.
 
         Returns
@@ -668,7 +641,7 @@ class PresentationContextItemRQ(PDUItem):
         return None
 
     @property
-    def context_id(self) -> Optional[int]:
+    def context_id(self) -> int | None:
         """Return the item's *Presentation Context ID* field value as
         :class:`int`.
         """
@@ -750,7 +723,7 @@ class PresentationContextItemRQ(PDUItem):
         return s
 
     @property
-    def transfer_syntax(self) -> List[UID]:
+    def transfer_syntax(self) -> list[UID]:
         """Return the *Transfer Syntax(es)*.
 
         Returns
@@ -820,9 +793,9 @@ class PresentationContextItemAC(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new Presentation Context (AC) Item."""
-        self.presentation_context_id: Optional[int] = None
-        self.result_reason: Optional[int] = None
-        self.transfer_syntax_sub_item: List[TransferSyntaxSubItem] = []
+        self.presentation_context_id: int | None = None
+        self.result_reason: int | None = None
+        self.transfer_syntax_sub_item: list[TransferSyntaxSubItem] = []
 
     def from_primitive(self, primitive: PresentationContext) -> None:
         """Set the item's values using a Presentation Context primitive.
@@ -860,7 +833,7 @@ class PresentationContextItemAC(PDUItem):
         return primitive
 
     @property
-    def context_id(self) -> Optional[int]:
+    def context_id(self) -> int | None:
         """Return the item's *Presentation Context ID* field value."""
         return self.presentation_context_id
 
@@ -919,7 +892,7 @@ class PresentationContextItemAC(PDUItem):
         return 4
 
     @property
-    def result(self) -> Optional[int]:
+    def result(self) -> int | None:
         """Return the item's *Result/reason* field value."""
         return self.result_reason
 
@@ -956,7 +929,7 @@ class PresentationContextItemAC(PDUItem):
         return s
 
     @property
-    def transfer_syntax(self) -> Optional[UID]:
+    def transfer_syntax(self) -> UID | None:
         """Return the *Transfer Syntax*, if available.
 
         Returns
@@ -973,7 +946,7 @@ class PresentationContextItemAC(PDUItem):
 
     def _wrap_generate_items(  # type: ignore[override]
         self, bytestream: bytes
-    ) -> List["TransferSyntaxSubItem"]:
+    ) -> list["TransferSyntaxSubItem"]:
         """Return a list of decoded PDU items generated from `bytestream`."""
         item_list = []
         for item_type, item_bytes in self._generate_items(bytestream):
@@ -982,6 +955,7 @@ class PresentationContextItemAC(PDUItem):
             #   not accepted
             if item_type == 0x40 and self.result != 0x00:
                 item._skip_validation = True
+
             item.decode(item_bytes)
             item_list.append(item)
 
@@ -1036,7 +1010,7 @@ class UserInformationItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new User Information Item."""
-        self.user_data: List[_UIType] = []
+        self.user_data: list[_UIType] = []
 
     def from_primitive(self, primitive: "_UserInformationPrimitiveType") -> None:
         """Set up the current Item using User Information primitives.
@@ -1084,7 +1058,7 @@ class UserInformationItem(PDUItem):
         return [item.to_primitive() for item in self.user_data]
 
     @property
-    def async_ops_window(self) -> Optional["AsynchronousOperationsWindowSubItem"]:
+    def async_ops_window(self) -> "AsynchronousOperationsWindowSubItem | None":
         """Return the *Asynchronous Operations Window Sub-item*, if
         available.
         """
@@ -1095,7 +1069,7 @@ class UserInformationItem(PDUItem):
         return None
 
     @property
-    def common_ext_neg(self) -> List["SOPClassCommonExtendedNegotiationSubItem"]:
+    def common_ext_neg(self) -> list["SOPClassCommonExtendedNegotiationSubItem"]:
         """Return the *SOP Class Common Extended Negotiation Sub-items*."""
         return [
             item
@@ -1142,7 +1116,7 @@ class UserInformationItem(PDUItem):
         ]
 
     @property
-    def ext_neg(self) -> List["SOPClassExtendedNegotiationSubItem"]:
+    def ext_neg(self) -> list["SOPClassExtendedNegotiationSubItem"]:
         """Return the *SOP Class Extended Negotiation Sub-items*."""
         return [
             item
@@ -1151,7 +1125,7 @@ class UserInformationItem(PDUItem):
         ]
 
     @property
-    def implementation_class_uid(self) -> Optional[UID]:
+    def implementation_class_uid(self) -> UID | None:
         """Return the item's *Implementation Class UID* field value, if
         available.
         """
@@ -1162,7 +1136,7 @@ class UserInformationItem(PDUItem):
         return None
 
     @property
-    def implementation_version_name(self) -> Optional[str]:
+    def implementation_version_name(self) -> str | None:
         """Return the item's *Implementation Version Name* field value, if
         available.
         """
@@ -1182,7 +1156,7 @@ class UserInformationItem(PDUItem):
         return length
 
     @property
-    def maximum_length(self) -> Optional[int]:
+    def maximum_length(self) -> int | None:
         """Return the item's *Maximum Length Received* field value, if
         available.
         """
@@ -1193,7 +1167,7 @@ class UserInformationItem(PDUItem):
         return None
 
     @property
-    def role_selection(self) -> Dict[UID, "SCP_SCU_RoleSelectionSubItem"]:
+    def role_selection(self) -> dict[UID, "SCP_SCU_RoleSelectionSubItem"]:
         """Return the *SCP/SCU Role Selection Sub-items*.
 
         Returns
@@ -1223,7 +1197,7 @@ class UserInformationItem(PDUItem):
     @property
     def user_identity(
         self,
-    ) -> Optional[Union["UserIdentitySubItemAC", "UserIdentitySubItemRQ"]]:
+    ) -> "UserIdentitySubItemAC | UserIdentitySubItemRQ | None":
         """Return the *User Identity Sub-item*, if available."""
         for item in self.user_data:
             if isinstance(item, (UserIdentitySubItemRQ, UserIdentitySubItemAC)):
@@ -1296,15 +1270,15 @@ class AbstractSyntaxSubItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new Abstract Syntax Item."""
-        self._abstract_syntax_name: Optional[UID] = None
+        self._abstract_syntax_name: UID | None = None
 
     @property
-    def abstract_syntax(self) -> Optional[UID]:
+    def abstract_syntax(self) -> UID | None:
         """Return the item's *Abstract Syntax Name* field value."""
         return self.abstract_syntax_name
 
     @property
-    def abstract_syntax_name(self) -> Optional[UID]:
+    def abstract_syntax_name(self) -> UID | None:
         """Return the item's *Abstract Syntax Name* field value."""
         return self._abstract_syntax_name
 
@@ -1441,7 +1415,7 @@ class TransferSyntaxSubItem(PDUItem):
         """Initialise a new Abstract Syntax Item."""
         # Should not be validated if Presentation Context was rejected
         self._skip_validation: bool = False
-        self._transfer_syntax_name: Optional[UID] = None
+        self._transfer_syntax_name: UID | None = None
 
     @property
     def _decoders(self) -> Any:
@@ -1500,12 +1474,12 @@ class TransferSyntaxSubItem(PDUItem):
         return "\n".join(s)
 
     @property
-    def transfer_syntax(self) -> Optional[UID]:
+    def transfer_syntax(self) -> UID | None:
         """Return the item's *Transfer Syntax Name* field value."""
         return self.transfer_syntax_name
 
     @property
-    def transfer_syntax_name(self) -> Optional[UID]:
+    def transfer_syntax_name(self) -> UID | None:
         """Return the item's *Transfer Syntax Name* field value."""
         return self._transfer_syntax_name
 
@@ -1570,7 +1544,7 @@ class MaximumLengthSubItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new Maximum Length Item."""
-        self.maximum_length_received: Optional[int] = None
+        self.maximum_length_received: int | None = None
 
     def from_primitive(self, primitive: "MaximumLengthNotification") -> None:
         """Set the item's values using a Maximum Length `primitive`.
@@ -1695,7 +1669,7 @@ class ImplementationClassUIDSubItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new Implementation Class UID Item."""
-        self._implementation_class_uid: Optional[UID] = None
+        self._implementation_class_uid: UID | None = None
 
     def from_primitive(self, primitive: "ImplementationClassUIDNotification") -> None:
         """Set the item's values using an Implementation Identification
@@ -1763,7 +1737,7 @@ class ImplementationClassUIDSubItem(PDUItem):
         ]
 
     @property
-    def implementation_class_uid(self) -> Optional[UID]:
+    def implementation_class_uid(self) -> UID | None:
         """Return the item's *Implementation Class UID* field value as UID."""
         return self._implementation_class_uid
 
@@ -1845,7 +1819,7 @@ class ImplementationVersionNameSubItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new Implementation Version Name Item."""
-        self._implementation_version_name: Optional[str] = None
+        self._implementation_version_name: str | None = None
 
     def from_primitive(
         self, primitive: "ImplementationVersionNameNotification"
@@ -1915,12 +1889,12 @@ class ImplementationVersionNameSubItem(PDUItem):
         ]
 
     @property
-    def implementation_version_name(self) -> Optional[str]:
+    def implementation_version_name(self) -> str | None:
         """Return the item's *Implementation Version Name* field value."""
         return self._implementation_version_name
 
     @implementation_version_name.setter
-    def implementation_version_name(self, value: Optional[Union[str, bytes]]) -> None:
+    def implementation_version_name(self, value: str | bytes | None) -> None:
         """Set the *Implementation Version Name* field value."""
         if isinstance(value, bytes):
             value = decode_bytes(value)
@@ -1994,8 +1968,8 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new Asynchronous Operations Window Item."""
-        self.maximum_number_operations_invoked: Optional[int] = None
-        self.maximum_number_operations_performed: Optional[int] = None
+        self.maximum_number_operations_invoked: int | None = None
+        self.maximum_number_operations_performed: int | None = None
 
     def from_primitive(
         self, primitive: "AsynchronousOperationsWindowNegotiation"
@@ -2094,12 +2068,12 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
         return 4
 
     @property
-    def max_operations_invoked(self) -> Optional[int]:
+    def max_operations_invoked(self) -> int | None:
         """Return the item's *Maximum Number Operations Invoked* field value."""
         return self.maximum_number_operations_invoked
 
     @property
-    def max_operations_performed(self) -> Optional[int]:
+    def max_operations_performed(self) -> int | None:
         """Return the item's *Maximum Number Operations Performed* field value."""
         return self.maximum_number_operations_performed
 
@@ -2174,10 +2148,10 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new SCP/SCU Role Selection Item."""
-        self._uid_length: Optional[int] = None
-        self._sop_class_uid: Optional[UID] = None
-        self._scu_role: Optional[int] = None
-        self._scp_role: Optional[int] = None
+        self._uid_length: int | None = None
+        self._sop_class_uid: UID | None = None
+        self._scu_role: int | None = None
+        self._scp_role: int | None = None
 
     def from_primitive(self, primitive: "SCP_SCU_RoleSelectionNegotiation") -> None:
         """Set the item's values using an SCP/SCU Role Selection primitive.
@@ -2281,17 +2255,17 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         return 4 + self.uid_length
 
     @property
-    def scu(self) -> Optional[int]:
+    def scu(self) -> int | None:
         """Return the item's *SCU Role* field value."""
         return self.scu_role
 
     @property
-    def scu_role(self) -> Optional[int]:
+    def scu_role(self) -> int | None:
         """Return the item's *SCU Role* field value."""
         return self._scu_role
 
     @scu_role.setter
-    def scu_role(self, value: Optional[int]) -> None:
+    def scu_role(self, value: int | None) -> None:
         """Set the *SCU Role* field value."""
         # pylint: disable=attribute-defined-outside-init
         if value not in [0, 1, None]:
@@ -2300,17 +2274,17 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
             self._scu_role = value
 
     @property
-    def scp(self) -> Optional[int]:
+    def scp(self) -> int | None:
         """Return the item's *SCP Role* field value."""
         return self.scp_role
 
     @property
-    def scp_role(self) -> Optional[int]:
+    def scp_role(self) -> int | None:
         """Return the item's *SCP Role* field value."""
         return self._scp_role
 
     @scp_role.setter
-    def scp_role(self, value: Optional[int]) -> None:
+    def scp_role(self, value: int | None) -> None:
         """Set the *SCP Role* field value."""
         # pylint: disable=attribute-defined-outside-init
         if value not in [0, 1, None]:
@@ -2319,7 +2293,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
             self._scp_role = value
 
     @property
-    def sop_class_uid(self) -> Optional[UID]:
+    def sop_class_uid(self) -> UID | None:
         """Return the item's *SOP Class UID* field value."""
         return self._sop_class_uid
 
@@ -2341,7 +2315,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         return s
 
     @property
-    def uid(self) -> Optional[UID]:
+    def uid(self) -> UID | None:
         """Return the item's *SOP Class UID* field value."""
         return self.sop_class_uid
 
@@ -2410,9 +2384,9 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new SOP Class Extended Negotiation Item."""
-        self._sop_class_uid_length: Optional[int] = None
-        self._sop_class_uid: Optional[UID] = None
-        self.service_class_application_information: Optional[bytes] = None
+        self._sop_class_uid_length: int | None = None
+        self._sop_class_uid: UID | None = None
+        self.service_class_application_information: bytes | None = None
 
     def from_primitive(self, primitive: "SOPClassExtendedNegotiation") -> None:
         """Set the item's values using a SOP Class Extended Negotiation
@@ -2448,7 +2422,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         return primitive
 
     @property
-    def app_info(self) -> Optional[bytes]:
+    def app_info(self) -> bytes | None:
         """Return the item's *Service Class Application Information* field
         value.
         """
@@ -2521,7 +2495,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         return length
 
     @property
-    def sop_class_uid(self) -> Optional[UID]:
+    def sop_class_uid(self) -> UID | None:
         """Return the item's *SOP Class UID* field value."""
         return self._sop_class_uid
 
@@ -2553,7 +2527,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         return s
 
     @property
-    def uid(self) -> Optional[UID]:
+    def uid(self) -> UID | None:
         """Return the item's *SOP Class UID* field value."""
         return self.sop_class_uid
 
@@ -2642,11 +2616,11 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     def __init__(self) -> None:
         """Initialise a new Implementation Version Name Item."""
         self.sub_item_version: int = 0x00
-        self._sop_length: Optional[int] = None
-        self._sop_class_uid: Optional[UID] = None
-        self._service_length: Optional[int] = None
-        self._service_class_uid: Optional[UID] = None
-        self._related_general_sop_class_identification: List[UID] = []
+        self._sop_length: int | None = None
+        self._sop_class_uid: UID | None = None
+        self._service_length: int | None = None
+        self._service_class_uid: UID | None = None
+        self._related_general_sop_class_identification: list[UID] = []
 
     def from_primitive(self, primitive: "SOPClassCommonExtendedNegotiation") -> None:
         """Set the item's values using a SOP Class Common Extended Negotiation
@@ -2818,7 +2792,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         )
 
     @property
-    def related_general_sop_class_identification(self) -> List[UID]:
+    def related_general_sop_class_identification(self) -> list[UID]:
         """Return the item's *Related General SOP Class Identification* field
         value.
         """
@@ -2826,7 +2800,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @related_general_sop_class_identification.setter
     def related_general_sop_class_identification(
-        self, value_list: List[Union[bytes, str, UID]]
+        self, value_list: list[bytes | str | UID]
     ) -> None:
         """Set the *Related General SOP Class Identification* field value.
 
@@ -2871,7 +2845,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         return length
 
     @property
-    def sop_class_uid(self) -> Optional[UID]:
+    def sop_class_uid(self) -> UID | None:
         """Return the item's *SOP Class UID* field value."""
         return self._sop_class_uid
 
@@ -2889,7 +2863,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         return 0
 
     @property
-    def service_class_uid(self) -> Optional[UID]:
+    def service_class_uid(self) -> UID | None:
         """Return the item's *Service Class UID* field value."""
         return self._service_class_uid
 
@@ -2927,11 +2901,11 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
         return "\n".join(s)
 
-    def _wrap_generate_items(self, b: bytes) -> List[UID]:  # type: ignore
+    def _wrap_generate_items(self, b: bytes) -> list[UID]:  # type: ignore
         """Return a list of UID items generated from `bytestream`."""
         return [uid for uid in self._generate_items(b)]
 
-    def _wrap_list(self, uid_list: List[UID]) -> bytes:
+    def _wrap_list(self, uid_list: list[UID]) -> bytes:
         """Return `uid_list` encoded as bytes.
 
         Parameters
@@ -3017,12 +2991,12 @@ class UserIdentitySubItemRQ(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new User Identity (RQ) Item."""
-        self.user_identity_type: Optional[int] = None
-        self.positive_response_requested: Optional[int] = None
-        self._primary_length: Optional[int] = None
-        self.primary_field: Optional[bytes] = None
-        self._secondary_length: Optional[int] = None
-        self.secondary_field: Optional[bytes] = b""
+        self.user_identity_type: int | None = None
+        self.positive_response_requested: int | None = None
+        self._primary_length: int | None = None
+        self.primary_field: bytes | None = None
+        self._secondary_length: int | None = None
+        self.secondary_field: bytes | None = b""
 
     def from_primitive(self, primitive: "UserIdentityNegotiation") -> None:
         """Set the item's values using an User Identity primitive.
@@ -3115,7 +3089,7 @@ class UserIdentitySubItemRQ(PDUItem):
         ]
 
     @property
-    def id_type(self) -> Optional[int]:
+    def id_type(self) -> int | None:
         """Return the item's *User Identity Type* field value."""
         return self.user_identity_type
 
@@ -3141,7 +3115,7 @@ class UserIdentitySubItemRQ(PDUItem):
         return 6 + self.primary_field_length + self.secondary_field_length
 
     @property
-    def primary(self) -> Optional[bytes]:
+    def primary(self) -> bytes | None:
         """Return the item's *Primary Field* field value as :class:`bytes`."""
         return self.primary_field
 
@@ -3154,7 +3128,7 @@ class UserIdentitySubItemRQ(PDUItem):
         return 0
 
     @property
-    def response_requested(self) -> Optional[bool]:
+    def response_requested(self) -> bool | None:
         """Return the item's *Positive Response Requested* field value as
         :class:`bool`.
         """
@@ -3164,7 +3138,7 @@ class UserIdentitySubItemRQ(PDUItem):
         return None
 
     @property
-    def secondary(self) -> Optional[bytes]:
+    def secondary(self) -> bytes | None:
         """Return the item's *Secondary Field* field value."""
         return self.secondary_field
 
@@ -3245,7 +3219,7 @@ class UserIdentitySubItemAC(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new User Identity (AC) Item."""
-        self.server_response: Optional[bytes] = None
+        self.server_response: bytes | None = None
 
     def from_primitive(self, primitive: "UserIdentityNegotiation") -> None:
         """Set the item's values using an User Identity primitive.
@@ -3319,7 +3293,7 @@ class UserIdentitySubItemAC(PDUItem):
         return 2 + self.server_response_length
 
     @property
-    def response(self) -> Optional[bytes]:
+    def response(self) -> bytes | None:
         """Return the item's *Server Response* field value."""
         return self.server_response
 
@@ -3389,16 +3363,16 @@ class PresentationDataValueItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new Presentation Data Value Item."""
-        self.presentation_context_id: Optional[int] = None
-        self.presentation_data_value: Optional[bytes] = None
+        self.presentation_context_id: int | None = None
+        self.presentation_data_value: bytes | None = None
 
     @property
-    def context_id(self) -> Optional[int]:
+    def context_id(self) -> int | None:
         """Return the item's *Presentation Context ID* field value."""
         return self.presentation_context_id
 
     @property
-    def data(self) -> Optional[bytes]:
+    def data(self) -> bytes | None:
         """Return the item's *Presentation Data Value* field value."""
         return self.presentation_data_value
 
@@ -3424,7 +3398,7 @@ class PresentationDataValueItem(PDUItem):
         ]
 
     @property
-    def _encoders(self) -> List[Tuple[str, Callable, List[Any]]]:
+    def _encoders(self) -> list[tuple[str, Callable, list[Any]]]:
         """Return an iterable of tuples that contain field decoders.
 
         Returns

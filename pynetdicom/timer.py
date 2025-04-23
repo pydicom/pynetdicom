@@ -4,7 +4,6 @@ A generic timer class suitable for use as the DICOM UL's ARTIM timer.
 
 import logging
 import time
-from typing import Optional
 
 
 LOGGER = logging.getLogger(__name__)
@@ -41,7 +40,7 @@ class Timer:
       :dcm:`Section 9.1.5<part08/chapter_9.html#sect_9.1.5>`.
     """
 
-    def __init__(self, timeout: Optional[float]) -> None:
+    def __init__(self, timeout: float | None) -> None:
         """Create a new :class:`Timer`.
 
         Parameters
@@ -50,8 +49,8 @@ class Timer:
             The number of seconds before the timer expires. A value of ``None``
             means the timer never expires.
         """
-        self._start_time: Optional[float] = None
-        self._end_time: Optional[float] = None
+        self._start_time: float | None = None
+        self._end_time: float | None = None
         self._timeout = timeout
 
     @property
@@ -112,12 +111,12 @@ class Timer:
         self._end_time = time.time()
 
     @property
-    def timeout(self) -> Optional[float]:
+    def timeout(self) -> float | None:
         """Return the number of seconds set for :attr:`~Timer.timeout`."""
         return self._timeout
 
     @timeout.setter
-    def timeout(self, value: Optional[float]) -> None:
+    def timeout(self, value: float | None) -> None:
         """Set the number of seconds before the timer expires.
 
         Parameters

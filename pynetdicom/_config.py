@@ -1,6 +1,6 @@
 """pynetdicom configuration options"""
 
-from typing import Optional, Tuple, Dict, Callable, Any
+from typing import Callable, Any
 
 from pynetdicom._validators import validate_ae, validate_ui
 
@@ -170,7 +170,7 @@ Examples
 """
 
 
-WINDOWS_TIMER_RESOLUTION: Optional[float] = 1
+WINDOWS_TIMER_RESOLUTION: float | None = 1
 """Set the minimum timer resolution for Microsoft Windows.
 
 .. versionadded:: 2.0
@@ -195,7 +195,7 @@ Examples
 """
 
 
-CODECS: Tuple[str, ...] = ("ascii",)
+CODECS: tuple[str, ...] = ("ascii",)
 """Customise the codecs used to decode text values.
 
 .. versionadded:: 2.0
@@ -260,7 +260,7 @@ Add UTF-8 as a fallback codec:
 """
 
 
-VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
+VALIDATORS: dict[str, Callable[[Any], tuple[bool, str]]] = {
     "AE": validate_ae,
     "UI": validate_ui,
 }
@@ -269,7 +269,7 @@ VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
 .. versionadded:: 2.0
 
 **AE**
-    Function signature: ``def func(value: str) -> Tuple[bool, str]``
+    Function signature: ``def func(value: str) -> tuple[bool, str]``
 
     Where `value` is the AE title to be validated as a :class:`str`.
 
@@ -279,7 +279,7 @@ VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
     about why validation has failed.
 
 **UI**
-  Function signature: ``def func(value: pydicom.uid.UID) -> Tuple[bool, str]``
+  Function signature: ``def func(value: pydicom.uid.UID) -> tuple[bool, str]``
 
   Where `value` is the :class:`~pydicom.uid.UID` to be validated.
 

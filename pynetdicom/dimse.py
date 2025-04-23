@@ -6,7 +6,7 @@ from io import BytesIO
 import logging
 import queue
 import threading
-from typing import TYPE_CHECKING, Tuple, Optional, Dict, Union, cast
+from typing import TYPE_CHECKING, cast
 
 from pynetdicom import evt
 
@@ -93,7 +93,7 @@ _RSP_TO_MESSAGE = {
     N_DELETE: N_DELETE_RSP,
 }
 
-_QueueItem = Union[Tuple[None, None], Tuple[int, DimseServiceType]]
+_QueueItem = tuple[None, None] | tuple[int, DimseServiceType]
 
 
 class DIMSEServiceProvider:
@@ -187,8 +187,8 @@ class DIMSEServiceProvider:
         """
         self._assoc = assoc
 
-        self.cancel_req: Dict[int, C_CANCEL] = {}
-        self.message: Optional[DIMSEMessage] = None
+        self.cancel_req: dict[int, C_CANCEL] = {}
+        self.message: DIMSEMessage | None = None
         self.msg_queue: "queue.Queue[_QueueItem]" = queue.Queue()
 
     @property
@@ -200,7 +200,7 @@ class DIMSEServiceProvider:
         return self._assoc
 
     @property
-    def dimse_timeout(self) -> Optional[float]:
+    def dimse_timeout(self) -> float | None:
         """Return the DIMSE timeout as numeric or ``None``."""
         return self.assoc.dimse_timeout
 

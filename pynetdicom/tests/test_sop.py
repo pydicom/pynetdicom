@@ -144,11 +144,12 @@ def test_all_sop_classes():
     for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         assert uid in UID_dictionary
     for uid in _STORAGE_CLASSES.values():
+        # UIDs not yet in pydicom
         if uid in (
-            "1.2.840.10008.5.1.4.1.1.6.3",
-            "1.2.840.10008.5.1.4.1.1.9.1.4",
-            "1.2.840.10008.5.1.4.1.1.77.1.8",
-            "1.2.840.10008.5.1.4.1.1.77.1.9",
+            "1.2.840.10008.5.1.4.1.1.9.100.1",
+            "1.2.840.10008.5.1.4.1.1.9.100.2",
+            "1.2.840.10008.5.1.4.1.1.66.7",
+            "1.2.840.10008.5.1.4.1.1.66.8",
         ):
             continue
 

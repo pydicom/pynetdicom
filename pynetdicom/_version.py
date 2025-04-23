@@ -4,10 +4,10 @@ import re
 
 
 # pynetdicom version
-__version__ = "2.1.0"
+__version__: str = "3.0.0.dev0"
 
 # DICOM Standard version used for SOP classes and instances
-__dicom_version__: str = "2024b"
+__dicom_version__: str = "2025b"
 
 VERSION_PATTERN = r"""
     v?

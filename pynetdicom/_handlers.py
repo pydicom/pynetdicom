@@ -2,18 +2,7 @@
 
 import logging
 from struct import unpack, calcsize
-from typing import (
-    TYPE_CHECKING,
-    List,
-    Optional,
-    cast,
-    Union,
-    Dict,
-    Any,
-    Sequence,
-    Iterator,
-    Tuple,
-)
+from typing import TYPE_CHECKING, cast, Any, Sequence, Iterator
 
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
@@ -80,7 +69,7 @@ def debug_fsm(event: "Event") -> None:
 
 def debug_data(
     event: "Event",
-    pdu_type: Optional[int] = None,
+    pdu_type: int | None = None,
     print_raw: bool = True,
     print_summary: bool = False,
 ) -> None:
@@ -210,7 +199,7 @@ def debug_data(
 
 
 # Standard logging handlers
-def standard_pdu_recv_handler(event: "Event") -> List[str]:
+def standard_pdu_recv_handler(event: "Event") -> list[str]:
     """Standard handler when a PDU is received and decoded.
 
     **Event**
@@ -245,7 +234,7 @@ def standard_pdu_recv_handler(event: "Event") -> List[str]:
         return handlers[type(pdu)](event)
 
 
-def standard_pdu_sent_handler(event: "Event") -> List[str]:
+def standard_pdu_sent_handler(event: "Event") -> list[str]:
     """Standard handler when a PDU is encoded and sent.
 
     **Event**
@@ -279,7 +268,7 @@ def standard_pdu_sent_handler(event: "Event") -> List[str]:
         return handlers[type(pdu)](event)
 
 
-def standard_dimse_recv_handler(event: "Event") -> List[str]:
+def standard_dimse_recv_handler(event: "Event") -> list[str]:
     """Standard handler for the ACSE receiving a primitive from the DUL.
 
     Parameters
@@ -326,7 +315,7 @@ def standard_dimse_recv_handler(event: "Event") -> List[str]:
         return handlers[type(event.message)](event)
 
 
-def standard_dimse_sent_handler(event: "Event") -> List[str]:
+def standard_dimse_sent_handler(event: "Event") -> list[str]:
     """Standard handler for the ACSE receiving a primitive from the DUL.
 
     Parameters
@@ -374,7 +363,7 @@ def standard_dimse_sent_handler(event: "Event") -> List[str]:
 
 
 # PDU sub-handlers
-def _receive_abort_pdu(event: "Event") -> List[str]:
+def _receive_abort_pdu(event: "Event") -> list[str]:
     """Standard logging handler for receiving an A-ABORT PDU."""
     pdu = cast("A_ABORT_RQ", event.pdu)
     s = [
@@ -389,7 +378,7 @@ def _receive_abort_pdu(event: "Event") -> List[str]:
     return s
 
 
-def _receive_associate_ac(event: "Event") -> List[str]:
+def _receive_associate_ac(event: "Event") -> list[str]:
     """Standard logging handler for receiving an A-ASSOCIATE-AC PDU."""
     assoc_ac = cast("A_ASSOCIATE_AC", event.pdu)
 
@@ -481,7 +470,7 @@ def _receive_associate_ac(event: "Event") -> List[str]:
     return s
 
 
-def _receive_associate_rj(event: "Event") -> List[str]:
+def _receive_associate_rj(event: "Event") -> list[str]:
     """Standard logging handler for receiving an A-ASSOCIATE-RJ PDU."""
     assoc_rj = cast("A_ASSOCIATE_RJ", event.pdu)
 
@@ -498,7 +487,7 @@ def _receive_associate_rj(event: "Event") -> List[str]:
     return s
 
 
-def _receive_associate_rq(event: "Event") -> List[str]:
+def _receive_associate_rq(event: "Event") -> list[str]:
     """Standard logging handler for receiving an A-ASSOCIATE-RQ PDU."""
     pdu = cast("A_ASSOCIATE_RQ", event.pdu)
 
@@ -508,7 +497,7 @@ def _receive_associate_rq(event: "Event") -> List[str]:
     )
     user_info = cast("UserInformationItem", pdu.user_information)
 
-    their_class_uid: Union[str, UID] = "unknown"
+    their_class_uid: str | UID = "unknown"
     their_version = "unknown"
 
     if user_info.implementation_class_uid:
@@ -636,22 +625,22 @@ def _receive_associate_rq(event: "Event") -> List[str]:
     return s
 
 
-def _receive_data_tf(event: "Event") -> List[str]:
+def _receive_data_tf(event: "Event") -> list[str]:
     """Standard logging handler for receiving a P-DATA-TF PDU."""
     return []
 
 
-def _receive_release_rp(event: "Event") -> List[str]:
+def _receive_release_rp(event: "Event") -> list[str]:
     """Standard logging handler for receiving an A-RELEASE-RP PDU."""
     return []
 
 
-def _receive_release_rq(event: "Event") -> List[str]:
+def _receive_release_rq(event: "Event") -> list[str]:
     """Standard logging handler for receiving an A-RELEASE-RQ PDU."""
     return []
 
 
-def _send_abort(event: "Event") -> List[str]:
+def _send_abort(event: "Event") -> list[str]:
     """Standard logging handler for sending an A-ABORT PDU."""
     pdu = cast("A_ABORT_RQ", event.pdu)
     s = [
@@ -666,7 +655,7 @@ def _send_abort(event: "Event") -> List[str]:
     return s
 
 
-def _send_associate_ac(event: "Event") -> List[str]:
+def _send_associate_ac(event: "Event") -> list[str]:
     """Standard logging handler for sending an A-ASSOCIATE-AC PDU."""
     assoc_ac = cast("A_ASSOCIATE_AC", event.pdu)
 
@@ -756,7 +745,7 @@ def _send_associate_ac(event: "Event") -> List[str]:
     return s
 
 
-def _send_associate_rj(event: "Event") -> List[str]:
+def _send_associate_rj(event: "Event") -> list[str]:
     """Standard logging handler for sending an A-ASSOCIATE-RJ PDU."""
     assoc_rj = cast("A_ASSOCIATE_RJ", event.pdu)
     s = [
@@ -772,7 +761,7 @@ def _send_associate_rj(event: "Event") -> List[str]:
     return s
 
 
-def _send_associate_rq(event: "Event") -> List[str]:
+def _send_associate_rq(event: "Event") -> list[str]:
     """Standard logging handler for sending an A-ASSOCIATE-RQ PDU."""
     pdu = cast("A_ASSOCIATE_RQ", event.pdu)
 
@@ -904,23 +893,23 @@ def _send_associate_rq(event: "Event") -> List[str]:
     return s
 
 
-def _send_data_tf(event: "Event") -> List[str]:
+def _send_data_tf(event: "Event") -> list[str]:
     """Standard logging handler for sending a P-DATA-TF PDU."""
     return []
 
 
-def _send_release_rp(event: "Event") -> List[str]:
+def _send_release_rp(event: "Event") -> list[str]:
     """Standard logging handler for sending an A-RELEASE-RP PDU."""
     return []
 
 
-def _send_release_rq(event: "Event") -> List[str]:
+def _send_release_rq(event: "Event") -> list[str]:
     """Standard logging handler for sending an A-RELEASE-RQ PDU."""
     return []
 
 
 # DIMSE sub-handlers
-def _send_c_echo_rq(event: "Event") -> List[str]:
+def _send_c_echo_rq(event: "Event") -> list[str]:
     """Logging handler for when a C-ECHO-RQ is sent.
 
     **C-ECHO Request Parameters**
@@ -936,7 +925,7 @@ def _send_c_echo_rq(event: "Event") -> List[str]:
     return []
 
 
-def _send_c_echo_rsp(event: "Event") -> List[str]:
+def _send_c_echo_rsp(event: "Event") -> list[str]:
     """Logging handler for when a C-ECHO-RSP is sent.
 
     **C-ECHO Response Parameters**
@@ -954,7 +943,7 @@ def _send_c_echo_rsp(event: "Event") -> List[str]:
     return []
 
 
-def _send_c_store_rq(event: "Event") -> List[str]:
+def _send_c_store_rq(event: "Event") -> list[str]:
     """Logging handler when a C-STORE-RQ is sent.
 
     **C-STORE Request Elements**
@@ -1009,7 +998,7 @@ def _send_c_store_rq(event: "Event") -> List[str]:
     return s
 
 
-def _send_c_store_rsp(event: "Event") -> List[str]:
+def _send_c_store_rsp(event: "Event") -> list[str]:
     """Logging handler when a C-STORE-RSP is sent.
 
     **C-STORE Response Elements**
@@ -1028,7 +1017,7 @@ def _send_c_store_rsp(event: "Event") -> List[str]:
     return []
 
 
-def _send_c_find_rq(event: "Event") -> List[str]:
+def _send_c_find_rq(event: "Event") -> list[str]:
     """Logging handler when a C-FIND-RQ is sent.
 
     **C-FIND Request Parameters**
@@ -1070,7 +1059,7 @@ def _send_c_find_rq(event: "Event") -> List[str]:
     return s
 
 
-def _send_c_find_rsp(event: "Event") -> List[str]:
+def _send_c_find_rsp(event: "Event") -> list[str]:
     """Logging handler when a C-FIND-RSP is sent.
 
     **C-FIND Response Parameters**
@@ -1109,7 +1098,7 @@ def _send_c_find_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _send_c_get_rq(event: "Event") -> List[str]:
+def _send_c_get_rq(event: "Event") -> list[str]:
     """Logging handler when a C-GET-RQ is sent.
 
     **C-GET Request Parameters**
@@ -1148,7 +1137,7 @@ def _send_c_get_rq(event: "Event") -> List[str]:
     return s
 
 
-def _send_c_get_rsp(event: "Event") -> List[str]:
+def _send_c_get_rsp(event: "Event") -> list[str]:
     """Logging handler when a C-GET-RSP is sent.
 
     **C-GET Response Parameters**
@@ -1191,7 +1180,7 @@ def _send_c_get_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _send_c_move_rq(event: "Event") -> List[str]:
+def _send_c_move_rq(event: "Event") -> list[str]:
     """Logging handler when a C-MOVE-RQ is sent.
 
     **C-MOVE Request Parameters**
@@ -1232,7 +1221,7 @@ def _send_c_move_rq(event: "Event") -> List[str]:
     return s
 
 
-def _send_c_move_rsp(event: "Event") -> List[str]:
+def _send_c_move_rsp(event: "Event") -> list[str]:
     """Logging handler when a C-MOVE-RSP is sent.
 
     **C-MOVE Response Parameters**
@@ -1275,7 +1264,7 @@ def _send_c_move_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _send_c_cancel_rq(event: "Event") -> List[str]:
+def _send_c_cancel_rq(event: "Event") -> list[str]:
     """Logging handler when a C-CANCEL-RQ is sent.
 
     Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ.
@@ -1288,7 +1277,7 @@ def _send_c_cancel_rq(event: "Event") -> List[str]:
     return []
 
 
-def _recv_c_echo_rq(event: "Event") -> List[str]:
+def _recv_c_echo_rq(event: "Event") -> list[str]:
     """Logging handler when a C-ECHO-RQ is received.
 
     **C-ECHO Request Parameters**
@@ -1319,7 +1308,7 @@ def _recv_c_echo_rq(event: "Event") -> List[str]:
     return s
 
 
-def _recv_c_echo_rsp(event: "Event") -> List[str]:
+def _recv_c_echo_rsp(event: "Event") -> list[str]:
     """Logging handler when a C-ECHO-RSP is received.
 
     **C-ECHO Response Parameters**
@@ -1354,7 +1343,7 @@ def _recv_c_echo_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _recv_c_store_rq(event: "Event") -> List[str]:
+def _recv_c_store_rq(event: "Event") -> list[str]:
     """Logging handler when a C-STORE-RQ is received.
 
     **C-STORE Request Elements**
@@ -1403,7 +1392,7 @@ def _recv_c_store_rq(event: "Event") -> List[str]:
     return s
 
 
-def _recv_c_store_rsp(event: "Event") -> List[str]:
+def _recv_c_store_rsp(event: "Event") -> list[str]:
     """Logging handler when a C-STORE-RSP is received.
 
     **C-STORE Response Elements**
@@ -1452,7 +1441,7 @@ def _recv_c_store_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _recv_c_find_rq(event: "Event") -> List[str]:
+def _recv_c_find_rq(event: "Event") -> list[str]:
     """Logging handler when a C-FIND-RQ is received.
 
     **C-FIND Request Parameters**
@@ -1491,7 +1480,7 @@ def _recv_c_find_rq(event: "Event") -> List[str]:
     return s
 
 
-def _recv_c_find_rsp(event: "Event") -> List[str]:
+def _recv_c_find_rsp(event: "Event") -> list[str]:
     """Logging handler when a C-FIND-RSP is received.
 
     **C-FIND Response Parameters**
@@ -1532,7 +1521,7 @@ def _recv_c_find_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _recv_c_cancel_rq(event: "Event") -> List[str]:
+def _recv_c_cancel_rq(event: "Event") -> list[str]:
     """Logging handler when a C-CANCEL-RQ is received.
 
     Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ
@@ -1555,7 +1544,7 @@ def _recv_c_cancel_rq(event: "Event") -> List[str]:
     return s
 
 
-def _recv_c_get_rq(event: "Event") -> List[str]:
+def _recv_c_get_rq(event: "Event") -> list[str]:
     """Logging handler when a C-GET-RQ is received.
 
     **C-GET Request Parameters**
@@ -1594,7 +1583,7 @@ def _recv_c_get_rq(event: "Event") -> List[str]:
     return s
 
 
-def _recv_c_get_rsp(event: "Event") -> List[str]:
+def _recv_c_get_rsp(event: "Event") -> list[str]:
     """Logging handler when a C-GET-RSP is received.
 
     **C-GET Response Parameters**
@@ -1654,7 +1643,7 @@ def _recv_c_get_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _recv_c_move_rq(event: "Event") -> List[str]:
+def _recv_c_move_rq(event: "Event") -> list[str]:
     """Logging handler when a C-MOVE-RQ is received.
 
     **C-MOVE Request Parameters**
@@ -1673,7 +1662,7 @@ def _recv_c_move_rq(event: "Event") -> List[str]:
     return []
 
 
-def _recv_c_move_rsp(event: "Event") -> List[str]:
+def _recv_c_move_rsp(event: "Event") -> list[str]:
     """Logging handler when a C-MOVE-RSP is received.
 
     **C-MOVE Response Parameters**
@@ -1733,7 +1722,7 @@ def _recv_c_move_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _send_n_event_report_rq(event: "Event") -> List[str]:
+def _send_n_event_report_rq(event: "Event") -> list[str]:
     """Logging handler when an N-EVENT-REPORT-RQ is sent.
 
     Parameters
@@ -1763,7 +1752,7 @@ def _send_n_event_report_rq(event: "Event") -> List[str]:
     return s
 
 
-def _send_n_event_report_rsp(event: "Event") -> List[str]:
+def _send_n_event_report_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-EVENT-REPORT-RSP is sent.
 
     Parameters
@@ -1800,7 +1789,7 @@ def _send_n_event_report_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _send_n_get_rq(event: "Event") -> List[str]:
+def _send_n_get_rq(event: "Event") -> list[str]:
     """Logging handler when an N-GET-RQ is sent.
 
     Parameters
@@ -1829,7 +1818,7 @@ def _send_n_get_rq(event: "Event") -> List[str]:
     return s
 
 
-def _send_n_get_rsp(event: "Event") -> List[str]:
+def _send_n_get_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-GET-RSP is sent.
 
     Parameters
@@ -1864,7 +1853,7 @@ def _send_n_get_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _send_n_set_rq(event: "Event") -> List[str]:
+def _send_n_set_rq(event: "Event") -> list[str]:
     """Logging handler when an N-SET-RQ is sent.
 
     Parameters
@@ -1893,7 +1882,7 @@ def _send_n_set_rq(event: "Event") -> List[str]:
     return s
 
 
-def _send_n_set_rsp(event: "Event") -> List[str]:
+def _send_n_set_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-SET-RSP is sent.
 
     Parameters
@@ -1928,7 +1917,7 @@ def _send_n_set_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _send_n_action_rq(event: "Event") -> List[str]:
+def _send_n_action_rq(event: "Event") -> list[str]:
     """Logging handler when an N-ACTION-RQ is sent.
 
     Parameters
@@ -1939,7 +1928,7 @@ def _send_n_action_rq(event: "Event") -> List[str]:
     return []
 
 
-def _send_n_action_rsp(event: "Event") -> List[str]:
+def _send_n_action_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-ACTION-RSP is sent.
 
     Parameters
@@ -1950,7 +1939,7 @@ def _send_n_action_rsp(event: "Event") -> List[str]:
     return []
 
 
-def _send_n_create_rq(event: "Event") -> List[str]:
+def _send_n_create_rq(event: "Event") -> list[str]:
     """Logging handler when an N-CREATE-RQ is sent.
 
     Parameters
@@ -1961,7 +1950,7 @@ def _send_n_create_rq(event: "Event") -> List[str]:
     return []
 
 
-def _send_n_create_rsp(event: "Event") -> List[str]:
+def _send_n_create_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-CREATE-RSP is sent.
 
     Parameters
@@ -1972,7 +1961,7 @@ def _send_n_create_rsp(event: "Event") -> List[str]:
     return []
 
 
-def _send_n_delete_rq(event: "Event") -> List[str]:
+def _send_n_delete_rq(event: "Event") -> list[str]:
     """Logging handler when an N-DELETE-RQ is sent.
 
     Parameters
@@ -1996,7 +1985,7 @@ def _send_n_delete_rq(event: "Event") -> List[str]:
     return s
 
 
-def _send_n_delete_rsp(event: "Event") -> List[str]:
+def _send_n_delete_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-DELETE-RSP is sent.
 
     Parameters
@@ -2026,7 +2015,7 @@ def _send_n_delete_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _recv_n_event_report_rq(event: "Event") -> List[str]:
+def _recv_n_event_report_rq(event: "Event") -> list[str]:
     """Logging handler when an N-EVENT-REPORT-RQ is received.
 
     Parameters
@@ -2037,7 +2026,7 @@ def _recv_n_event_report_rq(event: "Event") -> List[str]:
     return []
 
 
-def _recv_n_event_report_rsp(event: "Event") -> List[str]:
+def _recv_n_event_report_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-EVENT-REPORT-RSP is received.
 
     Parameters
@@ -2048,7 +2037,7 @@ def _recv_n_event_report_rsp(event: "Event") -> List[str]:
     return []
 
 
-def _recv_n_get_rq(event: "Event") -> List[str]:
+def _recv_n_get_rq(event: "Event") -> list[str]:
     """Logging handler when an N-GET-RQ is received.
 
     Parameters
@@ -2059,7 +2048,7 @@ def _recv_n_get_rq(event: "Event") -> List[str]:
     return []
 
 
-def _recv_n_get_rsp(event: "Event") -> List[str]:
+def _recv_n_get_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-GET-RSP is received.
 
     Parameters
@@ -2096,7 +2085,7 @@ def _recv_n_get_rsp(event: "Event") -> List[str]:
     return s
 
 
-def _recv_n_set_rq(event: "Event") -> List[str]:
+def _recv_n_set_rq(event: "Event") -> list[str]:
     """Logging handler when an N-SET-RQ is received.
 
     Parameters
@@ -2107,7 +2096,7 @@ def _recv_n_set_rq(event: "Event") -> List[str]:
     return []
 
 
-def _recv_n_set_rsp(event: "Event") -> List[str]:
+def _recv_n_set_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-SET-RSP is received.
 
     Parameters
@@ -2118,7 +2107,7 @@ def _recv_n_set_rsp(event: "Event") -> List[str]:
     return []
 
 
-def _recv_n_action_rq(event: "Event") -> List[str]:
+def _recv_n_action_rq(event: "Event") -> list[str]:
     """Logging handler when an N-ACTION-RQ is received.
 
     Parameters
@@ -2129,7 +2118,7 @@ def _recv_n_action_rq(event: "Event") -> List[str]:
     return []
 
 
-def _recv_n_action_rsp(event: "Event") -> List[str]:
+def _recv_n_action_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-ACTION-RSP is received.
 
     Parameters
@@ -2140,7 +2129,7 @@ def _recv_n_action_rsp(event: "Event") -> List[str]:
     return []
 
 
-def _recv_n_create_rq(event: "Event") -> List[str]:
+def _recv_n_create_rq(event: "Event") -> list[str]:
     """Logging handler when an N-CREATE-RQ is received.
 
     Parameters
@@ -2151,7 +2140,7 @@ def _recv_n_create_rq(event: "Event") -> List[str]:
     return []
 
 
-def _recv_n_create_rsp(event: "Event") -> List[str]:
+def _recv_n_create_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-CREATE-RSP is received.
 
     Parameters
@@ -2162,7 +2151,7 @@ def _recv_n_create_rsp(event: "Event") -> List[str]:
     return []
 
 
-def _recv_n_delete_rq(event: "Event") -> List[str]:
+def _recv_n_delete_rq(event: "Event") -> list[str]:
     """Logging handler when an N-DELETE-RQ is received.
 
     Parameters
@@ -2173,7 +2162,7 @@ def _recv_n_delete_rq(event: "Event") -> List[str]:
     return []
 
 
-def _recv_n_delete_rsp(event: "Event") -> List[str]:
+def _recv_n_delete_rsp(event: "Event") -> list[str]:
     """Logging handler when an N-DELETE-RSP is received.
 
     Parameters
@@ -2184,13 +2173,13 @@ def _recv_n_delete_rsp(event: "Event") -> List[str]:
     return []
 
 
-StatusType = Union[int, Dataset]
-DatasetType = Optional[Dataset]
-UserReturnType = Tuple[StatusType, DatasetType]
-DestinationType = Union[Tuple[str, int], Tuple[str, int, Dict[str, Any]]]
+StatusType = int | Dataset
+DatasetType = Dataset | None
+UserReturnType = tuple[StatusType, DatasetType]
+DestinationType = tuple[str, int] | tuple[str, int, dict[str, Any]]
 CFindType = Iterator[UserReturnType]
-CGetType = Iterator[Union[int, StatusType, DatasetType]]
-CMoveType = Iterator[Union[DestinationType, int, StatusType, DatasetType]]
+CGetType = Iterator[int | StatusType | DatasetType]
+CMoveType = Iterator[DestinationType | int | StatusType | DatasetType]
 
 
 # Example handlers used for the documentation
@@ -3778,7 +3767,7 @@ def doc_handle_set(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     return 0, None  # pragma: no cover
 
 
-def doc_handle_async(event: "Event", *args: Sequence[Any]) -> Tuple[int, int]:
+def doc_handle_async(event: "Event", *args: Sequence[Any]) -> tuple[int, int]:
     """Documentation for handlers bound to ``evt.EVT_ASYNC_OPS``.
 
     User implementation of this event handler is optional. If a handler is
@@ -3845,7 +3834,7 @@ def doc_handle_async(event: "Event", *args: Sequence[Any]) -> Tuple[int, int]:
 
 def doc_handle_sop_common(
     event: "Event", *args: Sequence[Any]
-) -> Dict[UID, "SOPClassCommonExtendedNegotiation"]:
+) -> dict[UID, "SOPClassCommonExtendedNegotiation"]:
     """Documentation for handlers bound to ``evt.EVT_SOP_COMMON``.
 
     User implementation of this event handler is required only if
@@ -3900,7 +3889,7 @@ def doc_handle_sop_common(
     return {}  # pragma: no cover
 
 
-def doc_handle_sop_extended(event: "Event", *args: Sequence[Any]) -> Dict[UID, bytes]:
+def doc_handle_sop_extended(event: "Event", *args: Sequence[Any]) -> dict[UID, bytes]:
     """Documentation for handlers bound to ``evt.EVT_SOP_EXTENDED``.
 
     User implementation of this event handler is required only if
@@ -3959,7 +3948,7 @@ def doc_handle_sop_extended(event: "Event", *args: Sequence[Any]) -> Dict[UID, b
 
 def doc_handle_userid(
     event: "Event", *args: Sequence[Any]
-) -> Tuple[bool, Optional[bytes]]:
+) -> tuple[bool, bytes | None]:
     """Documentation for handlers bound to ``evt.EVT_USER_ID``.
 
     User implementation of this handler is required if

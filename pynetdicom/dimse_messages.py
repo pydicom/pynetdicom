@@ -5,7 +5,7 @@ import logging
 from math import ceil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Iterator, Optional, TYPE_CHECKING, cast, Union, Tuple
+from typing import Iterator, TYPE_CHECKING, cast
 
 from pydicom.dataset import Dataset
 from pydicom.filewriter import write_file_meta_info
@@ -340,21 +340,21 @@ class DIMSEMessage:
 
     def __init__(self) -> None:
         """Create a new DIMSE Message."""
-        self.context_id: Optional[int] = None
+        self.context_id: int | None = None
 
         # Required to save command set data from multiple fragments
         self.encoded_command_set = BytesIO()
-        self.data_set: Optional[BytesIO] = BytesIO()
+        self.data_set: BytesIO | None = BytesIO()
         self.command_set = Dataset()
 
         # If reading the dataset in chunks this will be a tuple:
         #   (its file path, a byte offset to the start of the dataset)
         # If writing the dataset in chunks this will be a Path:
         #   its file path
-        self._data_set_path: Optional[Union[Path, Tuple[Path, int]]] = None
+        self._data_set_path: Path | tuple[Path, int] | None = None
         # If writing the dataset in chunks this will be a NamedTemporaryFile:
         #   the file object backing its file path
-        self._data_set_file: Optional["NTF"] = None
+        self._data_set_file: "NTF | None" = None
 
         cls_name = self.__class__.__name__
         if cls_name == "DIMSEMessage":
@@ -364,9 +364,7 @@ class DIMSEMessage:
         for keyword in _COMMAND_SET_KEYWORDS[cls_name.replace("_", "-")]:
             setattr(self.command_set, keyword, None)
 
-    def decode_msg(
-        self, primitive: P_DATA, assoc: Optional["Association"] = None
-    ) -> bool:
+    def decode_msg(self, primitive: P_DATA, assoc: "Association | None" = None) -> bool:
         """Converts P-DATA primitives into a ``DIMSEMessage`` sub-class.
 
         Decodes the data from the P-DATA service primitive (which
@@ -610,7 +608,7 @@ class DIMSEMessage:
         elif self._data_set_path is not None:
             # Read and send encoded dataset from file
             # Buffer size determined by io.DEFAULT_BUFFER_SIZE
-            self._data_set_path = cast(Tuple[Path, int], self._data_set_path)
+            self._data_set_path = cast(tuple[Path, int], self._data_set_path)
             with open(self._data_set_path[0], "rb") as f:
                 end = f.seek(0, 2)
                 length = end - f.seek(self._data_set_path[1])

@@ -1,17 +1,7 @@
 """Implementation of the Presentation service."""
 
 import logging
-from typing import (
-    Union,
-    Optional,
-    List,
-    Any,
-    TYPE_CHECKING,
-    NamedTuple,
-    cast,
-    Dict,
-    Tuple,
-)
+from typing import Any, TYPE_CHECKING, NamedTuple, cast
 
 from pydicom.uid import UID
 
@@ -65,9 +55,9 @@ DEFAULT_ROLE = (True, False, False, True)
 BOTH_SCU_SCP_ROLE = (True, True, True, True)
 CONTEXT_REJECTED = (False, False, False, False)
 INVERTED_ROLE = (False, True, True, False)
-_RoleType = Dict[
-    Tuple[Optional[bool], Optional[bool]],
-    Dict[Tuple[Optional[bool], Optional[bool]], Tuple[bool, bool, bool, bool]],
+_RoleType = dict[
+    tuple[bool | None, bool | None],
+    dict[tuple[None | bool, None | bool], tuple[bool, bool, bool, bool]],
 ]
 SCP_SCU_ROLES: _RoleType = {
     # (Requestor role, Acceptor role) : Outcome
@@ -226,21 +216,21 @@ class PresentationContext:
 
     def __init__(self) -> None:
         """Create a new object."""
-        self._context_id: Optional[int] = None
-        self._abstract_syntax: Optional[UID] = None
-        self._transfer_syntax: List[UID] = []
-        self.result: Optional[int] = None
+        self._context_id: None | int = None
+        self._abstract_syntax: None | UID = None
+        self._transfer_syntax: list[UID] = []
+        self.result: None | int = None
 
         # Used with SCP/SCU Role Selection negotiation
-        self._scu_role: Optional[bool] = None
-        self._scp_role: Optional[bool] = None
+        self._scu_role: None | bool = None
+        self._scp_role: None | bool = None
 
         # Used to track the allowed use of the context
-        self._as_scp: Optional[bool] = None
-        self._as_scu: Optional[bool] = None
+        self._as_scp: None | bool = None
+        self._as_scu: None | bool = None
 
     @property
-    def abstract_syntax(self) -> Optional[UID]:
+    def abstract_syntax(self) -> None | UID:
         """Get or set the context's *Abstract Syntax* as
         :class:`~pydicom.uid.UID`.
 
@@ -252,11 +242,11 @@ class PresentationContext:
         return self._abstract_syntax
 
     @abstract_syntax.setter
-    def abstract_syntax(self, value: Union[str, bytes, UID]) -> None:
+    def abstract_syntax(self, value: str | bytes | UID) -> None:
         """Set the context's *Abstract Syntax*."""
         self._abstract_syntax = set_uid(value, "abstract_syntax", True, False, True)
 
-    def add_transfer_syntax(self, syntax: Union[None, str, bytes, UID]) -> None:
+    def add_transfer_syntax(self, syntax: None | str | bytes | UID) -> None:
         """Append a transfer syntax to the presentation context.
 
         Parameters
@@ -302,7 +292,7 @@ class PresentationContext:
             self._transfer_syntax.append(syntax)
 
     @property
-    def as_scp(self) -> Optional[bool]:
+    def as_scp(self) -> None | bool:
         """Return ``True`` if can act as an SCP for the context.
 
         If ``True`` then the association *Acceptor* can act as SCP for the
@@ -312,7 +302,7 @@ class PresentationContext:
         return self._as_scp
 
     @property
-    def as_scu(self) -> Optional[bool]:
+    def as_scu(self) -> None | bool:
         """Return ``True`` if can act as an SCU for the context.
 
         If ``True`` then the association *Acceptor* can act as SCU for the
@@ -341,12 +331,12 @@ class PresentationContext:
         )
 
     @property
-    def context_id(self) -> Optional[int]:
+    def context_id(self) -> None | int:
         """Return the context's *ID* parameter as an :class:`int`."""
         return self._context_id
 
     @context_id.setter
-    def context_id(self, value: Optional[int]) -> None:
+    def context_id(self, value: None | int) -> None:
         """Set the context's *ID* parameter.
 
         Parameters
@@ -392,7 +382,7 @@ class PresentationContext:
         return cast(UID, self.abstract_syntax).name
 
     @property
-    def scp_role(self) -> Optional[bool]:
+    def scp_role(self) -> None | bool:
         """Get or set if a proposed SCP role will be accepted.
 
         Parameters
@@ -407,7 +397,7 @@ class PresentationContext:
         return self._scp_role
 
     @scp_role.setter
-    def scp_role(self, val: Optional[bool]) -> None:
+    def scp_role(self, val: None | bool) -> None:
         """Set whether to accept the proposed SCP role (as *Acceptor*)."""
         if not isinstance(val, (bool, type(None))):
             raise TypeError("'scp_role' must be a bool or None")
@@ -415,7 +405,7 @@ class PresentationContext:
         self._scp_role = val
 
     @property
-    def scu_role(self) -> Optional[bool]:
+    def scu_role(self) -> None | bool:
         """Get or set if a proposed SCU role will be accepted.
 
         Parameters
@@ -430,7 +420,7 @@ class PresentationContext:
         return self._scu_role
 
     @scu_role.setter
-    def scu_role(self, val: Optional[bool]) -> None:
+    def scu_role(self, val: None | bool) -> None:
         """Set whether to accept the proposed SCU role (as *Acceptor*)."""
         if not isinstance(val, (bool, type(None))):
             raise TypeError("'scu_role' must be a bool or None")
@@ -490,7 +480,7 @@ class PresentationContext:
         return "\n".join(s)
 
     @property
-    def transfer_syntax(self) -> List[UID]:
+    def transfer_syntax(self) -> list[UID]:
         """Get or set the context's *Transfer Syntaxes* as a :class:`list`.
 
         Returns
@@ -501,7 +491,7 @@ class PresentationContext:
         return self._transfer_syntax
 
     @transfer_syntax.setter
-    def transfer_syntax(self, syntaxes: List[Union[str, bytes, UID]]) -> None:
+    def transfer_syntax(self, syntaxes: list[str | bytes | UID]) -> None:
         """Set the context's *Transfer Syntaxes*.
 
         Parameters
@@ -518,10 +508,10 @@ class PresentationContext:
             self.add_transfer_syntax(syntax)
 
 
-RoleType = Optional[Dict[UID, Tuple[Optional[bool], Optional[bool]]]]
-ListCXType = List[PresentationContext]
-CXNegotiationReturn = Tuple[
-    List[PresentationContext], List["SCP_SCU_RoleSelectionNegotiation"]
+RoleType = None | dict[UID, tuple[None | bool, None | bool]]
+ListCXType = list[PresentationContext]
+CXNegotiationReturn = tuple[
+    list[PresentationContext], list["SCP_SCU_RoleSelectionNegotiation"]
 ]
 
 
@@ -561,9 +551,9 @@ def negotiate_unrestricted(
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
     roles = roles or {}
-    storage_contexts: List[PresentationContext] = []
-    non_storage_contexts: List[PresentationContext] = []
-    reply_roles: Dict[UID, SCP_SCU_RoleSelectionNegotiation] = {}
+    storage_contexts: list[PresentationContext] = []
+    non_storage_contexts: list[PresentationContext] = []
+    reply_roles: dict[UID, SCP_SCU_RoleSelectionNegotiation] = {}
     storage_uids = _STORAGE_CLASSES.values()
 
     # Split out private/unknown/storage cx's from everything else
@@ -653,8 +643,8 @@ def negotiate_as_acceptor(
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
     roles = roles or {}
-    result_contexts: List[PresentationContext] = []
-    reply_roles: Dict[UID, SCP_SCU_RoleSelectionNegotiation] = {}
+    result_contexts: list[PresentationContext] = []
+    reply_roles: dict[UID, SCP_SCU_RoleSelectionNegotiation] = {}
 
     # No requestor presentation contexts
     if not rq_contexts:
@@ -699,7 +689,7 @@ def negotiate_as_acceptor(
             ab_syntax = cast(UID, ab_syntax)
             ac_context = acceptor_contexts[ab_syntax]
             ac_roles = (ac_context.scu_role, ac_context.scp_role)
-            rq_roles: Tuple[Optional[bool], Optional[bool]]
+            rq_roles: tuple[None | bool, None | bool]
             try:
                 rq_roles = roles[ab_syntax]
                 has_role = True
@@ -857,7 +847,7 @@ def negotiate_as_requestor(
 
             # SCP/SCU Role Selection Negotiation
             rq_roles = (rq_context.scu_role, rq_context.scp_role)
-            ac_roles: Tuple[Optional[bool], Optional[bool]]
+            ac_roles: tuple[None | bool, None | bool]
             try:
                 ac_roles = roles[cast(UID, context.abstract_syntax)]
             except KeyError:
@@ -885,8 +875,8 @@ def negotiate_as_requestor(
 
 
 def build_context(
-    abstract_syntax: Union[str, UID],
-    transfer_syntax: Optional[Union[str, UID, List[Union[str, UID]]]] = None,
+    abstract_syntax: str | UID,
+    transfer_syntax: None | str | UID | list[str | UID] = None,
 ) -> PresentationContext:
     """Return a :class:`PresentationContext` built from the `abstract_syntax`.
 
@@ -962,7 +952,7 @@ def build_context(
 
 
 def build_role(
-    uid: Union[str, UID], scu_role: bool = False, scp_role: bool = False
+    uid: str | UID, scu_role: bool = False, scp_role: bool = False
 ) -> "SCP_SCU_RoleSelectionNegotiation":
     """Return a SCP/SCU Role Selection Negotiation item.
 

@@ -8,11 +8,6 @@ import logging
 from ssl import SSLContext
 import threading
 from typing import (
-    Union,
-    Optional,
-    List,
-    Tuple,
-    Dict,
     cast,
     TypeVar,
     Type,
@@ -81,12 +76,12 @@ class ApplicationEntity:
 
         # Default Implementation Class UID and Version Name
         self._implementation_uid: UID = PYNETDICOM_IMPLEMENTATION_UID
-        self._implementation_version: Optional[str] = PYNETDICOM_IMPLEMENTATION_VERSION
+        self._implementation_version: str | None = PYNETDICOM_IMPLEMENTATION_VERSION
 
         # List of PresentationContext
         self._requested_contexts: ListCXType = []
         # {abstract_syntax : PresentationContext}
-        self._supported_contexts: Dict[UID, PresentationContext] = {}
+        self._supported_contexts: dict[UID, PresentationContext] = {}
 
         # Default maximum simultaneous associations
         self._maximum_associations = 10
@@ -95,25 +90,25 @@ class ApplicationEntity:
         self._maximum_pdu_size = DEFAULT_MAX_LENGTH
 
         # Default timeouts - None means no timeout
-        self._acse_timeout: Optional[float] = 30
-        self._connection_timeout: Optional[float] = None
-        self._dimse_timeout: Optional[float] = 30
-        self._network_timeout: Optional[float] = 60
+        self._acse_timeout: float | None = 30
+        self._connection_timeout: float | None = None
+        self._dimse_timeout: float | None = 30
+        self._network_timeout: float | None = 60
 
         # Require Calling/Called AE titles to match if value is non-empty str
-        self._require_calling_aet: List[str] = []
+        self._require_calling_aet: list[str] = []
         self._require_called_aet = False
 
-        self._servers: List[ThreadedAssociationServer] = []
+        self._servers: list[ThreadedAssociationServer] = []
         self._lock: threading.Lock = threading.Lock()
 
     @property
-    def acse_timeout(self) -> Optional[float]:
+    def acse_timeout(self) -> None | float:
         """Get or set the ACSE timeout value (in seconds).
 
         Parameters
         ----------
-        value : Union[int, float, None]
+        value : int | float | None
             The maximum amount of time (in seconds) to wait for association
             related messages. A value of ``None`` means no timeout. (default:
             ``30``)
@@ -121,7 +116,7 @@ class ApplicationEntity:
         return self._acse_timeout
 
     @acse_timeout.setter
-    def acse_timeout(self, value: Optional[float]) -> None:
+    def acse_timeout(self, value: float | None) -> None:
         """Set the ACSE timeout (in seconds)."""
         if value is None:
             self._acse_timeout = None
@@ -135,7 +130,7 @@ class ApplicationEntity:
             assoc.acse_timeout = self.acse_timeout
 
     @property
-    def active_associations(self) -> List[Association]:
+    def active_associations(self) -> list[Association]:
         """Return a list of the AE's active
         :class:`~pynetdicom.association.Association` threads.
 
@@ -152,7 +147,7 @@ class ApplicationEntity:
 
     def add_requested_context(
         self,
-        abstract_syntax: Union[str, UID],
+        abstract_syntax: str | UID,
         transfer_syntax: TSyntaxType = None,
     ) -> None:
         """Add a :ref:`presentation context<user_presentation>` to be
@@ -173,7 +168,7 @@ class ApplicationEntity:
 
         Parameters
         ----------
-        abstract_syntax : str or pydicom.uid.UID
+        abstract_syntax : str | pydicom.uid.UID
             The abstract syntax of the presentation context to request.
         transfer_syntax :  str/pydicom.uid.UID or list of str/pydicom.uid.UID
             The transfer syntax(es) to request (default:
@@ -275,10 +270,10 @@ class ApplicationEntity:
 
     def add_supported_context(
         self,
-        abstract_syntax: Union[str, UID],
+        abstract_syntax: str | UID,
         transfer_syntax: TSyntaxType = None,
-        scu_role: Optional[bool] = None,
-        scp_role: Optional[bool] = None,
+        scu_role: bool | None = None,
+        scp_role: bool | None = None,
     ) -> None:
         """Add a :ref:`presentation context<user_presentation>` to be
         supported when accepting association requests.
@@ -392,7 +387,7 @@ class ApplicationEntity:
         >>> ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         """
         if transfer_syntax is None:
-            transfer_syntax = DEFAULT_TRANSFER_SYNTAXES  # List[str]
+            transfer_syntax = DEFAULT_TRANSFER_SYNTAXES  # list[str]
 
         abstract_syntax = UID(abstract_syntax)
 
@@ -464,13 +459,13 @@ class ApplicationEntity:
         self,
         addr: str,
         port: int,
-        contexts: Optional[ListCXType] = None,
+        contexts: ListCXType | None = None,
         ae_title: str = "ANY-SCP",
         max_pdu: int = DEFAULT_MAX_LENGTH,
-        ext_neg: Optional[List[_UI]] = None,
-        bind_address: Tuple[str, int] = BIND_ADDRESS,
-        tls_args: Optional[Tuple[SSLContext, str]] = None,
-        evt_handlers: Optional[List[EventHandlerType]] = None,
+        ext_neg: list[_UI] | None = None,
+        bind_address: tuple[str, int] = BIND_ADDRESS,
+        tls_args: tuple[SSLContext, str] | None = None,
+        evt_handlers: list[EventHandlerType] | None = None,
     ) -> Association:
         """Request an association with a remote AE.
 
@@ -631,8 +626,8 @@ class ApplicationEntity:
     def _create_socket(
         self,
         assoc: Association,
-        address: Tuple[str, int],
-        tls_args: Optional[Tuple[SSLContext, str]],
+        address: tuple[str, int],
+        tls_args: tuple[SSLContext, str] | None,
     ) -> AssociationSocket:
         """Create an :class:`~pynetdicom.transport.AssociationSocket` for the
         current association.
@@ -644,7 +639,7 @@ class ApplicationEntity:
         return sock
 
     @property
-    def connection_timeout(self) -> Optional[float]:
+    def connection_timeout(self) -> float | None:
         """Get or set the connection timeout (in seconds).
 
         .. versionadded:: 2.0
@@ -663,7 +658,7 @@ class ApplicationEntity:
         return self._connection_timeout
 
     @connection_timeout.setter
-    def connection_timeout(self, value: Optional[float]) -> None:
+    def connection_timeout(self, value: float | None) -> None:
         """Set the connection timeout."""
         if value is None:
             self._connection_timeout = None
@@ -678,7 +673,7 @@ class ApplicationEntity:
             assoc.connection_timeout = self.connection_timeout
 
     @property
-    def dimse_timeout(self) -> Optional[float]:
+    def dimse_timeout(self) -> float | None:
         """Get or set the DIMSE timeout (in seconds).
 
         Parameters
@@ -690,7 +685,7 @@ class ApplicationEntity:
         return self._dimse_timeout
 
     @dimse_timeout.setter
-    def dimse_timeout(self, value: Optional[float]) -> None:
+    def dimse_timeout(self, value: float | None) -> None:
         """Set the DIMSE timeout in seconds."""
         if value is None:
             self._dimse_timeout = None
@@ -726,7 +721,7 @@ class ApplicationEntity:
         self._implementation_uid = uid
 
     @property
-    def implementation_version_name(self) -> Optional[str]:
+    def implementation_version_name(self) -> str | None:
         """Get or set the *Implementation Version Name* as :class:`str`.
 
         Parameters
@@ -744,7 +739,7 @@ class ApplicationEntity:
         return self._implementation_version
 
     @implementation_version_name.setter
-    def implementation_version_name(self, value: Optional[str]) -> None:
+    def implementation_version_name(self, value: str | None) -> None:
         """Set the *Implementation Version Name*"""
         # We allow None, but not an empty str
         if isinstance(value, str) and not value:
@@ -757,14 +752,14 @@ class ApplicationEntity:
 
     def make_server(
         self,
-        address: Tuple[str, int],
-        ae_title: Optional[str] = None,
-        contexts: Optional[ListCXType] = None,
-        ssl_context: Optional[SSLContext] = None,
-        evt_handlers: Optional[List[EventHandlerType]] = None,
-        server_class: Optional[Type[_T]] = None,
+        address: tuple[str, int],
+        ae_title: str | None = None,
+        contexts: ListCXType | None = None,
+        ssl_context: SSLContext | None = None,
+        evt_handlers: list[EventHandlerType] | None = None,
+        server_class: Type[_T] | None = None,
         **kwargs: Any,
-    ) -> Union[_T, ThreadedAssociationServer]:
+    ) -> _T | ThreadedAssociationServer:
         """Return an association server.
 
         .. versionadded:: 1.5
@@ -887,7 +882,7 @@ class ApplicationEntity:
             LOGGER.warning(f"maximum_pdu_size set to {DEFAULT_MAX_LENGTH}")
 
     @property
-    def network_timeout(self) -> Optional[float]:
+    def network_timeout(self) -> float | None:
         """Get or set the network timeout (in seconds).
 
         Parameters
@@ -899,7 +894,7 @@ class ApplicationEntity:
         return self._network_timeout
 
     @network_timeout.setter
-    def network_timeout(self, value: Optional[float]) -> None:
+    def network_timeout(self, value: float | None) -> None:
         """Set the network timeout."""
         if value is None:
             self._network_timeout = None
@@ -914,7 +909,7 @@ class ApplicationEntity:
 
     def remove_requested_context(
         self,
-        abstract_syntax: Union[str, UID],
+        abstract_syntax: str | UID,
         transfer_syntax: TSyntaxType = None,
     ) -> None:
         """Remove a requested presentation context.
@@ -1042,7 +1037,7 @@ class ApplicationEntity:
 
     def remove_supported_context(
         self,
-        abstract_syntax: Union[str, UID],
+        abstract_syntax: str | UID,
         transfer_syntax: TSyntaxType = None,
     ) -> None:
         """Remove a supported presentation context.
@@ -1256,7 +1251,7 @@ class ApplicationEntity:
         self._require_called_aet = require_match
 
     @property
-    def require_calling_aet(self) -> List[str]:
+    def require_calling_aet(self) -> list[str]:
         """Get or set the required calling AE title as a list of :class:`str`.
 
         When an association request is received the value of the *Calling AE
@@ -1284,7 +1279,7 @@ class ApplicationEntity:
         return self._require_calling_aet
 
     @require_calling_aet.setter
-    def require_calling_aet(self, ae_titles: List[str]) -> None:
+    def require_calling_aet(self, ae_titles: list[str]) -> None:
         """Set the required calling AE title."""
         if any([isinstance(v, bytes) for v in ae_titles]):
             warnings.warn(
@@ -1319,13 +1314,13 @@ class ApplicationEntity:
 
     def start_server(
         self,
-        address: Tuple[str, int],
+        address: tuple[str, int],
         block: bool = True,
-        ssl_context: Optional[SSLContext] = None,
-        evt_handlers: Optional[List[EventHandlerType]] = None,
-        ae_title: Optional[str] = None,
-        contexts: Optional[ListCXType] = None,
-    ) -> Optional[ThreadedAssociationServer]:
+        ssl_context: SSLContext | None = None,
+        evt_handlers: list[EventHandlerType] | None = None,
+        ae_title: str | None = None,
+        contexts: ListCXType | None = None,
+    ) -> ThreadedAssociationServer | None:
         """Start the AE as an association *acceptor*.
 
         .. versionadded:: 1.2
@@ -1353,7 +1348,7 @@ class ApplicationEntity:
 
         Parameters
         ----------
-        address : Tuple[str, int]
+        address : tuple[str, int]
             The ``(host: str, port: int)`` to use when listening for incoming
             association requests.
         block : bool, optional

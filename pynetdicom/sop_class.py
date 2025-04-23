@@ -331,6 +331,8 @@ _STORAGE_CLASSES = {
     "ElectrooculogramWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.7.3",  # A.34.14
     "SleepElectroencephalogramWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.7.4",  # A.34.15
     "BodyPositionWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.8.1",  # A.34.17
+    "WaveformPresentationStateStorage": "1.2.840.10008.5.1.4.1.1.9.100.1",
+    "WaveformAcquisitionPresentationStateStorage": "1.2.840.10008.5.1.4.1.1.9.100.2",
     "GrayscaleSoftcopyPresentationStateStorage": "1.2.840.10008.5.1.4.1.1.11.1",  # A.33.1
     "ColorSoftcopyPresentationStateStorage": "1.2.840.10008.5.1.4.1.1.11.2",  # A.33.2
     "PseudoColorSoftcopyPresentationStageStorage": "1.2.840.10008.5.1.4.1.1.11.3",  # A.33.3
@@ -363,6 +365,8 @@ _STORAGE_CLASSES = {
     "SegmentationStorage": "1.2.840.10008.5.1.4.1.1.66.4",  # A.51
     "SurfaceSegmentationStorage": "1.2.840.10008.5.1.4.1.1.66.5",  # A.57
     "TractographyResultsStorage": "1.2.840.10008.5.1.4.1.1.66.6",  # A.78
+    "LabelMapSegmentationStorage": "1.2.840.10008.5.1.4.1.1.66.7",
+    "HeightMapSegmentationStorage": "1.2.840.10008.5.1.4.1.1.66.8",
     "RealWorldValueMappingStorage": "1.2.840.10008.5.1.4.1.1.67",  # A.46
     "SurfaceScanMeshStorage": "1.2.840.10008.5.1.4.1.1.68.1",  # A.68
     "SurfaceScanPointCloudStorage": "1.2.840.10008.5.1.4.1.1.68.2",  # A.69
@@ -416,6 +420,7 @@ _STORAGE_CLASSES = {
     "PlannedImagingAgentAdministrationSRStorage": "1.2.840.10008.5.1.4.1.1.88.74",  # A.35.19
     "PerformedImagingAgentAdministrationSRStorage": "1.2.840.10008.5.1.4.1.1.88.75",  # A.35.20
     "EnhancedXRayRadiationDoseSRStorage": "1.2.840.10008.5.1.4.1.1.88.76",  # A.35.
+    "WaveformAnnotationSRStorage": "1.2.840.10008.5.1.4.1.1.88.77",
     "ContentAssessmentResultsStorage": "1.2.840.10008.5.1.4.1.1.90.1",  # A.81
     "MicroscopyBulkSimpleAnnotationsStorage": "1.2.840.10008.5.1.4.1.1.91.1",
     "EncapsulatedPDFStorage": "1.2.840.10008.5.1.4.1.1.104.1",  # A.45.1

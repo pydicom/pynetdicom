@@ -1,7 +1,4 @@
-<!--
-Please prefix your PR title with [WIP] for PRs that are in
-progress and [MRG] when you consider them ready for review.
--->
+<!-- Please use Github's 'Draft Pull Request' for PRs that are in-progress -->
 #### Reference issue
 The issue describing the bug or feature that this PR addresses.
 
