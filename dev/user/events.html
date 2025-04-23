@@ -6,8 +6,8 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Events &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Events &mdash; pynetdicom 3.0.0.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/documentation_options.js?v=afcbd73c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -187,7 +187,7 @@ notification events.</p>
 <p>By default, a number of notification handlers are bound for logging purposes.
 If you wish to remove these then you can do the following before creating any
 associations:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">_config</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">_config</span>
 
 <span class="c1"># Don&#39;t bind any of the default notification handlers</span>
 <span class="n">_config</span><span class="o">.</span><span class="n">LOG_HANDLER_LEVEL</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
@@ -303,15 +303,15 @@ see the <a class="reference external" href="../reference/events.html">handler im
 with <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a> and
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a>.
 <em>evt_handlers</em> should be a list of 2- or 3-tuples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span><span class="p">,</span> <span class="n">CTImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">Verification</span><span class="p">,</span> <span class="n">CTImageStorage</span>
 
-<span class="k">def</span> <span class="nf">handle_echo</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_echo</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="c1"># Because we used a 2-tuple to bind `handle_echo` we</span>
     <span class="c1">#   have no extra parameters</span>
     <span class="k">return</span> <span class="mh">0x0000</span>
 
-<span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">):</span>
     <span class="c1"># Because we used a 3-tuple to bind `handle_store` we</span>
     <span class="c1">#   have optional extra parameters</span>
     <span class="k">assert</span> <span class="n">arg1</span> <span class="o">==</span> <span class="s1">&#39;optional&#39;</span>
@@ -352,7 +352,7 @@ methods. See the <a class="reference internal" href="association.html#associatio
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2025, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

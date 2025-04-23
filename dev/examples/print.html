@@ -6,8 +6,8 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Print Management Service Examples &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Print Management Service Examples &mdash; pynetdicom 3.0.0.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/documentation_options.js?v=afcbd73c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -272,14 +272,14 @@ N-CREATE responses include conformant <em>Basic Film Session SOP Class</em> and
 <em>Basic Film Box SOP Class</em> instances (which may not always be the case).</p>
 <p>We also assume that the Print SCP sends the Printer SOP Class’ N-EVENT-REPORT
 notifications over the same association (and ignore them).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
-<span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
-<span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">generate_uid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">dcmread</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydicom.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydicom.uid</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_uid</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BasicGrayscalePrintManagementMeta</span><span class="p">,</span>
     <span class="n">BasicFilmSession</span><span class="p">,</span>
     <span class="n">BasicFilmBox</span><span class="p">,</span>
@@ -294,7 +294,7 @@ notifications over the same association (and ignore them).</p>
 <span class="n">DATASET</span> <span class="o">=</span> <span class="n">dcmread</span><span class="p">(</span><span class="s1">&#39;path/to/file.dcm&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">build_session</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_session</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an N-CREATE *Attribute List* for creating a Basic Film Session</span>
 
 <span class="sd">    Returns</span>
@@ -315,7 +315,7 @@ notifications over the same association (and ignore them).</p>
     <span class="k">return</span> <span class="n">attr_list</span>
 
 
-<span class="k">def</span> <span class="nf">build_film_box</span><span class="p">(</span><span class="n">session</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_film_box</span><span class="p">(</span><span class="n">session</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an N-CREATE *Attribute List* for creating a Basic Film Box.</span>
 
 <span class="sd">    In this example we just have a single Image Box.</span>
@@ -347,7 +347,7 @@ notifications over the same association (and ignore them).</p>
     <span class="k">return</span> <span class="n">attr_list</span>
 
 
-<span class="k">def</span> <span class="nf">build_image_box</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_image_box</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an N-SET *Attribute List* for updating a Basic Grayscale Image Box</span>
 
 <span class="sd">    Parameters</span>
@@ -379,7 +379,7 @@ notifications over the same association (and ignore them).</p>
 
     <span class="k">return</span> <span class="n">attr_list</span>
 
-<span class="k">def</span> <span class="nf">handle_n_er</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_n_er</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Ignore the N-EVENT-REPORT notification&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mh">0x0000</span>
 
@@ -505,7 +505,7 @@ notifications over the same association (and ignore them).</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2025, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

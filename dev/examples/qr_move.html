@@ -6,8 +6,8 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Query/Retrieve (Move) Service Examples &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Query/Retrieve (Move) Service Examples &mdash; pynetdicom 3.0.0.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/documentation_options.js?v=afcbd73c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -122,10 +122,10 @@ it will usually respond with an <code class="docutils literal notranslate"><span
 all SOP Instances for the patient with <em>Patient ID</em> <code class="docutils literal notranslate"><span class="pre">1234567</span></code> belonging to the
 series with <em>Study Instance UID</em> <code class="docutils literal notranslate"><span class="pre">1.2.3</span></code> and <em>Series Instance UID</em>
 <code class="docutils literal notranslate"><span class="pre">1.2.3.4</span></code> to a Storage SCP with AE title <code class="docutils literal notranslate"><span class="pre">'STORE_SCP'</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydicom.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span>
 
 <span class="n">debug_logger</span><span class="p">()</span>
 
@@ -170,14 +170,14 @@ the storage sub-operations have been successful.</p>
 the IP and port number of the corresponding AE title. Check the
 <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a>
 to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> handler.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydicom.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span><span class="p">,</span> <span class="n">debug_logger</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span><span class="p">,</span> <span class="n">debug_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span>
 
 <span class="n">debug_logger</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle a C-STORE service request&quot;&quot;&quot;</span>
     <span class="c1"># Ignore the request and return Success</span>
     <span class="k">return</span> <span class="mh">0x0000</span>
@@ -248,16 +248,16 @@ query against that, which is the approach taken by the
 <a class="reference internal" href="../apps/qrscp.html"><span class="doc">qrscp application</span></a>.</p>
 <p>Check the <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_move.html#pynetdicom._handlers.doc_handle_move" title="pynetdicom._handlers.doc_handle_move"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a> to see the requirements for the
 <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code> handler.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
-<span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">dcmread</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydicom.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span>
 
 <span class="c1"># Implement the evt.EVT_C_MOVE handler</span>
-<span class="k">def</span> <span class="nf">handle_move</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_move</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle a C-MOVE request event.&quot;&quot;&quot;</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">identifier</span>
 
@@ -346,7 +346,7 @@ parameter).</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2025, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

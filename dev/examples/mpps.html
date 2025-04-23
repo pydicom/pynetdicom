@@ -6,8 +6,8 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modality Performed Procedure Step Management Service Examples &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Modality Performed Procedure Step Management Service Examples &mdash; pynetdicom 3.0.0.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/documentation_options.js?v=afcbd73c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -128,15 +128,15 @@ SCU and the RIS (or PACS) the SCP.</p>
 <h2>MPPS - Create SCU<a class="headerlink" href="#mpps-create-scu" title="Link to this heading">¶</a></h2>
 <p>Associate with a peer and request the use of the MPPS Service to create a new
 SOP Instance.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">generate_uid</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydicom.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydicom.uid</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_uid</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ModalityPerformedProcedureStep</span><span class="p">,</span>
     <span class="n">CTImageStorage</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="kn">import</span> <span class="n">code_to_category</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.status</span><span class="w"> </span><span class="kn">import</span> <span class="n">code_to_category</span>
 
 <span class="n">debug_logger</span><span class="p">()</span>
 
@@ -144,7 +144,7 @@ SOP Instance.</p>
 <span class="n">mpps_instance_uid</span> <span class="o">=</span> <span class="n">generate_uid</span><span class="p">()</span>
 
 <span class="c1"># Our N-CREATE *Attribute List*</span>
-<span class="k">def</span> <span class="nf">build_attr_list</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_attr_list</span><span class="p">():</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
     <span class="c1"># Performed Procedure Step Relationship</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">ScheduledStepAttributesSequence</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dataset</span><span class="p">()]</span>
@@ -236,7 +236,7 @@ Procedure Step Status</em> of <code class="docutils literal notranslate"><span c
 <span class="n">ct_instance_uids</span> <span class="o">=</span> <span class="p">[</span><span class="n">generate_uid</span><span class="p">()</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
 
 <span class="c1"># Our N-SET *Modification List*</span>
-<span class="k">def</span> <span class="nf">build_mod_list</span><span class="p">(</span><span class="n">series_instance</span><span class="p">,</span> <span class="n">sop_instances</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_mod_list</span><span class="p">(</span><span class="n">series_instance</span><span class="p">,</span> <span class="n">sop_instances</span><span class="p">):</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">PerformedSeriesSequence</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dataset</span><span class="p">()]</span>
 
@@ -304,15 +304,15 @@ Performed Procedure Step SOP Class only).</p>
 <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_n_get.html#pynetdicom._handlers.doc_handle_n_get" title="pynetdicom._handlers.doc_handle_n_get"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a>
 to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_CREATE</span></code> and <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_SET</span></code>
 handlers.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydicom.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">ModalityPerformedProcedureStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModalityPerformedProcedureStep</span>
 
 <span class="n">managed_instances</span> <span class="o">=</span> <span class="p">{}</span>
 
 <span class="c1"># Implement the evt.EVT_N_CREATE handler</span>
-<span class="k">def</span> <span class="nf">handle_create</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_create</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="c1"># MPPS&#39; N-CREATE request must have an *Affected SOP Instance UID*</span>
     <span class="n">req</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span>
     <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -354,7 +354,7 @@ handlers.</p>
     <span class="k">return</span> <span class="mh">0x0000</span><span class="p">,</span> <span class="n">ds</span>
 
 <span class="c1"># Implement the evt.EVT_N_SET handler</span>
-<span class="k">def</span> <span class="nf">handle_set</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_set</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="n">req</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span>
     <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">managed_instances</span><span class="p">:</span>
         <span class="c1"># Failure - SOP Instance not recognised</span>
@@ -398,7 +398,7 @@ handlers.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2025, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

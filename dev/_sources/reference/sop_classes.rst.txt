@@ -286,6 +286,7 @@ Storage
    General32bitECGWaveformStorage
    GrayscalePlanarMPRVolumetricPresentationStateStorage
    GrayscaleSoftcopyPresentationStateStorage
+   HeightMapSegmentationStorage
    HemodynamicWaveformStorage
    ImplantationPlanSRStorage
    IntraocularLensCalculationsStorage
@@ -293,6 +294,7 @@ Storage
    IntravascularOpticalCoherenceTomographyImageStorageForProcessing
    KeratometryMeasurementsStorage
    KeyObjectSelectionDocumentStorage
+   LabelMapSegmentationStorage
    LegacyConvertedEnhancedCTImageStorage
    LegacyConvertedEnhancedMRImageStorage
    LegacyConvertedEnhancedPETImageStorage
@@ -381,6 +383,9 @@ Storage
    VLSlideCoordinatesMicroscopicImageStorage
    VLWholeSlideMicroscopyImageStorage
    VolumeRenderingVolumetricPresentationStateStorage
+   WaveformAcquisitionPresentationStateStorage
+   WaveformAnnotationSRStorage
+   WaveformPresentationStateStorage
    WideFieldOphthalmicPhotography3DCoordinatesImageStorage
    WideFieldOphthalmicPhotographyStereographicProjectionImageStorage
    XAPerformedProcedureProtocolStorage

@@ -6,8 +6,8 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Registering a new SOP Class &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Registering a new SOP Class &mdash; pynetdicom 3.0.0.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/documentation_options.js?v=afcbd73c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -106,8 +106,8 @@ the SOP Classes included by <em>pynetdicom</em>.</p>
 which takes the UID to be registered, a <cite>keyword</cite> that will be used as the
 variable name for the new UID and the <em>pynetdicom</em>
 <a class="reference internal" href="../reference/service_classes.html#module-pynetdicom.service_class" title="pynetdicom.service_class"><code class="xref py py-mod docutils literal notranslate"><span class="pre">service_class</span></code></a> to register the UID with:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">register_uid</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.service_class</span> <span class="kn">import</span> <span class="n">StorageServiceClass</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_uid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.service_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">StorageServiceClass</span>
 
 <span class="n">register_uid</span><span class="p">(</span>
     <span class="s2">&quot;1.2.246.352.70.1.70&quot;</span><span class="p">,</span>
@@ -118,10 +118,10 @@ variable name for the new UID and the <em>pynetdicom</em>
 </div>
 <p>The UID can then be imported from the <a class="reference internal" href="../reference/sop_classes.html#module-pynetdicom.sop_class" title="pynetdicom.sop_class"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sop_class</span></code></a> module and
 used like other UIDs:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">PrivateRTPlanStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrivateRTPlanStorage</span>
 
-<span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">evt</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_store</span><span class="p">(</span><span class="n">evt</span><span class="p">):</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dataset</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">)</span>
@@ -137,8 +137,8 @@ used like other UIDs:</p>
 <p>When registering a new UID with the
 <a class="reference internal" href="../reference/generated/pynetdicom.service_class.QueryRetrieveServiceClass.html#pynetdicom.service_class.QueryRetrieveServiceClass" title="pynetdicom.service_class.QueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">QueryRetrieveServiceClass</span></code></a>, you must also
 specify which of the three DIMSE-C message types the UID is to be used with:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">register_uid</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.service_class</span> <span class="kn">import</span> <span class="n">QueryRetrieveServiceClass</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_uid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.service_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">QueryRetrieveServiceClass</span>
 
 <span class="n">register_uid</span><span class="p">(</span>
     <span class="s2">&quot;1.2.246.352.70.1.70&quot;</span><span class="p">,</span>
@@ -161,7 +161,7 @@ specify which of the three DIMSE-C message types the UID is to be used with:</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2025, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -6,8 +6,8 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Display System Management Service Examples &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Display System Management Service Examples &mdash; pynetdicom 3.0.0.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/documentation_options.js?v=afcbd73c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -115,11 +115,11 @@ peer by using the N-GET service. It only has a single
 <h2>Display System Management SCU<a class="headerlink" href="#display-system-management-scu" title="Link to this heading">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the use of the
 Display System Management Service.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DisplaySystem</span><span class="p">,</span> <span class="n">DisplaySystemInstance</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="kn">import</span> <span class="n">code_to_category</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.status</span><span class="w"> </span><span class="kn">import</span> <span class="n">code_to_category</span>
 
 <span class="n">debug_logger</span><span class="p">()</span>
 
@@ -169,13 +169,13 @@ containing the single tag (0008,0070).</p>
 <p>Check the
 <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_n_get.html#pynetdicom._handlers.doc_handle_n_get" title="pynetdicom._handlers.doc_handle_n_get"><code class="xref py py-attr docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a>
 to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code> handler.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">DisplaySystem</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">DisplaySystem</span>
 
-<span class="kn">from</span> <span class="nn">my_code</span> <span class="kn">import</span> <span class="n">create_attribute_list</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">my_code</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_attribute_list</span>
 
 <span class="c1"># Implement a handler evt.EVT_N_GET</span>
-<span class="k">def</span> <span class="nf">handle_get</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_get</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle an N-GET request event.&quot;&quot;&quot;</span>
     <span class="n">attr</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AttributeIdentifierList</span>
     <span class="c1"># User defined function to generate the required attribute list dataset</span>
@@ -212,7 +212,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2025, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

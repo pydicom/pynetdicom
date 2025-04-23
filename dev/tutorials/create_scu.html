@@ -6,8 +6,8 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Writing your first SCU &mdash; pynetdicom 2.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Writing your first SCU &mdash; pynetdicom 3.0.0.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/documentation_options.js?v=afcbd73c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -217,7 +217,7 @@ end of the association.</p>
 <p>Next we’re going to make a new application entity and request an association
 with the Echo SCP. Create a new file <code class="docutils literal notranslate"><span class="pre">my_scu.py</span></code>, open it in a text
 editor and add the following:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span>
 <span class="linenos"> 2</span>
 <span class="linenos"> 3</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="linenos"> 4</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s2">&quot;1.2.840.10008.1.1&quot;</span><span class="p">)</span>
@@ -231,7 +231,7 @@ editor and add the following:</p>
 </pre></div>
 </div>
 <p>There’s a lot going on in these few lines, so let’s split it up a bit:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span>
 <span class="linenos">2</span>
 <span class="linenos">3</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="linenos">4</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s2">&quot;1.2.840.10008.1.1&quot;</span><span class="p">)</span>
@@ -318,7 +318,7 @@ importing <a class="reference external" href="https://docs.python.org/3/library/
 or by adding your own logging handlers.</p>
 <p>If you need to troubleshoot, then a quick way to send the debugging output to
 <code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code> is by calling <a class="reference internal" href="../reference/generated/pynetdicom.debug_logger.html#pynetdicom.debug_logger" title="pynetdicom.debug_logger"><code class="xref py py-func docutils literal notranslate"><span class="pre">debug_logger()</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="linenos">1</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="linenos">1</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
 </span><span class="linenos">2</span>
 <span class="hll"><span class="linenos">3</span> <span class="n">debug_logger</span><span class="p">()</span>
 </span><span class="linenos">4</span>
@@ -481,7 +481,7 @@ similar to:</p>
 <p>Since we’re able to associate with the Echo SCP, our next step is to request
 the use of it’s verification service. We do this by sending a DIMSE C-ECHO
 request:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="linenos"> 2</span>
 <span class="linenos"> 3</span> <span class="n">debug_logger</span><span class="p">()</span>
 <span class="linenos"> 4</span>
@@ -553,7 +553,7 @@ next. However, you might also be interested in the
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018-2024, pynetdicom contributors.</p>
+    <p>&#169; Copyright 2018-2025, pynetdicom contributors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
