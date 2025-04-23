@@ -427,7 +427,7 @@ class A_ASSOCIATE_RQ(PDU):
       and :dcm:`9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: "A_ASSOCIATE" | None = None) -> None:
+    def __init__(self, primitive: "A_ASSOCIATE | None" = None) -> None:
         """Initialise a new A-ASSOCIATE-RQ PDU.
 
         Parameters
@@ -811,7 +811,7 @@ class A_ASSOCIATE_AC(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: "A_ASSOCIATE" | None = None) -> None:
+    def __init__(self, primitive: "A_ASSOCIATE | None" = None) -> None:
         """Initialise a new A-ASSOCIATE-AC PDU.
 
         Parameters
@@ -1199,7 +1199,7 @@ class A_ASSOCIATE_RJ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: "A_ASSOCIATE" | None = None) -> None:
+    def __init__(self, primitive: "A_ASSOCIATE | None" = None) -> None:
         """Initialise a new A-ASSOCIATE-RJ PDU.
 
         Parameters
@@ -1423,7 +1423,7 @@ class P_DATA_TF(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: "P_DATA" | None = None) -> None:
+    def __init__(self, primitive: "P_DATA | None" = None) -> None:
         """Initialise a new P-DATA-TF PDU.
 
         Parameters
@@ -1658,7 +1658,7 @@ class A_RELEASE_RQ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: "A_RELEASE" | None = None) -> None:
+    def __init__(self, primitive: "A_RELEASE | None" = None) -> None:
         """Initialise a new A-RELEASE-RQ PDU.
 
         Parameters
@@ -1790,7 +1790,7 @@ class A_RELEASE_RP(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: "A_RELEASE" | None = None) -> None:
+    def __init__(self, primitive: "A_RELEASE | None" = None) -> None:
         """Initialise a new A-RELEASE-RP PDU.
 
         Parameters
@@ -1936,7 +1936,7 @@ class A_ABORT_RQ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: "A_ABORT" | "A_P_ABORT" | None = None) -> None:
+    def __init__(self, primitive: "A_ABORT | A_P_ABORT | None" = None) -> None:
         """Initialise a new A-ABORT-RQ PDU.
 
         Parameters

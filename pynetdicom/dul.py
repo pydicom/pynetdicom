@@ -75,7 +75,7 @@ class DULServiceProvider(Thread):
         """
         # The association thread
         self._assoc = assoc
-        self.socket: "AssociationSocket" | None = None
+        self.socket: "AssociationSocket | None" = None
 
         # Tracks the events the state machine needs to process
         self.event_queue: "queue.Queue[str]" = queue.Queue()
@@ -189,7 +189,7 @@ class DULServiceProvider(Thread):
         """Return the network timeout (in seconds)."""
         return self.assoc.network_timeout
 
-    def peek_next_pdu(self) -> _PDUPrimitiveType | None:
+    def peek_next_pdu(self) -> "_PDUPrimitiveType | None":
         """Check the next PDU to be processed."""
         try:
             return cast(_PDUPrimitiveType, self.to_user_queue.queue[0])
@@ -332,7 +332,7 @@ class DULServiceProvider(Thread):
 
     def receive_pdu(
         self, wait: bool = False, timeout: float | None = None
-    ) -> _PDUPrimitiveType | None:
+    ) -> "_PDUPrimitiveType | None":
         """Return an item from the queue if one is available.
 
         Get the next service primitive to be processed out of the queue of items sent

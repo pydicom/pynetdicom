@@ -867,6 +867,6 @@ class ACSE:
         self.dul.send_pdu(primitive)
 
     @property
-    def socket(self) -> "AssociationSocket" | None:
+    def socket(self) -> "AssociationSocket | None":
         """Return the :class:`~pynetdicom.transport.AssociationSocket`."""
         return self.assoc.dul.socket

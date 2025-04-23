@@ -88,7 +88,7 @@ class attempt:
     """
 
     def __init__(
-        self, rsp: DimseServiceType, dimse: DIMSEServiceProvider, cx_id: int
+        self, rsp: "DimseServiceType", dimse: "DIMSEServiceProvider", cx_id: int
     ) -> None:
         self._success = True
         # Should be customised within the context

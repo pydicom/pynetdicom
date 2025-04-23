@@ -1058,7 +1058,7 @@ class UserInformationItem(PDUItem):
         return [item.to_primitive() for item in self.user_data]
 
     @property
-    def async_ops_window(self) -> "AsynchronousOperationsWindowSubItem" | None:
+    def async_ops_window(self) -> "AsynchronousOperationsWindowSubItem | None":
         """Return the *Asynchronous Operations Window Sub-item*, if
         available.
         """
@@ -1197,7 +1197,7 @@ class UserInformationItem(PDUItem):
     @property
     def user_identity(
         self,
-    ) -> "UserIdentitySubItemAC" | "UserIdentitySubItemRQ" | None:
+    ) -> "UserIdentitySubItemAC | UserIdentitySubItemRQ | None":
         """Return the *User Identity Sub-item*, if available."""
         for item in self.user_data:
             if isinstance(item, (UserIdentitySubItemRQ, UserIdentitySubItemAC)):

@@ -92,7 +92,7 @@ class DIMSEPrimitive:
     #   at _dataset_path
     # self._dataset_file = None
     _dataset_path: Path | tuple[Path, int] | None = None
-    _dataset_file: "NTF" | None = None
+    _dataset_file: "NTF | None" = None
 
     @property
     def AffectedSOPClassUID(self) -> UID | None:

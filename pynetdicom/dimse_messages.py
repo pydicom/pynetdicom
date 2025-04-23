@@ -354,7 +354,7 @@ class DIMSEMessage:
         self._data_set_path: Path | tuple[Path, int] | None = None
         # If writing the dataset in chunks this will be a NamedTemporaryFile:
         #   the file object backing its file path
-        self._data_set_file: "NTF" | None = None
+        self._data_set_file: "NTF | None" = None
 
         cls_name = self.__class__.__name__
         if cls_name == "DIMSEMessage":
@@ -364,7 +364,7 @@ class DIMSEMessage:
         for keyword in _COMMAND_SET_KEYWORDS[cls_name.replace("_", "-")]:
             setattr(self.command_set, keyword, None)
 
-    def decode_msg(self, primitive: P_DATA, assoc: "Association" | None = None) -> bool:
+    def decode_msg(self, primitive: P_DATA, assoc: "Association | None" = None) -> bool:
         """Converts P-DATA primitives into a ``DIMSEMessage`` sub-class.
 
         Decodes the data from the P-DATA service primitive (which
