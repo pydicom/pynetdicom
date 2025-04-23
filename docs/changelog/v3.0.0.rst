@@ -8,4 +8,11 @@ The major breaking changes with the version 3.0 release are:
 * Minimum required pydicom version is 3.0
 * Changed :attr:`~pynetdicom.presentation.StoragePresentationContexts` to match DCMTK
   implementation
+
+Changes
+-------
+
+* Move and Get SCPs are now limited to a maximum of 65535 matches (:issue:`982`)
+* Minimum supported pydicom version is 3.0 (:issue:`981`)
+* Added support for Python 3.13
 * Updated SOP classes to version 2025b of the DICOM Standard
