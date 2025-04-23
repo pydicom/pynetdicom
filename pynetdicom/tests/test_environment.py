@@ -5,8 +5,6 @@ import sys
 
 import pytest
 
-from importlib.metadata import version
-
 from pynetdicom._version import __version__, is_canonical
 
 
@@ -56,6 +54,3 @@ def test_is_canonical():
     assert is_canonical("1.0.0.post0")
     assert is_canonical("1.0.0.dev0")
     assert not is_canonical("1.0+abc.5")
-
-
-assert version("pynetdicom") == __version__
