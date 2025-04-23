@@ -5,15 +5,7 @@ from contextvars import copy_context
 from io import BytesIO
 import logging
 import sys
-from typing import (
-    List,
-    Optional,
-    Iterator,
-    Union,
-    cast,
-    Callable,
-    Sequence,
-)
+from typing import Iterator, cast, Callable, Sequence
 
 try:
     import ctypes
@@ -100,13 +92,13 @@ def make_target(target_fn: Callable) -> Callable:
 
 
 def pretty_bytes(
-    bytestream: Union[bytes, BytesIO],
+    bytestream: bytes | BytesIO,
     prefix: str = "  ",
     delimiter: str = "  ",
     items_per_line: int = 16,
-    max_size: Optional[int] = 512,
+    max_size: int | None = 512,
     suffix: str = "",
-) -> List[str]:
+) -> list[str]:
     """Turn the bytestring `bytestream` into a :class:`list` of nicely
     formatted :class:`str`.
 
@@ -156,8 +148,8 @@ def pretty_bytes(
 
 
 def set_ae(
-    value: Optional[str], name: str, allow_empty: bool = True, allow_none: bool = True
-) -> Optional[str]:
+    value: str | None, name: str, allow_empty: bool = True, allow_none: bool = True
+) -> str | None:
     """Convert `value` to an **AE** like parameter and apply validation.
 
     Parameters
@@ -205,12 +197,12 @@ def set_ae(
 
 
 def set_uid(
-    value: Union[None, str, bytes, UID],
+    value: None | str | bytes | UID,
     name: str,
     allow_empty: bool = True,
     allow_none: bool = True,
     validate: bool = True,
-) -> Optional[UID]:
+) -> UID | None:
     """Convert `value` to a :class:`UID` and apply validation.
 
     Parameters
@@ -270,7 +262,7 @@ def set_uid(
 
 
 @contextmanager
-def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
+def set_timer_resolution(resolution: float | None) -> Iterator[None]:
     """Set the Windows timer resolution.
 
     Parameters

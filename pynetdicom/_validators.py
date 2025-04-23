@@ -1,7 +1,6 @@
 """Validation functions used by pynetdicom"""
 
 import logging
-from typing import Tuple
 import unicodedata
 
 from pydicom.uid import UID
@@ -10,7 +9,7 @@ from pydicom.uid import UID
 LOGGER = logging.getLogger(__name__)
 
 
-def validate_ae(value: str) -> Tuple[bool, str]:
+def validate_ae(value: str) -> tuple[bool, str]:
     """Return ``True`` if `value` is a conformant **AE** value.
 
     An **AE** value:
@@ -27,7 +26,7 @@ def validate_ae(value: str) -> Tuple[bool, str]:
 
     Returns
     -------
-    Tuple[bool, str]
+    tuple[bool, str]
         A tuple of (bool, str), with the first item being ``True`` if the
         value is conformant to the DICOM Standard and ``False`` otherwise and
         the second item being a short description of why the validation failed
@@ -51,7 +50,7 @@ def validate_ae(value: str) -> Tuple[bool, str]:
     return True, ""
 
 
-def validate_ui(value: UID) -> Tuple[bool, str]:
+def validate_ui(value: UID) -> tuple[bool, str]:
     from pynetdicom import _config
 
     if not isinstance(value, str):

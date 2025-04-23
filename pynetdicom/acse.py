@@ -1,7 +1,7 @@
 """ACSE service provider"""
 
 import logging
-from typing import TYPE_CHECKING, Optional, Dict, List, cast, Tuple
+from typing import TYPE_CHECKING, cast
 
 from pydicom.uid import UID
 
@@ -55,7 +55,7 @@ class ACSE:
         return self.assoc.acceptor
 
     @property
-    def acse_timeout(self) -> Optional[float]:
+    def acse_timeout(self) -> float | None:
         """Return the ACSE timeout (in seconds)."""
         return self.assoc.acse_timeout
 
@@ -67,7 +67,7 @@ class ACSE:
         """
         return self._assoc
 
-    def _check_async_ops(self) -> Optional[AsynchronousOperationsWindowNegotiation]:
+    def _check_async_ops(self) -> AsynchronousOperationsWindowNegotiation | None:
         """Check the user's response to an Asynchronous Operations request.
 
         .. currentmodule:: pynetdicom.pdu_primitives
@@ -102,7 +102,7 @@ class ACSE:
 
     def _check_sop_class_common_extended(
         self,
-    ) -> Dict[UID, SOPClassCommonExtendedNegotiation]:
+    ) -> dict[UID, SOPClassCommonExtendedNegotiation]:
         """Check the user's response to a SOP Class Common Extended request.
 
         Returns
@@ -123,7 +123,7 @@ class ACSE:
             LOGGER.exception(exc)
             return {}
 
-        rsp = cast(Dict[UID, SOPClassCommonExtendedNegotiation], rsp)
+        rsp = cast(dict[UID, SOPClassCommonExtendedNegotiation], rsp)
 
         try:
             rsp = {
@@ -140,7 +140,7 @@ class ACSE:
 
         return rsp
 
-    def _check_sop_class_extended(self) -> List[SOPClassExtendedNegotiation]:
+    def _check_sop_class_extended(self) -> list[SOPClassExtendedNegotiation]:
         """Check the user's response to a SOP Class Extended request.
 
         Returns
@@ -185,7 +185,7 @@ class ACSE:
 
         return items
 
-    def _check_user_identity(self) -> Tuple[bool, Optional[UserIdentityNegotiation]]:
+    def _check_user_identity(self) -> tuple[bool, UserIdentityNegotiation | None]:
         """Check the user's response to a User Identity request.
 
         Returns
@@ -223,7 +223,7 @@ class ACSE:
             LOGGER.exception(exc)
             return False, None
 
-        identity_verified, response = cast(Tuple[bool, Optional[bytes]], rsp)
+        identity_verified, response = cast(tuple[bool, bytes | None], rsp)
 
         if not identity_verified:
             # Reject association as the user isn't authorised
@@ -318,7 +318,7 @@ class ACSE:
         self.requestor.ae_title = assoc_rq.calling_ae_title
 
         # If we reject association -> [result, source, diagnostic]
-        reject_assoc_rsd: Tuple[int, ...] = tuple()
+        reject_assoc_rsd: tuple[int, ...] = tuple()
 
         # Calling AE Title not recognised
         authorised_aet = [s.strip() for s in self.assoc.ae.require_calling_aet]
@@ -867,6 +867,6 @@ class ACSE:
         self.dul.send_pdu(primitive)
 
     @property
-    def socket(self) -> Optional["AssociationSocket"]:
+    def socket(self) -> "AssociationSocket" | None:
         """Return the :class:`~pynetdicom.transport.AssociationSocket`."""
         return self.assoc.dul.socket

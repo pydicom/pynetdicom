@@ -18,7 +18,7 @@ except ImportError:
     #   and must use "ssl.SSLContext" in type hints
     _HAS_SSL = False
 import threading
-from typing import TYPE_CHECKING, Any, cast, Callable, Optional
+from typing import TYPE_CHECKING, Any, cast, Callable
 
 from pynetdicom import evt, _config
 from pynetdicom._globals import MODE_ACCEPTOR, BIND_ADDRESS
@@ -595,7 +595,7 @@ class AssociationServer(TCPServer):
         address: tuple[str, int],
         ae_title: str,
         contexts: list[PresentationContext],
-        ssl_context: Optional["ssl.SSLContext"] = None,
+        ssl_context: "ssl.SSLContext" | None = None,
         evt_handlers: list[evt.EventHandlerType] | None = None,
         request_handler: Callable[..., BaseRequestHandler] | None = None,
     ) -> None:
@@ -828,7 +828,7 @@ class AssociationServer(TCPServer):
         self.ae._servers.remove(cast("ThreadedAssociationServer", self))
 
     @property
-    def ssl_context(self) -> Optional["ssl.SSLContext"]:
+    def ssl_context(self) -> "ssl.SSLContext" | None:
         """Return the :class:`ssl.SSLContext` (if available).
 
         Parameters
@@ -841,7 +841,7 @@ class AssociationServer(TCPServer):
         return self._ssl_context
 
     @ssl_context.setter
-    def ssl_context(self, context: Optional["ssl.SSLContext"]) -> None:
+    def ssl_context(self, context: "ssl.SSLContext" | None) -> None:
         """Set the SSL context for the socket."""
         if not _HAS_SSL:
             raise RuntimeError("Your Python installation lacks support for SSL")

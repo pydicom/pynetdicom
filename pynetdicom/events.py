@@ -8,7 +8,7 @@ import inspect
 import logging
 from pathlib import Path
 import sys
-from typing import Callable, Any, NamedTuple, TYPE_CHECKING, cast, Iterator, Union
+from typing import Callable, Any, NamedTuple, TYPE_CHECKING, cast, Iterator, TypeAlias
 
 from pydicom.dataset import Dataset, FileMetaDataset
 from pynetdicom.dimse_primitives import C_STORE
@@ -55,7 +55,7 @@ if TYPE_CHECKING:  # pragma: no cover
 LOGGER = logging.getLogger(__name__)
 
 
-EventType = Union["NotificationEvent", "InterventionEvent"]
+EventType: TypeAlias = "NotificationEvent | InterventionEvent"
 EventHandlerType = tuple[EventType, Callable] | tuple[EventType, Callable, list[Any]]
 _BasicReturnType = Dataset | int
 _DatasetReturnType = tuple[_BasicReturnType, Dataset | None]

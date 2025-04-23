@@ -21,17 +21,7 @@ There are seven different PDUs:
 
 import logging
 from struct import Struct
-from typing import (
-    Iterator,
-    Optional,
-    Any,
-    Callable,
-    List,
-    Tuple,
-    TYPE_CHECKING,
-    Union,
-    cast,
-)
+from typing import Iterator, Any, Callable, TYPE_CHECKING, cast, TypeAlias
 
 from pydicom.uid import UID
 
@@ -59,17 +49,12 @@ if TYPE_CHECKING:  # pragma: no cover
 
 LOGGER = logging.getLogger(__name__)
 
-_PDVItem = List[PresentationDataValueItem]
-_AbortType = Union["A_ABORT", "A_P_ABORT"]
-_PDUType = Union[
-    "A_ASSOCIATE_RQ",
-    "A_ASSOCIATE_AC",
-    "A_ASSOCIATE_RJ",
-    "P_DATA_TF",
-    "A_RELEASE_RQ",
-    "A_RELEASE_RP",
-    "A_ABORT_RQ",
-]
+_PDVItem = list[PresentationDataValueItem]
+_AbortType: TypeAlias = "A_ABORT | A_P_ABORT"
+_PDUType: TypeAlias = (
+    "A_ASSOCIATE_RQ | A_ASSOCIATE_AC | A_ASSOCIATE_RJ | "
+    "P_DATA_TF | A_RELEASE_RQ | A_RELEASE_RP | A_ABORT_RQ"
+)
 
 # Predefine some structs to make decoding and encoding faster
 UCHAR = Struct("B")
@@ -162,7 +147,7 @@ class PDU:
         return NotImplemented
 
     @staticmethod
-    def _generate_items(bytestream: bytes) -> Iterator[Tuple[int, bytes]]:
+    def _generate_items(bytestream: bytes) -> Iterator[tuple[int, bytes]]:
         """Yield PDU item data from `bytestream`.
 
         Parameters
@@ -252,7 +237,7 @@ class PDU:
         return bytestream
 
     @staticmethod
-    def _wrap_encode_items(items: List[PDUItem]) -> bytes:
+    def _wrap_encode_items(items: list[PDUItem]) -> bytes:
         """Return `items` encoded as bytes.
 
         Parameters
@@ -302,7 +287,7 @@ class PDU:
         """
         return value.ljust(pad).encode("ascii", errors="strict")
 
-    def _wrap_generate_items(self, bytestream: bytes) -> List[PDUItem]:
+    def _wrap_generate_items(self, bytestream: bytes) -> list[PDUItem]:
         """Return a list of decoded PDU items generated from `bytestream`."""
         item_list = []
         for item_type, item_bytes in self._generate_items(bytestream):
@@ -332,7 +317,7 @@ class PDU:
         return packer(value)
 
     @staticmethod
-    def _wrap_unpack(bytestream: bytes, unpacker: Callable[[bytes], Tuple[Any]]) -> Any:
+    def _wrap_unpack(bytestream: bytes, unpacker: Callable[[bytes], tuple[Any]]) -> Any:
         """Return the first value when `unpacker` is run on `bytestream`.
 
         Parameters
@@ -442,7 +427,7 @@ class A_ASSOCIATE_RQ(PDU):
       and :dcm:`9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: Optional["A_ASSOCIATE"] = None) -> None:
+    def __init__(self, primitive: "A_ASSOCIATE" | None = None) -> None:
         """Initialise a new A-ASSOCIATE-RQ PDU.
 
         Parameters
@@ -527,7 +512,7 @@ class A_ASSOCIATE_RQ(PDU):
         return primitive
 
     @property
-    def application_context_name(self) -> Optional[UID]:
+    def application_context_name(self) -> UID | None:
         """Return the *Application Context Name*, if available.
 
         Returns
@@ -559,7 +544,7 @@ class A_ASSOCIATE_RQ(PDU):
         return self._called_aet
 
     @called_ae_title.setter
-    def called_ae_title(self, value: Union[str, bytes]) -> None:
+    def called_ae_title(self, value: str | bytes | None) -> None:
         """Set the *Called AE Title* field value"""
         if isinstance(value, bytes):
             # PS3.8 Table 9-11: Leading and trailing spaces are non-significant
@@ -578,7 +563,7 @@ class A_ASSOCIATE_RQ(PDU):
         return self._calling_aet
 
     @calling_ae_title.setter
-    def calling_ae_title(self, value: Union[str, bytes]) -> None:
+    def calling_ae_title(self, value: str | bytes | None) -> None:
         """Set the *Calling AE Title* field value.
 
         Will be converted to a fixed length 16-byte value (padded with trailing
@@ -671,7 +656,7 @@ class A_ASSOCIATE_RQ(PDU):
         return length
 
     @property
-    def presentation_context(self) -> List[PresentationContextItemRQ]:
+    def presentation_context(self) -> list[PresentationContextItemRQ]:
         """Return a list of the Presentation Context items.
 
         Returns
@@ -718,7 +703,7 @@ class A_ASSOCIATE_RQ(PDU):
         return "\n".join(s)
 
     @property
-    def user_information(self) -> Optional[UserInformationItem]:
+    def user_information(self) -> UserInformationItem | None:
         """Return the User Information Item, if available.
 
         Returns
@@ -826,7 +811,7 @@ class A_ASSOCIATE_AC(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: Optional["A_ASSOCIATE"] = None) -> None:
+    def __init__(self, primitive: "A_ASSOCIATE" | None = None) -> None:
         """Initialise a new A-ASSOCIATE-AC PDU.
 
         Parameters
@@ -919,7 +904,7 @@ class A_ASSOCIATE_AC(PDU):
         return primitive
 
     @property
-    def application_context_name(self) -> Optional[UID]:
+    def application_context_name(self) -> UID | None:
         """Return the *Application Context Name*, if available.
 
         Returns
@@ -1031,7 +1016,7 @@ class A_ASSOCIATE_AC(PDU):
         return length
 
     @property
-    def presentation_context(self) -> List[PresentationContextItemAC]:
+    def presentation_context(self) -> list[PresentationContextItemAC]:
         """Return a list of the Presentation Context Items.
 
         Returns
@@ -1065,7 +1050,7 @@ class A_ASSOCIATE_AC(PDU):
         return self._reserved_aec
 
     @reserved_aec.setter
-    def reserved_aec(self, value: Union[str, bytes]) -> None:
+    def reserved_aec(self, value: str | bytes) -> None:
         """Set the A-ASSOCIATE-AC's *Calling AE Title* value."""
         if isinstance(value, bytes):
             # The value should not be tested - included that it's decodable
@@ -1096,7 +1081,7 @@ class A_ASSOCIATE_AC(PDU):
         return self._reserved_aet
 
     @reserved_aet.setter
-    def reserved_aet(self, value: Union[str, bytes]) -> None:
+    def reserved_aet(self, value: str | bytes) -> None:
         """Set the A-ASSOCIATE-AC's *Called AE Title* value."""
         if isinstance(value, bytes):
             # The value should not be tested - included that it's decodable
@@ -1140,7 +1125,7 @@ class A_ASSOCIATE_AC(PDU):
         return "\n".join(s)
 
     @property
-    def user_information(self) -> Optional[UserInformationItem]:
+    def user_information(self) -> UserInformationItem | None:
         """Return the User Information Item, if available.
 
         Returns
@@ -1214,7 +1199,7 @@ class A_ASSOCIATE_RJ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: Optional["A_ASSOCIATE"] = None) -> None:
+    def __init__(self, primitive: "A_ASSOCIATE" | None = None) -> None:
         """Initialise a new A-ASSOCIATE-RJ PDU.
 
         Parameters
@@ -1222,9 +1207,9 @@ class A_ASSOCIATE_RJ(PDU):
         primitive : pynetdicom.pdu_primitive.A_ASSOCIATE
             The primitive to use to initialise the PDU.
         """
-        self.result: Optional[int] = None
-        self.source: Optional[int] = None
-        self.reason_diagnostic: Optional[int] = None
+        self.result: int | None = None
+        self.source: int | None = None
+        self.reason_diagnostic: int | None = None
 
         if primitive is not None:
             self.from_primitive(primitive)
@@ -1438,7 +1423,7 @@ class P_DATA_TF(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: Optional["P_DATA"] = None) -> None:
+    def __init__(self, primitive: "P_DATA" | None = None) -> None:
         """Initialise a new P-DATA-TF PDU.
 
         Parameters
@@ -1528,7 +1513,7 @@ class P_DATA_TF(PDU):
         ]
 
     @staticmethod
-    def _generate_items(bytestream: bytes) -> Iterator[Tuple[int, bytes]]:
+    def _generate_items(bytestream: bytes) -> Iterator[tuple[int, bytes]]:
         """Yield the variable PDV item data from `bytestream`.
 
         Parameters
@@ -1673,7 +1658,7 @@ class A_RELEASE_RQ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: Optional["A_RELEASE"] = None) -> None:
+    def __init__(self, primitive: "A_RELEASE" | None = None) -> None:
         """Initialise a new A-RELEASE-RQ PDU.
 
         Parameters
@@ -1805,7 +1790,7 @@ class A_RELEASE_RP(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self, primitive: Optional["A_RELEASE"] = None) -> None:
+    def __init__(self, primitive: "A_RELEASE" | None = None) -> None:
         """Initialise a new A-RELEASE-RP PDU.
 
         Parameters
@@ -1951,9 +1936,7 @@ class A_ABORT_RQ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(
-        self, primitive: Optional[Union["A_ABORT", "A_P_ABORT"]] = None
-    ) -> None:
+    def __init__(self, primitive: "A_ABORT" | "A_P_ABORT" | None = None) -> None:
         """Initialise a new A-ABORT-RQ PDU.
 
         Parameters
@@ -1961,8 +1944,8 @@ class A_ABORT_RQ(PDU):
         primitive : pynetdicom.pdu_primitive.A_ABORT
             The primitive to use to initialise the PDU.
         """
-        self.source: Optional[int] = None
-        self.reason_diagnostic: Optional[int] = None
+        self.source: int | None = None
+        self.reason_diagnostic: int | None = None
 
         if primitive is not None:
             self.from_primitive(primitive)
