@@ -2514,29 +2514,29 @@ class TestUserInformation_ExtendedNegotiation:
         """Test encoding odd-length UID"""
         item = SOPClassExtendedNegotiationSubItem()
         item.sop_class_uid = "1.2.3"
-        item.service_class_application_information = b"\xFF"
+        item.service_class_application_information = b"\xff"
         assert len(item.sop_class_uid) % 2 > 0
         assert item.sop_class_uid_length == 5
         assert item.item_length == 8
         assert len(item) == 12
         enc = item.encode()
-        assert enc == b"\x56\x00\x00\x08\x00\x05\x31\x2e\x32\x2e\x33\xFF"
+        assert enc == b"\x56\x00\x00\x08\x00\x05\x31\x2e\x32\x2e\x33\xff"
 
     def test_encode_even(self):
         """Test encoding even-length UID"""
         item = SOPClassExtendedNegotiationSubItem()
-        item.service_class_application_information = b"\xFF"
+        item.service_class_application_information = b"\xff"
         item.sop_class_uid = "1.2.31"
         assert len(item.sop_class_uid) % 2 == 0
         assert item.sop_class_uid_length == 6
         assert item.item_length == 9
         assert len(item) == 13
         enc = item.encode()
-        assert enc == (b"\x56\x00\x00\x09\x00\x06\x31\x2e\x32\x2e\x33\x31\xFF")
+        assert enc == (b"\x56\x00\x00\x09\x00\x06\x31\x2e\x32\x2e\x33\x31\xff")
 
     def test_decode_odd(self):
         """Test decoding odd-length UID"""
-        bytestream = b"\x56\x00\x00\x08\x00\x05\x31\x2e\x32\x2e\x33\xFF"
+        bytestream = b"\x56\x00\x00\x08\x00\x05\x31\x2e\x32\x2e\x33\xff"
         item = SOPClassExtendedNegotiationSubItem()
         item.decode(bytestream)
         assert item.item_length == 8
@@ -2544,12 +2544,12 @@ class TestUserInformation_ExtendedNegotiation:
         assert item.sop_class_uid_length == 5
         assert len(item.sop_class_uid) % 2 > 0
         assert len(item) == 12
-        assert item.service_class_application_information == b"\xFF"
+        assert item.service_class_application_information == b"\xff"
         assert item.encode() == bytestream
 
     def test_decode_even(self):
         """Test decoding even-length UID"""
-        bytestream = b"\x56\x00\x00\x09\x00\x06\x31\x2e\x32\x2e\x33\x31\xFF"
+        bytestream = b"\x56\x00\x00\x09\x00\x06\x31\x2e\x32\x2e\x33\x31\xff"
         item = SOPClassExtendedNegotiationSubItem()
         item.decode(bytestream)
         assert item.item_length == 9
@@ -2557,13 +2557,13 @@ class TestUserInformation_ExtendedNegotiation:
         assert item.sop_class_uid == "1.2.31"
         assert len(item.sop_class_uid) % 2 == 0
         assert len(item) == 13
-        assert item.service_class_application_information == b"\xFF"
+        assert item.service_class_application_information == b"\xff"
         assert item.encode() == bytestream
 
     def test_decode_padded_odd(self):
         """Test decoding padded odd-length UID"""
         # Non-conformant but handle anyway
-        bytestream = b"\x56\x00\x00\x09\x00\x06\x31\x2e\x32\x2e\x33\x00\xFF"
+        bytestream = b"\x56\x00\x00\x09\x00\x06\x31\x2e\x32\x2e\x33\x00\xff"
         item = SOPClassExtendedNegotiationSubItem()
         item.decode(bytestream)
         assert item.item_length == 8
@@ -2571,8 +2571,8 @@ class TestUserInformation_ExtendedNegotiation:
         assert item.sop_class_uid_length == 5
         assert len(item.sop_class_uid) % 2 > 0
         assert len(item) == 12
-        assert item.service_class_application_information == b"\xFF"
-        assert item.encode() == (b"\x56\x00\x00\x08\x00\x05\x31\x2e\x32\x2e\x33\xFF")
+        assert item.service_class_application_information == b"\xff"
+        assert item.encode() == (b"\x56\x00\x00\x08\x00\x05\x31\x2e\x32\x2e\x33\xff")
 
 
 class TestUserInformation_CommonExtendedNegotiation:

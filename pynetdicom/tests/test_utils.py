@@ -50,11 +50,11 @@ REFERENCE_BAD_AE_STR = [
     "AE\rTITLE",  # control char, carriage return
     "AE\nTITLE",  # control char, new line
     "\u0009".encode("ascii"),  # \t
-    "\u000A".encode("ascii"),  # \n
-    "\u000C".encode("ascii"),  # \x0c
-    "\u000D".encode("ascii"),  # \x0d
-    "\u001B".encode("ascii"),  # \x1b
-    "\u005C".encode("ascii"),  # \\
+    "\u000a".encode("ascii"),  # \n
+    "\u000c".encode("ascii"),  # \x0c
+    "\u000d".encode("ascii"),  # \x0d
+    "\u001b".encode("ascii"),  # \x1b
+    "\u005c".encode("ascii"),  # \\
     "\u0001".encode("ascii"),  # \x01
     "\u000e".encode("ascii"),  # \x0e
     1234,
@@ -68,11 +68,11 @@ REFERENCE_BAD_AE_BYTES = [
     b"AE\rTITLE",  # control char, carriage return
     b"AE\nTITLE",  # control char, new line
     "\u0009".encode("ascii"),  # \t
-    "\u000A".encode("ascii"),  # \n
-    "\u000C".encode("ascii"),  # \x0c
-    "\u000D".encode("ascii"),  # \x0d
-    "\u001B".encode("ascii"),  # \x1b
-    "\u005C".encode("ascii"),  # \\
+    "\u000a".encode("ascii"),  # \n
+    "\u000c".encode("ascii"),  # \x0c
+    "\u000d".encode("ascii"),  # \x0d
+    "\u001b".encode("ascii"),  # \x1b
+    "\u005c".encode("ascii"),  # \\
     "\u0001".encode("ascii"),  # \x01
     "\u000e".encode("ascii"),  # \x0e
     1234,

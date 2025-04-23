@@ -1109,7 +1109,7 @@ class TestAssociationSendNGet:
         ds.PatientName = "Test^test"
         # Receives None, None from DummyDIMSE, aborts
         status, ds = assoc.send_n_get(
-            [(0x00100010)],
+            [0x00100010],
             Printer,
             "1.2.840.10008.5.1.1.40.1",
             meta_uid=BasicGrayscalePrintManagementMeta,
