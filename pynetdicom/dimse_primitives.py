@@ -1804,7 +1804,6 @@ class N_ACTION(DIMSEPrimitive):
     REQUEST_KEYWORDS = (
         "MessageID",
         "RequestedSOPClassUID",
-        "RequestedSOPInstanceUID",
         "ActionTypeID",
     )
 
@@ -2073,7 +2072,7 @@ class N_DELETE(DIMSEPrimitive):
         "ErrorComment",
         "ErrorID",
     )
-    REQUEST_KEYWORDS = ("MessageID", "RequestedSOPClassUID", "RequestedSOPInstanceUID")
+    REQUEST_KEYWORDS = ("MessageID", "RequestedSOPClassUID")
 
     def __init__(self) -> None:
         # self.MessageID = None
