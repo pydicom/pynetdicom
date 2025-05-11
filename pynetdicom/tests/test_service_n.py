@@ -1,6 +1,7 @@
 """Tests for the DIMSE-N Service Classes."""
 
 from io import BytesIO
+import logging
 import time
 
 import pytest
@@ -46,7 +47,7 @@ from pynetdicom.sop_class import (
 )
 
 
-# debug_logger()
+debug_logger()
 
 
 REFERENCE_REQUESTS = [
@@ -2241,3 +2242,171 @@ class TestNEventReport:
         assert e.event_information.PatientName == "Test2"
 
         ner_scp.shutdown()
+
+
+class TestNCreate:
+    """Functional tests for N-CREATE services."""
+
+    def setup_method(self):
+        """Run prior to each test"""
+        self.ae = None
+
+    def teardown_method(self):
+        """Clear any active threads"""
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_rq_instance_uid(self, caplog):
+        """Test the -RQ sending an Affected SOP Instance UID."""
+
+        events = []
+
+        def handle_create(event):
+            ds = Dataset()
+            ds.PatientName = "Test3"
+
+            return 0x0000, ds
+
+        hh = [(evt.EVT_N_CREATE, handle_create)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicFilmSession)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(BasicFilmSession)
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
+            status, attr = assoc.send_n_create(None, BasicFilmSession, "1.2.3.4")
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert status.Status == 0x0000
+        assert (
+            "The N-CREATE-RQ has no 'Affected SOP Instance UID' value and the "
+            "'evt.EVT_N_CREATE' handler doesn't include one in the 'Attribute List' "
+            "dataset"
+        ) not in caplog.text
+        assert "Affected SOP Instance UID     : 1.2.3.4" in caplog.text
+
+    def test_rq_no_instance_uid_success_error(self, caplog):
+        """Test the -RQ not sending an Affected SOP Instance UID."""
+
+        events = []
+
+        def handle_create(event):
+            ds = Dataset()
+            ds.PatientName = "Test3"
+
+            return 0x0000, ds
+
+        hh = [(evt.EVT_N_CREATE, handle_create)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicFilmSession)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(BasicFilmSession)
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
+            status, attr = assoc.send_n_create(None, BasicFilmSession, None)
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert status.Status == 0x0110
+        assert (
+            "The N-CREATE-RQ has no 'Affected SOP Instance UID' value and the "
+            "'evt.EVT_N_CREATE' handler doesn't include one in the 'Attribute List' "
+            "dataset"
+        ) in caplog.text
+        assert "Affected SOP Instance UID     : None" in caplog.text
+
+    def test_rq_no_instance_uid_success_no_ds_error(self, caplog):
+        """Test the -RQ not sending an Affected SOP Instance UID."""
+
+        events = []
+
+        def handle_create(event):
+            return 0x0000, None
+
+        hh = [(evt.EVT_N_CREATE, handle_create)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicFilmSession)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(BasicFilmSession)
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            status, attr = assoc.send_n_create(None, BasicFilmSession, None)
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert status.Status == 0x0110
+        assert (
+            "The N-CREATE-RQ has no 'Affected SOP Instance UID' value and the "
+            "'evt.EVT_N_CREATE' handler doesn't include one in the 'Attribute List' "
+            "dataset"
+        ) in caplog.text
+
+    def test_rq_no_instance_uid_failure(self, caplog):
+        """Test the -RQ not sending an Affected SOP Instance UID."""
+
+        events = []
+
+        def handle_create(event):
+            ds = Dataset()
+            ds.PatientName = "Test3"
+
+            return 0x0111, ds
+
+        hh = [(evt.EVT_N_CREATE, handle_create)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicFilmSession)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(BasicFilmSession)
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            status, attr = assoc.send_n_create(None, BasicFilmSession, None)
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert status.Status == 0x0111
+        assert (
+            "The N-CREATE-RQ has no 'Affected SOP Instance UID' value and the "
+            "'evt.EVT_N_CREATE' handler doesn't include one in the 'Attribute List' "
+            "dataset"
+        ) not in caplog.text

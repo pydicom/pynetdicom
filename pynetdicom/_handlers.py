@@ -1925,7 +1925,26 @@ def _send_n_action_rq(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    action_info = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        action_info = "Present"
+
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-ACTION RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
+        f"Action Type ID                : {cs.ActionTypeID}",
+        f"Action Information            : {action_info}",
+        f"{' END DIMSE MESSAGE ':=^76}",
+    ]
+    for line in s:
+        LOGGER.debug(line)
+
+    return s
 
 
 def _send_n_action_rsp(event: "Event") -> list[str]:
@@ -1936,7 +1955,33 @@ def _send_n_action_rsp(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    action_reply = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        action_reply = "Present"
+
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-ACTION RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+    ]
+    if "AffectedSOPClassUID" in cs:
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
+
+    if "AffectedSOPInstanceUID" in cs:
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+
+    s.append(f"Action Type ID                : {cs.ActionTypeID}")
+    s.append(f"Action Reply                  : {action_reply}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
+    for line in s:
+        LOGGER.debug(line)
+    return s
 
 
 def _send_n_create_rq(event: "Event") -> list[str]:
@@ -1947,7 +1992,34 @@ def _send_n_create_rq(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    attr_list = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        attr_list = "Present"
+
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-CREATE RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID}",
+    ]
+    sop_instance = "None"
+    if "AffectedSOPInstanceUID" in cs:
+        sop_instance = cs.AffectedSOPInstanceUID
+
+    s.extend(
+        [
+            f"Affected SOP Instance UID     : {sop_instance}",
+            f"Attribute List                : {attr_list}",
+            f"{' END DIMSE MESSAGE ':=^76}",
+        ]
+    )
+    for line in s:
+        LOGGER.debug(line)
+
+    return s
 
 
 def _send_n_create_rsp(event: "Event") -> list[str]:
@@ -1958,7 +2030,32 @@ def _send_n_create_rsp(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    attr_list = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        attr_list = "Present"
+
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-CREATE RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+    ]
+    if "AffectedSOPClassUID" in cs:
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
+
+    if "AffectedSOPInstanceUID" in cs:
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+
+    s.append(f"Attribute List                : {attr_list}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
+    for line in s:
+        LOGGER.debug(line)
+    return s
 
 
 def _send_n_delete_rq(event: "Event") -> list[str]:
@@ -2023,7 +2120,26 @@ def _recv_n_event_report_rq(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    evt_info = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        evt_info = "Present"
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-EVENT-REPORT RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
+        f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}",
+        f"Event Type ID                 : {cs.EventTypeID}",
+        f"Event Information             : {evt_info}",
+        f"{' END DIMSE MESSAGE ':=^76}",
+    ]
+    for line in s:
+        LOGGER.debug(line)
+    return s
 
 
 def _recv_n_event_report_rsp(event: "Event") -> list[str]:
@@ -2034,7 +2150,33 @@ def _recv_n_event_report_rsp(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    evt_reply = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        evt_reply = "Present"
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-EVENT-REPORT RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+    ]
+    if "AffectedSOPClassUID" in cs:
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
+    if "AffectedSOPInstanceUID" in cs:
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+    if "EventTypeID" in cs:
+        s.append(f"Event Type ID                 : {cs.EventTypeID}")
+
+    s.append(f"Event Reply                   : {evt_reply}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
+    for line in s:
+        LOGGER.debug(line)
+    return s
 
 
 def _recv_n_get_rq(event: "Event") -> list[str]:
@@ -2045,7 +2187,25 @@ def _recv_n_get_rq(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    nr_attr = "None"
+    if "AttributeIdentifierList" in cs:
+        nr_attr = f"({len(cs.AttributeIdentifierList)} Attribute Tag(s))"
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-GET RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
+        f"Attribute Identifier List     : {nr_attr}",
+        f"{' END DIMSE MESSAGE ':=^76}",
+    ]
+    for line in s:
+        LOGGER.debug(line)
+    return s
 
 
 def _recv_n_get_rsp(event: "Event") -> list[str]:
@@ -2093,7 +2253,25 @@ def _recv_n_set_rq(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    mod_list = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        mod_list = "Present"
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-SET RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
+        f"Modification List             : {mod_list}",
+        f"{' END DIMSE MESSAGE ':=^76}",
+    ]
+    for line in s:
+        LOGGER.debug(line)
+    return s
 
 
 def _recv_n_set_rsp(event: "Event") -> list[str]:
@@ -2104,7 +2282,31 @@ def _recv_n_set_rsp(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    attr_list = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        attr_list = "Present"
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-SET RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+    ]
+    if "AffectedSOPClassUID" in cs:
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
+    if "AffectedSOPInstanceUID" in cs:
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+
+    s.append(f"Attribute List                : {attr_list}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
+    for line in s:
+        LOGGER.debug(line)
+    return s
 
 
 def _recv_n_action_rq(event: "Event") -> list[str]:
@@ -2115,7 +2317,26 @@ def _recv_n_action_rq(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    action_info = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        action_info = "Present"
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-ACTION RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
+        f"Action Type ID                : {cs.ActionTypeID}",
+        f"Action Information            : {action_info}",
+        f"{' END DIMSE MESSAGE ':=^76}",
+    ]
+    for line in s:
+        LOGGER.debug(line)
+
+    return s
 
 
 def _recv_n_action_rsp(event: "Event") -> list[str]:
@@ -2126,7 +2347,33 @@ def _recv_n_action_rsp(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    action_reply = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        action_reply = "Present"
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-ACTION RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+    ]
+    if "AffectedSOPClassUID" in cs:
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
+
+    if "AffectedSOPInstanceUID" in cs:
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+
+    s.append(f"Action Type ID                : {cs.ActionTypeID}")
+    s.append(f"Action Reply                  : {action_reply}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
+    for line in s:
+        LOGGER.debug(line)
+    return s
 
 
 def _recv_n_create_rq(event: "Event") -> list[str]:
@@ -2137,7 +2384,34 @@ def _recv_n_create_rq(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    attr_list = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        attr_list = "Present"
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-CREATE RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID}",
+    ]
+    sop_instance = "None"
+    if "AffectedSOPInstanceUID" in cs:
+        sop_instance = cs.AffectedSOPInstanceUID
+
+    s.extend(
+        [
+            f"Affected SOP Instance UID     : {sop_instance}",
+            f"Attribute List                : {attr_list}",
+            f"{' END DIMSE MESSAGE ':=^76}",
+        ]
+    )
+    for line in s:
+        LOGGER.debug(line)
+
+    return s
 
 
 def _recv_n_create_rsp(event: "Event") -> list[str]:
@@ -2148,7 +2422,32 @@ def _recv_n_create_rsp(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    attr_list = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        attr_list = "Present"
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-CREATE RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+    ]
+    if "AffectedSOPClassUID" in cs:
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
+
+    if "AffectedSOPInstanceUID" in cs:
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+
+    s.append(f"Attribute List                : {attr_list}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
+    for line in s:
+        LOGGER.debug(line)
+    return s
 
 
 def _recv_n_delete_rq(event: "Event") -> list[str]:
@@ -2159,7 +2458,20 @@ def _recv_n_delete_rq(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-DELETE RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
+        f"{' END DIMSE MESSAGE ':=^76}",
+    ]
+    for line in s:
+        LOGGER.debug(line)
+    return s
 
 
 def _recv_n_delete_rsp(event: "Event") -> list[str]:
@@ -2170,7 +2482,26 @@ def _recv_n_delete_rsp(event: "Event") -> list[str]:
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    return []
+    msg = event.message
+    cs = msg.command_set
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-DELETE RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+    ]
+    if "AffectedSOPClassUID" in cs:
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
+    if "AffectedSOPInstanceUID" in cs:
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
+    for line in s:
+        LOGGER.debug(line)
+    return s
 
 
 StatusType = int | Dataset
@@ -3203,6 +3534,13 @@ def doc_handle_create(event: "Event", *args: Sequence[Any]) -> UserReturnType:
         :class:`~pydicom.dataset.Dataset` containing elements of the
         response's *Attribute List* conformant to the specifications in the
         corresponding Service Class.
+
+        If the N-CREATE-RQ doesn't include a value for *Affected SOP Instance UID* and
+        the `status` is 0x0000 (Success) then `dataset` should include an (0000,1000)
+        *Affected SOP Instance UID* element (see :dcm:`Part 7, Section 10.1.5.1.4 of
+        the DICOM Standard<part07/chapter_10.html#sect_10.1.5>`). The element value
+        will be used to set the corresponding N-ACTION-RSP parameter value but will be
+        removed from the *Attribute List* dataset prior to sending.
 
         If the status category is not 'Success' or 'Warning' then ``None``.
 
