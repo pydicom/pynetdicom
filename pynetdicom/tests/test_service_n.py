@@ -47,7 +47,7 @@ from pynetdicom.sop_class import (
 )
 
 
-debug_logger()
+# debug_logger()
 
 
 REFERENCE_REQUESTS = [
