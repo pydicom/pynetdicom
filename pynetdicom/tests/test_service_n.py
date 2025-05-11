@@ -2372,6 +2372,48 @@ class TestNCreate:
             "dataset"
         ) in caplog.text
 
+    def test_rq_no_instance_uid_success_ds_value(self, caplog):
+        """Test the -RQ not sending an Affected SOP Instance UID."""
+
+        events = []
+
+        def handle_create(event):
+            ds = Dataset()
+            ds.PatientName = "Test3"
+            ds.AffectedSOPInstanceUID = "1.2.3.4"
+
+            return 0x0000, ds
+
+        hh = [(evt.EVT_N_CREATE, handle_create)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicFilmSession)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(BasicFilmSession)
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+
+        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
+            status, attr = assoc.send_n_create(None, BasicFilmSession, None)
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert status.Status == 0x0000
+        assert (
+            "The N-CREATE-RQ has no 'Affected SOP Instance UID' value and the "
+            "'evt.EVT_N_CREATE' handler doesn't include one in the 'Attribute List' "
+            "dataset"
+        ) not in caplog.text
+        assert "Affected SOP Instance UID     : 1.2.3.4" in caplog.text
+        assert "AffectedSOPInstanceUID" not in attr
+
     def test_rq_no_instance_uid_failure(self, caplog):
         """Test the -RQ not sending an Affected SOP Instance UID."""
 
