@@ -577,7 +577,7 @@ class ServiceClass:
         rsp.ActionTypeID = req.ActionTypeID
 
         with attempt(rsp, self.dimse, cx_id) as ctx:
-            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_ACTION"
+            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_ACTION'"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
                 self.assoc,
@@ -729,7 +729,7 @@ class ServiceClass:
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
 
         with attempt(rsp, self.dimse, cx_id) as ctx:
-            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_CREATE"
+            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_CREATE'"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
                 self.assoc,
@@ -753,6 +753,22 @@ class ServiceClass:
             # Unknown status
             self.dimse.send_msg(rsp, cx_id)
             return
+
+        # Part 7, 10.1.5.1.4 - Affected SOP Instance UID is required if not in the -RQ
+        if status[0] == STATUS_SUCCESS and req.AffectedSOPInstanceUID is None:
+            if isinstance(ds, Dataset) and "AffectedSOPInstanceUID" in ds:
+                rsp.AffectedSOPInstanceUID = ds.AffectedSOPInstanceUID
+                del ds.AffectedSOPInstanceUID
+            else:
+                LOGGER.error(
+                    "The N-CREATE-RQ has no 'Affected SOP Instance UID' value and the "
+                    "'evt.EVT_N_CREATE' handler doesn't include one in the 'Attribute "
+                    "List' dataset"
+                )
+                # Processing failure
+                rsp.Status = 0x0110
+                self.dimse.send_msg(rsp, cx_id)
+                return
 
         if status[0] in (STATUS_SUCCESS, STATUS_WARNING) and ds:
             # If Success or Warning then there **may** be a dataset
@@ -846,7 +862,7 @@ class ServiceClass:
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
         with attempt(rsp, self.dimse, cx_id) as ctx:
-            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_DELETE"
+            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_DELETE'"
             ctx.error_status = 0x0110
             status = evt.trigger(
                 self.assoc,
@@ -951,7 +967,7 @@ class ServiceClass:
         rsp.EventTypeID = req.EventTypeID
 
         with attempt(rsp, self.dimse, cx_id) as ctx:
-            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_EVENT_REPORT"
+            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_EVENT_REPORT'"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
                 self.assoc,

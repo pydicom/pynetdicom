@@ -16,3 +16,11 @@ Changes
 * Minimum supported pydicom version is 3.0 (:issue:`981`)
 * Added support for Python 3.13
 * Updated SOP classes to version 2025b of the DICOM Standard
+
+Enhancements
+------------
+
+* Setting the *Affected SOP Instance UID* for an N-CREATE-RSP message when it's
+  absent from the N-CREATE-RQ can now be done by adding it to the returned *Attribute
+  List* dataset (it'll be removed from the dataset prior to sending) (:issue:`995`)
+* Added debugging handlers for the remaining DIMSE-N messages
