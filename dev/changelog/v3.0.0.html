@@ -65,6 +65,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Release Notes</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">3.0.0</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#changes">Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enhancements">Enhancements</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="v2.1.1.html">2.1.1</a></li>
@@ -129,6 +130,15 @@ implementation</p></li>
 <li><p>Minimum supported pydicom version is 3.0 (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/981">#981</a>)</p></li>
 <li><p>Added support for Python 3.13</p></li>
 <li><p>Updated SOP classes to version 2025b of the DICOM Standard</p></li>
+</ul>
+</section>
+<section id="enhancements">
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Setting the <em>Affected SOP Instance UID</em> for an N-CREATE-RSP message when it’s
+absent from the N-CREATE-RQ can now be done by adding it to the returned <em>Attribute
+List</em> dataset (it’ll be removed from the dataset prior to sending) (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/995">#995</a>)</p></li>
+<li><p>Added debugging handlers for the remaining DIMSE-N messages</p></li>
 </ul>
 </section>
 </section>
