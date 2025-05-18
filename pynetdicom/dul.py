@@ -38,6 +38,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.transport import AssociationSocket
 
     _QueueType = queue.Queue[_PDUPrimitiveType | T_CONNECT]
+    _UserQueuePrimitives = A_ASSOCIATE | A_RELEASE | A_ABORT | A_P_ABORT
 
 
 LOGGER = logging.getLogger(__name__)
@@ -88,7 +89,7 @@ class DULServiceProvider(Thread):
         self.to_provider_queue: "_QueueType" = queue.Queue()
         # A primitive is sent to the service user when the DUL service provider
         # adds to the to_user_queue.
-        self.to_user_queue: "queue.Queue[_PDUPrimitiveType]" = queue.Queue()
+        self.to_user_queue: "queue.Queue[_UserQueuePrimitives]" = queue.Queue()
 
         # A queue storing PDUs received from the peer
         self._recv_pdu: "queue.Queue[_PDUType]" = queue.Queue()
@@ -191,10 +192,10 @@ class DULServiceProvider(Thread):
         """Return the network timeout (in seconds)."""
         return self.assoc.network_timeout
 
-    def peek_next_pdu(self) -> "_PDUPrimitiveType | None":
+    def peek_next_pdu(self) -> "_UserQueuePrimitives | None":
         """Check the next PDU to be processed."""
         try:
-            return cast(_PDUPrimitiveType, self.to_user_queue.queue[0])
+            return cast(_UserQueuePrimitives, self.to_user_queue.queue[0])
         except (queue.Empty, IndexError):
             return None
 
@@ -334,7 +335,7 @@ class DULServiceProvider(Thread):
 
     def receive_pdu(
         self, wait: bool = False, timeout: float | None = None
-    ) -> "_PDUPrimitiveType | None":
+    ) -> "_UserQueuePrimitives | None":
         """Return an item from the queue if one is available.
 
         Get the next service primitive to be processed out of the queue of items sent

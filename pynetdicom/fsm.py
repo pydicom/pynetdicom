@@ -503,7 +503,7 @@ def AR_2(dul: "DULServiceProvider") -> str:
         ``'Sta8'``, the next state of the state machine
     """
     # A-RELEASE-RQ PDU received from peer
-    pdu = dul._recv_pdu.get(False)
+    pdu = cast("A_RELEASE_RQ", dul._recv_pdu.get(False))
 
     # Send A-RELEASE indication primitive
     dul.to_user_queue.put(pdu.to_primitive())
@@ -530,7 +530,7 @@ def AR_3(dul: "DULServiceProvider") -> str:
         ``'Sta1'``, the next state of the state machine
     """
     # A-RELEASE-RP PDU received from peer
-    pdu = dul._recv_pdu.get(False)
+    pdu = cast("A_RELEASE_RP", dul._recv_pdu.get(False))
 
     # Issue A-RELEASE confirmation primitive and close transport connection
     dul.to_user_queue.put(pdu.to_primitive())

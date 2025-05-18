@@ -594,12 +594,6 @@ class ACSE:
                 self.assoc.kill()
                 return
 
-            # Any other primitive besides A_RELEASE gets trashed
-            # if not isinstance(primitive, A_RELEASE):
-            #     # Should only be P-DATA
-            #     LOGGER.info("P-DATA received during asssociation release, ignoring")
-            #     continue
-
             # Must be A-RELEASE, but may be either request or release
             if primitive.result is None:
                 # A-RELEASE (request) received, therefore an
