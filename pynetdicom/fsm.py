@@ -503,7 +503,7 @@ def AR_2(dul: "DULServiceProvider") -> str:
         ``'Sta8'``, the next state of the state machine
     """
     # A-RELEASE-RQ PDU received from peer
-    pdu = dul._recv_pdu.get(False)
+    pdu = cast("A_RELEASE_RQ", dul._recv_pdu.get(False))
 
     # Send A-RELEASE indication primitive
     dul.to_user_queue.put(pdu.to_primitive())
@@ -530,7 +530,7 @@ def AR_3(dul: "DULServiceProvider") -> str:
         ``'Sta1'``, the next state of the state machine
     """
     # A-RELEASE-RP PDU received from peer
-    pdu = dul._recv_pdu.get(False)
+    pdu = cast("A_RELEASE_RP", dul._recv_pdu.get(False))
 
     # Issue A-RELEASE confirmation primitive and close transport connection
     dul.to_user_queue.put(pdu.to_primitive())
@@ -628,7 +628,7 @@ def AR_6(dul: "DULServiceProvider") -> str:
     pdu = cast("P_DATA_TF", dul._recv_pdu.get(False))
 
     # Issue P-DATA indication
-    dul.to_user_queue.put(pdu.to_primitive())
+    dul.assoc.dimse.receive_primitive(pdu.to_primitive())
 
     return "Sta7"
 
@@ -762,6 +762,7 @@ def AA_1(dul: "DULServiceProvider") -> str:
     """
     # Received invalid PDU from peer or an A-ABORT primitive from local user
     try:
+        # A-ABORT or A-P-ABORT from local user
         primitive = dul.to_provider_queue.queue[0]
         if isinstance(primitive, (A_ABORT, A_P_ABORT)):
             primitive = dul.to_provider_queue.get(False)

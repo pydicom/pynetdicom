@@ -159,6 +159,8 @@ class Association(threading.Thread):
 
         # Track whether we've sent an abort or not for the abort() method
         self._sent_abort: bool = False
+        # Track whether we've sent a release or not
+        self._sent_release: bool = False
 
         # Accepted and rejected presentation contexts
         self._accepted_cx: dict[int, PresentationContext] = {}
@@ -584,13 +586,14 @@ class Association(threading.Thread):
         return self._rejected_cx
 
     def release(self) -> None:
-        """Initiate association release by send an A-RELEASE request."""
+        """Initiate association release by sending an A-RELEASE request."""
         if self.is_established:
             # Ensure the reactor is paused so it doesn't
             #   steal incoming ACSE messages
             self._reactor_checkpoint.clear()
             while not self._is_paused:
                 time.sleep(0.0001)
+
             LOGGER.info("Releasing Association")
             self.acse.negotiate_release()
             # Restart reactor
@@ -710,7 +713,7 @@ class Association(threading.Thread):
             if msg:
                 self._serve_request(msg, cast(int, context_id))
 
-            # Check for release request
+            # Check for release request from the peer
             if self.acse.is_release_requested():
                 # Send A-RELEASE response
                 self.acse.send_release(is_response=True)
@@ -721,7 +724,7 @@ class Association(threading.Thread):
                 self.kill()
                 return
 
-            # Check for abort
+            # Check for abort from either locally or the peer
             if self.acse.is_aborted():
                 log_msg = "Association Aborted"
                 if self.acse.is_aborted("a-p-abort"):
@@ -751,6 +754,7 @@ class Association(threading.Thread):
                     self._is_paused = False
                 else:
                     self.abort()
+
                 self.kill()
                 return
 
@@ -3515,6 +3519,12 @@ class Association(threading.Thread):
             The ID of the presentation context that the request is being
             made under.
         """
+        if self._sent_release:
+            LOGGER.warning(
+                f"{msg.msg_type} message received during association release, ignoring"
+            )
+            return
+
         # No message or not a service request
         if not msg.is_valid_request:
             LOGGER.warning(f"Received unexpected {msg.msg_type} service message")

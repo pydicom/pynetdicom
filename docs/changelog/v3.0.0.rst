@@ -16,6 +16,8 @@ Changes
 * Minimum supported pydicom version is 3.0 (:issue:`981`)
 * Added support for Python 3.13
 * Updated SOP classes to version 2025b of the DICOM Standard
+* P-DATA PDUs received during association release are now added to the normal DIMSE
+  messaging queue
 
 Enhancements
 ------------
@@ -24,3 +26,9 @@ Enhancements
   absent from the N-CREATE-RQ can now be done by adding it to the returned *Attribute
   List* dataset (it'll be removed from the dataset prior to sending) (:issue:`995`)
 * Added debugging handlers for the remaining DIMSE-N messages
+
+
+Fixes
+-----
+* Fixed a state machine error caused by receiving N-EVENT-REPORT requests during
+  association release (:issue:`820`)

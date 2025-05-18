@@ -39,12 +39,16 @@ class ParrotRequest(BaseRequestHandler):
                 self.kill_read = False
                 while not self.kill_read:
                     if self.ready:
-                        self.received.append(bytes(self.read_data))
+                        d = bytes(self.read_data)
+                        self.received.append(d)
                         self.kill_read = True
+                # LOGGER.debug(f"A: Received {len(d)}")
             elif cmd == "send":
+                # LOGGER.debug(f"A: Sending {len(data)}")
                 self.send(data)
                 self.sent.append(data)
             elif cmd == "wait":
+                # LOGGER.debug(f"A: Waiting {data}")
                 time.sleep(data)
 
         # Disconnects automatically when this method ends!

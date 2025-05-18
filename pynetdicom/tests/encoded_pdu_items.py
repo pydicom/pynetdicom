@@ -433,7 +433,7 @@ a_abort = b"\x07\x00\x00\x00\x00\x04\x00\x00\x00\x00"
 a_p_abort = b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x04"
 
 ################################ P-DATA-TF PDU ###############################
-# Contains a C-ECHO message
+# Contains a C-ECHO-RSP message
 # Context ID: 1
 # Data: \x03\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00
 #       \x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38
@@ -453,8 +453,8 @@ a_p_abort = b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x04"
 #       00 00 02 00 | 12 00 00 00 | 31 2e ... 31 00- Affected SOP Class UID
 #       00 00 00 01 | 02 00 00 00 | 30 80 - Command Field (32816)
 #       00 00 20 01 | 02 00 00 00 | - MessageIDBeingRespondedTo (1)
-#       00 00 00 08 |             | - Command Data Set Type (257)
-#       00 00 00 09 | - Status (0)
+#       00 00 00 08 | 02 00 00 00 | 01 01 - Command Data Set Type (257)
+#       00 00 00 09 | 02 00 00 00 | 00 00 - Status (0)
 p_data_tf = (
     b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01\x03\x00\x00\x00"
     b"\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00\x12\x00"
@@ -475,6 +475,31 @@ p_data_tf_rq = (
     b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # Command Field
     b"\x00\x00\x10\x01\x02\x00\x00\x00\x01\x00"  # Message ID
     b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # Command Data Set Type
+)
+
+# N-EVENT-REPORT RQ - Command Set is implicit little
+p_data_tf_n_event_report = (
+    b"\x04\x00\x00\x00\x00\x76"  # P-DATA: 1 type, 2 reserved, 3-6 length
+    b"\x00\x00\x00\x72\x01"  # 7+: PDV Item(s): 1-4 length, 5, CID, 6+ PDV value
+    b"\x03"  # PDV 1, message control header byte
+    # (0000,0000), Length 4, Value 0x64 0x00 0x00 0x000
+    b"\x00\x00\x00\x00\x04\x00\x00\x00\x64\x00\x00\x00"  # Command Group Length
+    # (0000,0002), Length 0x16
+    b"\x00\x00\x02\x00\x16\x00\x00\x00"  # Affected
+    b"\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35\x2e"
+    b"\x31\x2e\x31\x2e\x31\x34"
+    # (0000,0100), Length 2,
+    b"\x00\x00\x00\x01\x02\x00\x00\x00\x00\x01"
+    # (0000,0110), Length 2
+    b"\x00\x00\x10\x01\x02\x00\x00\x00\x01\x00"
+    # (0000,0800), Length 2
+    b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # 0x0101, no data set
+    # (0000,1000), Length 0x116
+    b"\x00\x00\x00\x10\x16\x00\x00\x00\x31\x2e\x32\x2e"
+    b"\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x31\x2e"
+    b"\x31\x37"
+    # (0000,1002), Length 2
+    b"\x00\x00\x02\x10\x02\x00\x00\x00\x03\x00"
 )
 
 # AsynchronousOperationsWindow
