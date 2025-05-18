@@ -185,10 +185,6 @@ class AssociationSocket:
         **Events Emitted**
 
         - Evt17: Transport connection closed
-
-        .. versionchanged:: 3.0
-
-            Added the `force` keyword parameter.
         """
         # Always attempt to shutdown and close the socket
         self._shutdown_socket()
