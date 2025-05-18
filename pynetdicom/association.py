@@ -226,7 +226,7 @@ class Association(threading.Thread):
         # Ensure socket is shutdown and closed
         try:
             cast(AssociationSocket, self.dul.socket)._shutdown_socket()
-        except Exception as exc:
+        except Exception:
             pass
 
         # Add short delay to ensure everything shuts down

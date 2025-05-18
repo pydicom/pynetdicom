@@ -441,7 +441,7 @@ class AssociationSocket:
         try:
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()
-        except Exception as exc:
+        except Exception:
             pass
 
     def __str__(self) -> str:

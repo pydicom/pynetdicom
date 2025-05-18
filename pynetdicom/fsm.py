@@ -596,7 +596,7 @@ def AR_5(dul: "DULServiceProvider") -> str:
     # Ensure socket is closed
     try:
         cast(AssociationSocket, dul.socket)._shutdown_socket()
-    except Exception as exc:
+    except Exception:
         pass
 
     assoc = dul.assoc
@@ -890,7 +890,7 @@ def AA_4(dul: "DULServiceProvider") -> str:
     # Ensure socket is closed
     try:
         cast(AssociationSocket, dul.socket)._shutdown_socket()
-    except Exception as exc:
+    except Exception:
         pass
 
     assoc = dul.assoc
@@ -930,7 +930,7 @@ def AA_5(dul: "DULServiceProvider") -> str:
     # Ensure socket is closed
     try:
         cast(AssociationSocket, dul.socket)._shutdown_socket()
-    except Exception as exc:
+    except Exception:
         pass
 
     assoc = dul.assoc
