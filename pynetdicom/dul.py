@@ -195,7 +195,7 @@ class DULServiceProvider(Thread):
     def peek_next_pdu(self) -> "_UserQueuePrimitives | None":
         """Check the next PDU to be processed."""
         try:
-            return cast(_UserQueuePrimitives, self.to_user_queue.queue[0])
+            return cast("_UserQueuePrimitives", self.to_user_queue.queue[0])
         except (queue.Empty, IndexError):
             return None
 
