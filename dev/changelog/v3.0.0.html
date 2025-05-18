@@ -66,6 +66,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">3.0.0</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#changes">Changes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#enhancements">Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixes">Fixes</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="v2.1.1.html">2.1.1</a></li>
@@ -130,6 +131,8 @@ implementation</p></li>
 <li><p>Minimum supported pydicom version is 3.0 (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/981">#981</a>)</p></li>
 <li><p>Added support for Python 3.13</p></li>
 <li><p>Updated SOP classes to version 2025b of the DICOM Standard</p></li>
+<li><p>P-DATA PDUs received during association release are now added to the normal DIMSE
+messaging queue</p></li>
 </ul>
 </section>
 <section id="enhancements">
@@ -139,6 +142,13 @@ implementation</p></li>
 absent from the N-CREATE-RQ can now be done by adding it to the returned <em>Attribute
 List</em> dataset (it’ll be removed from the dataset prior to sending) (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/995">#995</a>)</p></li>
 <li><p>Added debugging handlers for the remaining DIMSE-N messages</p></li>
+</ul>
+</section>
+<section id="fixes">
+<h2>Fixes<a class="headerlink" href="#fixes" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Fixed a state machine error caused by receiving N-EVENT-REPORT requests during
+association release (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/820">#820</a>)</p></li>
 </ul>
 </section>
 </section>
