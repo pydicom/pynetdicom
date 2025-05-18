@@ -17,7 +17,7 @@ from pynetdicom.pdu import (
     A_ABORT_RQ,
 )
 from pynetdicom.pdu_primitives import A_P_ABORT, A_ABORT
-from pynetdicom.transport import T_CONNECT
+from pynetdicom.transport import T_CONNECT, AssociationSocket
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.dul import DULServiceProvider
@@ -593,6 +593,12 @@ def AR_5(dul: "DULServiceProvider") -> str:
     str
         ``'Sta1'``, the next state of the state machine
     """
+    # Ensure socket is closed
+    try:
+        cast(AssociationSocket, dul.socket)._shutdown_socket()
+    except Exception:
+        pass
+
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
 
@@ -881,6 +887,12 @@ def AA_4(dul: "DULServiceProvider") -> str:
     str
         ``'Sta1'``, the next state of the state machine
     """
+    # Ensure socket is closed
+    try:
+        cast(AssociationSocket, dul.socket)._shutdown_socket()
+    except Exception:
+        pass
+
     assoc = dul.assoc
     assoc.dimse.msg_queue.put((None, None))
 
@@ -915,6 +927,12 @@ def AA_5(dul: "DULServiceProvider") -> str:
     str
         ``'Sta1'``, the next state of the state machine
     """
+    # Ensure socket is closed
+    try:
+        cast(AssociationSocket, dul.socket)._shutdown_socket()
+    except Exception:
+        pass
+
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
 

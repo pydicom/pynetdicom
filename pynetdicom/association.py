@@ -223,6 +223,12 @@ class Association(threading.Thread):
             evt.trigger(self, evt.EVT_ABORTED, {})
             self.kill()
 
+        # Ensure socket is shutdown and closed
+        try:
+            cast(AssociationSocket, self.dul.socket)._shutdown_socket()
+        except Exception:
+            pass
+
         # Add short delay to ensure everything shuts down
         time.sleep(0.1)
 
