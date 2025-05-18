@@ -431,7 +431,7 @@ class AssociationSocket:
                 total_sent += nr_sent
 
             evt.trigger(self.assoc, evt.EVT_DATA_SENT, {"data": bytestream})
-        except (OSError, TimeoutError):
+        except Exception:
             # Evt17: Transport connection closed
             self.event_queue.put("Evt17")
 
