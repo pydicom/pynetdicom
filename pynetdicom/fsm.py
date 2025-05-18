@@ -4,6 +4,7 @@ The DUL's finite state machine representation.
 
 import logging
 import queue
+import socket
 from typing import TYPE_CHECKING, cast
 
 from pynetdicom import evt
@@ -593,6 +594,9 @@ def AR_5(dul: "DULServiceProvider") -> str:
     str
         ``'Sta1'``, the next state of the state machine
     """
+    # Ensure socket is closed
+    dul.socket._shutdown_socket()
+
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
 
@@ -881,6 +885,9 @@ def AA_4(dul: "DULServiceProvider") -> str:
     str
         ``'Sta1'``, the next state of the state machine
     """
+    # Ensure socket is closed
+    dul.socket._shutdown_socket()
+
     assoc = dul.assoc
     assoc.dimse.msg_queue.put((None, None))
 
@@ -915,6 +922,9 @@ def AA_5(dul: "DULServiceProvider") -> str:
     str
         ``'Sta1'``, the next state of the state machine
     """
+    # Ensure socket is closed
+    dul.socket._shutdown_socket()
+
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
 

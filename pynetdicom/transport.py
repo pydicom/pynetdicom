@@ -185,16 +185,16 @@ class AssociationSocket:
         **Events Emitted**
 
         - Evt17: Transport connection closed
+
+        .. versionchanged:: 3.0
+
+            Added the `force` keyword parameter.
         """
         if self.socket is None or self._is_connected is False:
             return
 
-        try:
-            self.socket.shutdown(socket.SHUT_RDWR)
-        except OSError:
-            pass
+        self._shutdown_socket()
 
-        self.socket.close()
         self.socket = None
         self._is_connected = False
         # Evt17: Transport connection closed
@@ -437,6 +437,14 @@ class AssociationSocket:
         except (OSError, TimeoutError):
             # Evt17: Transport connection closed
             self.event_queue.put("Evt17")
+
+    def _shutdown_socket(self) -> None:
+        """Try to shutdown and close the socket."""
+        try:
+            self.socket.shutdown(socket.SHUT_RDWR)
+            self.socket.close()
+        except Exception as exc:
+            pass
 
     def __str__(self) -> str:
         """Return the string output for ``socket``."""

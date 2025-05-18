@@ -32,3 +32,5 @@ Fixes
 -----
 * Fixed a state machine error caused by receiving N-EVENT-REPORT requests during
   association release (:issue:`820`)
+* Added redundancy to ensure sockets are closed during abort and connection failure
+  (:issue:`979`)
