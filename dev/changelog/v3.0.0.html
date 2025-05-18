@@ -151,6 +151,8 @@ List</em> dataset (it’ll be removed from the dataset prior to sending) (<a cla
 association release (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/820">#820</a>)</p></li>
 <li><p>Added redundancy to ensure sockets are closed during abort and connection failure
 (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/979">#979</a>)</p></li>
+<li><p>Handle an exception due to the socket being discarded while trying to send an abort
+while waiting for the socket to be discarded 🙃 (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/806">#806</a>)</p></li>
 </ul>
 </section>
 </section>
