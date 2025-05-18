@@ -34,3 +34,5 @@ Fixes
   association release (:issue:`820`)
 * Added redundancy to ensure sockets are closed during abort and connection failure
   (:issue:`979`)
+* Handle an exception due to the socket being discarded while trying to send an abort
+  while waiting for the socket to be to be discarded 🙃 (:issue:`806`)
