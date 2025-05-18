@@ -49,6 +49,8 @@ from .encoded_pdu_items import (
     a_release_rq,
     a_release_rp,
     p_data_tf,
+    p_data_tf_rq,
+    p_data_tf_n_event_report,
     a_abort,
     a_p_abort,
 )
@@ -2068,33 +2070,6 @@ class TestNegotiateRelease:
         assert scp.received[1] == a_release_rq
         assert scp.received[2] == a_p_abort[:-1] + b"\x00"
 
-    def test_release_p_data(self, caplog):
-        """Test receiving P-DATA-TF after release."""
-        commands = [
-            ("recv", None),
-            ("send", a_associate_ac),
-            ("recv", None),  # a_release_rq
-            ("send", p_data_tf),
-            ("send", a_release_rp),
-        ]
-        self.scp = scp = self.start_server(commands)
-
-        assoc = self.create_assoc()
-        assoc.start()
-        while not assoc.is_established:
-            time.sleep(0.05)
-
-        with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            assoc.release()
-            assert assoc.is_released
-            assert (
-                "P-DATA received after Association release, data has been lost"
-            ) in caplog.text
-
-        scp.shutdown()
-
-        assert scp.received[1] == a_release_rq
-
     def test_coll_acc(self, caplog):
         """Test a simulated A-RELEASE collision on the acceptor side."""
 
@@ -2193,6 +2168,63 @@ class TestNegotiateRelease:
 
         assert scp.received[1] == a_release_rq
         assert scp.received[2] == a_release_rp
+
+    def test_release_n_event_report(self, caplog):
+        """Test P-DATA (N-EVENT-REPORT) received during release."""
+
+        def handle_ner(event):
+            return 0x0000, None
+
+        commands = [
+            ("recv", None),  # a-associate-rq
+            ("send", a_associate_ac),
+            ("recv", None),  # a-release-rq
+            ("send", p_data_tf_n_event_report),  # n-event-report-rq
+            ("wait", 0.5),
+            ("send", a_release_rp),
+        ]
+        self.scp = scp = self.start_server(commands)
+
+        with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+            assoc = self.create_assoc()
+            assoc.bind(evt.EVT_N_EVENT_REPORT, handle_ner)
+            assoc.start()
+            while not assoc.is_established:
+                time.sleep(0.05)
+
+            assoc.acse.send_release(is_response=False)
+
+        scp.shutdown()
+
+        assert (
+            "N-EVENT-REPORT message received during association release, ignoring"
+        ) in caplog.text
+
+    def test_release_c_echo_request(self, caplog):
+        """Test P-DATA (C-ECHO) received during release."""
+        commands = [
+            ("recv", None),  # a-associate-rq
+            ("send", a_associate_ac),
+            ("recv", None),  # a-release-rq
+            ("send", p_data_tf_rq),  # c-echo-rq
+            ("wait", 0.5),
+            ("send", a_release_rp),
+        ]
+        self.scp = scp = self.start_server(commands)
+
+        with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+            assoc = self.create_assoc()
+            assoc.start()
+            while not assoc.is_established:
+                time.sleep(0.05)
+
+            assoc.acse.send_release(is_response=False)
+
+        scp.shutdown()
+
+        assert (
+            "C-ECHO message received during association release, ignoring"
+        ) in caplog.text
 
 
 class TestEventHandlingAcceptor:

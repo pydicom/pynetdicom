@@ -735,6 +735,11 @@ class DIMSEMessage:
 
         return primitive
 
+    @property
+    def msg_type(self) -> str:
+        """Return the DIMSE message's type, such as C-ECHO-RQ."""
+        return type(self).__name__.replace("_", "-")
+
     def primitive_to_message(self, primitive: DimsePrimitiveType) -> None:
         """Convert a DIMSE `primitive` to the current ``DIMSEMessage`` object.
 

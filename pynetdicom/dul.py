@@ -83,6 +83,8 @@ class DULServiceProvider(Thread):
         #   user and the DUL service provider.
         # An event occurs when the DUL service user adds to
         #   the to_provider_queue
+        # The queue contains A-ASSOCIATE, A-RELEASE, A-ABORT, A-P-ABORT, P-DATA and
+        #   T-CONNECT primitives from the local user that are to be sent to the peer
         self.to_provider_queue: "_QueueType" = queue.Queue()
         # A primitive is sent to the service user when the DUL service provider
         # adds to the to_user_queue.

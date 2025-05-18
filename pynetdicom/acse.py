@@ -282,12 +282,9 @@ class ACSE:
             "a-abort": (A_ABORT,),
             "a-p-abort": (A_P_ABORT,),
         }
-
         primitive = self.dul.peek_next_pdu()
-        if isinstance(primitive, abort_classes[abort_type]):
-            return True
 
-        return False
+        return isinstance(primitive, abort_classes[abort_type])
 
     def is_release_requested(self) -> bool:
         """Return ``True`` if an A-RELEASE request has been received.
@@ -598,12 +595,10 @@ class ACSE:
                 return
 
             # Any other primitive besides A_RELEASE gets trashed
-            elif not isinstance(primitive, A_RELEASE):
-                # Should only be P-DATA
-                LOGGER.warning(
-                    "P-DATA received after Association release, data has been lost"
-                )
-                continue
+            # if not isinstance(primitive, A_RELEASE):
+            #     # Should only be P-DATA
+            #     LOGGER.info("P-DATA received during asssociation release, ignoring")
+            #     continue
 
             # Must be A-RELEASE, but may be either request or release
             if primitive.result is None:
@@ -809,6 +804,7 @@ class ACSE:
         if is_response:
             primitive.result = "affirmative"
 
+        self.assoc._sent_release = True
         self.dul.send_pdu(primitive)
 
     def send_request(self) -> None:
