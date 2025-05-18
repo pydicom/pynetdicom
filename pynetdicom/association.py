@@ -224,7 +224,10 @@ class Association(threading.Thread):
             self.kill()
 
         # Ensure socket is shutdown and closed
-        self.dul.socket._shutdown_socket()
+        try:
+            cast(AssociationSocket, self.dul.socket)._shutdown_socket()
+        except Exception as exc:
+            pass
 
         # Add short delay to ensure everything shuts down
         time.sleep(0.1)

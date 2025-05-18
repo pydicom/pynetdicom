@@ -190,10 +190,11 @@ class AssociationSocket:
 
             Added the `force` keyword parameter.
         """
+        # Always attempt to shutdown and close the socket
+        self._shutdown_socket()
+
         if self.socket is None or self._is_connected is False:
             return
-
-        self._shutdown_socket()
 
         self.socket = None
         self._is_connected = False
@@ -440,9 +441,10 @@ class AssociationSocket:
 
     def _shutdown_socket(self) -> None:
         """Try to shutdown and close the socket."""
+        sock = cast(socket.socket, self.socket)
         try:
-            self.socket.shutdown(socket.SHUT_RDWR)
-            self.socket.close()
+            sock.shutdown(socket.SHUT_RDWR)
+            sock.close()
         except Exception as exc:
             pass
 
