@@ -28,6 +28,7 @@ from pynetdicom.transport import (
     AssociationServer,
     ThreadedAssociationServer,
     T_CONNECT,
+    IPAddress,
 )
 from pynetdicom.sop_class import Verification, RTImageStorage
 from .encoded_pdu_items import p_data_tf_rq, a_associate_rq
@@ -70,9 +71,9 @@ class TestTConnect:
     def test_address_request(self):
         """Test init with an A-ASSOCIATE primitive"""
         request = A_ASSOCIATE()
-        request.called_presentation_address = ("123", 12)
+        request.called_presentation_address = IPAddress("123.4", 12)
         conn = T_CONNECT(request)
-        assert conn.address == ("123", 12)
+        assert conn.address.as_tuple == ("123.4", 12)
         assert conn.request is request
 
         msg = r"A connection attempt has not yet been made"
@@ -82,7 +83,7 @@ class TestTConnect:
     def test_result_setter(self):
         """Test setting the result value."""
         request = A_ASSOCIATE()
-        request.called_presentation_address = ("123", 12)
+        request.called_presentation_address = IPAddress("123.4", 12)
         conn = T_CONNECT(request)
 
         msg = r"Invalid connection result 'foo'"
@@ -126,7 +127,7 @@ class TestAssociationSocket:
 
     def test_init_address(self):
         """Test creating a new bound AssociationSocket instance."""
-        sock = AssociationSocket(self.assoc, address=("127.0.0.1", 11112))
+        sock = AssociationSocket(self.assoc, address=IPAddress("127.0.0.1", 11112))
 
         assert sock.tls_args is None
         assert sock.select_timeout == 0.5
@@ -175,14 +176,14 @@ class TestAssociationSocket:
         # Ensure we fail if *something* is listening
         self.assoc.connection_timeout = 1
         request = A_ASSOCIATE()
-        request.called_presentation_address = ("123", 12)
+        request.called_presentation_address = IPAddress("", 11112)
         sock.connect(T_CONNECT(request))
         assert sock.event_queue.get() == "Evt17"
         assert sock.socket is None
 
     def test_ready_error(self):
         """Test AssociationSocket.ready."""
-        sock = AssociationSocket(self.assoc, address=("localhost", 0))
+        sock = AssociationSocket(self.assoc, address=IPAddress("localhost", 0))
         assert sock.ready is False
         sock._is_connected = True
         if platform.system() in ["Windows", "Darwin"]:
@@ -232,7 +233,7 @@ class TestAssociationSocket:
         ae.add_requested_context(Verification)
         assoc = ae.associate("localhost", 11113)
         assert not assoc.is_established
-        assert isinstance(assoc.requestor.address, str)
+        assert isinstance(assoc.requestor.address, IPAddress)
         # Exceptional use
         assert not assoc.is_established
         addr = assoc.dul.socket.get_local_addr(("", 111111))
@@ -374,6 +375,7 @@ class TestTLS:
         import importlib
 
         importlib.reload(pynetdicom.transport)
+        importlib.reload(pynetdicom.ae)
 
     def test_tls_not_server_not_client(self):
         """Test associating with no TLS on either end."""
@@ -780,7 +782,7 @@ class TestAssociationServer:
             _servers = []
 
         dummy = DummyAE()
-        server = ThreadedAssociationServer(dummy, ("localhost", 11112), b"a", [])
+        server = ThreadedAssociationServer(dummy, IPAddress("localhost", 11112), b"a", [])
         dummy._servers.append(server)
         thread = threading.Thread(target=server.serve_forever)
         thread.daemon = True

@@ -21,6 +21,7 @@ from pynetdicom.pdu_primitives import (
     AsynchronousOperationsWindowNegotiation,
 )
 from pynetdicom.sop_class import Verification
+from pynetdicom.transport import IPAddress
 
 
 # debug_logger()
@@ -65,8 +66,8 @@ class TestServiceUserAcceptor:
         primitive.application_context_name = "1.2.840.10008.3.1.1.1"
         primitive.calling_ae_title = "LOCAL_AE_TITLE  "
         primitive.called_ae_title = "REMOTE_AE_TITLE "
-        primitive.calling_presentation_address = ("127.0.0.1", 11112)
-        primitive.called_presentation_address = ("127.0.0.2", 11113)
+        primitive.calling_presentation_address = IPAddress("127.0.0.1", 11112)
+        primitive.called_presentation_address = IPAddress("127.0.0.2", 11113)
 
         # Presentation Contexts
         cx = build_context("1.2.840.10008.1.1")
@@ -91,7 +92,7 @@ class TestServiceUserAcceptor:
         assert user.primitive is None
         assert user.ae_title == ""
         assert user.port is None
-        assert user.address == ""
+        assert user.address is None
         assert user._contexts == []
         assert user.mode == "acceptor"
         assert user.maximum_length == 16382
@@ -141,7 +142,7 @@ class TestServiceUserAcceptor:
         assert user.primitive is None
         assert user.ae_title == ""
         assert user.port is None
-        assert user.address == ""
+        assert user.address is None
         assert user._contexts == []
         assert user.mode == "acceptor"
         assert user.maximum_length == 16382
@@ -149,14 +150,13 @@ class TestServiceUserAcceptor:
         assert user.implementation_class_uid == PYNETDICOM_IMPLEMENTATION_UID
 
         user.ae_title = "TEST_AE_TITLE"
-        user.port = 11112
-        user.address = "127.9.9.1"
+        user.address = IPAddress("127.9.9.1", 11112)
         user._contexts = [1]
         user.maximum_length = 16383
 
         assert user.ae_title == "TEST_AE_TITLE"
         assert user.port == 11112
-        assert user.address == "127.9.9.1"
+        assert user.address.as_tuple == ("127.9.9.1", 11112)
         assert user._contexts == [1]
         assert user.maximum_length == 16383
 
@@ -264,7 +264,7 @@ class TestServiceUserAcceptor:
 
         assert info["port"] is None
         assert info["mode"] == "acceptor"
-        assert info["address"] == ""
+        assert info["address"] is None
         assert info["ae_title"] == ""
         with pytest.raises(KeyError):
             info["pdv_size"]
@@ -1389,8 +1389,8 @@ class TestServiceUserRequestor:
         primitive.application_context_name = "1.2.840.10008.3.1.1.1"
         primitive.calling_ae_title = "LOCAL_AE_TITLE  "
         primitive.called_ae_title = "REMOTE_AE_TITLE "
-        primitive.calling_presentation_address = ("127.0.0.1", 11112)
-        primitive.called_presentation_address = ("127.0.0.2", 11113)
+        primitive.calling_presentation_address = IPAddress("127.0.0.1", 11112)
+        primitive.called_presentation_address = IPAddress("127.0.0.2", 11113)
 
         # Presentation Contexts
         cx = build_context("1.2.840.10008.1.1")
@@ -1438,7 +1438,7 @@ class TestServiceUserRequestor:
         assert user.primitive is None
         assert user.ae_title == ""
         assert user.port is None
-        assert user.address == ""
+        assert user.address is None
         assert user._contexts == []
         assert user.mode == "requestor"
         assert user.maximum_length == 16382
@@ -1454,7 +1454,7 @@ class TestServiceUserRequestor:
         assert user.primitive is None
         assert user.ae_title == ""
         assert user.port is None
-        assert user.address == ""
+        assert user.address is None
         assert user._contexts == []
         assert user.mode == "requestor"
         assert user.maximum_length == 16382
@@ -1462,14 +1462,13 @@ class TestServiceUserRequestor:
         assert user.implementation_class_uid == PYNETDICOM_IMPLEMENTATION_UID
 
         user.ae_title = "TEST_AE_TITLE"
-        user.port = 11112
-        user.address = "127.9.9.1"
+        user.address = IPAddress("127.9.9.1", 11112)
         user._contexts = [1]
         user.maximum_length = 16383
 
         assert user.ae_title == "TEST_AE_TITLE"
         assert user.port == 11112
-        assert user.address == "127.9.9.1"
+        assert user.address.as_tuple == ("127.9.9.1", 11112)
         assert user._contexts == [1]
         assert user.maximum_length == 16383
 
@@ -1568,7 +1567,7 @@ class TestServiceUserRequestor:
 
         assert info["port"] is None
         assert info["mode"] == "requestor"
-        assert info["address"] == ""
+        assert info["address"] is None
         assert info["ae_title"] == ""
         with pytest.raises(KeyError):
             info["pdv_size"]

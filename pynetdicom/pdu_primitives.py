@@ -3,7 +3,7 @@ Implementation of the service parameter primitives.
 """
 
 import logging
-from typing import Any, cast, Type, TypeAlias
+from typing import Any, cast, Type, TypeAlias, TYPE_CHECKING
 
 from pydicom.uid import UID
 
@@ -22,6 +22,10 @@ from pynetdicom.pdu_items import (
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.utils import validate_uid, decode_bytes, set_ae, set_uid
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
+
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.transport import IPAddress
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -141,8 +145,8 @@ class A_ASSOCIATE:
         self._result: int | None = None
         self._result_source: int | None = None
         self._diagnostic: int | None = None
-        self._calling_presentation_address: tuple[str, int] | None = None
-        self._called_presentation_address: tuple[str, int] | None = None
+        self._calling_presentation_address: "IPAddress | None" = None
+        self._called_presentation_address: "IPAddress | None" = None
         self._presentation_context_definition_list: list[PresentationContext] = []
         self._presentation_context_definition_results_list: list[
             PresentationContext
@@ -198,46 +202,38 @@ class A_ASSOCIATE:
         )
 
     @property
-    def called_presentation_address(self) -> tuple[str, int] | None:
+    def called_presentation_address(self) -> "IPAddress | None":
         """Get or set the *Called Presentation Address* parameter.
+
+        .. versionchanged:: 3.0
+
+            Changed to take and return an :class:`~pynetdicom.transport.IPAddress`
+            instance.
 
         Parameters
         ----------
-        value : (str, int) tuple
-            A tuple containing a valid TCP/IP address string and the port
-            number as an int
+        value : pynetdicom.transport.IPAddress | None
+            A valid TCP IPv4 or IPv6 address string, port and (for IPv6) flowinfo and
+            scope_id as int.
         """
         return self._called_presentation_address
 
     @called_presentation_address.setter
-    def called_presentation_address(self, value: tuple[str, int] | None) -> None:
+    def called_presentation_address(self, value: "IPAddress | None") -> None:
         """Set the Called Presentation Address parameter."""
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, tuple):
-            if (
-                len(value) == 2
-                and isinstance(value[0], str)
-                and isinstance(value[1], int)
-            ):
-                self._called_presentation_address = value
-            else:
-                LOGGER.error(
-                    "A_ASSOCIATE.called_presentation_address must "
-                    "be (str, int) tuple"
-                )
-                raise TypeError(
-                    "A_ASSOCIATE.called_presentation_address "
-                    "must be (str, int) tuple"
-                )
-        elif value is None:
+        from pynetdicom.transport import IPAddress
+
+        if value is None or isinstance(value, IPAddress):
             self._called_presentation_address = value
-        else:
-            LOGGER.error(
-                "A_ASSOCIATE.called_presentation_address must be (str, int) tuple"
-            )
-            raise TypeError(
-                "A_ASSOCIATE.called_presentation_address must be (str, int) tuple"
-            )
+            return
+
+        msg = (
+            "'A_ASSOCIATE.called_presentation_address' must be an IPAddress "
+            "instance or None"
+        )
+        LOGGER.error(msg)
+        raise TypeError(msg)
 
     @property
     def calling_ae_title(self) -> str:
@@ -263,48 +259,40 @@ class A_ASSOCIATE:
         )
 
     @property
-    def calling_presentation_address(self) -> tuple[str, int] | None:
+    def calling_presentation_address(self) -> "IPAddress | None":
         """Get or set the *Calling Presentation Address* parameter.
+
+        .. versionchanged:: 3.0
+
+            Changed to take and return an :class:`~pynetdicom.transport.IPAddress`
+            instance.
 
         Parameters
         ----------
-        value : (str, int) tuple
-            A tuple containing a valid TCP/IP address string and the port
-            number as an int
+        value : pynetdicom.transport.IPAddress | None
+            A valid TCP IPv4 or IPv6 address string, port and (for IPv6) flowinfo and
+            scope_id as int.
         """
         return self._calling_presentation_address
 
     @calling_presentation_address.setter
-    def calling_presentation_address(self, value: tuple[str, int] | None) -> None:
+    def calling_presentation_address(self, value: "IPAddress | None") -> None:
         """Set the A-ASSOCIATE Service primitive's Calling Presentation
         Address parameter.
         """
+        from pynetdicom.transport import IPAddress
+
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, tuple):
-            if (
-                len(value) == 2
-                and isinstance(value[0], str)
-                and isinstance(value[1], int)
-            ):
-                self._calling_presentation_address = value
-            else:
-                LOGGER.error(
-                    "A_ASSOCIATE.calling_presentation_address must "
-                    "be (str, int) tuple"
-                )
-                raise TypeError(
-                    "A_ASSOCIATE.calling_presentation_address "
-                    "must be (str, int) tuple"
-                )
-        elif value is None:
+        if value is None or isinstance(value, IPAddress):
             self._calling_presentation_address = value
-        else:
-            LOGGER.error(
-                "A_ASSOCIATE.calling_presentation_address must be (str, int) tuple"
-            )
-            raise TypeError(
-                "A_ASSOCIATE.calling_presentation_address must be (str, int) tuple"
-            )
+            return
+
+        msg = (
+            "'A_ASSOCIATE.calling_presentation_address' must be an IPAddress "
+            f"instance or None, not {type(value).__name__}"
+        )
+        LOGGER.error(msg)
+        raise TypeError(msg)
 
     @property
     def diagnostic(self) -> int | None:

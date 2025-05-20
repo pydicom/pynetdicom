@@ -264,9 +264,7 @@ def AE_4(dul: "DULServiceProvider") -> str:
 
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-
-    address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
 
     dul.kill_dul()
 
@@ -539,9 +537,7 @@ def AR_3(dul: "DULServiceProvider") -> str:
 
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-
-    address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
 
     dul.kill_dul()
 
@@ -601,9 +597,7 @@ def AR_5(dul: "DULServiceProvider") -> str:
 
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-
-    address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
 
     # Stop ARTIM timer
     dul.artim_timer.stop()
@@ -818,8 +812,7 @@ def AA_2(dul: "DULServiceProvider") -> str:
     assoc.dimse.msg_queue.put((None, None))
 
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-    address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
 
     dul.kill_dul()
 
@@ -861,8 +854,7 @@ def AA_3(dul: "DULServiceProvider") -> str:
     assoc.dimse.msg_queue.put((None, None))
 
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-    address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
 
     dul.kill_dul()
 
@@ -897,8 +889,7 @@ def AA_4(dul: "DULServiceProvider") -> str:
     assoc.dimse.msg_queue.put((None, None))
 
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-    address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
 
     # Issue A-P-ABORT indication primitive.
     primitive = A_P_ABORT()
@@ -935,9 +926,7 @@ def AA_5(dul: "DULServiceProvider") -> str:
 
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-
-    address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
 
     # Stop ARTIM timer.
     dul.artim_timer.stop()

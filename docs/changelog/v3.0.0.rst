@@ -8,6 +8,7 @@ The major breaking changes with the version 3.0 release are:
 * Minimum required pydicom version is 3.0
 * Changed :attr:`~pynetdicom.presentation.StoragePresentationContexts` to match DCMTK
   implementation
+* Various small changes required to support IPv6
 
 Changes
 -------
@@ -18,6 +19,39 @@ Changes
 * Updated SOP classes to version 2025b of the DICOM Standard
 * P-DATA PDUs received during association release are now added to the normal DIMSE
   messaging queue
+* The following changes have been made in order to support IPv6 connections:
+
+  * Changed :meth:`pynetdicom.ae.ApplicationEntity.associate<AE.associate()>` to accept
+    either a str or tuple[str, int, int] as the `addr` parameter.
+  * Changed :meth:`pynetdicom.ae.ApplicationEntity.associate<AE.associate()>` to accept
+    either a tuple[str, int] or tuple[str, int, int, int] as the `bind_address` keyword
+    parameter.
+  * Changed :meth:`pynetdicom.ae.ApplicationEntity.associate<AE.make_server()>` and
+    :meth:`pynetdicom.ae.ApplicationEntity.associate<AE.start_server()>` to
+    accept either a tuple[str, int] or tuple[str, int, int, int] as the `address`
+    parameter.
+  * Added :class:`~pynetdicom.transport.IPAddress`
+  * Changed :meth:`pynetdicom.transport.AssociationSocket` to accept an
+    :class:`~pynetdicom.transport.IPAddress` instance as the `address` keyword
+    parameter.
+  * :attr:`pynetdicom.transport.RequestHandler.local<RequestHandler.local>` and
+    :attr:`pynetdicom.transport.RequestHandler.remote<RequestHandler.remote>` now
+    return an :class:`~pynetdicom.transport.IPAddress` instance
+  * :attr:`pynetdicom.transport.T_CONNECT.address<T_CONNECT.address>` now
+    returns an :class:`~pynetdicom.transport.IPAddress` instance
+  * :attr:`pynetdicom.transport.AssociationServer.server_address
+    <AssociationServer.server_address>` is now set using an
+    :class:`~pynetdicom.transport.IPAddress` instance
+  * :attr:`pynetdicom.association.ServiceUser.address<ServiceUser.address>` is now set
+    using an :class:`~pynetdicom.transport.IPAddress` instance
+  * :attr:`pynetdicom.association.ServiceUser.address<ServiceUser.port>` is now a
+    read-only property
+  * :attr:`pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address
+    <A_ASSOCIATE.calling_presentation_address>` and
+  * :attr:`pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address
+    <A_ASSOCIATE.called_presentation_address>` are both now set using an
+    :class:`~pynetdicom.transport.IPAddress` instance
+
 
 Enhancements
 ------------
@@ -26,6 +60,7 @@ Enhancements
   absent from the N-CREATE-RQ can now be done by adding it to the returned *Attribute
   List* dataset (it'll be removed from the dataset prior to sending) (:issue:`995`)
 * Added debugging handlers for the remaining DIMSE-N messages
+* Added support for IPv6 connections (:issue:`984`)
 
 
 Fixes
