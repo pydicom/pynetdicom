@@ -59,6 +59,7 @@ DATASET = dcmread(os.path.join(DCM_DIR, "RTImageStorage.dcm"))
 
 class TestAddressInformation:
     """Tests for AssociationInformation."""
+
     def test_ipv4_init(self):
         addr = AddressInformation("", 0)
         assert addr.address == "0.0.0.0"

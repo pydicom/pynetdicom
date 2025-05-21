@@ -735,6 +735,12 @@ class TestAEBadAssociation:
         with pytest.raises(TypeError, match="'addr' must be str or tuple"):
             ae.associate((12, 0, 0), 14)
 
+        with pytest.raises(TypeError, match="'addr' must be str or tuple"):
+            ae.associate(("localhost", "foo", 0), 14)
+
+        with pytest.raises(TypeError, match="'addr' must be str or tuple"):
+            ae.associate(("localhost", 0, "foo"), 14)
+
     def test_invalid_port_raises(self):
         ae = AE()
         with pytest.raises(TypeError, match="'port' must be int"):
