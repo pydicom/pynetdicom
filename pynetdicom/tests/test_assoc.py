@@ -620,6 +620,45 @@ class TestAssociation:
 
         scp.shutdown()
 
+    def test_ipv6(self):
+        """Test Association release with IPv6"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(Verification)
+        scp = ae.start_server(("::1", 11112), block=False)
+
+        # Simple release
+        ae.add_requested_context(Verification)
+        assoc = ae.associate("::1", 11112)
+        assert assoc.is_established
+        assoc.release()
+        assert assoc.is_released
+        assert not assoc.is_established
+
+        # Simple release, then release again
+        assoc = ae.associate("::1", 11112)
+        assert assoc.is_established
+        assoc.release()
+        assert assoc.is_released
+        assert not assoc.is_established
+        assert assoc.is_released
+        assoc.release()
+        assert assoc.is_released
+
+        # Simple release, then abort
+        assoc = ae.associate("::1", 11112)
+        assert assoc.is_established
+        assoc.release()
+        assert assoc.is_released
+        assert assoc.is_released
+        assert not assoc.is_established
+        assoc.abort()
+        assert not assoc.is_aborted
+
+        scp.shutdown()
+
 
 class TestCStoreSCP:
     """Tests for Association._c_store_scp()."""

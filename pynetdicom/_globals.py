@@ -1,7 +1,5 @@
 """Global variables for pynetdicom."""
 
-from typing import List, Optional, Union
-
 from pydicom.uid import UID
 
 
@@ -13,7 +11,7 @@ DEFAULT_MAX_LENGTH: int = 16382
 # DICOM Application Context Name - see Part 7, Annex A.2.1
 APPLICATION_CONTEXT_NAME: str = "1.2.840.10008.3.1.1.1"
 
-DEFAULT_TRANSFER_SYNTAXES: List[str] = [
+DEFAULT_TRANSFER_SYNTAXES: list[str] = [
     "1.2.840.10008.1.2",  # Implicit VR Little Endian,
     "1.2.840.10008.1.2.1",  # Explicit VR Little Endian,
     "1.2.840.10008.1.2.1.99",  # Deflated Explicit VR Little Endian
@@ -27,7 +25,7 @@ DEFAULT_TRANSFER_SYNTAXES: List[str] = [
 * Explicit VR Big Endian (retired)
 """
 
-ALL_TRANSFER_SYNTAXES: List[str] = [
+ALL_TRANSFER_SYNTAXES: list[str] = [
     "1.2.840.10008.1.2",  # Implicit VR Little Endian,
     "1.2.840.10008.1.2.1",  # Explicit VR Little Endian,
     "1.2.840.10008.1.2.1.99",  # Deflated Explicit VR Little Endian
@@ -136,8 +134,4 @@ STATUS_PENDING: str = "Pending"
 STATUS_UNKNOWN: str = "Unknown"
 
 
-# The default address that client sockets are bound to
-BIND_ADDRESS = ("", 0)
-
-
-OptionalUIDType = Optional[Union[str, bytes, UID]]
+OptionalUIDType = str | bytes | UID | None

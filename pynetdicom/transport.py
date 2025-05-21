@@ -19,9 +19,10 @@ except ImportError:
     _HAS_SSL = False
 import threading
 from typing import TYPE_CHECKING, Any, cast, Callable
+import warnings
 
 from pynetdicom import evt, _config
-from pynetdicom._globals import MODE_ACCEPTOR, BIND_ADDRESS
+from pynetdicom._globals import MODE_ACCEPTOR
 from pynetdicom._handlers import (
     standard_dimse_recv_handler,
     standard_dimse_sent_handler,
@@ -38,6 +39,153 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+class AddressInformation:
+    """IPv4 or IPv6 address information.
+
+    .. versionadded:: 3.0
+
+    Attributes
+    ----------
+    port : int
+        The port number.
+    flowinfo : int
+        The flow info value (IPv6)
+    scope_id : int
+        The scope ID (IPv6)
+    """
+
+    def __init__(
+        self, addr: str, port: int, flowinfo: int = 0, scope_id: int = 0
+    ) -> None:
+        """Create a new AddressInformation instance.
+
+        Parameters
+        ----------
+        addr : str
+            The IP address (IPv4 and IPv6).
+        port : int
+            The port number (IPv4 and IPv6).
+        flowinfo : int, optional
+            The flow info value (IPv6 only), default ``0``.
+        scope_id : int, optional
+            The scope ID (IPv6 only), default ``0``.
+        """
+        self.address = addr
+        self._addr: str
+        self.port = port
+        self.scope_id = scope_id
+        self.flowinfo = flowinfo
+
+    @property
+    def address(self) -> str:
+        """Get or set the IP address.
+
+        Parameters
+        ----------
+        value : str
+            The IPv4 or IPv6 address. The following conversion will be made:
+
+            * ``""`` (INADDR_ANY) -> ``"0.0.0.0"``
+            * ``"<broadcast>"`` (INADDR_BROADCAST) -> ``"255.255.255.255"``
+            * ``"localhost"`` -> ``"127.0.0.1"``
+
+        Returns
+        -------
+        str
+            The IPv4 or IPv6 address.
+        """
+        return self._addr
+
+    @address.setter
+    def address(self, value: str) -> None:
+        value = "0.0.0.0" if value == "" else value
+        value = "127.0.0.1" if value == "localhost" else value
+        value = "255.255.255.255" if value == "<broadcast>" else value
+
+        self._addr = value
+
+    @property
+    def address_family(self) -> socket.AddressFamily:
+        """Return the address family enum that the address belongs to."""
+        return socket.AF_INET if self.is_ipv4 else socket.AF_INET6
+
+    @property
+    def as_tuple(self) -> tuple[str, int] | tuple[str, int, int, int]:
+        """Return the address information as ``(address, port)`` or ``(address, port,
+        flowinfo, scope_id)``.
+        """
+        if self.is_ipv4:
+            return (self.address, self.port)
+
+        return (self.address, self.port, self.flowinfo, self.scope_id)
+
+    @classmethod
+    def from_addr_port(
+        cls, addr: str | tuple[str, int, int], port: int
+    ) -> "AddressInformation":
+        """Return the a new AddressInformation instance from `addr` and `port`
+
+        Parameters
+        ----------
+        addr : str | tuple[str, int, int]
+            One of the following:
+
+            * `str`: an IPv4 or IPv6 address. If the latter then the `flowinfo` and
+              `scope_id` will be set to ``0``
+            * `tuple[str, int, int]`: an IPv6 address as ``(address, flowinfo,
+              scope_id)``
+        port : int
+            The port number.
+        """
+        if isinstance(addr, tuple):
+            return cls.from_tuple((addr[0], port, addr[1], addr[2]))
+
+        return cls.from_tuple((addr, port))
+
+    @classmethod
+    def from_tuple(
+        cls, address_info: tuple[str, int] | tuple[str, int, int, int]
+    ) -> "AddressInformation":
+        """Return the a new AddressInformation instance from `address_info`
+
+        Parameters
+        ----------
+        address_info : tuple[str, int] | tuple[str, int, int, int]
+            One of the following:
+
+            * `tuple[str, int]`: an IPv4 or IPv6 address and port. If the latter then
+              the `flowinfo` and `scope_id` will be set to ``0``
+            * `tuple[str, int, int, int]`: an IPv6 address as ``(address, port,
+              flowinfo, scope_id)``
+        """
+        host = address_info[0]
+        port = address_info[1]
+        flowinfo = address_info[2] if len(address_info) == 4 else 0
+        scope_id = address_info[3] if len(address_info) == 4 else 0
+
+        return cls(host, port, flowinfo, scope_id)
+
+    @property
+    def is_ipv4(self) -> bool:
+        """Return ``True`` if the address belongs to the IPv4 family, ``False``
+        otherwise.
+        """
+        if "." in self.address:
+            return True
+
+        return False
+
+    @property
+    def is_ipv6(self) -> bool:
+        """Return ``True`` if the address belongs to the IPv6 family, ``False``
+        otherwise.
+        """
+        if ":" in self.address:
+            return True
+
+        return False
 
 
 class T_CONNECT:
@@ -73,7 +221,15 @@ class T_CONNECT:
     @property
     def address(self) -> tuple[str, int]:
         """Return the peer's ``(str: IP address, int: port)``."""
-        return cast(tuple[str, int], self.request.called_presentation_address)
+        return self.address_info.as_tuple[:2]
+
+    @property
+    def address_info(self) -> AddressInformation:
+        """Return the peer's IP address information.
+
+        .. versionadded:: 3.0
+        """
+        return cast(AddressInformation, self.request.called_presentation_address)
 
     @property
     def result(self) -> str:
@@ -108,11 +264,13 @@ class AssociationSocket:
     """A wrapper for a `socket
     <https://docs.python.org/3/library/socket.html#socket-objects>`_ object.
 
-    .. versionadded:: 1.2
-
     Provides an interface for ``socket`` that is integrated
     nicely with an :class:`~pynetdicom.association.Association` instance
     and the state machine.
+
+    .. versionchanged:: 3.0
+
+        Added support for IPv6 addresses.
 
     Attributes
     ----------
@@ -129,9 +287,13 @@ class AssociationSocket:
         self,
         assoc: "Association",
         client_socket: socket.socket | None = None,
-        address: tuple[str, int] = BIND_ADDRESS,
+        address: AddressInformation | None = None,
     ) -> None:
         """Create a new :class:`AssociationSocket`.
+
+        .. versionchanged:: 3.0
+
+            `address` now takes an :class:`~AddressInformation` instance.
 
         Parameters
         ----------
@@ -139,26 +301,30 @@ class AssociationSocket:
             The :class:`~pynetdicom.association.Association` instance that will
             be using the socket to communicate.
         client_socket : socket.socket, optional
-            The ``socket.socket`` to wrap,
-            if not supplied then a new socket will be created instead.
-        address : 2-tuple, optional
-            If *client_socket* is ``None`` then this is the ``(host, port)`` to
-            bind the newly created socket to, which by default will be
-            ``("", 0)``.
+            Required if `address` is ``None``, the ``socket.socket`` to wrap.
+        address : pynetdicom.transport.AddressInformation, optional
+            Required if `client_socket` is ``None`` then create a new socket and
+            bind it to this address.
         """
         self._assoc = assoc
 
-        if client_socket is not None and address != BIND_ADDRESS:
+        if client_socket is not None and address is not None:
             LOGGER.warning(
                 "AssociationSocket instantiated with both a 'client_socket' "
                 "and bind 'address'. The original socket will not be rebound"
+            )
+
+        if client_socket is None and address is None:
+            raise ValueError(
+                "Either 'client_socket' or 'address' must be used when creating a new "
+                "AssociationSocket instance"
             )
 
         self._ready = threading.Event()
         self.socket: socket.socket | None
 
         if client_socket is None:
-            self.socket = self._create_socket(address)
+            self.socket = self._create_socket(cast(AddressInformation, address))
             self._is_connected = False
         else:
             self.socket = client_socket
@@ -211,7 +377,9 @@ class AssociationSocket:
             The TRANSPORT CONNECT primitive to use when connecting to a peer.
         """
         if self.socket is None:
-            self.socket = self._create_socket()
+            raise ValueError(
+                "A socket must be created before calling AssociationSocket.connect()"
+            )
 
         try:
             if self.tls_args:
@@ -224,16 +392,26 @@ class AssociationSocket:
                         server_hostname=server_hostname,
                     ),
                 )
+
             # Set ae connection timeout
             self.socket.settimeout(self.assoc.connection_timeout)
             # Try and connect to remote at (address, port)
             #   raises OSError if connection refused
-            self.socket.connect(primitive.address)
+            self.socket.connect(primitive.address_info.as_tuple)
             # Clear ae connection timeout
             self.socket.settimeout(None)
+
+            # Update the Association.requestor's host and port with the actual values
+            conn_info = self.socket.getsockname()
+            self.assoc.requestor.address_info = AddressInformation.from_tuple(conn_info)
+
             # Trigger event - connection open
-            evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {"address": primitive.address})
             self._is_connected = True
+            evt.trigger(
+                self.assoc,
+                evt.EVT_CONN_OPEN,
+                {"address": primitive.address_info.as_tuple},
+            )
             # Evt2: Transport connection confirmation
             primitive.result = "Evt2"
             self.provider_queue.put(primitive)
@@ -248,11 +426,7 @@ class AssociationSocket:
             # Don't be tempted to replace this with a self.close() call -
             #   it doesn't work because `_is_connected` is False
             if self.socket:
-                try:
-                    self.socket.shutdown(socket.SHUT_RDWR)
-                except Exception:
-                    pass
-                self.socket.close()
+                self._shutdown_socket()
                 self.socket = None
 
             primitive.result = "Evt17"
@@ -260,8 +434,8 @@ class AssociationSocket:
         finally:
             self._ready.set()
 
-    def _create_socket(self, address: tuple[str, int] = BIND_ADDRESS) -> socket.socket:
-        """Create a new IPv4 TCP socket and set it up for use.
+    def _create_socket(self, address: AddressInformation) -> socket.socket:
+        """Create a new IPv4 or IPv6 TCP socket and set it up for use.
 
         *Socket Options*
 
@@ -271,17 +445,18 @@ class AssociationSocket:
 
         Parameters
         ----------
-        address : 2-tuple, optional
-            The ``(host: str, port: int)`` to bind the socket to. By default the socket
-            is bound to ``("", 0)``, i.e. the first available port.
+        address : pynetdicom.transport.AddressInformation
+            The IPv4 or IPv6 address to bind the socket to.
 
         Returns
         -------
         socket.socket
             A bound and unconnected socket instance.
         """
-        # AF_INET: IPv4, SOCK_STREAM: TCP socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # AF_INET: IPv4, AF_INET6: IPv6, SOCK_STREAM: TCP socket
+        family = socket.AF_INET if address.is_ipv4 else socket.AF_INET6
+        sock = socket.socket(family, socket.SOCK_STREAM)
+
         # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
         #   waiting for its natural timeout to expire
         #   Allows local address reuse
@@ -291,7 +466,7 @@ class AssociationSocket:
         if self.assoc.network_timeout is not None:
             sock.settimeout(self.assoc.network_timeout)
 
-        sock.bind(address)
+        sock.bind(address.as_tuple)
 
         self._is_connected = False
 
@@ -307,12 +482,21 @@ class AssociationSocket:
     def get_local_addr(self, host: tuple[str, int] = ("10.255.255.255", 1)) -> str:
         """Return an address for the local computer as :class:`str`.
 
+        .. deprecated:: 3.0
+
+            This method will be removed in v4.0.
+
         Parameters
         ----------
         host : tuple[str, int]
-            The host's ``(addr: str, port: int)`` when trying to determine the local
-            address.
+            The host's IPv4 ``(addr: str, port: int)`` used when trying to determine
+            the local address.
         """
+        warnings.warn(
+            "AssociationSocket.get_local_addr() will be removed in v4.0",
+            DeprecationWarning,
+        )
+
         # Solution from https://stackoverflow.com/a/28950776
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             try:
@@ -480,12 +664,10 @@ class AssociationSocket:
 class RequestHandler(BaseRequestHandler):
     """Connection request handler for the ``AssociationServer``.
 
-    .. versionadded:: 1.2
-
     Attributes
     ----------
-    client_address : 2-tuple
-        The ``(host, port)`` of the remote.
+    client_address : tuple[str, int] | tuple[str, int, int, int]
+        The ``(host, port)`` or ``(host, port, flowinfo, scope_id)`` of the remote.
     request : socket.socket
         The (unaccepted) client socket.
     server : transport.AssociationServer or transport.ThreadedAssociationServer
@@ -514,20 +696,27 @@ class RequestHandler(BaseRequestHandler):
         assoc.start()
 
     @property
-    def local(self) -> tuple[str, int]:
-        """Return a 2-tuple of the local server's ``(host, port)`` address."""
-        return self.server.server_address
+    def local(self) -> AddressInformation:
+        """Return the local server's address information.
+
+        .. versionchanged:: 3.0
+
+            Now returns a :class:`~AddressInformation` instance.
+        """
+        return AddressInformation.from_tuple(self.server.server_address)
 
     @property
-    def remote(self) -> tuple[str, int]:
-        """Return a 2-tuple of the remote client's ``(host, port)`` address."""
-        return cast(tuple[str, int], self.client_address)
+    def remote(self) -> AddressInformation:
+        """Return the remote client's address information.
+
+        .. versionchanged:: 3.0
+
+            Now returns a :class:`~AddressInformation` instance.
+        """
+        return AddressInformation.from_tuple(self.client_address)
 
     def _create_association(self) -> "Association":
-        """Create an :class:`Association` object for the current request.
-
-        .. versionadded:: 1.5
-        """
+        """Create an :class:`Association` object for the current request."""
         from pynetdicom.association import Association
 
         assoc = Association(self.ae, MODE_ACCEPTOR)
@@ -543,15 +732,13 @@ class RequestHandler(BaseRequestHandler):
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
         assoc.acceptor.ae_title = self.server.ae_title
-        assoc.acceptor.address = self.local[0]
-        assoc.acceptor.port = self.local[1]
+        assoc.acceptor.address_info = self.local
         assoc.acceptor.implementation_class_uid = self.ae.implementation_class_uid
         assoc.acceptor.implementation_version_name = self.ae.implementation_version_name
         assoc.acceptor.supported_contexts = deepcopy(self.server.contexts)
 
         # Association Requestor object -> remote AE
-        assoc.requestor.address = self.remote[0]
-        assoc.requestor.port = self.remote[1]
+        assoc.requestor.address_info = self.remote
 
         # Bind events to handlers
         for event in self.server._handlers:
@@ -570,12 +757,6 @@ class RequestHandler(BaseRequestHandler):
 class AssociationServer(TCPServer):
     """An Association server implementation.
 
-    .. versionadded:: 1.2
-
-    .. versionchanged:: 1.5
-
-        Added `request_handler` keyword parameter.
-
     Any attempts to connect will be assumed to be from association requestors.
 
     The server should be started with
@@ -585,20 +766,25 @@ class AssociationServer(TCPServer):
     ``0`` specifies a poll and never blocks. A value of ``None`` blocks until
     a connection is ready.
 
+    .. versionchanged:: 3.0
+
+        Added support for IPv6.
+
     Attributes
     ----------
     ae : ae.ApplicationEntity
         The parent AE that is running the server.
     request_queue_size : int
         Default ``5``.
-    server_address : tuple[str, int]
-        The ``(host: str, port: int)`` that the server is running on.
+    server_address : tuple[str, int] | tuple[str, int, int, int]
+        The ``(host: str, port: int)`` or ``(host: str, port: int, flowinfo: int,
+        scope_id: int)`` that the server is running on.
     """
 
     def __init__(
         self,
         ae: "ApplicationEntity",
-        address: tuple[str, int],
+        address: tuple[str, int] | tuple[str, int, int, int],
         ae_title: str,
         contexts: list[PresentationContext],
         ssl_context: "ssl.SSLContext | None" = None,
@@ -612,8 +798,9 @@ class AssociationServer(TCPServer):
         ----------
         ae : ae.ApplicationEntity
             The parent AE that's running the server.
-        address : tuple[str, int]
-            The ``(host: str, port: int)`` that the server should run on.
+        address : tuple[str, int] | tuple[str, int, int, int]
+            The ``(host: str, port: int)`` or ``(host: str, port: int, flowinfo: int,
+            scope_id: int)`` that the server should run on.
         ae_title : str
             The AE title of the SCP.
         contexts : list of presentation.PresentationContext
@@ -635,13 +822,15 @@ class AssociationServer(TCPServer):
         self.ae_title = ae_title
         self.contexts = contexts
         self.ssl_context = ssl_context
+        self.address_info = AddressInformation.from_tuple(address)
+        self.address_family = self.address_info.address_family
         self.allow_reuse_address = True
-        self.server_address: tuple[str, int] = address
+        self.server_address: tuple[str, int] | tuple[str, int, int, int] = address  # type: ignore[assignment]
         self.socket: socket.socket | None = None  # type: ignore[assignment]
 
         request_handler = request_handler or RequestHandler
 
-        super().__init__(address, request_handler, bind_and_activate=True)
+        super().__init__(address, request_handler, bind_and_activate=True)  # type: ignore[arg-type]
 
         self.timeout = 60
 
@@ -663,12 +852,6 @@ class AssociationServer(TCPServer):
         self, event: evt.EventType, handler: Callable, args: list[Any] | None = None
     ) -> None:
         """Bind a callable `handler` to an `event`.
-
-        .. versionadded:: 1.3
-
-        .. versionchanged:: 1.5
-
-            Added `args` keyword parameter.
 
         Parameters
         ----------
@@ -713,20 +896,11 @@ class AssociationServer(TCPServer):
         return [tt for tt in threads if tt._server is self]
 
     def get_events(self) -> list[evt.EventType]:
-        """Return a list of currently bound events.
-
-        .. versionadded:: 1.3
-        """
+        """Return a list of currently bound events."""
         return sorted(self._handlers.keys(), key=lambda x: x.name)
 
     def get_handlers(self, event: evt.EventType) -> evt.HandlerArgType:
         """Return handlers bound to a specific `event`.
-
-        .. versionadded:: 1.3
-
-        .. versionchanged:: 1.5
-
-            Returns a 2-tuple of (callable, args) or list of 2-tuple.
 
         Parameters
         ----------
@@ -857,8 +1031,6 @@ class AssociationServer(TCPServer):
     def unbind(self, event: evt.EventType, handler: Callable) -> None:
         """Unbind a callable `handler` from an `event`.
 
-        .. versionadded:: 1.3
-
         Parameters
         ----------
         event : 3-tuple
@@ -874,10 +1046,7 @@ class AssociationServer(TCPServer):
 
 
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
-    """An :class:`AssociationServer` suitable for threading.
-
-    .. versionadded:: 1.2
-    """
+    """An :class:`AssociationServer` suitable for threading."""
 
     def process_request_thread(
         self,

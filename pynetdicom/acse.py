@@ -821,16 +821,10 @@ class ACSE:
         primitive.calling_ae_title = self.requestor.ae_title
         # Called AE Title is the destination DICOM AE title
         primitive.called_ae_title = self.acceptor.ae_title
-        # The TCP/IP address of the source, pynetdicom includes port too
-        primitive.calling_presentation_address = (
-            cast(str, self.requestor.address),
-            cast(int, self.requestor.port),
-        )
-        # The TCP/IP address of the destination, pynetdicom includes port too
-        primitive.called_presentation_address = (
-            cast(str, self.acceptor.address),
-            cast(int, self.acceptor.port),
-        )
+        # The TCP/IP address info of the source
+        primitive.calling_presentation_address = self.requestor.address_info
+        # The TCP/IP address info of the destination
+        primitive.called_presentation_address = self.acceptor.address_info
         # Proposed presentation contexts
         primitive.presentation_context_definition_list = (
             self.requestor.requested_contexts

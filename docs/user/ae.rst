@@ -221,8 +221,12 @@ Specifying the network port
 In general it shouldn't be necessary to specify the port when acting as an SCU,
 as by default *pynetdicom* will use the first port available. To specify the
 port number manually you can use the *bind_address* keyword parameter when
-requesting an association, which takes a 2-tuple of (:class:`str` *host*,
-:class:`int` *port*):
+requesting an association, which takes:
+
+* For IPv4 or IPv6 a 2-tuple of (:class:`str` *host*, :class:`int` *port*), with the
+  `flowinfo` and `scope_id` defaulting to ``0`` for IPv6, or,
+* For IPv6 a 4-tuple of (:class:`str` *host*, :class:`int` *port*, :class:`int`
+  flowinfo, :class:`int` scope_id)
 
 .. doctest::
 
@@ -230,6 +234,9 @@ requesting an association, which takes a 2-tuple of (:class:`str` *host*,
     >>> ae = AE()
     >>> ae.add_requested_context('1.2.840.10008.1.1')
     >>> assoc = ae.associate("127.0.0.1", 11112, bind_address=("127.0.0.1", 11113))  # doctest: +SKIP
+    >>> assoc.release()
+    >>> assoc = ae.associate("::1", 11112, bind_address=("::1", 11113))  # doctest: +SKIP
+    >>> assoc.release()
 
 .. note::
 
@@ -497,15 +504,22 @@ to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
 Specifying the bind address
 ...........................
 The bind address for the server socket is specified by the *address*
-parameter to :meth:`~pynetdicom.ae.ApplicationEntity.start_server` as
-(str *host*, int *port*).
+parameter to :meth:`~pynetdicom.ae.ApplicationEntity.start_server` as:
+
+* For IPv4 or IPv6 a 2-tuple of (:class:`str` *host*, :class:`int` *port*), with the
+  `flowinfo` and `scope_id` defaulting to ``0`` for IPv6, or,
+* For IPv6 a 4-tuple of (:class:`str` *host*, :class:`int` *port*, :class:`int`
+  flowinfo, :class:`int` scope_id)
 
 .. code-block:: python
 
     >>> from pynetdicom import AE
     >>> ae = AE()
     >>> ae.add_supported_context('1.2.840.10008.1.1')
-    >>> ae.start_server(("127.0.0.1", 11112))
+    >>> server = ae.start_server(("127.0.0.1", 11112), block=False)
+    >>> server.shutdown()
+    >>> server = ae.start_server(("::1", 11112), block=False)
+    >>> server.shutdown()
 
 
 Association

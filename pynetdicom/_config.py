@@ -1,6 +1,7 @@
 """pynetdicom configuration options"""
 
 from typing import Callable, Any
+import socket
 
 from pynetdicom._validators import validate_ae, validate_ui
 
@@ -26,8 +27,6 @@ Examples
 ENFORCE_UID_CONFORMANCE: bool = False
 """Enforce UID conformance
 
-.. versionadded:: 1.3
-
 If ``True`` then UIDs will be checked to ensure they're conformant to the
 DICOM Standard and if not then an appropriate response sent, otherwise
 UIDs will only be checked to ensure they're no longer then 64 characters and
@@ -46,8 +45,6 @@ Examples
 USE_SHORT_DIMSE_AET: bool = True
 """Use short AE titles in DIMSE messages.
 
-.. versionadded:: 1.5
-
 If ``False`` then elements with a VR of AE in DIMSE messages will be padded
 with trailing spaces up to the maximum allowable length (16 bytes), otherwise
 no padding will be added.
@@ -65,8 +62,6 @@ Examples
 LOG_RESPONSE_IDENTIFIERS: bool = True
 """Log incoming C-FIND, C-GET and C-MOVE response *Identifier* datasets.
 
-.. versionadded:: 1.5
-
 If ``True`` then the *Identifier* datasets received in Pending
 responses to C-FIND, C-GET and C-MOVE requests will be logged.
 
@@ -82,8 +77,6 @@ Examples
 
 LOG_REQUEST_IDENTIFIERS: bool = True
 """Log incoming C-FIND, C-GET and C-MOVE request *Identifier* datasets.
-
-.. versionadded:: 1.5
 
 If ``True`` then the *Identifier* datasets received in
 C-FIND, C-GET and C-MOVE requests will be logged.
@@ -330,4 +323,33 @@ part of the storage service.
 
 >>> from pynetdicom import _config
 >>> _config.UNRESTRICTED_STORAGE_SERVICE = True
+"""
+
+
+DEFAULT_BIND_ADDRESS: dict[socket.AddressFamily, tuple[str, int]] = {
+    socket.AF_INET: ("0.0.0.0", 0),
+    socket.AF_INET6: ("::0", 0),
+}
+"""The default address and port to use for binding client sockets in
+:meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`.
+
+.. versionadded:: 3.0
+
+Note that the default addresses mean that the client socket may be bound on any
+available interface that can viably route to the remote. This may be a security
+consideration for listen sockets on a server, however the client sockets used by
+:meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` connect directly to
+the specified remote and do not listen.
+
+Default: ``("0.0.0.0", 0)`` for IPv4 and ``("::0", 0)`` for IPv6.
+
+Examples
+--------
+
+Change the default bind addresses for IPv4 and IPv6.
+
+>>> import socket
+>>> from pynetdicom import _config
+>>> _config.DEFAULT_BIND_ADDRESS[socket.AF_INET] = ("192.168.1.2", 0)
+>>> _config.DEFAULT_BIND_ADDRESS[socket.AF_INET6] = ("::1", 11112)
 """

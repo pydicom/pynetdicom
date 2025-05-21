@@ -24,7 +24,7 @@ from pynetdicom.pdu_primitives import (
     ImplementationClassUIDNotification,
 )
 from pynetdicom.sop_class import Verification
-from pynetdicom.transport import AssociationSocket, T_CONNECT
+from pynetdicom.transport import AssociationSocket, T_CONNECT, AddressInformation
 from .encoded_pdu_items import (
     a_associate_ac,
     a_associate_rq,
@@ -201,16 +201,14 @@ class TestStateBase:
 
         assoc = Association(ae, mode="requestor")
 
-        assoc.set_socket(AssociationSocket(assoc))
+        assoc.set_socket(AssociationSocket(assoc, address=AddressInformation("", 0)))
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address = "localhost"
-        assoc.acceptor.port = 11112
+        assoc.acceptor.address_info = AddressInformation("localhost", 11112)
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = ""
-        assoc.requestor.port = 11113
+        assoc.requestor.address_info = AddressInformation("", 11113)
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -241,9 +239,11 @@ class TestStateBase:
             # Called AE Title is the destination DICOM AE title
             primitive.called_ae_title = "REMOTE_AE_TITLE "
             # The TCP/IP address of the source, pynetdicom includes port too
-            primitive.calling_presentation_address = ("localhost", 0)
+            primitive.calling_presentation_address = AddressInformation("localhost", 0)
             # The TCP/IP address of the destination, pynetdicom includes port too
-            primitive.called_presentation_address = ("localhost", 11112)
+            primitive.called_presentation_address = AddressInformation(
+                "localhost", 11112
+            )
             # Proposed presentation contexts
             cx = build_context(Verification)
             cx.context_id = 1
@@ -383,12 +383,10 @@ class TestStateBase:
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address = "localhost"
-        assoc.acceptor.port = 11112
+        assoc.acceptor.address_info = AddressInformation("localhost", 11112)
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = ""
-        assoc.requestor.port = 11113
+        assoc.requestor.address_info = AddressInformation("", 11113)
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -1838,13 +1836,12 @@ class TestState04(TestStateBase):
 
     def move_to_state(self, assoc, scp):
         def connect(primitive):
-            address = primitive.address
             """Override the socket's connect so no event gets added."""
             if assoc.dul.socket.socket is None:
                 assoc.dul.socket.socket = assoc.dul.socket._create_socket()
 
             try:
-                assoc.dul.socket.socket.connect(address)
+                assoc.dul.socket.socket.connect(primitive.address_info.as_tuple)
                 assoc.dul.socket._is_connected = True
             except (OSError, TimeoutError) as exc:
                 assoc.dul.socket.close()
@@ -8227,16 +8224,14 @@ class TestStateMachineFunctionalRequestor:
         ae.dimse_timeout = 5
 
         assoc = Association(ae, mode="requestor")
-        assoc.set_socket(AssociationSocket(assoc))
+        assoc.set_socket(AssociationSocket(assoc, address=AddressInformation("", 0)))
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address = "localhost"
-        assoc.acceptor.port = 11112
+        assoc.acceptor.address_info = AddressInformation("localhost", 11112)
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = "localhost"
-        assoc.requestor.port = 11113
+        assoc.requestor.address_info = AddressInformation("localhost", 11113)
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -8753,16 +8748,14 @@ class TestStateMachineFunctionalAcceptor:
         ae.dimse_timeout = 5
 
         assoc = Association(ae, mode="requestor")
-        assoc.set_socket(AssociationSocket(assoc))
+        assoc.set_socket(AssociationSocket(assoc, address=AddressInformation("", 0)))
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address = "localhost"
-        assoc.acceptor.port = 11112
+        assoc.acceptor.address_info = AddressInformation("localhost", 11112)
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = "localhost"
-        assoc.requestor.port = 11113
+        assoc.requestor.address_info = AddressInformation("localhost", 11113)
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid

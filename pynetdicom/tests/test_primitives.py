@@ -25,6 +25,7 @@ from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation,
 )
 from pynetdicom.presentation import PresentationContext
+from pynetdicom.transport import AddressInformation
 from pynetdicom.utils import pretty_bytes
 
 
@@ -830,13 +831,13 @@ class TestPrimitive_A_ASSOCIATE:
 
         assoc.calling_presentation_address = None
         assert assoc.calling_presentation_address is None
-        assoc.calling_presentation_address = ("10.40.94.43", 105)
-        assert assoc.calling_presentation_address == ("10.40.94.43", 105)
+        assoc.calling_presentation_address = AddressInformation("10.40.94.43", 105)
+        assert assoc.calling_presentation_address.as_tuple == ("10.40.94.43", 105)
 
         assoc.called_presentation_address = None
         assert assoc.called_presentation_address is None
-        assoc.called_presentation_address = ("10.40.94.44", 106)
-        assert assoc.called_presentation_address == ("10.40.94.44", 106)
+        assoc.called_presentation_address = AddressInformation("10.40.94.44", 106)
+        assert assoc.called_presentation_address.as_tuple == ("10.40.94.44", 106)
 
         pc = PresentationContext()
         pc.context_id = 1

@@ -82,6 +82,7 @@ from pynetdicom.sop_class import (  # type: ignore
     Verification,
 )
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
+from pynetdicom.transport import AddressInformation
 from pynetdicom.utils import make_target, set_timer_resolution, set_ae, decode_bytes
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -3630,13 +3631,18 @@ class ServiceUser:
         * Maximum PDU length
         * Implementation class UID
 
+    .. versionchanged:: 3.0
+
+        `address` and `port` have been changed to properties and added the
+        `address_info` attribute.
+
     Attributes
     ----------
-    address : str
-        The TCP/IP address of the AE.
-    port : int
-        The port number of the AE.
-    primitive : None or pdu_primitives.A_ASSOCIATE
+    address_info : pynetdicom.transport.AddressInformation | None
+        The connection properties of the local or remote AE. When the local AE is the
+        requestor the IP address and port should be considered nominal until the
+        connection with the remote is made.
+    primitive : pynetdicom.pdu_primitives.A_ASSOCIATE | None
         The A-ASSOCIATE primitive (request if mode is ``'requestor'``,
         accept/reject if mode is ``'acceptor'``) sent or received by the AE
         during association negotiation.
@@ -3663,8 +3669,8 @@ class ServiceUser:
         self._mode: str = mode
         self._ae_title: str = ""
         self.primitive: A_ASSOCIATE | None = None
-        self.port: int | None = None
-        self.address: str | None = ""
+
+        self.address_info: AddressInformation | None = None
 
         # If Requestor this is the requested contexts, otherwise this is
         #   the supported contexts
@@ -3751,6 +3757,14 @@ class ServiceUser:
             self._ext_neg[type(item)].append(item)
         except KeyError:
             raise TypeError("'item' is not a valid extended negotiation item")
+
+    @property
+    def address(self) -> str:
+        """Get the requestor or acceptor's IP address (if set)."""
+        if self.address_info is None:
+            raise ValueError("No address information has been set")
+
+        return self.address_info.address
 
     @property
     def ae_title(self) -> str:
@@ -4032,13 +4046,11 @@ class ServiceUser:
 
     @property
     def info(self) -> dict[str, Any]:
-        """Return a :class:`dict` with information about the
-        :class:`ServiceUser`.
-        """
+        """Return a :class:`dict` with information about the :class:`ServiceUser`."""
         info = {
             "ae_title": self.ae_title,
-            "address": self.address,
-            "port": self.port,
+            "address": self.address if self.address_info else None,
+            "port": self.port if self.address_info else None,
             "mode": self.mode,
         }
         if not self.writeable:
@@ -4048,16 +4060,12 @@ class ServiceUser:
 
     @property
     def is_acceptor(self) -> bool:
-        """Return ``True`` if the :class:`ServiceUser` is the association
-        acceptor.
-        """
+        """Return ``True`` if the :class:`ServiceUser` is the association acceptor."""
         return self.mode == MODE_ACCEPTOR
 
     @property
     def is_requestor(self) -> bool:
-        """Return ``True`` if the :class:`ServiceUser` is the association
-        requestor.
-        """
+        """Return ``True`` if the :class:`ServiceUser` is the association requestor."""
         return self.mode == MODE_REQUESTOR
 
     @property
@@ -4113,6 +4121,14 @@ class ServiceUser:
         ``'acceptor'``.
         """
         return self._mode
+
+    @property
+    def port(self) -> int:
+        """Get the requestor or acceptor's port number (if set)."""
+        if self.address_info is None:
+            raise ValueError("No address information has been set")
+
+        return self.address_info.port
 
     @property
     def requested_contexts(self) -> list[PresentationContext]:

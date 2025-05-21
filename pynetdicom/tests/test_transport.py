@@ -28,6 +28,7 @@ from pynetdicom.transport import (
     AssociationServer,
     ThreadedAssociationServer,
     T_CONNECT,
+    AddressInformation,
 )
 from pynetdicom.sop_class import Verification, RTImageStorage
 from .encoded_pdu_items import p_data_tf_rq, a_associate_rq
@@ -56,6 +57,99 @@ DATASET = dcmread(os.path.join(DCM_DIR, "RTImageStorage.dcm"))
 # debug_logger()
 
 
+class TestAddressInformation:
+    """Tests for AssociationInformation."""
+
+    def test_ipv4_init(self):
+        addr = AddressInformation("", 0)
+        assert addr.address == "0.0.0.0"
+        assert addr.port == 0
+        assert addr.is_ipv4 is True
+        assert addr.is_ipv6 is False
+        assert addr.address_family == socket.AF_INET
+        assert addr.flowinfo == 0
+        assert addr.scope_id == 0
+        assert addr.as_tuple == ("0.0.0.0", 0)
+
+    def test_ipv6_init_minimal(self):
+        addr = AddressInformation("::1", 0)
+        assert addr.address == "::1"
+        assert addr.port == 0
+        assert addr.is_ipv4 is False
+        assert addr.is_ipv6 is True
+        assert addr.address_family == socket.AF_INET6
+        assert addr.flowinfo == 0
+        assert addr.scope_id == 0
+        assert addr.as_tuple == ("::1", 0, 0, 0)
+
+    def test_ipv6_init_maximal(self):
+        addr = AddressInformation("::1", 0, 10, 11)
+        assert addr.address == "::1"
+        assert addr.port == 0
+        assert addr.is_ipv4 is False
+        assert addr.is_ipv6 is True
+        assert addr.address_family == socket.AF_INET6
+        assert addr.flowinfo == 10
+        assert addr.scope_id == 11
+        assert addr.as_tuple == ("::1", 0, 10, 11)
+
+    def test_from_tuple(self):
+        addr = AddressInformation.from_tuple(("localhost", 11112))
+        assert isinstance(addr, AddressInformation)
+        assert addr.address == "127.0.0.1"
+        assert addr.port == 11112
+
+        addr = AddressInformation.from_tuple(("<broadcast>", 104))
+        assert isinstance(addr, AddressInformation)
+        assert addr.address == "255.255.255.255"
+        assert addr.port == 104
+
+        addr = AddressInformation.from_tuple(("::0", 11113))
+        assert isinstance(addr, AddressInformation)
+        assert addr.address == "::0"
+        assert addr.port == 11113
+
+    def test_from_add_port(self):
+        addr = AddressInformation.from_addr_port("localhost", 11112)
+        assert isinstance(addr, AddressInformation)
+        assert addr.address == "127.0.0.1"
+        assert addr.port == 11112
+
+        addr = AddressInformation.from_addr_port("::0", 11113)
+        assert isinstance(addr, AddressInformation)
+        assert addr.address == "::0"
+        assert addr.port == 11113
+        assert addr.flowinfo == 0
+        assert addr.scope_id == 0
+
+        addr = AddressInformation.from_addr_port(("::0", 12, 13), 11113)
+        assert isinstance(addr, AddressInformation)
+        assert addr.address == "::0"
+        assert addr.port == 11113
+        assert addr.flowinfo == 12
+        assert addr.scope_id == 13
+
+    def test_address(self):
+        addr = AddressInformation("", 0)
+        assert addr.address == "0.0.0.0"
+        assert addr.address_family == socket.AF_INET
+        addr.address = "<broadcast>"
+        assert addr.address == "255.255.255.255"
+        assert addr.address_family == socket.AF_INET
+        addr.address = "localhost"
+        assert addr.address == "127.0.0.1"
+        assert addr.address_family == socket.AF_INET
+        addr.address = "192.168.0.1"
+        assert addr.address == "192.168.0.1"
+        assert addr.address_family == socket.AF_INET
+        addr.address = "::0"
+        assert addr.address == "::0"
+        assert addr.address_family == socket.AF_INET6
+        addr.address = "192.168.0.1"
+        assert addr.address == "192.168.0.1"
+        assert addr.address_family == socket.AF_INET
+
+
 class TestTConnect:
     """Tests for T_CONNECT."""
 
@@ -70,9 +164,9 @@ class TestTConnect:
     def test_address_request(self):
         """Test init with an A-ASSOCIATE primitive"""
         request = A_ASSOCIATE()
-        request.called_presentation_address = ("123", 12)
+        request.called_presentation_address = AddressInformation("123.4", 12)
         conn = T_CONNECT(request)
-        assert conn.address == ("123", 12)
+        assert conn.address == ("123.4", 12)
         assert conn.request is request
 
         msg = r"A connection attempt has not yet been made"
@@ -82,7 +176,7 @@ class TestTConnect:
     def test_result_setter(self):
         """Test setting the result value."""
         request = A_ASSOCIATE()
-        request.called_presentation_address = ("123", 12)
+        request.called_presentation_address = AddressInformation("123.4", 12)
         conn = T_CONNECT(request)
 
         msg = r"Invalid connection result 'foo'"
@@ -95,6 +189,12 @@ class TestTConnect:
             conn.result = result
             assert conn.result == result
 
+    def test_address_inf(self):
+        request = A_ASSOCIATE()
+        request.called_presentation_address = AddressInformation("123.4", 12)
+        conn = T_CONNECT(request)
+        assert conn.address_info is request.called_presentation_address
+
 
 class TestAssociationSocket:
     """Tests for the transport.AssociationSocket class."""
@@ -103,41 +203,37 @@ class TestAssociationSocket:
         ae = AE()
         self.assoc = Association(ae, MODE_REQUESTOR)
 
-    def get_listen_socket(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack("ll", 1, 0))
-        sock.bind(("localhost", 11112))
-        sock.listen(5)
-        return sock
-
     def test_init_new(self):
         """Test creating a new AssociationSocket instance."""
-        sock = AssociationSocket(self.assoc)
+        sock = AssociationSocket(self.assoc, address=AddressInformation("", 11112))
 
         assert sock.tls_args is None
         assert sock.select_timeout == 0.5
         assert sock._assoc == self.assoc
         assert isinstance(sock.socket, socket.socket)
-        assert sock._is_connected is False
-
-        with pytest.raises(queue.Empty):
-            sock.event_queue.get(block=False)
-
-    def test_init_address(self):
-        """Test creating a new bound AssociationSocket instance."""
-        sock = AssociationSocket(self.assoc, address=("127.0.0.1", 11112))
-
-        assert sock.tls_args is None
-        assert sock.select_timeout == 0.5
-        assert sock._assoc == self.assoc
-        assert isinstance(sock.socket, socket.socket)
-        assert sock.socket.getsockname()[0] == "127.0.0.1"
+        assert sock.socket.getsockname()[0] == "0.0.0.0"
         assert sock.socket.getsockname()[1] == 11112
         assert sock._is_connected is False
 
         with pytest.raises(queue.Empty):
             sock.event_queue.get(block=False)
+
+        sock.close()
+
+        sock = AssociationSocket(self.assoc, address=AddressInformation("::1", 11112))
+
+        assert sock.tls_args is None
+        assert sock.select_timeout == 0.5
+        assert sock._assoc == self.assoc
+        assert isinstance(sock.socket, socket.socket)
+        assert sock.socket.getsockname()[0] == "::1"
+        assert sock.socket.getsockname()[1] == 11112
+        assert sock._is_connected is False
+
+        with pytest.raises(queue.Empty):
+            sock.event_queue.get(block=False)
+
+        sock.close()
 
     def test_init_existing(self):
         """Test creating a new AssociationSocket around existing socket."""
@@ -151,8 +247,8 @@ class TestAssociationSocket:
 
         assert sock.event_queue.get(block=False) == "Evt5"
 
-    def test_init_raises(self, caplog):
-        """Test exception is raised if init with client_socket and address."""
+    def test_init_warns(self, caplog):
+        """Test warning is logged if init with client_socket and address."""
         msg = (
             r"AssociationSocket instantiated with both a 'client_socket' "
             r"and bind 'address'. The original socket will not be rebound"
@@ -164,9 +260,18 @@ class TestAssociationSocket:
 
             assert msg in caplog.text
 
+    def test_init_raises(self):
+        """Test warning is logged if init with client_socket and address."""
+        msg = (
+            "Either 'client_socket' or 'address' must be used when creating a new "
+            "AssociationSocket instance"
+        )
+        with pytest.raises(ValueError, match=msg):
+            AssociationSocket(self.assoc)
+
     def test_close_connect(self):
         """Test closing and connecting."""
-        sock = AssociationSocket(self.assoc)
+        sock = AssociationSocket(self.assoc, address=AddressInformation("", 0))
         sock._is_connected = True
         assert sock.socket is not None
         sock.close()
@@ -175,14 +280,15 @@ class TestAssociationSocket:
         # Ensure we fail if *something* is listening
         self.assoc.connection_timeout = 1
         request = A_ASSOCIATE()
-        request.called_presentation_address = ("123", 12)
+        request.called_presentation_address = AddressInformation("", 11112)
+        sock.socket = sock._create_socket(AddressInformation("", 0))
         sock.connect(T_CONNECT(request))
         assert sock.event_queue.get() == "Evt17"
         assert sock.socket is None
 
     def test_ready_error(self):
         """Test AssociationSocket.ready."""
-        sock = AssociationSocket(self.assoc, address=("localhost", 0))
+        sock = AssociationSocket(self.assoc, address=AddressInformation("localhost", 0))
         assert sock.ready is False
         sock._is_connected = True
         if platform.system() in ["Windows", "Darwin"]:
@@ -195,7 +301,7 @@ class TestAssociationSocket:
 
     def test_print(self):
         """Test str(AssociationSocket)."""
-        sock = AssociationSocket(self.assoc)
+        sock = AssociationSocket(self.assoc, address=AddressInformation("", 0))
         assert sock.__str__() == sock.socket.__str__()
 
     def test_close_socket_none(self):
@@ -224,19 +330,11 @@ class TestAssociationSocket:
 
     def test_get_local_addr(self):
         """Test get_local_addr()."""
-        # Normal use
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11113)
-        assert not assoc.is_established
-        assert isinstance(assoc.requestor.address, str)
-        # Exceptional use
-        assert not assoc.is_established
-        addr = assoc.dul.socket.get_local_addr(("", 111111))
-        assert "127.0.0.1" == addr
+        sock = AssociationSocket(self.assoc, address=AddressInformation("", 11112))
+        with pytest.warns(DeprecationWarning, match="get_local_addr"):
+            addr = sock.get_local_addr(("", 111111))
+
+        assert addr == "127.0.0.1"
 
     def test_multiple_pdu_req(self):
         """Test what happens if two PDUs are sent before the select call."""
@@ -313,6 +411,16 @@ class TestAssociationSocket:
 
         assert 2 == len(events)
 
+    def test_no_socket_connect_raises(self):
+        sock = AssociationSocket(self.assoc, address=AddressInformation("", 0))
+        sock._is_connected = True
+        sock.close()
+        assert sock.socket is None
+
+        msg = r"A socket must be created before calling AssociationSocket.connect\(\)"
+        with pytest.raises(ValueError, match=msg):
+            sock.connect(None)
+
 
 def server_context_v1_2():
     """Return a good TLs v1.2 server SSLContext."""
@@ -374,6 +482,7 @@ class TestTLS:
         import importlib
 
         importlib.reload(pynetdicom.transport)
+        importlib.reload(pynetdicom.ae)
 
     def test_tls_not_server_not_client(self):
         """Test associating with no TLS on either end."""
