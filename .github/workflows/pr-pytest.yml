@@ -37,7 +37,7 @@ jobs:
         pytest -x --ignore=pynetdicom/apps
 
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2025
     timeout-minutes: 30
     defaults:
       run:

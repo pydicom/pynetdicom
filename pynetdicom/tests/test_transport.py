@@ -411,6 +411,15 @@ class TestAssociationSocket:
 
         assert 2 == len(events)
 
+    def test_no_socket_connect_raises(self):
+        sock = AssociationSocket(self.assoc, address=AddressInformation("", 0))
+        sock._is_connected = True
+        sock.close()
+        assert sock.socket is None
+
+        msg = r"A socket must be created before calling AssociationSocket.connect\(\)"
+        with pytest.raises(ValueError, match=msg):
+            sock.connect(None)
 
 def server_context_v1_2():
     """Return a good TLs v1.2 server SSLContext."""
