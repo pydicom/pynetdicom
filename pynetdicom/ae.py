@@ -490,7 +490,7 @@ class ApplicationEntity:
         .. versionchanged:: 3.0
 
             `bind_address` can be either a tuple containing IPv4 or IPv6 address
-            str and port number such as ``("192.168.1.2", 11112)`` or ``("::1"`, 0)``,
+            str and port number such as ``("192.168.1.2", 11112)`` or ``("::1", 0)``,
             or a tuple containing an IPv6 address str and port number such as
             ``("2a00:1450:4001:81c::200e", 11112, 0, 0)`` where the last two items are
             the `flowinfo` and `scope_id`.
@@ -821,7 +821,7 @@ class ApplicationEntity:
         .. versionchanged:: 3.0
 
             `address` can be either a tuple containing IPv4 or IPv6 address
-            str and port number such as ``("192.168.1.2", 11112)`` or ``("::1"`, 0)``,
+            str and port number such as ``("192.168.1.2", 11112)`` or ``("::1", 0)``,
             or a tuple containing an IPv6 address str and port number such as
             ``("2a00:1450:4001:81c::200e", 11112, 0, 0)`` where the last two items are
             the `flowinfo` and `scope_id`.
@@ -1388,7 +1388,7 @@ class ApplicationEntity:
         .. versionchanged:: 3.0
 
             `address` can be either a tuple containing IPv4 or IPv6 address
-            str and port number such as ``("192.168.1.2", 11112)`` or ``("::1"`, 0)``,
+            str and port number such as ``("192.168.1.2", 11112)`` or ``("::1", 0)``,
             or a tuple containing an IPv6 address str and port number such as
             ``("2a00:1450:4001:81c::200e", 11112, 0, 0)`` where the last two items are
             the `flowinfo` and `scope_id`.

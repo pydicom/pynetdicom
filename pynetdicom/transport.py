@@ -45,6 +45,15 @@ class AddressInformation:
     """IPv4 or IPv6 address information.
 
     .. versionadded:: 3.0
+
+    Attributes
+    ----------
+    port : int
+        The port number.
+    flowinfo : int
+        The flow info value (IPv6)
+    scope_id : int
+        The scope ID (IPv6)
     """
 
     def __init__(
@@ -126,7 +135,7 @@ class AddressInformation:
             * `str`: an IPv4 or IPv6 address. If the latter then the `flowinfo` and
               `scope_id` will be set to ``0``
             * `tuple[str, int, int]`: an IPv6 address as ``(address, flowinfo,
-              scope_id)
+              scope_id)``
         port : int
             The port number.
         """
@@ -149,7 +158,7 @@ class AddressInformation:
             * `tuple[str, int]`: an IPv4 or IPv6 address and port. If the latter then
               the `flowinfo` and `scope_id` will be set to ``0``
             * `tuple[str, int, int, int]`: an IPv6 address as ``(address, port,
-              flowinfo, scope_id)
+              flowinfo, scope_id)``
         """
         host = address_info[0]
         port = address_info[1]
@@ -216,7 +225,7 @@ class T_CONNECT:
 
     @property
     def address_info(self) -> AddressInformation:
-        """Return the peer's IP address informations.
+        """Return the peer's IP address information.
 
         .. versionadded:: 3.0
         """
@@ -658,7 +667,7 @@ class RequestHandler(BaseRequestHandler):
     Attributes
     ----------
     client_address : tuple[str, int] | tuple[str, int, int, int]
-        The ``(host, port)`` or ``(host, port, flowinfo, scope_id) of the remote.
+        The ``(host, port)`` or ``(host, port, flowinfo, scope_id)`` of the remote.
     request : socket.socket
         The (unaccepted) client socket.
     server : transport.AssociationServer or transport.ThreadedAssociationServer
@@ -791,7 +800,7 @@ class AssociationServer(TCPServer):
             The parent AE that's running the server.
         address : tuple[str, int] | tuple[str, int, int, int]
             The ``(host: str, port: int)`` or ``(host: str, port: int, flowinfo: int,
-            scope_id: int) that the server should run on.
+            scope_id: int)`` that the server should run on.
         ae_title : str
             The AE title of the SCP.
         contexts : list of presentation.PresentationContext
