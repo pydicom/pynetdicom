@@ -315,7 +315,7 @@ class AssociationSocket:
         self.socket: socket.socket | None
 
         if client_socket is None:
-            self.socket = self._create_socket(address)
+            self.socket = self._create_socket(cast(AddressInformation, address))
             self._is_connected = False
         else:
             self.socket = client_socket
