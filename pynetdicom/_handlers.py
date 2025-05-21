@@ -4587,7 +4587,7 @@ def doc_handle_transport(event: "Event", *args: Sequence[Any]) -> None:
         attributes are:
 
         * ``address``: the (host, port) of the remote as (:class:`str`,
-          :class:`int`). 
+          :class:`int`).
         * :attr:`~pynetdicom.events.Event.assoc`: the
           :class:`~pynetdicom.association.Association` that triggered the
           event.

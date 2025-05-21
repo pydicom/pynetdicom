@@ -42,7 +42,7 @@ from pynetdicom.pdu_primitives import (
 )
 from pynetdicom.pdu import P_DATA_TF
 from pynetdicom.sop_class import Verification, CTImageStorage
-from pynetdicom.transport import AssociationSocket, IPAddress
+from pynetdicom.transport import AssociationSocket, ConnectionInformation
 from .encoded_pdu_items import (
     a_associate_rq,
     a_associate_ac,
@@ -100,11 +100,11 @@ class DummyAssociation:
         self.dul = DummyDUL()
         self.requestor = ServiceUser(self, "requestor")
         self.requestor.ae_title = "TEST_LOCAL"
-        self.requestor.address = IPAddress("127.0.0.1", 11112)
+        self.requestor.connection_info = ConnectionInformation("127.0.0.1", 11112)
         self.requestor.maximum_length = 31682
         self.acceptor = ServiceUser(self, "acceptor")
         self.acceptor.ae_title = "TEST_REMOTE"
-        self.acceptor.address = IPAddress("127.0.0.2", 11113)
+        self.acceptor.connection_info = ConnectionInformation("127.0.0.2", 11113)
         self.acse_timeout = 11
         self.dimse_timeout = 12
         self.network_timeout = 13
@@ -1953,14 +1953,14 @@ class TestNegotiateRelease:
 
         assoc = Association(ae, mode="requestor")
 
-        assoc.set_socket(AssociationSocket(assoc))
+        assoc.set_socket(AssociationSocket(assoc, address=ConnectionInformation("", 0)))
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address = IPAddress("localhost", 11112)
+        assoc.acceptor.connection_info = ConnectionInformation("localhost", 11112)
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = IPAddress("", 11113)
+        assoc.requestor.connection_info = ConnectionInformation("", 11113)
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -1990,10 +1990,10 @@ class TestNegotiateRelease:
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address = IPAddress("localhost", 11112)
+        assoc.acceptor.connection_info = ConnectionInformation("localhost", 11112)
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = IPAddress("", 11113)
+        assoc.requestor.connection_info = ConnectionInformation("", 11113)
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid

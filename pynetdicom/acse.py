@@ -822,10 +822,9 @@ class ACSE:
         # Called AE Title is the destination DICOM AE title
         primitive.called_ae_title = self.acceptor.ae_title
         # The TCP/IP address info of the source
-        print(self.requestor.address)
-        primitive.calling_presentation_address = self.requestor.address
+        primitive.calling_presentation_address = self.requestor.connection_info
         # The TCP/IP address info of the destination
-        primitive.called_presentation_address = self.acceptor.address
+        primitive.called_presentation_address = self.acceptor.connection_info
         # Proposed presentation contexts
         primitive.presentation_context_definition_list = (
             self.requestor.requested_contexts

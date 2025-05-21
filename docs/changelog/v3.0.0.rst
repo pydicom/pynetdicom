@@ -60,6 +60,7 @@ Enhancements
   absent from the N-CREATE-RQ can now be done by adding it to the returned *Attribute
   List* dataset (it'll be removed from the dataset prior to sending) (:issue:`995`)
 * Added debugging handlers for the remaining DIMSE-N messages
+* Added :attr:`~pynetdicom._config.DEFAULT_BIND_ADDRESS<_config.DEFAULT_BIND_ADDRESS>`
 * Added support for IPv6 connections (:issue:`984`)
 
 

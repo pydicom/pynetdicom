@@ -70,7 +70,7 @@ from .encoded_dimse_n_msg import (
     n_create_rq_ds,
     n_create_rsp_ds,
 )
-from pynetdicom.transport import IPAddress
+from pynetdicom.transport import ConnectionInformation
 from .encoded_pdu_items import p_data_tf
 from pynetdicom.sop_class import (
     Verification,
@@ -89,11 +89,11 @@ class DummyAssociation:
         self.dul = DummyDUL()
         self.requestor = ServiceUser(self, "requestor")
         self.requestor.ae_title = "TEST_LOCAL      "
-        self.requestor.address = IPAddress("127.0.0.1", 11112)
+        self.requestor.connection_info = ConnectionInformation("127.0.0.1", 11112)
         self.requestor.maximum_length = 31682
         self.acceptor = ServiceUser(self, "acceptor")
         self.acceptor.ae_title = "TEST_REMOTE     "
-        self.acceptor.address = IPAddress("127.0.0.2", 11113)
+        self.acceptor.connection_info = ConnectionInformation("127.0.0.2", 11113)
         self.acse_timeout = 11
         self.dimse_timeout = 1
         self.network_timeout = 13

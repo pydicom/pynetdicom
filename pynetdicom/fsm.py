@@ -17,7 +17,7 @@ from pynetdicom.pdu import (
     A_ABORT_RQ,
 )
 from pynetdicom.pdu_primitives import A_P_ABORT, A_ABORT
-from pynetdicom.transport import T_CONNECT, AssociationSocket
+from pynetdicom.transport import T_CONNECT, AssociationSocket, ConnectionInformation
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.dul import DULServiceProvider
@@ -264,7 +264,8 @@ def AE_4(dul: "DULServiceProvider") -> str:
 
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
+    conn_info = cast(ConnectionInformation, remote.connection_info).as_tuple
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": conn_info})
 
     dul.kill_dul()
 
@@ -537,7 +538,8 @@ def AR_3(dul: "DULServiceProvider") -> str:
 
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
+    conn_info = cast(ConnectionInformation, remote.connection_info).as_tuple
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": conn_info})
 
     dul.kill_dul()
 
@@ -597,7 +599,8 @@ def AR_5(dul: "DULServiceProvider") -> str:
 
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
+    conn_info = cast(ConnectionInformation, remote.connection_info).as_tuple
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": conn_info})
 
     # Stop ARTIM timer
     dul.artim_timer.stop()
@@ -812,7 +815,8 @@ def AA_2(dul: "DULServiceProvider") -> str:
     assoc.dimse.msg_queue.put((None, None))
 
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
+    conn_info = cast(ConnectionInformation, remote.connection_info).as_tuple
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": conn_info})
 
     dul.kill_dul()
 
@@ -854,7 +858,8 @@ def AA_3(dul: "DULServiceProvider") -> str:
     assoc.dimse.msg_queue.put((None, None))
 
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
+    conn_info = cast(ConnectionInformation, remote.connection_info).as_tuple
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": conn_info})
 
     dul.kill_dul()
 
@@ -889,7 +894,8 @@ def AA_4(dul: "DULServiceProvider") -> str:
     assoc.dimse.msg_queue.put((None, None))
 
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
+    conn_info = cast(ConnectionInformation, remote.connection_info).as_tuple
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": conn_info})
 
     # Issue A-P-ABORT indication primitive.
     primitive = A_P_ABORT()
@@ -926,7 +932,8 @@ def AA_5(dul: "DULServiceProvider") -> str:
 
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": remote.address.as_tuple})
+    conn_info = cast(ConnectionInformation, remote.connection_info).as_tuple
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {"address": conn_info})
 
     # Stop ARTIM timer.
     dul.artim_timer.stop()

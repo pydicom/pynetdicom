@@ -27,14 +27,13 @@ from pynetdicom.transport import (
     AssociationSocket,
     AssociationServer,
     ThreadedAssociationServer,
-    IPAddress,
+    ConnectionInformation,
 )
 from pynetdicom.utils import make_target, set_ae, decode_bytes, set_uid
 from pynetdicom._globals import (
     MODE_REQUESTOR,
     DEFAULT_MAX_LENGTH,
     DEFAULT_TRANSFER_SYNTAXES,
-    BIND_ADDRESS,
 )
 
 
@@ -464,7 +463,7 @@ class ApplicationEntity:
         ae_title: str = "ANY-SCP",
         max_pdu: int = DEFAULT_MAX_LENGTH,
         ext_neg: list[_UI] | None = None,
-        bind_address: tuple[str, int] | tuple[str, int, int, int] = BIND_ADDRESS,
+        bind_address: tuple[str, int] | tuple[str, int, int, int] | None = None,
         tls_args: tuple[SSLContext, str] | None = None,
         evt_handlers: list[EventHandlerType] | None = None,
     ) -> Association:
@@ -484,7 +483,7 @@ class ApplicationEntity:
         .. versionchanged:: 3.0
 
             `addr` can be either an IPv4 or IPv6 address str such as ``"192.168.1.2"``
-            or ``"::1"`, or a tuple containing an IPv6 address such as
+            or ``"::1"``, or a tuple containing an IPv6 address such as
             ``("2a00:1450:4001:81c::200e", 0, 0)`` where the last two items are the
             `flowinfo` and `scope_id`.
 
@@ -531,11 +530,12 @@ class ApplicationEntity:
             * :class:`~UserIdentityNegotiation` (0 or 1 item)
         bind_address : tuple[str, int] | tuple[str, int, int, int], optional
             The address to bind the association's communication socket to. For IPv4 or
-            IPv6 may be the ``(str: address, int: port)``, with the `flowinfo` and
-            `scope_id` defaulting to ``0`` for IPv6. Alternatively for IPv6,
+            IPv6 this may be the ``(str: address, int: port)``, with the `flowinfo` and
+            `scope_id` defaulting to ``0`` for IPv6. Alternatively for IPv6 this
             may be the ``(str: address, int: port, int: flowinfo, int: scope_id)``.
-            Default: IPv4's INADDR_ANY ``("", 0)`` which will bind to all interfaces
-            (IPv6 has no equivalent to INADDR_ANY).
+            Default: the value in :attr:`_config.DEFAULT_BIND_ADDRESS
+            <pynetdicom._config.DEFAULT_BIND_ADDRESS>` corresponding to the
+            address family of `addr`.
         tls_args : 2-tuple, optional
             If TLS is required then this should be a 2-tuple containing a
             (`ssl_context`, `server_hostname`), where `ssl_context` is the
@@ -571,20 +571,20 @@ class ApplicationEntity:
         if not isinstance(addr, (str, tuple)):
             raise TypeError("'addr' must be str or tuple[str, int, int]")
 
-        if (
-            isinstance(addr, tuple)
-            and (
-                not isinstance(addr[0], str)
-                or not isinstance(addr[1], int)
-                or not isinstance(addr[2], int)
-            )
+        if isinstance(addr, tuple) and (
+            not isinstance(addr[0], str)
+            or not isinstance(addr[1], int)
+            or not isinstance(addr[2], int)
         ):
             raise TypeError("'addr' must be str or tuple[str, int, int]")
 
         if not isinstance(port, int):
             raise TypeError("'port' must be int")
 
-        remote_address = IPAddress.from_addr_port(addr, port)
+        remote_address = ConnectionInformation.from_addr_port(addr, port)
+
+        if bind_address is None:
+            bind_address = _config.DEFAULT_BIND_ADDRESS[remote_address.address_family]
 
         if (
             len(bind_address) not in (2, 4)
@@ -595,18 +595,14 @@ class ApplicationEntity:
                 "'bind_address' must be tuple[str, int] or tuple[str, int, int, int]"
             )
 
-        if (
-            len(bind_address) == 4
-            and (
-                not isinstance(bind_address[2], int)
-                or not isinstance(bind_address[3], int)
-            )
+        if len(bind_address) == 4 and (
+            not isinstance(bind_address[2], int) or not isinstance(bind_address[3], int)
         ):
             raise TypeError(
                 "'bind_address' must be tuple[str, int] or tuple[str, int, int, int]"
             )
 
-        local_address = IPAddress.from_tuple(bind_address)
+        local_address = ConnectionInformation.from_tuple(bind_address)
 
         # Association
         assoc = Association(self, MODE_REQUESTOR)
@@ -622,11 +618,11 @@ class ApplicationEntity:
         # Association Acceptor object -> remote AE
         # `ae_title` validation is performed by the ServiceUser
         assoc.acceptor.ae_title = ae_title
-        assoc.acceptor.address = remote_address
+        assoc.acceptor.connection_info = remote_address
 
         # Association Requestor object -> local AE
         # Nominal address info - will get updated by AssociationSocket.connect()
-        assoc.requestor.address = local_address
+        assoc.requestor.connection_info = local_address
         assoc.requestor.ae_title = self.ae_title
         assoc.requestor.maximum_length = max_pdu
         assoc.requestor.implementation_class_uid = self.implementation_class_uid
@@ -672,7 +668,9 @@ class ApplicationEntity:
 
     def _create_socket(
         self,
-        assoc: Association, address: IPAddress, tls_args: tuple[SSLContext, str] | None
+        assoc: Association,
+        address: ConnectionInformation,
+        tls_args: tuple[SSLContext, str] | None,
     ) -> AssociationSocket:
         """Create an :class:`~pynetdicom.transport.AssociationSocket` for the
         current association.
@@ -806,8 +804,6 @@ class ApplicationEntity:
     ) -> _T | ThreadedAssociationServer:
         """Return an association server.
 
-        .. versionadded:: 1.5
-
         Allows the use of a custom association server class.
 
         Accepts the same parameters as :meth:`start_server`. Additional keyword
@@ -816,6 +812,14 @@ class ApplicationEntity:
         .. versionchanged:: 2.0
 
             `ae_title` should now be :class:`str`
+
+        .. versionchanged:: 3.0
+
+            `address` can be either a tuple containing IPv4 or IPv6 address
+            str and port number such as ``("192.168.1.2", 11112)`` or ``("::1"`, 0)``,
+            or a tuple containing an IPv6 address str and port number such as
+            ``("2a00:1450:4001:81c::200e", 11112, 0, 0)`` where the last two items are
+            the `flowinfo` and `scope_id`.
 
         Parameters
         ----------
@@ -865,11 +869,9 @@ class ApplicationEntity:
 
         server_class = server_class or AssociationServer  # type: ignore[assignment]
 
-        local_address = IPAddress.from_tuple(address)
-
         return server_class(  # type: ignore
             self,
-            local_address,
+            address,
             ae_title,
             contexts,
             ssl_context,
@@ -1358,7 +1360,6 @@ class ApplicationEntity:
 
         self._servers = []
 
-    # FIXME: docstring
     def start_server(
         self,
         address: tuple[str, int] | tuple[str, int, int, int],
@@ -1381,13 +1382,23 @@ class ApplicationEntity:
 
         .. versionchanged:: 3.0
 
-            `address` blah blah FIXME
+            `address` can be either a tuple containing IPv4 or IPv6 address
+            str and port number such as ``("192.168.1.2", 11112)`` or ``("::1"`, 0)``,
+            or a tuple containing an IPv6 address str and port number such as
+            ``("2a00:1450:4001:81c::200e", 11112, 0, 0)`` where the last two items are
+            the `flowinfo` and `scope_id`.
 
         Parameters
         ----------
         address : tuple[str, int] | tuple[str, int, int, int]
-            The ``(host: str, port: int)`` to use when listening for incoming
+            The host IP address and port number to use when listening for incoming
             association requests.
+
+            * `tuple[str, int]`: An IPv4 or IPv6 address and port number, such as
+              ``("192.168.1.2", 104)`` or ``("2a00:1450:4001:81c::200e", 11112)``.
+              If using IPv6 then `flowinfo` and `scope_id` will default to ``0``.
+            * `tuple[str, int, int, int]`: An IPv6 address as ``(address, port,
+              flowinfo, scope_id)``.
         block : bool, optional
             If ``True`` (default) then the server will be blocking, otherwise
             it will start the server in a new thread and be non-blocking.

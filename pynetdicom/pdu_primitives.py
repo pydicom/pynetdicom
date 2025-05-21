@@ -24,7 +24,7 @@ from pynetdicom.utils import validate_uid, decode_bytes, set_ae, set_uid
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
 
 if TYPE_CHECKING:  # pragma: no cover
-    from pynetdicom.transport import IPAddress
+    from pynetdicom.transport import ConnectionInformation
 
 
 LOGGER = logging.getLogger(__name__)
@@ -145,8 +145,8 @@ class A_ASSOCIATE:
         self._result: int | None = None
         self._result_source: int | None = None
         self._diagnostic: int | None = None
-        self._calling_presentation_address: "IPAddress | None" = None
-        self._called_presentation_address: "IPAddress | None" = None
+        self._calling_presentation_address: "ConnectionInformation | None" = None
+        self._called_presentation_address: "ConnectionInformation | None" = None
         self._presentation_context_definition_list: list[PresentationContext] = []
         self._presentation_context_definition_results_list: list[
             PresentationContext
@@ -202,34 +202,36 @@ class A_ASSOCIATE:
         )
 
     @property
-    def called_presentation_address(self) -> "IPAddress | None":
+    def called_presentation_address(self) -> "ConnectionInformation | None":
         """Get or set the *Called Presentation Address* parameter.
 
         .. versionchanged:: 3.0
 
-            Changed to take and return an :class:`~pynetdicom.transport.IPAddress`
-            instance.
+            Changed to take and return an
+            :class:`~pynetdicom.transport.ConnectionInformation` instance.
 
         Parameters
         ----------
-        value : pynetdicom.transport.IPAddress | None
+        value : pynetdicom.transport.ConnectionInformation | None
             A valid TCP IPv4 or IPv6 address string, port and (for IPv6) flowinfo and
             scope_id as int.
         """
         return self._called_presentation_address
 
     @called_presentation_address.setter
-    def called_presentation_address(self, value: "IPAddress | None") -> None:
+    def called_presentation_address(
+        self, value: "ConnectionInformation | None"
+    ) -> None:
         """Set the Called Presentation Address parameter."""
         # pylint: disable=attribute-defined-outside-init
-        from pynetdicom.transport import IPAddress
+        from pynetdicom.transport import ConnectionInformation
 
-        if value is None or isinstance(value, IPAddress):
+        if value is None or isinstance(value, ConnectionInformation):
             self._called_presentation_address = value
             return
 
         msg = (
-            "'A_ASSOCIATE.called_presentation_address' must be an IPAddress "
+            "'A_ASSOCIATE.called_presentation_address' must be an ConnectionInformation "
             "instance or None"
         )
         LOGGER.error(msg)
@@ -259,36 +261,38 @@ class A_ASSOCIATE:
         )
 
     @property
-    def calling_presentation_address(self) -> "IPAddress | None":
+    def calling_presentation_address(self) -> "ConnectionInformation | None":
         """Get or set the *Calling Presentation Address* parameter.
 
         .. versionchanged:: 3.0
 
-            Changed to take and return an :class:`~pynetdicom.transport.IPAddress`
-            instance.
+            Changed to take and return an
+            :class:`~pynetdicom.transport.ConnectionInformation` instance.
 
         Parameters
         ----------
-        value : pynetdicom.transport.IPAddress | None
+        value : pynetdicom.transport.ConnectionInformation | None
             A valid TCP IPv4 or IPv6 address string, port and (for IPv6) flowinfo and
             scope_id as int.
         """
         return self._calling_presentation_address
 
     @calling_presentation_address.setter
-    def calling_presentation_address(self, value: "IPAddress | None") -> None:
+    def calling_presentation_address(
+        self, value: "ConnectionInformation | None"
+    ) -> None:
         """Set the A-ASSOCIATE Service primitive's Calling Presentation
         Address parameter.
         """
-        from pynetdicom.transport import IPAddress
+        from pynetdicom.transport import ConnectionInformation
 
         # pylint: disable=attribute-defined-outside-init
-        if value is None or isinstance(value, IPAddress):
+        if value is None or isinstance(value, ConnectionInformation):
             self._calling_presentation_address = value
             return
 
         msg = (
-            "'A_ASSOCIATE.calling_presentation_address' must be an IPAddress "
+            "'A_ASSOCIATE.calling_presentation_address' must be an ConnectionInformation "
             f"instance or None, not {type(value).__name__}"
         )
         LOGGER.error(msg)
@@ -560,7 +564,7 @@ class A_ASSOCIATE:
         return self.called_ae_title
 
     @property
-    def responding_presentation_address(self) -> tuple[str, int] | None:
+    def responding_presentation_address(self) -> "ConnectionInformation | None":
         """Get the Responding Presentation Address parameter."""
         return self.called_presentation_address
 

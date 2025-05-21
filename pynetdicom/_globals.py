@@ -134,8 +134,4 @@ STATUS_PENDING: str = "Pending"
 STATUS_UNKNOWN: str = "Unknown"
 
 
-# The default (address, port) that client sockets are bound to
-BIND_ADDRESS = ("", 0)  # INADDR_ANY
-
-
 OptionalUIDType = str | bytes | UID | None
