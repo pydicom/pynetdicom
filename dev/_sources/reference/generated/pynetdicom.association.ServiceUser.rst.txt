@@ -28,6 +28,7 @@
    .. autosummary::
    
       ~ServiceUser.accepted_common_extended
+      ~ServiceUser.address
       ~ServiceUser.ae_title
       ~ServiceUser.asynchronous_operations
       ~ServiceUser.extended_negotiation
@@ -38,6 +39,7 @@
       ~ServiceUser.is_requestor
       ~ServiceUser.maximum_length
       ~ServiceUser.mode
+      ~ServiceUser.port
       ~ServiceUser.requested_contexts
       ~ServiceUser.role_selection
       ~ServiceUser.sop_class_common_extended

@@ -72,6 +72,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.transport.AssociationSocket.html">pynetdicom.transport.AssociationSocket</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.transport.AssociationServer.html">pynetdicom.transport.AssociationServer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.transport.AddressInformation.html">pynetdicom.transport.AddressInformation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.transport.RequestHandler.html">pynetdicom.transport.RequestHandler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.transport.ThreadedAssociationServer.html">pynetdicom.transport.ThreadedAssociationServer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.transport.T_CONNECT.html">pynetdicom.transport.T_CONNECT</a></li>
@@ -127,13 +128,16 @@ communication with peer AEs.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AssociationServer</span></code></a>(ae, address, ae_title, ...)</p></td>
 <td><p>An Association server implementation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.transport.RequestHandler.html#pynetdicom.transport.RequestHandler" title="pynetdicom.transport.RequestHandler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RequestHandler</span></code></a>(request, client_address, server)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation" title="pynetdicom.transport.AddressInformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AddressInformation</span></code></a>(addr, port[, flowinfo, ...])</p></td>
+<td><p>IPv4 or IPv6 address information.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.transport.RequestHandler.html#pynetdicom.transport.RequestHandler" title="pynetdicom.transport.RequestHandler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RequestHandler</span></code></a>(request, client_address, server)</p></td>
 <td><p>Connection request handler for the <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>(ae, address, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>(ae, address, ...)</p></td>
 <td><p>An <a class="reference internal" href="generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a> suitable for threading.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.transport.T_CONNECT.html#pynetdicom.transport.T_CONNECT" title="pynetdicom.transport.T_CONNECT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T_CONNECT</span></code></a>(request)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.transport.T_CONNECT.html#pynetdicom.transport.T_CONNECT" title="pynetdicom.transport.T_CONNECT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T_CONNECT</span></code></a>(request)</p></td>
 <td><p>A TRANSPORT CONNECTION primitive</p></td>
 </tr>
 </tbody>

@@ -60,6 +60,7 @@
 <li class="toctree-l2"><a class="reference internal" href="association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom._config.CODECS.html">pynetdicom._config.CODECS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom._config.DEFAULT_BIND_ADDRESS.html">pynetdicom._config.DEFAULT_BIND_ADDRESS</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom._config.ENFORCE_UID_CONFORMANCE.html">pynetdicom._config.ENFORCE_UID_CONFORMANCE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom._config.LOG_HANDLER_LEVEL.html">pynetdicom._config.LOG_HANDLER_LEVEL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html">pynetdicom._config.LOG_REQUEST_IDENTIFIERS</a></li>
@@ -129,37 +130,40 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.CODECS.html#pynetdicom._config.CODECS" title="pynetdicom._config.CODECS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CODECS</span></code></a></p></td>
 <td><p>Customise the codecs used to decode text values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.ENFORCE_UID_CONFORMANCE.html#pynetdicom._config.ENFORCE_UID_CONFORMANCE" title="pynetdicom._config.ENFORCE_UID_CONFORMANCE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENFORCE_UID_CONFORMANCE</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.DEFAULT_BIND_ADDRESS.html#pynetdicom._config.DEFAULT_BIND_ADDRESS" title="pynetdicom._config.DEFAULT_BIND_ADDRESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_BIND_ADDRESS</span></code></a></p></td>
+<td><p>The default address and port to use for binding client sockets in <a class="reference internal" href="generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.ENFORCE_UID_CONFORMANCE.html#pynetdicom._config.ENFORCE_UID_CONFORMANCE" title="pynetdicom._config.ENFORCE_UID_CONFORMANCE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENFORCE_UID_CONFORMANCE</span></code></a></p></td>
 <td><p>Enforce UID conformance</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.LOG_HANDLER_LEVEL.html#pynetdicom._config.LOG_HANDLER_LEVEL" title="pynetdicom._config.LOG_HANDLER_LEVEL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOG_HANDLER_LEVEL</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.LOG_HANDLER_LEVEL.html#pynetdicom._config.LOG_HANDLER_LEVEL" title="pynetdicom._config.LOG_HANDLER_LEVEL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOG_HANDLER_LEVEL</span></code></a></p></td>
 <td><p>Default (non-user) event logging</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html#pynetdicom._config.LOG_REQUEST_IDENTIFIERS" title="pynetdicom._config.LOG_REQUEST_IDENTIFIERS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOG_REQUEST_IDENTIFIERS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html#pynetdicom._config.LOG_REQUEST_IDENTIFIERS" title="pynetdicom._config.LOG_REQUEST_IDENTIFIERS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOG_REQUEST_IDENTIFIERS</span></code></a></p></td>
 <td><p>Log incoming C-FIND, C-GET and C-MOVE request <em>Identifier</em> datasets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.LOG_RESPONSE_IDENTIFIERS.html#pynetdicom._config.LOG_RESPONSE_IDENTIFIERS" title="pynetdicom._config.LOG_RESPONSE_IDENTIFIERS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOG_RESPONSE_IDENTIFIERS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.LOG_RESPONSE_IDENTIFIERS.html#pynetdicom._config.LOG_RESPONSE_IDENTIFIERS" title="pynetdicom._config.LOG_RESPONSE_IDENTIFIERS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOG_RESPONSE_IDENTIFIERS</span></code></a></p></td>
 <td><p>Log incoming C-FIND, C-GET and C-MOVE response <em>Identifier</em> datasets.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.PASS_CONTEXTVARS.html#pynetdicom._config.PASS_CONTEXTVARS" title="pynetdicom._config.PASS_CONTEXTVARS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PASS_CONTEXTVARS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.PASS_CONTEXTVARS.html#pynetdicom._config.PASS_CONTEXTVARS" title="pynetdicom._config.PASS_CONTEXTVARS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PASS_CONTEXTVARS</span></code></a></p></td>
 <td><p>Pass context-local state to concurrent pynetdicom code.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.STORE_RECV_CHUNKED_DATASET.html#pynetdicom._config.STORE_RECV_CHUNKED_DATASET" title="pynetdicom._config.STORE_RECV_CHUNKED_DATASET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STORE_RECV_CHUNKED_DATASET</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.STORE_RECV_CHUNKED_DATASET.html#pynetdicom._config.STORE_RECV_CHUNKED_DATASET" title="pynetdicom._config.STORE_RECV_CHUNKED_DATASET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STORE_RECV_CHUNKED_DATASET</span></code></a></p></td>
 <td><p>Chunk a dataset file when receiving it to minimise memory usage.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.STORE_SEND_CHUNKED_DATASET.html#pynetdicom._config.STORE_SEND_CHUNKED_DATASET" title="pynetdicom._config.STORE_SEND_CHUNKED_DATASET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STORE_SEND_CHUNKED_DATASET</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.STORE_SEND_CHUNKED_DATASET.html#pynetdicom._config.STORE_SEND_CHUNKED_DATASET" title="pynetdicom._config.STORE_SEND_CHUNKED_DATASET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STORE_SEND_CHUNKED_DATASET</span></code></a></p></td>
 <td><p>Chunk a dataset file when sending it to minimise memory usage.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.USE_SHORT_DIMSE_AET.html#pynetdicom._config.USE_SHORT_DIMSE_AET" title="pynetdicom._config.USE_SHORT_DIMSE_AET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">USE_SHORT_DIMSE_AET</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.USE_SHORT_DIMSE_AET.html#pynetdicom._config.USE_SHORT_DIMSE_AET" title="pynetdicom._config.USE_SHORT_DIMSE_AET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">USE_SHORT_DIMSE_AET</span></code></a></p></td>
 <td><p>Use short AE titles in DIMSE messages.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE.html#pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE" title="pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UNRESTRICTED_STORAGE_SERVICE</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE.html#pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE" title="pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UNRESTRICTED_STORAGE_SERVICE</span></code></a></p></td>
 <td><p>When acting as an SCP assume all presentation contexts with private or unknown public abstract syntaxes belong to the storage service and accept all storage service requests.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.VALIDATORS.html#pynetdicom._config.VALIDATORS" title="pynetdicom._config.VALIDATORS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VALIDATORS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.VALIDATORS.html#pynetdicom._config.VALIDATORS" title="pynetdicom._config.VALIDATORS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VALIDATORS</span></code></a></p></td>
 <td><p>Customise the validation performed on DIMSE elements and PDU parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html#pynetdicom._config.WINDOWS_TIMER_RESOLUTION" title="pynetdicom._config.WINDOWS_TIMER_RESOLUTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WINDOWS_TIMER_RESOLUTION</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html#pynetdicom._config.WINDOWS_TIMER_RESOLUTION" title="pynetdicom._config.WINDOWS_TIMER_RESOLUTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WINDOWS_TIMER_RESOLUTION</span></code></a></p></td>
 <td><p>Set the minimum timer resolution for Microsoft Windows.</p></td>
 </tr>
 </tbody>

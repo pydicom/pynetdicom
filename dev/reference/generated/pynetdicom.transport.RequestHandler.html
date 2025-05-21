@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="pynetdicom.transport.ThreadedAssociationServer" href="pynetdicom.transport.ThreadedAssociationServer.html" />
-    <link rel="prev" title="pynetdicom.transport.AssociationServer" href="pynetdicom.transport.AssociationServer.html" /> 
+    <link rel="prev" title="pynetdicom.transport.AddressInformation" href="pynetdicom.transport.AddressInformation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -72,6 +72,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.AssociationSocket.html">pynetdicom.transport.AssociationSocket</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.AssociationServer.html">pynetdicom.transport.AssociationServer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.AddressInformation.html">pynetdicom.transport.AddressInformation</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.transport.RequestHandler</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#pynetdicom.transport.RequestHandler"><code class="docutils literal notranslate"><span class="pre">RequestHandler</span></code></a></li>
 </ul>
@@ -123,18 +124,15 @@
 <h1>pynetdicom.transport.RequestHandler<a class="headerlink" href="#pynetdicom-transport-requesthandler" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.transport.RequestHandler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.transport.</span></span><span class="sig-name descname"><span class="pre">RequestHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/df1c216f7/pynetdicom/transport.py#L480"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.RequestHandler" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.transport.</span></span><span class="sig-name descname"><span class="pre">RequestHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/118115683/pynetdicom/transport.py#L664"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.RequestHandler" title="Link to this definition">¶</a></dt>
 <dd><p>Connection request handler for the <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code>.</p>
-<div class="versionadded">
-<p><span class="versionmodified added">Added in version 1.2.</span></p>
-</div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pynetdicom.transport.RequestHandler.client_address">
 <span class="sig-name descname"><span class="pre">client_address</span></span><a class="headerlink" href="#pynetdicom.transport.RequestHandler.client_address" title="Link to this definition">¶</a></dt>
-<dd><p>The <code class="docutils literal notranslate"><span class="pre">(host,</span> <span class="pre">port)</span></code> of the remote.</p>
+<dd><p>The <code class="docutils literal notranslate"><span class="pre">(host,</span> <span class="pre">port)</span></code> or <code class="docutils literal notranslate"><span class="pre">(host,</span> <span class="pre">port,</span> <span class="pre">flowinfo,</span> <span class="pre">scope_id)</span></code> of the remote.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>2-tuple</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>] | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -163,7 +161,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.transport.RequestHandler.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/df1c216f7/pynetdicom/../../../usr/local/lib/python3.10/socketserver.py#L741"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.RequestHandler.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/118115683/pynetdicom/../../../usr/local/lib/python3.10/socketserver.py#L741"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.RequestHandler.__init__" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
@@ -190,10 +188,10 @@
 <td><p>Return the server's parent AE.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.RequestHandler.local" title="pynetdicom.transport.RequestHandler.local"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local</span></code></a></p></td>
-<td><p>Return a 2-tuple of the local server's <code class="docutils literal notranslate"><span class="pre">(host,</span> <span class="pre">port)</span></code> address.</p></td>
+<td><p>Return the local server's address information.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.RequestHandler.remote" title="pynetdicom.transport.RequestHandler.remote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remote</span></code></a></p></td>
-<td><p>Return a 2-tuple of the remote client's <code class="docutils literal notranslate"><span class="pre">(host,</span> <span class="pre">port)</span></code> address.</p></td>
+<td><p>Return the remote client's address information.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.RequestHandler.server" title="pynetdicom.transport.RequestHandler.server"><code class="xref py py-obj docutils literal notranslate"><span class="pre">server</span></code></a></p></td>
 <td><p></p></td>
@@ -208,7 +206,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.transport.RequestHandler.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/df1c216f7/pynetdicom/transport.py#L502"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.RequestHandler.handle" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/118115683/pynetdicom/transport.py#L684"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.RequestHandler.handle" title="Link to this definition">¶</a></dt>
 <dd><p>Handle an association request.</p>
 <ul class="simple">
 <li><p>Creates a new Association acceptor instance and configures it.</p></li>
@@ -219,14 +217,20 @@
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.transport.RequestHandler.local">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">local</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.transport.RequestHandler.local" title="Link to this definition">¶</a></dt>
-<dd><p>Return a 2-tuple of the local server’s <code class="docutils literal notranslate"><span class="pre">(host,</span> <span class="pre">port)</span></code> address.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">local</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation" title="pynetdicom.transport.AddressInformation"><span class="pre">AddressInformation</span></a></em><a class="headerlink" href="#pynetdicom.transport.RequestHandler.local" title="Link to this definition">¶</a></dt>
+<dd><p>Return the local server’s address information.</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 3.0: </span>Now returns a <a class="reference internal" href="pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation" title="pynetdicom.transport.AddressInformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressInformation</span></code></a> instance.</p>
+</div>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.transport.RequestHandler.remote">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remote</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.transport.RequestHandler.remote" title="Link to this definition">¶</a></dt>
-<dd><p>Return a 2-tuple of the remote client’s <code class="docutils literal notranslate"><span class="pre">(host,</span> <span class="pre">port)</span></code> address.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remote</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation" title="pynetdicom.transport.AddressInformation"><span class="pre">AddressInformation</span></a></em><a class="headerlink" href="#pynetdicom.transport.RequestHandler.remote" title="Link to this definition">¶</a></dt>
+<dd><p>Return the remote client’s address information.</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 3.0: </span>Now returns a <a class="reference internal" href="pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation" title="pynetdicom.transport.AddressInformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressInformation</span></code></a> instance.</p>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -237,7 +241,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="pynetdicom.transport.AssociationServer.html" class="btn btn-neutral float-left" title="pynetdicom.transport.AssociationServer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pynetdicom.transport.AddressInformation.html" class="btn btn-neutral float-left" title="pynetdicom.transport.AddressInformation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="pynetdicom.transport.ThreadedAssociationServer.html" class="btn btn-neutral float-right" title="pynetdicom.transport.ThreadedAssociationServer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

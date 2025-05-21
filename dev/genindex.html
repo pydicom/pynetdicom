@@ -339,6 +339,8 @@
 </li>
         <li><a href="reference/generated/pynetdicom.timer.Timer.html#pynetdicom.timer.Timer.__init__">(pynetdicom.timer.Timer method)</a>
 </li>
+        <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation.__init__">(pynetdicom.transport.AddressInformation method)</a>
+</li>
         <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.__init__">(pynetdicom.transport.AssociationServer method)</a>
 </li>
         <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.__init__">(pynetdicom.transport.AssociationSocket method)</a>
@@ -460,12 +462,24 @@
 </li>
       <li><a href="reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext.add_transfer_syntax">add_transfer_syntax() (pynetdicom.presentation.PresentationContext method)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.address">address (pynetdicom.association.ServiceUser attribute)</a>
+      <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.address">address (pynetdicom.association.ServiceUser property)</a>
 
       <ul>
+        <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation.address">(pynetdicom.transport.AddressInformation property)</a>
+</li>
         <li><a href="reference/generated/pynetdicom.transport.T_CONNECT.html#pynetdicom.transport.T_CONNECT.address">(pynetdicom.transport.T_CONNECT property)</a>
 </li>
       </ul></li>
+      <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation.address_family">address_family (pynetdicom.transport.AddressInformation property)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.address_info">address_info (pynetdicom.association.ServiceUser attribute)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.T_CONNECT.html#pynetdicom.transport.T_CONNECT.address_info">(pynetdicom.transport.T_CONNECT property)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation">AddressInformation (class in pynetdicom.transport)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.sop_class.AdvancedBlendingPresentationStateStorage.html#pynetdicom.sop_class.AdvancedBlendingPresentationStateStorage">AdvancedBlendingPresentationStateStorage (in module pynetdicom.sop_class)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.ae">ae (pynetdicom.association.Association property)</a>
@@ -492,14 +506,14 @@
 </li>
       <li><a href="reference/generated/pynetdicom.fsm.AE_8.html#pynetdicom.fsm.AE_8">AE_8() (in module pynetdicom.fsm)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.ae_title">ae_title (pynetdicom.ae.ApplicationEntity property)</a>
 
       <ul>
         <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.ae_title">(pynetdicom.association.ServiceUser property)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.dimse_primitives.C_ECHO.html#pynetdicom.dimse_primitives.C_ECHO.AffectedSOPClassUID">AffectedSOPClassUID (pynetdicom.dimse_primitives.C_ECHO attribute)</a>
 
       <ul>
@@ -595,7 +609,11 @@
       <li><a href="reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext.as_scu">as_scu (pynetdicom.presentation.PresentationContext property)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext.as_tuple">as_tuple (pynetdicom.presentation.PresentationContext property)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation.as_tuple">(pynetdicom.transport.AddressInformation property)</a>
 </li>
+      </ul></li>
       <li><a href="reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.assoc">assoc (pynetdicom.acse.ACSE property)</a>
 
       <ul>
@@ -870,6 +888,8 @@
 </li>
       <li><a href="reference/generated/pynetdicom.utils.decode_bytes.html#pynetdicom.utils.decode_bytes">decode_bytes() (in module pynetdicom.utils)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom._config.DEFAULT_BIND_ADDRESS.html#pynetdicom._config.DEFAULT_BIND_ADDRESS">DEFAULT_BIND_ADDRESS (in module pynetdicom._config)</a>
+</li>
       <li><a href="reference/generated/pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES.html#pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES">DEFAULT_TRANSFER_SYNTAXES (in module pynetdicom._globals)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.DefinedProcedureProtocolInformationModelFind.html#pynetdicom.sop_class.DefinedProcedureProtocolInformationModelFind">DefinedProcedureProtocolInformationModelFind (in module pynetdicom.sop_class)</a>
@@ -920,10 +940,10 @@
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.DisplaySystem.html#pynetdicom.sop_class.DisplaySystem">DisplaySystem (in module pynetdicom.sop_class)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.sop_class.DisplaySystemInstance.html#pynetdicom.sop_class.DisplaySystemInstance">DisplaySystemInstance (in module pynetdicom.sop_class)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.sop_class.DisplaySystemInstance.html#pynetdicom.sop_class.DisplaySystemInstance">DisplaySystemInstance (in module pynetdicom.sop_class)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.service_class_n.DisplaySystemManagementServiceClass.html#pynetdicom.service_class_n.DisplaySystemManagementServiceClass">DisplaySystemManagementServiceClass (class in pynetdicom.service_class_n)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.presentation.DisplaySystemPresentationContexts.html#pynetdicom.presentation.DisplaySystemPresentationContexts">DisplaySystemPresentationContexts (in module pynetdicom.presentation)</a>
@@ -1088,6 +1108,10 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.file_meta">file_meta (pynetdicom.events.Event property)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation.flowinfo">flowinfo (pynetdicom.transport.AddressInformation attribute)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation.from_addr_port">from_addr_port() (pynetdicom.transport.AddressInformation class method)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.pdu.A_ABORT_RQ.html#pynetdicom.pdu.A_ABORT_RQ.from_primitive">from_primitive() (pynetdicom.pdu.A_ABORT_RQ method)</a>
 
       <ul>
@@ -1144,6 +1168,10 @@
         <li><a href="reference/generated/pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive">(pynetdicom.pdu_primitives.UserIdentityNegotiation method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation.from_tuple">from_tuple() (pynetdicom.transport.AddressInformation class method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -1310,10 +1338,10 @@
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.IntravascularOpticalCoherenceTomographyImageStorageForPresentation.html#pynetdicom.sop_class.IntravascularOpticalCoherenceTomographyImageStorageForPresentation">IntravascularOpticalCoherenceTomographyImageStorageForPresentation (in module pynetdicom.sop_class)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.sop_class.IntravascularOpticalCoherenceTomographyImageStorageForProcessing.html#pynetdicom.sop_class.IntravascularOpticalCoherenceTomographyImageStorageForProcessing">IntravascularOpticalCoherenceTomographyImageStorageForProcessing (in module pynetdicom.sop_class)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.sop_class.InventoryCreation.html#pynetdicom.sop_class.InventoryCreation">InventoryCreation (in module pynetdicom.sop_class)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.InventoryFind.html#pynetdicom.sop_class.InventoryFind">InventoryFind (in module pynetdicom.sop_class)</a>
@@ -1346,6 +1374,10 @@
         <li><a href="reference/generated/pynetdicom.events.NotificationEvent.html#pynetdicom.events.NotificationEvent.is_intervention">(pynetdicom.events.NotificationEvent attribute)</a>
 </li>
       </ul></li>
+      <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation.is_ipv4">is_ipv4 (pynetdicom.transport.AddressInformation property)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation.is_ipv6">is_ipv6 (pynetdicom.transport.AddressInformation property)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent.is_notification">is_notification (pynetdicom.events.InterventionEvent attribute)</a>
 
       <ul>
@@ -1879,8 +1911,12 @@
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.PlannedImagingAgentAdministrationSRStorage.html#pynetdicom.sop_class.PlannedImagingAgentAdministrationSRStorage">PlannedImagingAgentAdministrationSRStorage (in module pynetdicom.sop_class)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.port">port (pynetdicom.association.ServiceUser attribute)</a>
+      <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.port">port (pynetdicom.association.ServiceUser property)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation.port">(pynetdicom.transport.AddressInformation attribute)</a>
 </li>
+      </ul></li>
       <li><a href="reference/generated/pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation.positive_response_requested">positive_response_requested (pynetdicom.pdu_primitives.UserIdentityNegotiation property)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.PositronEmissionTomographyImageStorage.html#pynetdicom.sop_class.PositronEmissionTomographyImageStorage">PositronEmissionTomographyImageStorage (in module pynetdicom.sop_class)</a>
@@ -2401,6 +2437,8 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation.scope_id">scope_id (pynetdicom.transport.AddressInformation attribute)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.scp">scp (pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem property)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.service_class.BasicWorklistManagementServiceClass.html#pynetdicom.service_class.BasicWorklistManagementServiceClass.SCP">SCP() (pynetdicom.service_class.BasicWorklistManagementServiceClass method)</a>

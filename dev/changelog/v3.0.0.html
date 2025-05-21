@@ -123,6 +123,7 @@
 <li><p>Minimum required pydicom version is 3.0</p></li>
 <li><p>Changed <a class="reference internal" href="../reference/generated/pynetdicom.presentation.StoragePresentationContexts.html#pynetdicom.presentation.StoragePresentationContexts" title="pynetdicom.presentation.StoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code></a> to match DCMTK
 implementation</p></li>
+<li><p>Various small changes required to support IPv6</p></li>
 </ul>
 <section id="changes">
 <h2>Changes<a class="headerlink" href="#changes" title="Link to this heading">¶</a></h2>
@@ -133,6 +134,34 @@ implementation</p></li>
 <li><p>Updated SOP classes to version 2025b of the DICOM Standard</p></li>
 <li><p>P-DATA PDUs received during association release are now added to the normal DIMSE
 messaging queue</p></li>
+<li><p>The following changes have been made in order to support IPv6 connections:</p>
+<ul>
+<li><p>Changed <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a> to accept
+either a str or tuple[str, int, int] as the <cite>addr</cite> parameter.</p></li>
+<li><p>Changed <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a> to accept
+either a tuple[str, int] or tuple[str, int, int, int] as the <cite>bind_address</cite> keyword
+parameter.</p></li>
+<li><p>Changed <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.make_server()</span></code></a> and
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a> to
+accept either a tuple[str, int] or tuple[str, int, int, int] as the <cite>address</cite>
+parameter.</p></li>
+<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation" title="pynetdicom.transport.AddressInformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressInformation</span></code></a></p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.address" title="pynetdicom.association.ServiceUser.address"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ServiceUser.address</span></code></a> and
+<a class="reference internal" href="../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.port" title="pynetdicom.association.ServiceUser.port"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ServiceUser.port</span></code></a> are now
+read-only properties.</p></li>
+<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.address_info" title="pynetdicom.association.ServiceUser.address_info"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ServiceUser.address_info</span></code></a>.</p></li>
+<li><p>Changed <a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket" title="pynetdicom.transport.AssociationSocket"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pynetdicom.transport.AssociationSocket()</span></code></a> to accept an
+<a class="reference internal" href="../reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation" title="pynetdicom.transport.AddressInformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressInformation</span></code></a> instance as the <cite>address</cite>
+keyword parameter.</p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.transport.RequestHandler.html#pynetdicom.transport.RequestHandler.local" title="pynetdicom.transport.RequestHandler.local"><code class="xref py py-attr docutils literal notranslate"><span class="pre">RequestHandler.local</span></code></a> and
+<a class="reference internal" href="../reference/generated/pynetdicom.transport.RequestHandler.html#pynetdicom.transport.RequestHandler.remote" title="pynetdicom.transport.RequestHandler.remote"><code class="xref py py-attr docutils literal notranslate"><span class="pre">RequestHandler.remote</span></code></a> now
+return an <a class="reference internal" href="../reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation" title="pynetdicom.transport.AddressInformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressInformation</span></code></a> instance</p></li>
+<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.transport.T_CONNECT.html#pynetdicom.transport.T_CONNECT.address_info" title="pynetdicom.transport.T_CONNECT.address_info"><code class="xref py py-attr docutils literal notranslate"><span class="pre">T_CONNECT.address_info</span></code></a></p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address"><code class="xref py py-attr docutils literal notranslate"><span class="pre">A_ASSOCIATE.calling_presentation_address</span></code></a> and
+<a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address"><code class="xref py py-attr docutils literal notranslate"><span class="pre">A_ASSOCIATE.called_presentation_address</span></code></a> are both now
+set using an <a class="reference internal" href="../reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation" title="pynetdicom.transport.AddressInformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressInformation</span></code></a> instance</p></li>
+</ul>
+</li>
 </ul>
 </section>
 <section id="enhancements">
@@ -142,6 +171,8 @@ messaging queue</p></li>
 absent from the N-CREATE-RQ can now be done by adding it to the returned <em>Attribute
 List</em> dataset (it’ll be removed from the dataset prior to sending) (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/995">#995</a>)</p></li>
 <li><p>Added debugging handlers for the remaining DIMSE-N messages</p></li>
+<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.DEFAULT_BIND_ADDRESS.html#pynetdicom._config.DEFAULT_BIND_ADDRESS" title="pynetdicom._config.DEFAULT_BIND_ADDRESS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.DEFAULT_BIND_ADDRESS</span></code></a></p></li>
+<li><p>Added support for IPv6 connections (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/984">#984</a>)</p></li>
 </ul>
 </section>
 <section id="fixes">

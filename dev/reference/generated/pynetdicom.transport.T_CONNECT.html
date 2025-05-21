@@ -72,6 +72,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.AssociationSocket.html">pynetdicom.transport.AssociationSocket</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.AssociationServer.html">pynetdicom.transport.AssociationServer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.AddressInformation.html">pynetdicom.transport.AddressInformation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.RequestHandler.html">pynetdicom.transport.RequestHandler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.ThreadedAssociationServer.html">pynetdicom.transport.ThreadedAssociationServer</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.transport.T_CONNECT</a><ul>
@@ -123,7 +124,7 @@
 <h1>pynetdicom.transport.T_CONNECT<a class="headerlink" href="#pynetdicom-transport-t-connect" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.transport.T_CONNECT">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.transport.</span></span><span class="sig-name descname"><span class="pre">T_CONNECT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">A_ASSOCIATE</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/df1c216f7/pynetdicom/transport.py#L43"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.T_CONNECT" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.transport.</span></span><span class="sig-name descname"><span class="pre">T_CONNECT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">A_ASSOCIATE</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/118115683/pynetdicom/transport.py#L191"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.T_CONNECT" title="Link to this definition">¶</a></dt>
 <dd><p>A TRANSPORT CONNECTION primitive</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 2.0.</span></p>
@@ -142,7 +143,7 @@ primitive.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.transport.T_CONNECT.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">A_ASSOCIATE</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/df1c216f7/pynetdicom/transport.py#L55"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.T_CONNECT.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><span class="pre">A_ASSOCIATE</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/118115683/pynetdicom/transport.py#L203"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.transport.T_CONNECT.__init__" title="Link to this definition">¶</a></dt>
 <dd><p>Create a new TRANSPORT CONNECTION primitive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -166,7 +167,10 @@ a peer.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.T_CONNECT.address" title="pynetdicom.transport.T_CONNECT.address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">address</span></code></a></p></td>
 <td><p>Return the peer's <code class="docutils literal notranslate"><span class="pre">(str:</span> <span class="pre">IP</span> <span class="pre">address,</span> <span class="pre">int:</span> <span class="pre">port)</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.T_CONNECT.result" title="pynetdicom.transport.T_CONNECT.result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.T_CONNECT.address_info" title="pynetdicom.transport.T_CONNECT.address_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">address_info</span></code></a></p></td>
+<td><p>Return the peer's IP address information.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.T_CONNECT.result" title="pynetdicom.transport.T_CONNECT.result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result</span></code></a></p></td>
 <td><p>Return the result of the connection attempt as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p></td>
 </tr>
 </tbody>
@@ -175,6 +179,15 @@ a peer.</p>
 <dt class="sig sig-object py" id="pynetdicom.transport.T_CONNECT.address">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.transport.T_CONNECT.address" title="Link to this definition">¶</a></dt>
 <dd><p>Return the peer’s <code class="docutils literal notranslate"><span class="pre">(str:</span> <span class="pre">IP</span> <span class="pre">address,</span> <span class="pre">int:</span> <span class="pre">port)</span></code>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.transport.T_CONNECT.address_info">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">address_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation" title="pynetdicom.transport.AddressInformation"><span class="pre">AddressInformation</span></a></em><a class="headerlink" href="#pynetdicom.transport.T_CONNECT.address_info" title="Link to this definition">¶</a></dt>
+<dd><p>Return the peer’s IP address information.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 3.0.</span></p>
+</div>
 </dd></dl>
 
 <dl class="py property">

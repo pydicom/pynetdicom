@@ -134,7 +134,8 @@ method, which returns an <a class="reference internal" href="../reference/genera
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 
-<span class="c1"># Associate with the peer at IP address 127.0.0.1 and port 11112</span>
+<span class="c1"># Associate with the peer at IPv4 address 127.0.0.1 and port 11112</span>
+<span class="c1">#   IPv6 is also supported</span>
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 
 <span class="c1"># Release the association</span>
@@ -142,7 +143,7 @@ method, which returns an <a class="reference internal" href="../reference/genera
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>This sends an association request to the IP address <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> on port
+<p>This sends an association request to the IPv4 address <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> on port
 <code class="docutils literal notranslate"><span class="pre">11112</span></code> with the request containing the presentation contexts from
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
 and the default <em>Called AE Title</em> parameter of <code class="docutils literal notranslate"><span class="pre">'ANY-SCP'</span></code>.</p>
@@ -415,7 +416,7 @@ method:</p>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 
-<span class="c1"># Listen for association requests</span>
+<span class="c1"># Listen for association requests on a IPv4 address, IPv6 is also supported</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
 </pre></div>
 </div>

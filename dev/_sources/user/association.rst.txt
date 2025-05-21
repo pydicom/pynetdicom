@@ -23,14 +23,15 @@ method, which returns an :class:`Association` thread:
     ae = AE()
     ae.add_requested_context(Verification)
 
-    # Associate with the peer at IP address 127.0.0.1 and port 11112
+    # Associate with the peer at IPv4 address 127.0.0.1 and port 11112
+    #   IPv6 is also supported
     assoc = ae.associate("127.0.0.1", 11112)
 
     # Release the association
     if assoc.is_established:
         assoc.release()
 
-This sends an association request to the IP address ``127.0.0.1`` on port
+This sends an association request to the IPv4 address ``127.0.0.1`` on port
 ``11112`` with the request containing the presentation contexts from
 :attr:`AE.requested_contexts<pynetdicom.ae.ApplicationEntity.requested_contexts>`
 and the default *Called AE Title* parameter of ``'ANY-SCP'``.
@@ -96,7 +97,7 @@ also acting as a Storage SCP), plus a *User Identity Negotiation* item:
     ae = AE()
     # Contexts supported as a Storage SCP - requires Role Selection
     #   Note that we are limited to a maximum of 128 contexts.
-    #   StoragePresentationContexts includes 120, it is therefore 
+    #   StoragePresentationContexts includes 120, it is therefore
     #   possible to add 8 additional presentation contexts if needed.
     ae.requested_contexts = StoragePresentationContexts
     # Contexts proposed as a QR SCU
@@ -343,7 +344,7 @@ method:
     ae = AE()
     ae.add_supported_context(Verification)
 
-    # Listen for association requests
+    # Listen for association requests on a IPv4 address, IPv6 is also supported
     ae.start_server(("127.0.0.1", 11112))
 
 The above is suitable as an implementation of the Verification Service
