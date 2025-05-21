@@ -27,7 +27,7 @@ from pynetdicom.transport import (
     AssociationSocket,
     AssociationServer,
     ThreadedAssociationServer,
-    ConnectionInformation,
+    AddressInformation,
 )
 from pynetdicom.utils import make_target, set_ae, decode_bytes, set_uid
 from pynetdicom._globals import (
@@ -581,10 +581,15 @@ class ApplicationEntity:
         if not isinstance(port, int):
             raise TypeError("'port' must be int")
 
-        remote_address = ConnectionInformation.from_addr_port(addr, port)
+        remote_address = AddressInformation.from_addr_port(addr, port)
 
         if bind_address is None:
             bind_address = _config.DEFAULT_BIND_ADDRESS[remote_address.address_family]
+
+        if not isinstance(bind_address, (tuple, list)):
+            raise TypeError(
+                "'bind_address' must be tuple[str, int] or tuple[str, int, int, int]"
+            )
 
         if (
             len(bind_address) not in (2, 4)
@@ -602,7 +607,7 @@ class ApplicationEntity:
                 "'bind_address' must be tuple[str, int] or tuple[str, int, int, int]"
             )
 
-        local_address = ConnectionInformation.from_tuple(bind_address)
+        local_address = AddressInformation.from_tuple(bind_address)
 
         # Association
         assoc = Association(self, MODE_REQUESTOR)
@@ -618,11 +623,11 @@ class ApplicationEntity:
         # Association Acceptor object -> remote AE
         # `ae_title` validation is performed by the ServiceUser
         assoc.acceptor.ae_title = ae_title
-        assoc.acceptor.connection_info = remote_address
+        assoc.acceptor.address_info = remote_address
 
         # Association Requestor object -> local AE
         # Nominal address info - will get updated by AssociationSocket.connect()
-        assoc.requestor.connection_info = local_address
+        assoc.requestor.address_info = local_address
         assoc.requestor.ae_title = self.ae_title
         assoc.requestor.maximum_length = max_pdu
         assoc.requestor.implementation_class_uid = self.implementation_class_uid
@@ -669,7 +674,7 @@ class ApplicationEntity:
     def _create_socket(
         self,
         assoc: Association,
-        address: ConnectionInformation,
+        address: AddressInformation,
         tls_args: tuple[SSLContext, str] | None,
     ) -> AssociationSocket:
         """Create an :class:`~pynetdicom.transport.AssociationSocket` for the

@@ -53,7 +53,7 @@ from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation,
 )
 from pynetdicom.sop_class import CTImageStorage, Verification
-from pynetdicom.transport import ConnectionInformation
+from pynetdicom.transport import AddressInformation
 
 
 # debug_logger()
@@ -312,11 +312,11 @@ class TestStandardLogging:
         # Called AE Title is the destination DICOM AE title
         primitive.called_ae_title = "1234567890123456"
         # The TCP/IP address of the source, pynetdicom includes port too
-        primitive.calling_presentation_address = ConnectionInformation(
+        primitive.calling_presentation_address = AddressInformation(
             "127.127.127.127", 111112
         )
         # The TCP/IP address of the destination, pynetdicom includes port too
-        primitive.called_presentation_address = ConnectionInformation("0.0.0.0", 0)
+        primitive.called_presentation_address = AddressInformation("0.0.0.0", 0)
         # Proposed presentation contexts
         contexts = [
             build_context("1.2.3.4.5.6", JPEGBaseline8Bit),
@@ -345,11 +345,11 @@ class TestStandardLogging:
         # Called AE Title is the destination DICOM AE title
         primitive.called_ae_title = "1234567890123456"
         # The TCP/IP address of the source, pynetdicom includes port too
-        primitive.calling_presentation_address = ConnectionInformation(
+        primitive.calling_presentation_address = AddressInformation(
             "127.127.127.127", 111112
         )
         # The TCP/IP address of the destination, pynetdicom includes port too
-        primitive.called_presentation_address = ConnectionInformation("0.0.0.0", 0)
+        primitive.called_presentation_address = AddressInformation("0.0.0.0", 0)
         # Proposed presentation contexts
         contexts = [
             build_context("1.2.3.4.5.6", JPEGBaseline8Bit),

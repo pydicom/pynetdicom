@@ -21,36 +21,34 @@ Changes
   messaging queue
 * The following changes have been made in order to support IPv6 connections:
 
-  * Changed :meth:`pynetdicom.ae.ApplicationEntity.associate<AE.associate()>` to accept
+  * Changed :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` to accept
     either a str or tuple[str, int, int] as the `addr` parameter.
-  * Changed :meth:`pynetdicom.ae.ApplicationEntity.associate<AE.associate()>` to accept
+  * Changed :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` to accept
     either a tuple[str, int] or tuple[str, int, int, int] as the `bind_address` keyword
     parameter.
-  * Changed :meth:`pynetdicom.ae.ApplicationEntity.associate<AE.make_server()>` and
-    :meth:`pynetdicom.ae.ApplicationEntity.associate<AE.start_server()>` to
+  * Changed :meth:`AE.make_server()<pynetdicom.ae.ApplicationEntity.associate>` and
+    :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.associate>` to
     accept either a tuple[str, int] or tuple[str, int, int, int] as the `address`
     parameter.
-  * Added :class:`~pynetdicom.transport.IPAddress`
+  * Added :class:`~pynetdicom.transport.AddressInformation`
+  * :attr:`ServiceUser.address<pynetdicom.association.ServiceUser.address>` and
+    :attr:`ServiceUser.port<pynetdicom.association.ServiceUser.port>` are now
+    read-only properties.
+  * Added :attr:`ServiceUser.connection_info
+    <pynetdicom.association.ServiceUser.connection_info>`.
   * Changed :meth:`pynetdicom.transport.AssociationSocket` to accept an
-    :class:`~pynetdicom.transport.IPAddress` instance as the `address` keyword
-    parameter.
-  * :attr:`pynetdicom.transport.RequestHandler.local<RequestHandler.local>` and
-    :attr:`pynetdicom.transport.RequestHandler.remote<RequestHandler.remote>` now
-    return an :class:`~pynetdicom.transport.IPAddress` instance
-  * :attr:`pynetdicom.transport.T_CONNECT.address<T_CONNECT.address>` now
-    returns an :class:`~pynetdicom.transport.IPAddress` instance
-  * :attr:`pynetdicom.transport.AssociationServer.server_address
-    <AssociationServer.server_address>` is now set using an
-    :class:`~pynetdicom.transport.IPAddress` instance
-  * :attr:`pynetdicom.association.ServiceUser.address<ServiceUser.address>` is now set
-    using an :class:`~pynetdicom.transport.IPAddress` instance
-  * :attr:`pynetdicom.association.ServiceUser.address<ServiceUser.port>` is now a
-    read-only property
+    :class:`~pynetdicom.transport.AddressInformation` instance as the `address`
+    keyword parameter.
+  * :attr:`RequestHandler.local<pynetdicom.transport.RequestHandler.local>` and
+    :attr:`RequestHandler.remote<pynetdicom.transport.RequestHandler.remote>` now
+    return an :class:`~pynetdicom.transport.AddressInformation` instance
+  * Added :attr:`T_CONNECT.connection_info
+    <pynetdicom.transport.T_CONNECT.connection_info>`
   * :attr:`pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address
     <A_ASSOCIATE.calling_presentation_address>` and
-  * :attr:`pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address
+    :attr:`pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address
     <A_ASSOCIATE.called_presentation_address>` are both now set using an
-    :class:`~pynetdicom.transport.IPAddress` instance
+    :class:`~pynetdicom.transport.AddressInformation` instance
 
 
 Enhancements

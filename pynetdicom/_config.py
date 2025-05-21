@@ -338,7 +338,8 @@ DEFAULT_BIND_ADDRESS: dict[socket.AddressFamily, tuple[str, int]] = {
 Note that the default addresses mean that the client socket may be bound on any
 available interface that can viably route to the remote. This may be a security
 consideration for listen sockets on a server, however the client sockets used by
-`AE.associate()` connect directly to the specified remote and do not listen.
+:meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` connect directly to
+the specified remote and do not listen.
 
 Default: ``("0.0.0.0", 0)`` for IPv4 and ``("::0", 0)`` for IPv6.
 

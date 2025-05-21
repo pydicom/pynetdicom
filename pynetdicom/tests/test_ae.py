@@ -170,6 +170,28 @@ class TestStartServer:
 
         server.shutdown()
 
+    def test_ipv6(self):
+        """Test starting an IPv6 server."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.ae_title = "TESTAET"
+        assert ae.ae_title == "TESTAET"
+
+        ae.add_supported_context(Verification)
+        server = ae.start_server(("::1", 11112), block=False)
+        assert server.address_info.is_ipv6
+
+        server.shutdown()
+
+        server = ae.start_server(("::1", 11112, 1, 2), block=False)
+        assert server.address_info.is_ipv6
+        assert server.address_info.flowinfo == 1
+        assert server.address_info.scope_id == 2
+
+        server.shutdown()
+
 
 class TestAEVerificationSCP:
     """Check verification SCP"""
@@ -704,6 +726,39 @@ class TestAEBadAssociation:
         msg = r"'ae_title' must be str, not 'int'"
         with pytest.raises(TypeError, match=msg):
             ae.associate("localhost", 11112, ae_title=12345)
+
+    def test_invalid_addr_raises(self):
+        ae = AE()
+        with pytest.raises(TypeError, match="'addr' must be str or tuple"):
+            ae.associate(12, 14)
+
+        with pytest.raises(TypeError, match="'addr' must be str or tuple"):
+            ae.associate((12, 0, 0), 14)
+
+    def test_invalid_port_raises(self):
+        ae = AE()
+        with pytest.raises(TypeError, match="'port' must be int"):
+            ae.associate("localhost", "foo")
+
+    def test_invalid_bind_raises(self):
+        ae = AE()
+        with pytest.raises(TypeError, match="'bind_address' must be tuple"):
+            ae.associate("localhost", 11112, bind_address=12)
+
+        with pytest.raises(TypeError, match="'bind_address' must be tuple"):
+            ae.associate("localhost", 11112, bind_address=(12,))
+
+        with pytest.raises(TypeError, match="'bind_address' must be tuple"):
+            ae.associate("localhost", 11112, bind_address=(12, 13))
+
+        with pytest.raises(TypeError, match="'bind_address' must be tuple"):
+            ae.associate("localhost", 11112, bind_address=(12, 13, 0, 0))
+
+        with pytest.raises(TypeError, match="'bind_address' must be tuple"):
+            ae.associate("localhost", 11112, bind_address=("localhost", 13, "foo", 0))
+
+        with pytest.raises(TypeError, match="'bind_address' must be tuple"):
+            ae.associate("localhost", 11112, bind_address=("localhost", 13, 0, "foo"))
 
 
 class TestAEGoodMiscSetters:

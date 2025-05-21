@@ -17,7 +17,7 @@ communication with peer AEs.
 
    AssociationSocket
    AssociationServer
-   ConnectionInformation
+   AddressInformation
    RequestHandler
    ThreadedAssociationServer
    T_CONNECT

@@ -21,7 +21,7 @@ from pynetdicom.pdu_primitives import (
     AsynchronousOperationsWindowNegotiation,
 )
 from pynetdicom.sop_class import Verification
-from pynetdicom.transport import ConnectionInformation
+from pynetdicom.transport import AddressInformation
 
 
 # debug_logger()
@@ -66,12 +66,8 @@ class TestServiceUserAcceptor:
         primitive.application_context_name = "1.2.840.10008.3.1.1.1"
         primitive.calling_ae_title = "LOCAL_AE_TITLE  "
         primitive.called_ae_title = "REMOTE_AE_TITLE "
-        primitive.calling_presentation_address = ConnectionInformation(
-            "127.0.0.1", 11112
-        )
-        primitive.called_presentation_address = ConnectionInformation(
-            "127.0.0.2", 11113
-        )
+        primitive.calling_presentation_address = AddressInformation("127.0.0.1", 11112)
+        primitive.called_presentation_address = AddressInformation("127.0.0.2", 11113)
 
         # Presentation Contexts
         cx = build_context("1.2.840.10008.1.1")
@@ -95,13 +91,13 @@ class TestServiceUserAcceptor:
 
         assert user.primitive is None
         assert user.ae_title == ""
-        with pytest.raises(ValueError, match="No IP connection info"):
+        with pytest.raises(ValueError, match="No address info"):
             user.port
 
-        with pytest.raises(ValueError, match="No IP connection info"):
+        with pytest.raises(ValueError, match="No address info"):
             user.address
 
-        assert user.connection_info is None
+        assert user.address_info is None
         assert user._contexts == []
         assert user.mode == "acceptor"
         assert user.maximum_length == 16382
@@ -150,13 +146,13 @@ class TestServiceUserAcceptor:
 
         assert user.primitive is None
         assert user.ae_title == ""
-        with pytest.raises(ValueError, match="No IP connection info"):
+        with pytest.raises(ValueError, match="No address info"):
             user.port
 
-        with pytest.raises(ValueError, match="No IP connection info"):
+        with pytest.raises(ValueError, match="No address info"):
             user.address
 
-        assert user.connection_info is None
+        assert user.address_info is None
         assert user._contexts == []
         assert user.mode == "acceptor"
         assert user.maximum_length == 16382
@@ -164,14 +160,14 @@ class TestServiceUserAcceptor:
         assert user.implementation_class_uid == PYNETDICOM_IMPLEMENTATION_UID
 
         user.ae_title = "TEST_AE_TITLE"
-        user.connection_info = ConnectionInformation("127.9.9.1", 11112)
+        user.address_info = AddressInformation("127.9.9.1", 11112)
         user._contexts = [1]
         user.maximum_length = 16383
 
         assert user.ae_title == "TEST_AE_TITLE"
         assert user.port == 11112
         assert user.address == "127.9.9.1"
-        assert user.connection_info.as_tuple == ("127.9.9.1", 11112)
+        assert user.address_info.as_tuple == ("127.9.9.1", 11112)
         assert user._contexts == [1]
         assert user.maximum_length == 16383
 
@@ -1404,12 +1400,8 @@ class TestServiceUserRequestor:
         primitive.application_context_name = "1.2.840.10008.3.1.1.1"
         primitive.calling_ae_title = "LOCAL_AE_TITLE  "
         primitive.called_ae_title = "REMOTE_AE_TITLE "
-        primitive.calling_presentation_address = ConnectionInformation(
-            "127.0.0.1", 11112
-        )
-        primitive.called_presentation_address = ConnectionInformation(
-            "127.0.0.2", 11113
-        )
+        primitive.calling_presentation_address = AddressInformation("127.0.0.1", 11112)
+        primitive.called_presentation_address = AddressInformation("127.0.0.2", 11113)
 
         # Presentation Contexts
         cx = build_context("1.2.840.10008.1.1")
@@ -1456,13 +1448,13 @@ class TestServiceUserRequestor:
 
         assert user.primitive is None
         assert user.ae_title == ""
-        with pytest.raises(ValueError, match="No IP connection info"):
+        with pytest.raises(ValueError, match="No address info"):
             user.port
 
-        with pytest.raises(ValueError, match="No IP connection info"):
+        with pytest.raises(ValueError, match="No address info"):
             user.address
 
-        assert user.connection_info is None
+        assert user.address_info is None
         assert user._contexts == []
         assert user.mode == "requestor"
         assert user.maximum_length == 16382
@@ -1477,13 +1469,13 @@ class TestServiceUserRequestor:
 
         assert user.primitive is None
         assert user.ae_title == ""
-        with pytest.raises(ValueError, match="No IP connection info"):
+        with pytest.raises(ValueError, match="No address info"):
             user.port
 
-        with pytest.raises(ValueError, match="No IP connection info"):
+        with pytest.raises(ValueError, match="No address info"):
             user.address
 
-        assert user.connection_info is None
+        assert user.address_info is None
         assert user._contexts == []
         assert user.mode == "requestor"
         assert user.maximum_length == 16382
@@ -1491,14 +1483,14 @@ class TestServiceUserRequestor:
         assert user.implementation_class_uid == PYNETDICOM_IMPLEMENTATION_UID
 
         user.ae_title = "TEST_AE_TITLE"
-        user.connection_info = ConnectionInformation("127.9.9.1", 11112)
+        user.address_info = AddressInformation("127.9.9.1", 11112)
         user._contexts = [1]
         user.maximum_length = 16383
 
         assert user.ae_title == "TEST_AE_TITLE"
         assert user.port == 11112
         assert user.address == "127.9.9.1"
-        assert user.connection_info.as_tuple == ("127.9.9.1", 11112)
+        assert user.address_info.as_tuple == ("127.9.9.1", 11112)
         assert user._contexts == [1]
         assert user.maximum_length == 16383
 

@@ -82,7 +82,7 @@ from pynetdicom.sop_class import (  # type: ignore
     Verification,
 )
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
-from pynetdicom.transport import ConnectionInformation
+from pynetdicom.transport import AddressInformation
 from pynetdicom.utils import make_target, set_timer_resolution, set_ae, decode_bytes
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -3634,14 +3634,14 @@ class ServiceUser:
     .. versionchanged:: 3.0
 
         `address` and `port` have been changed to properties and added the
-        `connection_info` class attribute.
+        `address_info` attribute.
 
     Attributes
     ----------
-    connection_info : pynetdicom.transport.ConnectionInformation | None
-        The connection properties of the local or remote AE. For the local user the IP
-        address and port should be considered nominal until the connection with the
-        remote is made.
+    address_info : pynetdicom.transport.AddressInformation | None
+        The connection properties of the local or remote AE. When the local AE is the
+        requestor the IP address and port should be considered nominal until the
+        connection with the remote is made.
     primitive : pynetdicom.pdu_primitives.A_ASSOCIATE | None
         The A-ASSOCIATE primitive (request if mode is ``'requestor'``,
         accept/reject if mode is ``'acceptor'``) sent or received by the AE
@@ -3670,7 +3670,7 @@ class ServiceUser:
         self._ae_title: str = ""
         self.primitive: A_ASSOCIATE | None = None
 
-        self.connection_info: ConnectionInformation | None = None
+        self.address_info: AddressInformation | None = None
 
         # If Requestor this is the requested contexts, otherwise this is
         #   the supported contexts
@@ -3761,10 +3761,10 @@ class ServiceUser:
     @property
     def address(self) -> str:
         """Get the requestor or acceptor's IP address (if set)."""
-        if self.connection_info is None:
-            raise ValueError("No IP connection information has been set")
+        if self.address_info is None:
+            raise ValueError("No address information has been set")
 
-        return self.connection_info.address
+        return self.address_info.address
 
     @property
     def ae_title(self) -> str:
@@ -4049,8 +4049,8 @@ class ServiceUser:
         """Return a :class:`dict` with information about the :class:`ServiceUser`."""
         info = {
             "ae_title": self.ae_title,
-            "address": self.address if self.connection_info else None,
-            "port": self.port if self.connection_info else None,
+            "address": self.address if self.address_info else None,
+            "port": self.port if self.address_info else None,
             "mode": self.mode,
         }
         if not self.writeable:
@@ -4125,10 +4125,10 @@ class ServiceUser:
     @property
     def port(self) -> int:
         """Get the requestor or acceptor's port number (if set)."""
-        if self.connection_info is None:
-            raise ValueError("No IP connection information has been set")
+        if self.address_info is None:
+            raise ValueError("No address information has been set")
 
-        return self.connection_info.port
+        return self.address_info.port
 
     @property
     def requested_contexts(self) -> list[PresentationContext]:
