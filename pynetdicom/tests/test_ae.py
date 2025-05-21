@@ -3,6 +3,7 @@
 import logging
 import os
 import signal
+import sys
 import threading
 import time
 
@@ -31,6 +32,9 @@ from pynetdicom.transport import AssociationServer, RequestHandler
 
 if hasattr(PYD_CONFIG, "settings"):
     PYD_CONFIG.settings.reading_validation_mode = 0
+
+
+ON_WINDOWS = sys.platform == "win32"
 
 
 # debug_logger()
@@ -185,12 +189,14 @@ class TestStartServer:
 
         server.shutdown()
 
-        server = ae.start_server(("::1", 11112, 1, 2), block=False)
-        assert server.address_info.is_ipv6
-        assert server.address_info.flowinfo == 1
-        assert server.address_info.scope_id == 2
+        # Windows doesn't like the flowinfo/scope_id
+        if not ON_WINDOWS:
+            server = ae.start_server(("::1", 11112, 1, 2), block=False)
+            assert server.address_info.is_ipv6
+            assert server.address_info.flowinfo == 1
+            assert server.address_info.scope_id == 2
 
-        server.shutdown()
+            server.shutdown()
 
 
 class TestAEVerificationSCP:

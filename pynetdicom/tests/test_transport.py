@@ -421,6 +421,7 @@ class TestAssociationSocket:
         with pytest.raises(ValueError, match=msg):
             sock.connect(None)
 
+
 def server_context_v1_2():
     """Return a good TLs v1.2 server SSLContext."""
     # Python 3.10 and PEP 644, the ssl module requires OpenSSL 1.1.1 or newer
