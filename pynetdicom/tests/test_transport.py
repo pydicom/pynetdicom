@@ -331,6 +331,13 @@ class TestAssociationSocket:
     def test_get_local_addr(self):
         """Test get_local_addr()."""
         sock = AssociationSocket(self.assoc, address=AddressInformation("", 11112))
+
+        # Normal use
+        with pytest.warns(DeprecationWarning, match="get_local_addr"):
+            addr = sock.get_local_addr(("", 11113))
+
+
+        # Exception
         with pytest.warns(DeprecationWarning, match="get_local_addr"):
             addr = sock.get_local_addr(("", 111111))
 
