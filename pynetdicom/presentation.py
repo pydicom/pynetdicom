@@ -956,8 +956,6 @@ def build_role(
 ) -> "SCP_SCU_RoleSelectionNegotiation":
     """Return a SCP/SCU Role Selection Negotiation item.
 
-    .. versionadded:: 1.2
-
     Parameters
     ----------
     uid : str or UID or sop_class.SOPClass

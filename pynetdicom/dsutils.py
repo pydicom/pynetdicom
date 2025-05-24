@@ -75,10 +75,6 @@ def decode(
 ) -> Dataset:
     """Decode `bytestring` to a *pydicom* :class:`~pydicom.dataset.Dataset`.
 
-    .. versionchanged:: 1.5
-
-        Added `deflated` keyword parameter
-
     Parameters
     ----------
     byestring : io.BytesIO
@@ -128,10 +124,6 @@ def encode(
     ds: Dataset, is_implicit_vr: bool, is_little_endian: bool, deflated: bool = False
 ) -> bytes | None:
     """Encode a *pydicom* :class:`~pydicom.dataset.Dataset` `ds`.
-
-    .. versionchanged:: 1.5
-
-        Added `deflated` keyword parameter
 
     Parameters
     ----------
@@ -197,8 +189,6 @@ def encode_file_meta(file_meta: FileMetaDataset) -> bytes:
 def pretty_dataset(ds: Dataset, indent: int = 0, indent_char: str = "  ") -> list[str]:
     """Return a list of pretty dataset strings.
 
-    .. versionadded:: 1.5
-
     Parameters
     ----------
     ds : pydicom.dataset.Dataset
@@ -228,8 +218,6 @@ def pretty_dataset(ds: Dataset, indent: int = 0, indent_char: str = "  ") -> lis
 
 def pretty_element(elem: DataElement) -> str:
     """Return a pretty element string.
-
-    .. versionadded:: 1.5
 
     Parameters
     ----------

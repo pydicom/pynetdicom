@@ -324,32 +324,3 @@ part of the storage service.
 >>> from pynetdicom import _config
 >>> _config.UNRESTRICTED_STORAGE_SERVICE = True
 """
-
-
-DEFAULT_BIND_ADDRESS: dict[socket.AddressFamily, tuple[str, int]] = {
-    socket.AF_INET: ("0.0.0.0", 0),
-    socket.AF_INET6: ("::0", 0),
-}
-"""The default address and port to use for binding client sockets in
-:meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`.
-
-.. versionadded:: 3.0
-
-Note that the default addresses mean that the client socket may be bound on any
-available interface that can viably route to the remote. This may be a security
-consideration for listen sockets on a server, however the client sockets used by
-:meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` connect directly to
-the specified remote and do not listen.
-
-Default: ``("0.0.0.0", 0)`` for IPv4 and ``("::0", 0)`` for IPv6.
-
-Examples
---------
-
-Change the default bind addresses for IPv4 and IPv6.
-
->>> import socket
->>> from pynetdicom import _config
->>> _config.DEFAULT_BIND_ADDRESS[socket.AF_INET] = ("192.168.1.2", 0)
->>> _config.DEFAULT_BIND_ADDRESS[socket.AF_INET6] = ("::1", 11112)
-"""

@@ -45,7 +45,7 @@ single CT dataset.
         # Check the status of the storage request
         if status:
             # If the storage request succeeded this will be 0x0000
-            print('C-STORE request status: 0x{0:04x}'.format(status.Status))
+            print(f"C-STORE request status: 0x{status.Status:04x}")
         else:
             print('Connection timed out, was aborted or received invalid response')
 

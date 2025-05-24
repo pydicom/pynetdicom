@@ -47,7 +47,7 @@ Verification Service.
        # Check the status of the verification request
        if status:
            # If the verification request succeeded this will be 0x0000
-           print('C-ECHO request status: 0x{0:04x}'.format(status.Status))
+           print(f"C-ECHO request status: 0x{status.Status:04x}")
        else:
            print('Connection timed out, was aborted or received invalid response')
 

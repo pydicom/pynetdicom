@@ -40,10 +40,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class ApplicationEventLoggingServiceClass(ServiceClass):
-    """Implementation of the Application Event Logging Service Class
-
-    .. versionadded:: 1.4
-    """
+    """Implementation of the Application Event Logging Service Class"""
 
     statuses = APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS
 
@@ -91,10 +88,7 @@ class DisplaySystemManagementServiceClass(ServiceClass):
 
 
 class InstanceAvailabilityNotificationServiceClass(ServiceClass):
-    """Implementation of the Instance Availability Service Class
-
-    .. versionadded:: 1.4
-    """
+    """Implementation of the Instance Availability Service Class"""
 
     statuses = GENERAL_STATUS
 
@@ -118,10 +112,7 @@ class InstanceAvailabilityNotificationServiceClass(ServiceClass):
 
 
 class MediaCreationManagementServiceClass(ServiceClass):
-    """Implementation of the Media Creation Management Service Class
-
-    .. versionadded:: 1.4
-    """
+    """Implementation of the Media Creation Management Service Class"""
 
     statuses = MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS
 
@@ -149,10 +140,7 @@ class MediaCreationManagementServiceClass(ServiceClass):
 
 
 class PrintManagementServiceClass(ServiceClass):
-    """Implementation of the Print Management Service Class
-
-    .. versionadded:: 1.4
-    """
+    """Implementation of the Print Management Service Class"""
 
     statuses = PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS
 
@@ -187,10 +175,7 @@ class PrintManagementServiceClass(ServiceClass):
 
 
 class ProcedureStepServiceClass(ServiceClass):
-    """Implementation of the Modality Performed Procedure Step Service Class
-
-    .. versionadded:: 1.3
-    """
+    """Implementation of the Modality Performed Procedure Step Service Class"""
 
     statuses = PROCEDURE_STEP_STATUS
 
@@ -225,10 +210,7 @@ class ProcedureStepServiceClass(ServiceClass):
 
 
 class RTMachineVerificationServiceClass(ServiceClass):
-    """Implementation of the RT Machine Verification Service Class
-
-    .. versionadded:: 1.4
-    """
+    """Implementation of the RT Machine Verification Service Class"""
 
     statuses = RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS
 
@@ -263,10 +245,7 @@ class RTMachineVerificationServiceClass(ServiceClass):
 
 
 class StorageCommitmentServiceClass(ServiceClass):
-    """Implementation of the Storage Commitment Service Class
-
-    .. versionadded:: 1.4
-    """
+    """Implementation of the Storage Commitment Service Class"""
 
     statuses = STORAGE_COMMITMENT_SERVICE_CLASS_STATUS
 
@@ -321,10 +300,7 @@ class StorageManagementServiceClass(ServiceClass):
 
 
 class UnifiedProcedureStepServiceClass(ServiceClass):
-    """Implementation of the Unified Procedure Step Service Class
-
-    .. versionadded:: 1.4
-    """
+    """Implementation of the Unified Procedure Step Service Class"""
 
     statuses = UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS
 

@@ -54,7 +54,7 @@ series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
         responses = assoc.send_c_move(ds, 'STORE_SCP', PatientRootQueryRetrieveInformationModelMove)
         for (status, identifier) in responses:
             if status:
-                print('C-MOVE query status: 0x{0:04x}'.format(status.Status))
+                print(f"C-MOVE query status: 0x{status.Status:04x}")
             else:
                 print('Connection timed out, was aborted or received invalid response')
 
@@ -121,7 +121,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
         for (status, identifier) in responses:
             if status:
-                print('C-MOVE query status: 0x{0:04x}'.format(status.Status))
+                print(f"C-MOVE query status: 0x{status.Status:04x}")
             else:
                 print('Connection timed out, was aborted or received invalid response')
 

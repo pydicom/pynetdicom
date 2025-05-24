@@ -16,7 +16,7 @@ SOP Instances with a *Patient Name* matching ``CITIZEN^Jan`` using *Patient
 Root Query/Retrieve Information Model - Find* at the ``'PATIENT'`` level.
 
 The value of the *Query Retrieve Level* determines what SOP Instances are
-actually transferred, you can find all the possible query level values in the 
+actually transferred, you can find all the possible query level values in the
 following table. In this example we are querying for all the available
 data of a specific patient, so ``'PATIENT'`` level is the appropriate one.
 
@@ -60,7 +60,7 @@ data of a specific patient, so ``'PATIENT'`` level is the appropriate one.
         responses = assoc.send_c_find(ds, PatientRootQueryRetrieveInformationModelFind)
         for (status, identifier) in responses:
             if status:
-                print('C-FIND query status: 0x{0:04X}'.format(status.Status))
+                print(f"C-FIND query status: 0x{status.Status:04x}")
             else:
                 print('Connection timed out, was aborted or received invalid response')
 

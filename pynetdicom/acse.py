@@ -61,10 +61,7 @@ class ACSE:
 
     @property
     def assoc(self) -> "Association":
-        """Return the parent :class:`~pynetdicom.association.Association`.
-
-        .. versionadded:: 1.3
-        """
+        """Return the parent :class:`~pynetdicom.association.Association`."""
         return self._assoc
 
     def _check_async_ops(self) -> AsynchronousOperationsWindowNegotiation | None:
@@ -276,10 +273,6 @@ class ACSE:
         """Return ``True`` if an A-ABORT and/or A-P-ABORT request has been
         received.
 
-        .. versionchanged:: 1.5
-
-            Added `abort_type` keyword parameter.
-
         Parameters
         ----------
         abort_type : str, optional
@@ -306,10 +299,7 @@ class ACSE:
         return isinstance(primitive, abort_classes[abort_type])
 
     def is_release_requested(self) -> bool:
-        """Return ``True`` if an A-RELEASE request has been received.
-
-        .. versionadded:: 1.1
-        """
+        """Return ``True`` if an A-RELEASE request has been received."""
         primitive = self.dul.peek_next_pdu()
         if isinstance(primitive, A_RELEASE) and primitive.result is None:
             _ = self.dul.receive_pdu(wait=False)
@@ -576,8 +566,6 @@ class ACSE:
 
     def negotiate_release(self) -> None:
         """Negotiate association release.
-
-        .. versionadded:: 1.1
 
         Once an A-RELEASE request has been sent any received P-DATA PDUs will
         be ignored.
