@@ -336,7 +336,6 @@ class TestAssociationSocket:
         with pytest.warns(DeprecationWarning, match="get_local_addr"):
             addr = sock.get_local_addr(("", 11113))
 
-
         # Exception
         with pytest.warns(DeprecationWarning, match="get_local_addr"):
             addr = sock.get_local_addr(("", 111111))
