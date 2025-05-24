@@ -45,6 +45,7 @@ from pynetdicom.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom.dsutils import encode, decode
 from pynetdicom.events import Event
 from pynetdicom._globals import MODE_REQUESTOR
+from pynetdicom.pdu import A_RELEASE_RQ
 from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation,
     SOPClassExtendedNegotiation,
@@ -658,6 +659,35 @@ class TestAssociation:
         assert not assoc.is_aborted
 
         scp.shutdown()
+
+    def test_abort_dul_shutdown(self):
+        """Test for #912"""
+
+        made_it = []
+
+        def on_pdu_recv(event):
+            if isinstance(event.pdu, A_RELEASE_RQ):
+                event.assoc.abort()
+                made_it.append(True)
+
+        hh = [(evt.EVT_PDU_RECV, on_pdu_recv)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
+        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+
+        assoc = ae.associate("localhost", 11112)
+        assoc.release()
+
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+        assert len(made_it) > 0
 
 
 class TestCStoreSCP:

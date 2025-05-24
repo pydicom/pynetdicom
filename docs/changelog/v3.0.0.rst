@@ -49,6 +49,10 @@ Changes
     <pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address>` are both now
     set using an :class:`~pynetdicom.transport.AddressInformation` instance
 
+* Added the `block` optional argument to :meth:`Association.abort()
+  <pynetdicom.association.Association.abort>` to allow for operation in non-blocking
+  mode.
+
 
 Enhancements
 ------------
@@ -69,3 +73,5 @@ Fixes
   (:issue:`979`)
 * Handle an exception due to the socket being discarded while trying to send an abort
   while waiting for the socket to be discarded 🙃 (:issue:`806`)
+* Fixed :meth:`Association.abort()<pynetdicom.association.Association.abort>` causing
+  a deadlock when called within event handlers (:issue:`912`)

@@ -357,6 +357,11 @@ def trigger(
     if not handlers or handlers[0] is None:
         return None
 
+    # Use the non-blocking abort during during notification event handlers
+    #   The trigger for intervention event handlers sets the abort method
+    if isinstance(event, NotificationEvent):
+        setattr(assoc, "abort", assoc._abort_nonblocking)
+
     evt = Event(assoc, event, attrs or {})
 
     try:
@@ -376,6 +381,8 @@ def trigger(
             else:
                 func(evt)
     except Exception as exc:
+        setattr(assoc, "abort", assoc._abort_blocking)
+
         # Intervention exceptions get raised
         if isinstance(event, InterventionEvent):
             raise
@@ -386,6 +393,8 @@ def trigger(
             f"event handler '{func.__name__}'"
         )
         LOGGER.exception(exc)
+
+    setattr(assoc, "abort", assoc._abort_blocking)
 
     return None
 

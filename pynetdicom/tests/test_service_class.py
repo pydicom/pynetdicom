@@ -8,7 +8,7 @@ from pydicom.dataset import Dataset
 
 from pynetdicom import build_context
 from pynetdicom.dimse_primitives import C_STORE, C_GET, C_MOVE, C_CANCEL
-from pynetdicom.service_class import StorageServiceClass, ServiceClass
+from pynetdicom.service_class import StorageServiceClass, ServiceClass, attempt
 
 
 class DummyAssoc:
@@ -142,3 +142,10 @@ class TestServiceClass:
         assert service.is_cancelled(2) is False
         assert service.is_cancelled(3) is False
         assert cancel not in assoc.dimse.cancel_req.values()
+
+
+def test_attempt_non_assoc():
+    with attempt(None, None, 1) as ctx:
+        msg = "No association instance has been set"
+        with pytest.raises(ValueError, match=msg):
+            ctx.assoc
