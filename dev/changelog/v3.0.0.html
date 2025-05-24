@@ -162,6 +162,8 @@ return an <a class="reference internal" href="../reference/generated/pynetdicom.
 set using an <a class="reference internal" href="../reference/generated/pynetdicom.transport.AddressInformation.html#pynetdicom.transport.AddressInformation" title="pynetdicom.transport.AddressInformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressInformation</span></code></a> instance</p></li>
 </ul>
 </li>
+<li><p>Added the <cite>block</cite> optional argument to <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.abort" title="pynetdicom.association.Association.abort"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.abort()</span></code></a> to allow for operation in non-blocking
+mode.</p></li>
 </ul>
 </section>
 <section id="enhancements">
@@ -184,6 +186,8 @@ association release (<a class="extlink-issue reference external" href="https://g
 (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/979">#979</a>)</p></li>
 <li><p>Handle an exception due to the socket being discarded while trying to send an abort
 while waiting for the socket to be discarded 🙃 (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/806">#806</a>)</p></li>
+<li><p>Fixed <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.abort" title="pynetdicom.association.Association.abort"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.abort()</span></code></a> causing
+a deadlock when called within event handlers (<a class="extlink-issue reference external" href="https://github.com/pydicom/pynetdicom/issues/912">#912</a>)</p></li>
 </ul>
 </section>
 </section>
