@@ -204,25 +204,51 @@ class Association(threading.Thread):
         threading.Thread.__init__(self, target=make_target(self.run_reactor))
         self.daemon: bool = True
 
-    def abort(self) -> None:
+    def abort(self, block: bool = True) -> None:
         """Abort the :class:`Association` by sending an A-ABORT to the remote
         AE.
+
+        .. versionchanged:: 3.0
+
+            Added the `block` keyword parameter.
+
+        Parameters
+        ----------
+        block : bool, optional
+
+            * If ``True`` then this function blocks until the A-ABORT PDU has been sent
+              to  the peer, the connection shutdown and the state machine returned to
+              State 1 (idle). This is the default when ``abort()`` is called outside
+              of an event handler.
+            * If ``False`` then the function returns after adding an A-ABORT request
+              primitive to the outgoing queue. This is the default when ``abort()``
+              is called inside an event handler.
         """
+        return self._abort_blocking(block)
+
+    def _abort_blocking(self, block: bool = True) -> None:
+        """Blocking implementation of Association.abort()"""
         # Only allow a single abort message to be sent
         if self._sent_abort:
             return
 
-        if not self.is_released:
-            # Set before restarting the reactor to prevent race condition
-            self._sent_abort = True
-            # Ensure the reactor is running so it can be exited
-            self._reactor_checkpoint.set()
-            LOGGER.info("Aborting Association")
-            self.acse.send_abort(0x00)
+        if self.is_released:
+            return
 
-            # Event handler - association aborted
-            evt.trigger(self, evt.EVT_ABORTED, {})
-            self.kill()
+        # Set before restarting the reactor to prevent race condition
+        self._sent_abort = True
+        # Ensure the reactor is running so it can be exited
+        self._reactor_checkpoint.set()
+        LOGGER.info("Aborting Association")
+        self.acse.send_abort(0x00)
+
+        # Event handler - association aborted
+        evt.trigger(self, evt.EVT_ABORTED, {})
+
+        if block is False:
+            return
+
+        self.kill()
 
         # Ensure socket is shutdown and closed
         try:
@@ -232,6 +258,10 @@ class Association(threading.Thread):
 
         # Add short delay to ensure everything shuts down
         time.sleep(0.1)
+
+    def _abort_nonblocking(self, block: bool = False) -> None:
+        """Non-blocking implementation of Association.abort()"""
+        return self._abort_blocking(block)
 
     @property
     def accepted_contexts(self) -> list[PresentationContext]:
@@ -721,7 +751,7 @@ class Association(threading.Thread):
                 self._serve_request(msg, cast(int, context_id))
 
             # Check for release request from the peer
-            if self.acse.is_release_requested():
+            if self.is_established and self.acse.is_release_requested():
                 # Send A-RELEASE response
                 self.acse.send_release(is_response=True)
                 LOGGER.info("Association Released")

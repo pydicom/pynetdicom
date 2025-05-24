@@ -82,6 +82,8 @@ class ACSE:
             (1, 1).
         """
         # pylint: disable=broad-except
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
+
         try:
             # Response is always ignored as async ops is not supported
             inv, perf = self.requestor.asynchronous_operations
@@ -89,10 +91,13 @@ class ACSE:
                 self.assoc, evt.EVT_ASYNC_OPS, {"nr_invoked": inv, "nr_performed": perf}
             )
         except NotImplementedError:
+            setattr(self.assoc, "abort", self.assoc._abort_blocking)
             return None
         except Exception as exc:
             LOGGER.error("Exception raised in handler bound to 'evt.EVT_ASYNC_OPS'")
             LOGGER.exception(exc)
+
+        setattr(self.assoc, "abort", self.assoc._abort_blocking)
 
         item = AsynchronousOperationsWindowNegotiation()
         item.maximum_number_operations_invoked = 1
@@ -112,6 +117,8 @@ class ACSE:
             the accepted SOP Class Common Extended negotiation items.
         """
         # pylint: disable=broad-except
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
+
         try:
             rsp = evt.trigger(
                 self.assoc,
@@ -119,10 +126,13 @@ class ACSE:
                 {"items": self.requestor.sop_class_common_extended},
             )
         except Exception as exc:
+            setattr(self.assoc, "abort", self.assoc._abort_blocking)
+
             LOGGER.error("Exception raised in handler bound to 'evt.EVT_SOP_COMMON'")
             LOGGER.exception(exc)
             return {}
 
+        setattr(self.assoc, "abort", self.assoc._abort_blocking)
         rsp = cast(dict[UID, SOPClassCommonExtendedNegotiation], rsp)
 
         try:
@@ -149,6 +159,8 @@ class ACSE:
             The SOP Class Extended Negotiation items to be sent in response
         """
         # pylint: disable=broad-except
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
+
         try:
             user_response = evt.trigger(
                 self.assoc,
@@ -159,6 +171,8 @@ class ACSE:
             user_response = {}
             LOGGER.error("Exception raised in handler bound to 'evt.EVT_SOP_EXTENDED'")
             LOGGER.exception(exc)
+
+        setattr(self.assoc, "abort", self.assoc._abort_blocking)
 
         if not isinstance(user_response, (type(None), dict)):
             LOGGER.error(
@@ -197,6 +211,8 @@ class ACSE:
             otherwise None.
         """
         # pylint: disable=broad-except
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
+
         # The UserIdentityNegotiation (request) item
         req = self.requestor.user_identity
         if req is None:
@@ -213,16 +229,19 @@ class ACSE:
                 },
             )
         except NotImplementedError:
+            setattr(self.assoc, "abort", self.assoc._abort_blocking)
             # If the user hasn't implemented identity negotiation then
             #   default to accepting the association
             return True, None
         except Exception as exc:
+            setattr(self.assoc, "abort", self.assoc._abort_blocking)
             # If the user has implemented identity negotiation but an exception
             #   occurred then reject the association
             LOGGER.error("Exception in handler bound to 'evt.EVT_USER_ID'")
             LOGGER.exception(exc)
             return False, None
 
+        setattr(self.assoc, "abort", self.assoc._abort_blocking)
         identity_verified, response = cast(tuple[bool, bytes | None], rsp)
 
         if not identity_verified:

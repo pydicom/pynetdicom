@@ -88,7 +88,11 @@ class attempt:
     """
 
     def __init__(
-        self, rsp: "DimseServiceType", dimse: "DIMSEServiceProvider", cx_id: int
+        self,
+        rsp: "DimseServiceType",
+        dimse: "DIMSEServiceProvider",
+        cx_id: int,
+        assoc: "Association | None" = None,
     ) -> None:
         self._success = True
         # Should be customised within the context
@@ -98,8 +102,12 @@ class attempt:
         self._rsp = rsp
         self._dimse = dimse
         self._cx_id = cx_id
+        self._assoc = assoc
 
     def __enter__(self) -> "attempt":
+        if self._assoc is not None:
+            setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
+
         return self
 
     def __exit__(
@@ -108,6 +116,9 @@ class attempt:
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
     ) -> bool | None:
+        if self._assoc is not None:
+            setattr(self.assoc, "abort", self.assoc._abort_blocking)
+
         if exc_type is None:
             # No exceptions raised
             return None
@@ -121,6 +132,13 @@ class attempt:
 
         # Suppress any exceptions
         return True
+
+    @property
+    def assoc(self) -> "Association":
+        if not self._assoc:
+            raise ValueError("No association instance has been set")
+
+        return self._assoc
 
     @property
     def success(self) -> bool:
@@ -255,11 +273,11 @@ class ServiceClass:
                 pass
 
         # Try and trigger EVT_C_FIND
-        with attempt(rsp, self.dimse, cx_id) as ctx:
+        with attempt(rsp, self.dimse, cx_id, self.assoc) as ctx:
             ctx.error_msg = "Exception in handler bound to 'evt.EVT_C_FIND'"
             ctx.error_status = 0xC311
             generator = evt.trigger(
-                self.assoc,
+                ctx.assoc,
                 evt.EVT_C_FIND,
                 {
                     "request": req,
@@ -576,11 +594,11 @@ class ServiceClass:
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
         rsp.ActionTypeID = req.ActionTypeID
 
-        with attempt(rsp, self.dimse, cx_id) as ctx:
+        with attempt(rsp, self.dimse, cx_id, self.assoc) as ctx:
             ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_ACTION'"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
-                self.assoc,
+                ctx.assoc,
                 evt.EVT_N_ACTION,
                 {"request": req, "context": context.as_tuple},
             )
@@ -728,11 +746,11 @@ class ServiceClass:
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
 
-        with attempt(rsp, self.dimse, cx_id) as ctx:
+        with attempt(rsp, self.dimse, cx_id, self.assoc) as ctx:
             ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_CREATE'"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
-                self.assoc,
+                ctx.assoc,
                 evt.EVT_N_CREATE,
                 {"request": req, "context": context.as_tuple},
             )
@@ -861,11 +879,11 @@ class ServiceClass:
         rsp.AffectedSOPClassUID = req.RequestedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
-        with attempt(rsp, self.dimse, cx_id) as ctx:
+        with attempt(rsp, self.dimse, cx_id, self.assoc) as ctx:
             ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_DELETE'"
             ctx.error_status = 0x0110
             status = evt.trigger(
-                self.assoc,
+                ctx.assoc,
                 evt.EVT_N_DELETE,
                 {"request": req, "context": context.as_tuple},
             )
@@ -966,11 +984,11 @@ class ServiceClass:
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
         rsp.EventTypeID = req.EventTypeID
 
-        with attempt(rsp, self.dimse, cx_id) as ctx:
+        with attempt(rsp, self.dimse, cx_id, self.assoc) as ctx:
             ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_EVENT_REPORT'"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
-                self.assoc,
+                ctx.assoc,
                 evt.EVT_N_EVENT_REPORT,
                 {"request": req, "context": context.as_tuple},
             )
@@ -1114,11 +1132,11 @@ class ServiceClass:
         rsp.AffectedSOPClassUID = req.RequestedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
-        with attempt(rsp, self.dimse, cx_id) as ctx:
+        with attempt(rsp, self.dimse, cx_id, self.assoc) as ctx:
             ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_GET'"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
-                self.assoc, evt.EVT_N_GET, {"request": req, "context": context.as_tuple}
+                ctx.assoc, evt.EVT_N_GET, {"request": req, "context": context.as_tuple}
             )
 
         # Exception in context or handler aborted/released
@@ -1271,11 +1289,11 @@ class ServiceClass:
         rsp.AffectedSOPClassUID = req.RequestedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
-        with attempt(rsp, self.dimse, cx_id) as ctx:
+        with attempt(rsp, self.dimse, cx_id, self.assoc) as ctx:
             ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_SET'"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
-                self.assoc, evt.EVT_N_SET, {"request": req, "context": context.as_tuple}
+                ctx.assoc, evt.EVT_N_SET, {"request": req, "context": context.as_tuple}
             )
 
         # Exception in context or handler aborted/released
@@ -1444,12 +1462,14 @@ class VerificationServiceClass(ServiceClass):
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
         try:
             status = evt.trigger(
                 self.assoc,
                 evt.EVT_C_ECHO,
                 {"request": req, "context": context.as_tuple},
             )
+
             # Event handler has aborted or released
             if not self.assoc.is_established:
                 return
@@ -1486,6 +1506,8 @@ class VerificationServiceClass(ServiceClass):
             )
             LOGGER.exception(ex)
             rsp.Status = 0x0000
+
+        setattr(self.assoc, "abort", self.assoc._abort_blocking)
 
         # Check Status validity
         if not self.is_valid_status(cast(int, rsp.Status)):
@@ -1524,11 +1546,11 @@ class StorageServiceClass(ServiceClass):
         cx_id = cast(int, context.context_id)
 
         # Try and trigger EVT_C_STORE
-        with attempt(rsp, self.dimse, cx_id) as ctx:
+        with attempt(rsp, self.dimse, cx_id, self.assoc) as ctx:
             ctx.error_msg = "Exception in handler bound to 'evt.EVT_C_STORE'"
             ctx.error_status = 0xC211
             rsp_status = evt.trigger(
-                self.assoc,
+                ctx.assoc,
                 evt.EVT_C_STORE,
                 {"request": req, "context": context.as_tuple},
             )
@@ -1684,11 +1706,11 @@ class QueryRetrieveServiceClass(ServiceClass):
                 pass
 
         # Try and trigger EVT_C_GET
-        with attempt(rsp, self.dimse, cx_id) as ctx:
+        with attempt(rsp, self.dimse, cx_id, self.assoc) as ctx:
             ctx.error_msg = "Exception in handler bound to 'evt.EVT_C_GET'"
             ctx.error_status = 0xC411
             generator = evt.trigger(
-                self.assoc,
+                ctx.assoc,
                 evt.EVT_C_GET,
                 {
                     "request": req,
@@ -2049,11 +2071,11 @@ class QueryRetrieveServiceClass(ServiceClass):
                 pass
 
         # Try and trigger EVT_C_MOVE
-        with attempt(rsp, self.dimse, cx_id) as ctx:
+        with attempt(rsp, self.dimse, cx_id, self.assoc) as ctx:
             ctx.error_msg = "Exception in handler bound to 'evt.EVT_C_MOVE'"
             ctx.error_status = 0xC511
             generator = evt.trigger(
-                self.assoc,
+                ctx.assoc,
                 evt.EVT_C_MOVE,
                 {
                     "request": req,
@@ -2542,6 +2564,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                 # The user should deal with decoding failures
                 pass
 
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
         try:
             responses = evt.trigger(
                 self.assoc,
@@ -2555,6 +2578,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             responses = cast(Iterator[UserReturnType], responses)
             (rsp_status, rsp_identifier) = next(responses)
         except (StopIteration, TypeError):
+            setattr(self.assoc, "abort", self.assoc._abort_blocking)
             # Event handler has aborted or released - before any yields
             if not self.assoc.is_established:
                 return
@@ -2566,11 +2590,14 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, cx_id)
             return
         except Exception as ex:
+            setattr(self.assoc, "abort", self.assoc._abort_blocking)
             LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
             LOGGER.exception(ex)
             rsp.Status = 0xC311
             self.dimse.send_msg(rsp, cx_id)
             return
+
+        setattr(self.assoc, "abort", self.assoc._abort_blocking)
 
         # Event handler has aborted or released
         if not self.assoc.is_established:
