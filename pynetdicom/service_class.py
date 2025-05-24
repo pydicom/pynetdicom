@@ -410,8 +410,6 @@ class ServiceClass:
     def is_cancelled(self, msg_id: int) -> bool:
         """Return True if a C-CANCEL message with `msg_id` has been received.
 
-        .. versionadded:: 1.2
-
         Parameters
         ----------
         msg_id : int

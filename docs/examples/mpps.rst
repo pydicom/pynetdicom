@@ -103,7 +103,7 @@ SOP Instance.
 
         # Check the status of the display system request
         if status:
-            print('N-CREATE request status: 0x{0:04x}'.format(status.Status))
+            print(f"N-CREATE request status: 0x{status.Status:04x}")
 
             # If the MPPS request succeeded the status category may
             # be either Success or Warning
@@ -180,7 +180,7 @@ Procedure Step Status* of ``"COMPLETED"``.
         )
 
         if status:
-            print('N-SET request status: 0x{0:04x}'.format(status.Status))
+            print(f"N-SET request status: 0x{status.Status:04x}")
             category = code_to_category(status.Status)
             if category in ['Warning', 'Success']:
                 # Send completion
@@ -190,7 +190,7 @@ Procedure Step Status* of ``"COMPLETED"``.
                     mpps_instance_uid
                 )
                 if status:
-                    print('Final N-SET request status: 0x{0:04x}'.format(status.Status))
+                    print(f"Final N-SET request status: 0x{status.Status:04x}")
         else:
             print('Connection timed out, was aborted or received invalid response')
 

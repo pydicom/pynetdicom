@@ -2936,11 +2936,6 @@ def doc_handle_move(event: "Event", *args: Sequence[Any]) -> CMoveType:
     SCP will send a response with a 'Failure' status of ``0xA801`` 'Move
     Destination Unknown'.
 
-    .. versionchanged:: 1.5
-
-        Added the ability to yield either ``(addr, port)`` or
-        ``(addr, port, kwargs)``
-
     **Event**
 
     ``evt.EVT_C_MOVE``

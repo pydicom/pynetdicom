@@ -5,6 +5,7 @@ The main user class, represents a DICOM Application Entity
 from copy import deepcopy
 from datetime import datetime
 import logging
+import socket
 from ssl import SSLContext
 import threading
 from typing import (
@@ -533,9 +534,8 @@ class ApplicationEntity:
             IPv6 this may be the ``(str: address, int: port)``, with the `flowinfo` and
             `scope_id` defaulting to ``0`` for IPv6. Alternatively for IPv6 this
             may be the ``(str: address, int: port, int: flowinfo, int: scope_id)``.
-            Default: the value in :attr:`_config.DEFAULT_BIND_ADDRESS
-            <pynetdicom._config.DEFAULT_BIND_ADDRESS>` corresponding to the
-            address family of `addr`.
+            Default: ``("", 0)`` if `addr` uses IPv4 or ``("::0", 0)`` if `addr`
+            uses IPv6.
         tls_args : 2-tuple, optional
             If TLS is required then this should be a 2-tuple containing a
             (`ssl_context`, `server_hostname`), where `ssl_context` is the
@@ -584,7 +584,9 @@ class ApplicationEntity:
         remote_address = AddressInformation.from_addr_port(addr, port)
 
         if bind_address is None:
-            bind_address = _config.DEFAULT_BIND_ADDRESS[remote_address.address_family]
+            bind_address = ("", 0)
+            if remote_address.address_family == socket.AF_INET6:
+                bind_address = ("::0", 0)
 
         if not isinstance(bind_address, (tuple, list)):
             raise TypeError(
@@ -1284,10 +1286,6 @@ class ApplicationEntity:
         if none match the association will be rejected. If the set value
         is an empty list then the *Called AE Title* will not be checked.
 
-        .. versionchanged:: 1.1
-
-            `require_match` changed to ``bool``
-
         Parameters
         ----------
         require_match : bool
@@ -1311,10 +1309,6 @@ class ApplicationEntity:
         Title* supplied by the peer will be compared with the set value and
         if none match the association will be rejected. If the set value
         is an empty list then the *Calling AE Title* will not be checked.
-
-        .. versionchanged:: 1.1
-
-            `ae_titles` changed to :class:`list` of :class:`bytes`
 
         .. versionchanged:: 2.0
 
@@ -1351,10 +1345,7 @@ class ApplicationEntity:
         self._require_calling_aet = values
 
     def shutdown(self) -> None:
-        """Stop any active association servers and threads.
-
-        .. versionadded:: 1.2
-        """
+        """Stop any active association servers and threads."""
         for assoc in self.active_associations:
             assoc.abort()
 

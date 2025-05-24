@@ -1,0 +1,52 @@
+[
+  {
+    "version": "dev",
+    "url": "https://pydicom.github.io/pynetdicom/dev/"
+  },
+  {
+    "name": "3.0.0 (stable)",
+    "version": "v3.0.0",
+    "url": "https://pydicom.github.io/pynetdicom/stable/",
+    "preferred": true
+  },
+  {
+    "name": "2.1.1",
+    "version": "v2.1.1",
+    "url": "https://pydicom.github.io/pynetdicom/2.1/"
+  },
+  {
+    "name": "2.0.3",
+    "version": "v2.0.3",
+    "url": "https://pydicom.github.io/pynetdicom/2.0/"
+  },
+  {
+    "name": "1.5.7",
+    "version": "v1.5.7",
+    "url": "https://pydicom.github.io/pynetdicom/1.5/"
+  },
+  {
+    "name": "1.4.1",
+    "version": "v1.4.1",
+    "url": "https://pydicom.github.io/pynetdicom/1.4/"
+  },
+  {
+    "name": "1.3.1",
+    "version": "v1.3.1",
+    "url": "https://pydicom.github.io/pynetdicom/1.3/"
+  },
+  {
+    "name": "1.2.0",
+    "version": "v1.2.0",
+    "url": "https://pydicom.github.io/pynetdicom/1.2/"
+  },
+  {
+    "name": "1.1.0",
+    "version": "v1.1.0",
+    "url": "https://pydicom.github.io/pynetdicom/1.1/"
+  },
+  {
+    "name": "1.0.0",
+    "version": "v1.0.0",
+    "url": "https://pydicom.github.io/pynetdicom/1.0/"
+  }
+]

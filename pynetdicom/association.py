@@ -292,12 +292,6 @@ class Association(threading.Thread):
     ) -> None:
         """Bind a callable `handler` to an `event`.
 
-        .. versionadded:: 1.3
-
-        .. versionchanged:: 1.5
-
-            Added `args` keyword parameter.
-
         Parameters
         ----------
         event : collections.namedtuple
@@ -373,20 +367,11 @@ class Association(threading.Thread):
             self._dimse_timeout = value
 
     def get_events(self) -> list[evt.EventType]:
-        """Return a :class:`list` of currently bound events.
-
-        .. versionadded:: 1.3
-        """
+        """Return a :class:`list` of currently bound events."""
         return sorted(self._handlers.keys(), key=lambda x: x.name)
 
     def get_handlers(self, event: evt.EventType) -> evt.HandlerArgType:
         """Return the handlers bound to a specific `event`.
-
-        .. versionadded:: 1.3
-
-        .. versionchanged:: 1.5
-
-            Returns a 2-tuple of (callable, args) or list of 2-tuple.
 
         Parameters
         ----------
@@ -417,11 +402,6 @@ class Association(threading.Thread):
         allow_conversion: bool = True,
     ) -> PresentationContext:
         """Return a valid presentation context matching the parameters.
-
-        .. versionchanged:: 1.5
-
-            Changed to prefer an exact matching context over a convertible one
-            and to reject contexts without matching endianness
 
         .. versionchanged:: 2.0
 
@@ -816,8 +796,6 @@ class Association(threading.Thread):
     def unbind(self, event: evt.EventType, handler: Callable) -> None:
         """Unbind a callable `handler` from an `event`.
 
-        .. versionadded:: 1.3
-
         Parameters
         ----------
         event : namedtuple
@@ -1091,10 +1069,6 @@ class Association(threading.Thread):
 
         Yields (*status*, *identifier*) pairs for each response from the peer.
 
-        .. versionchanged:: 1.5
-
-            `query_model` now only accepts a UID string
-
         .. versionchanged:: 2.1
 
             Added support for *Repository Query*
@@ -1332,10 +1306,6 @@ class Association(threading.Thread):
         :ref:`SCP/SCU Role Selection Negotiation <user_ae_role_negotiation>`
         must be supported by the :class:`Association`.
 
-        .. versionchanged:: 1.5
-
-            `query_model` now only accepts a UID string
-
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
@@ -1539,10 +1509,6 @@ class Association(threading.Thread):
         the Move SCP. Once the association has been established, the peer will
         use the C-STORE service to send any matching datasets to the nominated
         Storage SCP.
-
-        .. versionchanged:: 1.5
-
-            `query_model` now only accepts a UID string
 
         .. versionchanged:: 2.0
 
@@ -2288,10 +2254,6 @@ class Association(threading.Thread):
     ) -> tuple[Dataset, Dataset | None]:
         """Send an N-ACTION request to the peer AE.
 
-        .. versionchanged:: 1.4
-
-            Added `meta_uid` keyword parameter
-
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset or None
@@ -2503,10 +2465,6 @@ class Association(threading.Thread):
         meta_uid: str | UID | None = None,
     ) -> tuple[Dataset, Dataset | None]:
         """Send an N-CREATE request to the peer AE.
-
-        .. versionchanged:: 1.4
-
-            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
@@ -2748,10 +2706,6 @@ class Association(threading.Thread):
     ) -> Dataset:
         """Send an N-DELETE request to the peer AE.
 
-        .. versionchanged:: 1.4
-
-            Added `meta_uid` keyword parameter
-
         Parameters
         ----------
         class_uid : pydicom.uid.UID
@@ -2873,10 +2827,6 @@ class Association(threading.Thread):
         meta_uid: str | UID | None = None,
     ) -> tuple[Dataset, Dataset | None]:
         """Send an N-EVENT-REPORT request to the peer AE.
-
-        .. versionchanged:: 1.4
-
-            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
@@ -3085,10 +3035,6 @@ class Association(threading.Thread):
         meta_uid: str | UID | None = None,
     ) -> tuple[Dataset, Dataset | None]:
         """Send an N-GET request to the peer AE.
-
-        .. versionchanged:: 1.4
-
-            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
@@ -3299,10 +3245,6 @@ class Association(threading.Thread):
         meta_uid: str | UID | None = None,
     ) -> tuple[Dataset, Dataset | None]:
         """Send an N-SET request to the peer AE.
-
-        .. versionchanged:: 1.4
-
-            Added `meta_uid` keyword parameter
 
         Parameters
         ----------

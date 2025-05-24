@@ -42,7 +42,7 @@ Display System Management Service.
 
         # Check the status of the display system request
         if status:
-            print('N-GET request status: 0x{0:04x}'.format(status.Status))
+            print(f"N-GET request status: 0x{status.Status:04x}")
 
             # If the display system request succeeded the status category may
             # be either success or warning
