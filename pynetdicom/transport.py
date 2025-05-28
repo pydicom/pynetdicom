@@ -751,6 +751,7 @@ class RequestHandler(BaseRequestHandler):
                     handler = cast(evt._HandlerBase, handler)
                     assoc.bind(event, handler[0], handler[1])
 
+        assoc._peer_certificate = getattr(self.server, '_latest_peer_cert', None)
         return assoc
 
 
@@ -943,7 +944,14 @@ class AssociationServer(TCPServer):
                 client_socket, server_side=True
             )
 
+            try:
+                self._latest_peer_cert = client_socket.getpeercert()
+            except Exception as e:
+                LOGGER.warning(f"Could not retrieve peer certificate: {e}")
+                self._latest_peer_cert = None
+
         return client_socket, address
+
 
     def process_request(
         self,
