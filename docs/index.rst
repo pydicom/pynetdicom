@@ -12,7 +12,7 @@ Users* (SCUs) and *Service Class Providers* (SCPs) by associating with other
 AEs and using or providing the services available to the association.
 
 
-User Guide
+User guide
 ==========
 An overview for using *pynetdcom* and the concepts relevant to DICOM networking.
 
@@ -42,8 +42,8 @@ Example source code and applications.
 
 
 
-API
-===
+Reference
+=========
 Documentation for `pynetdicom's` public functions, classes and other objects.
 
 .. toctree::
@@ -52,8 +52,8 @@ Documentation for `pynetdicom's` public functions, classes and other objects.
    reference/index
 
 
-Release Notes
-=============
+Releases
+========
 
 .. toctree::
    :maxdepth: 1

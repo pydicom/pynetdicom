@@ -2,14 +2,6 @@
 How to install pynetdicom
 =========================
 
-.. note::
-
-   We recommend installing into a
-   `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_,
-   which is an isolated Python environment that allows you to install
-   packages without admin privileges.
-
-
 .. _tut_install:
 
 Install the official release
@@ -25,14 +17,10 @@ Install using pip
 
 *pynetdicom* is available on `PyPi <https://pypi.python.org/pypi/pydicom/>`_,
 the official third-party Python software repository. The simplest way to
-install (or upgrade) from PyPi is using `pip <https://pip.pypa.io/>`_ with the
-command::
+install (or upgrade) from PyPi is using `pip <https://pip.pypa.io/>`_ with::
 
-  pip install -U pynetdicom
-
-You may need to use this instead::
-
-  python -m pip install -U pynetdicom
+    python -m pip install -U pip
+    python -m pip install -U pynetdicom
 
 
 Install using conda
@@ -60,31 +48,27 @@ Now that *pynetdicom* is installed you might be interested in the
 Install the development version
 ===============================
 
-To install a snapshot of the latest code (the ``master`` branch) from
+To install a snapshot of the latest code (the ``main`` branch) from
 :gh:`GitHub <pynetdicom>`::
 
   pip install git+https://github.com/pydicom/pynetdicom
 
-The ``master`` branch is under active development, and while it's usually
+The ``main`` branch is under active development, and while it's usually
 stable it may have undocumented changes or bugs.
 
 If you want to keep up-to-date with the latest code, make sure you have
-`Git <https://git-scm.com/>`_ installed and then clone the ``master``
+`Git <https://git-scm.com/>`_ installed and then clone the ``main``
 branch (this will create a ``pynetdicom`` directory in your current directory)::
 
   git clone https://github.com/pydicom/pynetdicom
 
-Create a `new virtual environment <https://docs.python.org/3/tutorial/venv.html>`_
+Create a `new virtual environment <https://docs.python.org/3/tutorial/venv.html>`_ and
+in the activated environment change to the ``pynetdicom`` directory and install
+*pynetdicom* and the required development packages::
 
-In the activated environment install `poetry <https://python-poetry.org/>`_::
+    cd pynetdicom/
+    python -m pip install -e .[dev]
 
-  pip install -U poetry
-
-Change to the ``pynetdicom`` directory and install *pynetdicom* and the required
-development packages using poetry::
-
-  cd pynetdicom/
-  poetry install --with dev
 
 When you want to update your copy of the source code, run ``git pull`` from
 within the ``pynetdicom`` directory and Git will download and apply any

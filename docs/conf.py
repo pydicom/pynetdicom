@@ -222,15 +222,15 @@ html_theme_options = {
             "icon": "fa-custom fa-pypi",
         },
     ],
+    "show_version_warning_banner": True,
     "switcher": {
         "json_url": json_url,
         "version_match": version_match,
     },
+    "collapse_navigation": True,
 }
 
-html_sidebars = {
-    "**": ["sidebar-nav-bs"]
-}
+html_sidebars = {"**": ["sidebar-nav-bs"]}
 html_js_files = [
     ("custom-icons.js", {"defer": "defer"}),
 ]
