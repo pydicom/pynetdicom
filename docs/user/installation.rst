@@ -1,8 +1,6 @@
-=========================
-How to install pynetdicom
-=========================
-
-.. _tut_install:
+============
+Installation
+============
 
 Install the official release
 ============================
@@ -15,9 +13,9 @@ addition, if you want to use the :doc:`qrscp<../apps/qrscp>` application then
 Install using pip
 -----------------
 
-*pynetdicom* is available on `PyPi <https://pypi.python.org/pypi/pydicom/>`_,
+*pynetdicom* is available on `PyPi <https://pypi.python.org/pypi/pynetdicom/>`_,
 the official third-party Python software repository. The simplest way to
-install (or upgrade) from PyPi is using `pip <https://pip.pypa.io/>`_ with::
+install (or upgrade) from PyPi is using `pip <https://pip.pypa.io/>`_::
 
     python -m pip install -U pip
     python -m pip install -U pynetdicom
@@ -35,15 +33,6 @@ To upgrade the installed version on conda do::
 
   conda update pynetdicom
 
-
-After installation
-------------------
-
-Now that *pynetdicom* is installed you might be interested in the
-:doc:`tutorial for new users<create_scu>`.
-
-
-.. _tut_install_dev:
 
 Install the development version
 ===============================
@@ -68,7 +57,6 @@ in the activated environment change to the ``pynetdicom`` directory and install
 
     cd pynetdicom/
     python -m pip install -e .[dev]
-
 
 When you want to update your copy of the source code, run ``git pull`` from
 within the ``pynetdicom`` directory and Git will download and apply any

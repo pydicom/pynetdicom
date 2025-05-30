@@ -187,8 +187,7 @@ version_match = os.environ.get("READTHEDOCS_VERSION")
 # If READTHEDOCS_VERSION doesn't exist, we're not on RTD
 # If it is an integer, we're in a PR build and the version isn't correct.
 # If it's "latest" → change to "dev" (that's what we want the switcher to call it)
-# json_url = "https://pydicom.github.io/pynetdicom/dev/_static/switcher.json"
-json_url = "_static/switcher.json"
+json_url = "https://pydicom.github.io/pynetdicom/dev/_static/switcher.json"
 if not version_match or version_match.isdigit() or version_match == "latest":
     # For local development, infer the version to match from the package.
     if "dev" in release or "rc" in release:
@@ -206,10 +205,11 @@ html_theme_options = {
         "text": "pynetdicom",
         "image_dark": "_static/img/logo.png",
     },
-    "navbar_align": "left",
-    # "navbar_start": ["navbar-logo"],
-    "navbar_center": ["version-switcher", "navbar-nav"],
-    "navbar_end": ["theme-switcher", "navbar-icon-links"],
+    "navbar_align": "content",
+    "navbar_start": ["navbar-logo"],
+    "navbar_center": ["navbar-nav"],
+    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
+    "navbar_persistent": ["search-button"],
     "icon_links": [
         {
             "name": "GitHub",
@@ -227,7 +227,9 @@ html_theme_options = {
         "json_url": json_url,
         "version_match": version_match,
     },
-    "collapse_navigation": True,
+    "show_nav_level": 1,
+    # "navigation_depth": 2,
+    # "collapse_navigation": True,  # Turn off expandable navigation
 }
 
 html_sidebars = {"**": ["sidebar-nav-bs"]}

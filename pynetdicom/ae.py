@@ -151,7 +151,7 @@ class ApplicationEntity:
         abstract_syntax: str | UID,
         transfer_syntax: TSyntaxType = None,
     ) -> None:
-        """Add a :ref:`presentation context<user_presentation>` to be
+        """Add a :doc:`presentation context</user/presentation_requestor>` to be
         proposed when requesting an association.
 
         When an SCU sends an association request to a peer it includes a list
@@ -276,7 +276,7 @@ class ApplicationEntity:
         scu_role: bool | None = None,
         scp_role: bool | None = None,
     ) -> None:
-        """Add a :ref:`presentation context<user_presentation>` to be
+        """Add a :doc:`presentation context</user/presentation_acceptor>` to be
         supported when accepting association requests.
 
         When an association request is received from a peer it supplies a list
@@ -298,7 +298,7 @@ class ApplicationEntity:
             :attr:`~pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES`).
         scu_role : bool or None, optional
             If the association requestor includes an
-            :ref:`SCP/SCU Role Selection Negotiation<user_presentation_role>`
+            :doc:`SCP/SCU Role Selection Negotiation</user/presentation_role_selection>`
             item for this context then:
 
             * If ``None`` then ignore the proposal (if either `scp_role` or
@@ -308,7 +308,7 @@ class ApplicationEntity:
             * If ``False`` reject the proposed SCU role
         scp_role : bool or None, optional
             If the association requestor includes an
-            :ref:`SCP/SCU Role Selection Negotiation<user_presentation_role>`
+            :doc:`SCP/SCU Role Selection Negotiation</user/presentation_role_selection>`
             item for this context then:
 
             * If ``None`` then ignore the proposal (if either `scp_role` or

@@ -8,6 +8,22 @@ Examples
 Code Examples
 =============
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Code examples
+
+   basic_worklist
+   display
+   mpps
+   print
+   qr_find
+   qr_get
+   qr_move
+   relevant_patient
+   storage
+   verification
+
 * :doc:`Basic Worklist Management (C-FIND) <basic_worklist>`
 * :doc:`Display System Management (N-GET) <display>`
 * Modality Performed Procedure Step Management
@@ -26,12 +42,13 @@ Code Examples
 * :doc:`Verification (C-ECHO) <verification>`
 
 
-Example Applications
-====================
+Applications
+============
 
 
 .. toctree::
    :maxdepth: 1
+   :caption: Applications
 
    ../apps/echoscp
    ../apps/echoscu

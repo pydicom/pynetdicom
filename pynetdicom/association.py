@@ -3558,7 +3558,9 @@ class Association(threading.Thread):
             # SCP isn't implemented
             LOGGER.error(
                 "No supported service class available for the SOP "
-                f"Class UID '{class_uid}'"
+                f"Class UID '{class_uid}', please see the "
+                "pynetdicom.sop_class.register_uid() function if you need to add "
+                "support for a private, retired or otherwise unknown SOP Class UID"
             )
             self.abort()
             return

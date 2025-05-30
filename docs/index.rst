@@ -41,6 +41,16 @@ Example source code and applications.
    examples/index
 
 
+Services
+========
+Supported DICOM service classes.
+
+.. toctree::
+   :maxdepth: 3
+
+   service_classes/index
+
+
 
 Reference
 =========

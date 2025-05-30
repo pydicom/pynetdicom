@@ -21,7 +21,7 @@ the following command::
 
 If you get an error or if your version is earlier than 3.0, then install or
 upgrade *pynetdicom* by following the instructions in the
-:doc:`installation guide</tutorials/installation>`. For
+:doc:`installation guide</user/installation>`. For
 this tutorial we'll also be using the :doc:`echoscp<../apps/echoscp>`
 application that comes with *pynetdicom*.
 
@@ -159,7 +159,7 @@ There's a lot going on in these few lines, so let's split it up a bit:
 
 This imports the :class:`AE<ae.ApplicationEntity>` class, creates a new
 ``AE`` instance, `ae`, then adds a single
-:doc:`presentation context<../user/presentation>` with an abstract syntax of
+:doc:`presentation context</user/presentation_introduction>` with an abstract syntax of
 ``"1.2.840.10008.1.1"`` using the :meth:`~ae.ApplicationEntity.add_requested_context`
 method.  All association requests must contain at least one presentation context,
 and in this case we've proposed one with the abstract syntax for the verification service.
@@ -375,9 +375,8 @@ Presentation Contexts
 .. note::
 
     What follows is a basic introduction to presentation contexts. More
-    information is available in the
-    :doc:`presentation contexts<../user/presentation>` section of the User
-    Guide.
+    information is available in the :doc:`presentation contexts
+    </user/presentation_introduction>` section of the User Guide.
 
 We've cheated a little bit in our code by including a presentation context
 used to propose the use of the verification service;

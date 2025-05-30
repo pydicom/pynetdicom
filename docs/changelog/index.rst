@@ -1,8 +1,8 @@
 .. _release_notes:
 
-#############
-Release Notes
-#############
+########
+Releases
+########
 
 .. toctree::
    :maxdepth: 1
