@@ -5,10 +5,10 @@
 
 The major breaking changes with the version 3.0 release are:
 
-* Minimum required pydicom version is 3.0
-* Changed :attr:`~pynetdicom.presentation.StoragePresentationContexts` to match DCMTK
-  implementation
-* Various small changes required to support IPv6
+    * Minimum required pydicom version is 3.0
+    * Changed :attr:`~pynetdicom.presentation.StoragePresentationContexts` to match DCMTK
+      implementation
+    * Various small changes required to support IPv6
 
 Changes
 -------

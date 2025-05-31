@@ -6,7 +6,7 @@ Examples
 
 
 Code Examples
-=============
+-------------
 
 .. toctree::
    :maxdepth: 1
@@ -42,13 +42,12 @@ Code Examples
 * :doc:`Verification (C-ECHO) <verification>`
 
 
-Applications
-============
-
+Example applications
+--------------------
 
 .. toctree::
    :maxdepth: 1
-   :caption: Applications
+   :caption: Example applications
 
    ../apps/echoscp
    ../apps/echoscu

@@ -242,7 +242,7 @@ class PresentationContext:
         return self._abstract_syntax
 
     @abstract_syntax.setter
-    def abstract_syntax(self, value: str | bytes | UID) -> None:
+    def abstract_syntax(self, value: str | bytes | UID | None) -> None:
         """Set the context's *Abstract Syntax*."""
         self._abstract_syntax = set_uid(value, "abstract_syntax", True, False, True)
 

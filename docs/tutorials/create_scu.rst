@@ -501,5 +501,5 @@ Next steps
 
 We recommend that you move on to :doc:`writing your first SCP<create_scp>`
 next. However, you might also be interested in the
-:doc:`SCU examples<../examples/index>` available in the documentation, or the
-:doc:`applications<../apps/index>` that come with *pynetdicom*.
+:doc:`SCU examples</examples/index>` available in the documentation, or the
+:doc:`applications</examples/index>` that come with *pynetdicom*.

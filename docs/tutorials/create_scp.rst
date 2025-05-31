@@ -468,4 +468,4 @@ Next steps
 That's it for the basics of *pynetdicom*. You might want to read through the
 :doc:`User Guide</user/index>`, or check
 out the :doc:`SCP examples</examples/index>` available in the documentation
-or the :doc:`applications</apps/index>` that come with *pynetdicom*.
+or the :doc:`applications</examples/index>` that come with *pynetdicom*.

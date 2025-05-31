@@ -38,7 +38,7 @@ service classes, but currently will only return empty results (0 records)
     package
 
 The source code for the application can be found :gh:`here
-<pynetdicom/tree/master/pynetdicom/apps/qrscp>`
+<pynetdicom/tree/main/pynetdicom/apps/qrscp>`
 
 Usage
 =====

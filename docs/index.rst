@@ -36,20 +36,9 @@ Examples
 Example source code and applications.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    examples/index
-
-
-Services
-========
-Supported DICOM service classes.
-
-.. toctree::
-   :maxdepth: 3
-
-   service_classes/index
-
 
 
 Reference
@@ -57,9 +46,19 @@ Reference
 Documentation for `pynetdicom's` public functions, classes and other objects.
 
 .. toctree::
-   :maxdepth: 1
+    :maxdepth: 1
 
-   reference/index
+    reference/index
+
+
+Services
+========
+Supported DICOM service classes.
+
+.. toctree::
+   :maxdepth: 2
+
+   service_classes/index
 
 
 Releases

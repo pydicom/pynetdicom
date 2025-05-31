@@ -18,7 +18,7 @@ sends a C-FIND query to be matched against the SCP's managed SOP Instances.
 The SCP then responds with the matching query keys.
 
 The source code for the application can be found :gh:`here
-<pynetdicom/tree/master/pynetdicom/apps/findscu>`
+<pynetdicom/tree/main/pynetdicom/apps/findscu>`
 
 Usage
 =====
@@ -96,7 +96,7 @@ Query Information Model Options
 ``-W    --worklist``
             use modality worklist information model
 ``-U    --ups``
-            use unified procedure step pull information model 
+            use unified procedure step pull information model
 
 Query Options
 -------------
