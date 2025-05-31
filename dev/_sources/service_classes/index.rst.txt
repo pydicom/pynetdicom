@@ -1,7 +1,7 @@
 .. _service_classes:
 
-Supported Service Classes
-=========================
+Service Classes
+===============
 
 .. toctree::
    :maxdepth: 1

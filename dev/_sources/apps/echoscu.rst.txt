@@ -15,7 +15,7 @@ association with a peer Application Entity (AE), sends a
 response. The application can be used to verify basic DICOM connectivity.
 
 The source code for the application can be found :gh:`here
-<pynetdicom/tree/master/pynetdicom/apps/echoscu>`
+<pynetdicom/tree/main/pynetdicom/apps/echoscu>`
 
 Usage
 =====

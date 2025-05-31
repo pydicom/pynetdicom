@@ -18,7 +18,7 @@ The QR SCP then responds by sending a copy of the matching SOP Instances (i.e.
 the peer acts as a Storage SCU with ``getscu`` the Storage SCP).
 
 The source code for the application can be found :gh:`here
-<pynetdicom/tree/master/pynetdicom/apps/getscu>`
+<pynetdicom/tree/main/pynetdicom/apps/getscu>`
 
 Usage
 =====

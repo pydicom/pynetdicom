@@ -14,7 +14,7 @@ incoming association requests on the specified *port*, and once an association
 is established, allows Storage SCUs to transfer SOP Instances.
 
 The source code for the application can be found :gh:`here
-<pynetdicom/tree/master/pynetdicom/apps/storescp>`
+<pynetdicom/tree/main/pynetdicom/apps/storescp>`
 
 Usage
 =====

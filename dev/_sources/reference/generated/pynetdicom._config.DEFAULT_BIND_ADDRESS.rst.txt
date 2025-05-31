@@ -1,6 +1,0 @@
-﻿pynetdicom.\_config.DEFAULT\_BIND\_ADDRESS
-==========================================
-
-.. currentmodule:: pynetdicom._config
-
-.. autodata:: DEFAULT_BIND_ADDRESS

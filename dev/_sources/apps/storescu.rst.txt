@@ -14,7 +14,7 @@ association with a peer Application Entity and once established requests the
 transfer of one or more SOP Instances.
 
 The source code for the application can be found :gh:`here
-<pynetdicom/tree/master/pynetdicom/apps/storescu>`
+<pynetdicom/tree/main/pynetdicom/apps/storescu>`
 
 Usage
 =====

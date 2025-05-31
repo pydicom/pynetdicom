@@ -1,143 +1,527 @@
 
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../">
-<head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inventory Query/Retrieve Service Class &mdash; pynetdicom 3.0.0.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
-      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
 
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Inventory Query/Retrieve Service Class &#8212; pynetdicom 3.0.0.dev0 documentation</title>
   
-    <link rel="shortcut icon" href="../_static/favicon.ico"/>
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=afcbd73c"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="../_static/copybutton.js?v=ccdb6887"></script>
-    <script src="../_static/js/theme.js"></script>
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=afcbd73c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'service_classes/inventory_service_class';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <script defer="defer" src="../_static/custom-icons.js?v=1cb01586"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Instance Availability Notification Service Class" href="instance_availability.html" />
-    <link rel="prev" title="Implant Template Query/Retrieve Service Class" href="implant_template_service_class.html" /> 
-</head>
+    <link rel="prev" title="Implant Template Query/Retrieve Service Class" href="implant_template_service_class.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.0.0.dev0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-          
-          
-          <a href="../index.html" class="icon icon-home">
-            pynetdicom
-              <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Supported Service Classes</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="application_event.html">Application Event Logging Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="display_system_service_class.html">Display System Management Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Inventory Query/Retrieve Service Class</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#supported-sop-classes">Supported SOP Classes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#dimse-services">DIMSE Services</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#statuses">Statuses</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#c-find-statuses">C-FIND Statuses</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#inventory-query-retrieve-find-service-statuses">Inventory Query/Retrieve (Find) Service Statuses</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#pynetdicom-inventory-query-retrieve-find-statuses">pynetdicom Inventory Query/Retrieve (Find) Statuses</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#c-get-statuses">C-GET Statuses</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#inventory-query-retrieve-get-service-statuses">Inventory Query/Retrieve (Get) Service Statuses</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#pynetdicom-inventory-query-retrieve-get-statuses">pynetdicom Inventory Query/Retrieve (Get) Statuses</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#c-move-statuses">C-MOVE Statuses</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#inventory-query-retrieve-move-service-statuses">Inventory Query/Retrieve (Move) Service Statuses</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#pynetdicom-inventory-query-retrieve-move-statuses">pynetdicom Inventory Query/Retrieve (Move) Statuses</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="instance_availability.html">Instance Availability Notification Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="media_creation.html">Media Creation Management Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="print_management.html">Print Management Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="protocol_approval_service_class.html">Protocol Approval Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rt_machine.html">RT Machine Verification Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="storage_service_class.html">Storage Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="storage_commitment.html">Storage Commitment Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="storage_management.html">Storage Management Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ups.html">Unified Procedure Step Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="verification_service_class.html">Verification Service Class</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
-</ul>
 
-        </div>
-      </div>
-    </nav>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">pynetdicom</a>
-      </nav>
+  
+    
+  
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">Supported Service Classes</a></li>
-      <li class="breadcrumb-item active">Inventory Query/Retrieve Service Class</li>
-      <li class="wy-breadcrumbs-aside">
-      </li>
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/pydicom_flat_black.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">pynetdicom</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Service Classes
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog/index.html">
+    Releases
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
   </ul>
-  <hr/>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pydicom/pynetdicom/" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pynetdicom/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Service Classes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog/index.html">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pydicom/pynetdicom/" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pynetdicom/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="application_event.html">Application Event Logging Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Inventory Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instance_availability.html">Instance Availability Notification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media_creation.html">Media Creation Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="print_management.html">Print Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="protocol_approval_service_class.html">Protocol Approval Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rt_machine.html">RT Machine Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage_commitment.html">Storage Commitment Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage_management.html">Storage Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ups.html">Unified Procedure Step Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_service_class.html">Verification Service Class</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Service Classes</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Inventory Query/Retrieve Service Class</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <section id="inventory-query-retrieve-service-class">
-<span id="service-inventory"></span><h1>Inventory Query/Retrieve Service Class<a class="headerlink" href="#inventory-query-retrieve-service-class" title="Link to this heading">¶</a></h1>
+<span id="service-inventory"></span><h1>Inventory Query/Retrieve Service Class<a class="headerlink" href="#inventory-query-retrieve-service-class" title="Link to this heading">#</a></h1>
 <p>The <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_JJ.html">Inventory Query/Retrieve Service Class</a>
 defines a service that facilitates discovery of and access to Inventory composite
 objects.</p>
 <section id="supported-sop-classes">
-<h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Link to this heading">¶</a></h2>
-<table class="docutils align-default" id="inventory-sops">
+<h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table" id="inventory-sops">
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
 <th class="head"><p>SOP Class</p></th>
@@ -155,10 +539,11 @@ objects.</p>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="dimse-services">
-<h2>DIMSE Services<a class="headerlink" href="#dimse-services" title="Link to this heading">¶</a></h2>
-<table class="docutils align-default">
+<h2>DIMSE Services<a class="headerlink" href="#dimse-services" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>DIMSE Service</p></th>
 <th class="head"><p>Usage SCU/SCP</p></th>
@@ -172,7 +557,8 @@ objects.</p>
 </tr>
 </tbody>
 </table>
-<table class="docutils align-default">
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>DIMSE Service</p></th>
 <th class="head"><p>Usage SCU/SCP</p></th>
@@ -186,7 +572,8 @@ objects.</p>
 </tr>
 </tbody>
 </table>
-<table class="docutils align-default">
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>DIMSE Service</p></th>
 <th class="head"><p>Usage SCU/SCP</p></th>
@@ -200,12 +587,13 @@ objects.</p>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="statuses">
-<span id="inventory-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Link to this heading">¶</a></h2>
+<span id="inventory-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Link to this heading">#</a></h2>
 <section id="c-find-statuses">
-<span id="inventory-find-statuses"></span><h3>C-FIND Statuses<a class="headerlink" href="#c-find-statuses" title="Link to this heading">¶</a></h3>
-<table class="docutils align-default">
+<span id="inventory-find-statuses"></span><h3>C-FIND Statuses<a class="headerlink" href="#c-find-statuses" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -227,10 +615,11 @@ objects.</p>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="inventory-query-retrieve-find-service-statuses">
-<h3>Inventory Query/Retrieve (Find) Service Statuses<a class="headerlink" href="#inventory-query-retrieve-find-service-statuses" title="Link to this heading">¶</a></h3>
-<table class="docutils align-default">
+<h3>Inventory Query/Retrieve (Find) Service Statuses<a class="headerlink" href="#inventory-query-retrieve-find-service-statuses" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -261,13 +650,14 @@ keys was not supported</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="pynetdicom-inventory-query-retrieve-find-statuses">
-<h3>pynetdicom Inventory Query/Retrieve (Find) Statuses<a class="headerlink" href="#pynetdicom-inventory-query-retrieve-find-statuses" title="Link to this heading">¶</a></h3>
+<h3>pynetdicom Inventory Query/Retrieve (Find) Statuses<a class="headerlink" href="#pynetdicom-inventory-query-retrieve-find-statuses" title="Link to this heading">#</a></h3>
 <p>When pynetdicom is acting as an Inventory Query/Retrieve (Find)
 SCP it uses the following status codes values to indicate the corresponding
 issue has occurred to help aid in debugging.</p>
-<table class="docutils align-default">
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -304,10 +694,11 @@ the handler bound to <code class="docutils literal notranslate"><span class="pre
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="c-get-statuses">
-<span id="inventory-get-statuses"></span><h3>C-GET Statuses<a class="headerlink" href="#c-get-statuses" title="Link to this heading">¶</a></h3>
-<table class="docutils align-default">
+<span id="inventory-get-statuses"></span><h3>C-GET Statuses<a class="headerlink" href="#c-get-statuses" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -341,10 +732,11 @@ the handler bound to <code class="docutils literal notranslate"><span class="pre
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="inventory-query-retrieve-get-service-statuses">
-<h3>Inventory Query/Retrieve (Get) Service Statuses<a class="headerlink" href="#inventory-query-retrieve-get-service-statuses" title="Link to this heading">¶</a></h3>
-<table class="docutils align-default">
+<h3>Inventory Query/Retrieve (Get) Service Statuses<a class="headerlink" href="#inventory-query-retrieve-get-service-statuses" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -404,10 +796,11 @@ or warnings</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="pynetdicom-inventory-query-retrieve-get-statuses">
-<h3>pynetdicom Inventory Query/Retrieve (Get) Statuses<a class="headerlink" href="#pynetdicom-inventory-query-retrieve-get-statuses" title="Link to this heading">¶</a></h3>
-<table class="docutils align-default">
+<h3>pynetdicom Inventory Query/Retrieve (Get) Statuses<a class="headerlink" href="#pynetdicom-inventory-query-retrieve-get-statuses" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -444,10 +837,11 @@ yielded an invalid number of sub-operations</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="c-move-statuses">
-<span id="inventory-move-statuses"></span><h3>C-MOVE Statuses<a class="headerlink" href="#c-move-statuses" title="Link to this heading">¶</a></h3>
-<table class="docutils align-default">
+<span id="inventory-move-statuses"></span><h3>C-MOVE Statuses<a class="headerlink" href="#c-move-statuses" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -485,10 +879,11 @@ yielded an invalid number of sub-operations</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="inventory-query-retrieve-move-service-statuses">
-<h3>Inventory Query/Retrieve (Move) Service Statuses<a class="headerlink" href="#inventory-query-retrieve-move-service-statuses" title="Link to this heading">¶</a></h3>
-<table class="docutils align-default">
+<h3>Inventory Query/Retrieve (Move) Service Statuses<a class="headerlink" href="#inventory-query-retrieve-move-service-statuses" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -552,10 +947,11 @@ or warnings</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="pynetdicom-inventory-query-retrieve-move-statuses">
-<h3>pynetdicom Inventory Query/Retrieve (Move) Statuses<a class="headerlink" href="#pynetdicom-inventory-query-retrieve-move-statuses" title="Link to this heading">¶</a></h3>
-<table class="docutils align-default">
+<h3>pynetdicom Inventory Query/Retrieve (Move) Statuses<a class="headerlink" href="#pynetdicom-inventory-query-retrieve-move-statuses" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
 <th class="head"><p>Category</p></th>
@@ -603,39 +999,130 @@ failed to yield a valid (address, port) pair</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 </section>
 </section>
 
 
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="implant_template_service_class.html" class="btn btn-neutral float-left" title="Implant Template Query/Retrieve Service Class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="instance_availability.html" class="btn btn-neutral float-right" title="Instance Availability Notification Service Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2018-2025, pynetdicom contributors.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
-        </div>
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="implant_template_service_class.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Implant Template Query/Retrieve Service Class</p>
       </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+    </a>
+    <a class="right-next"
+       href="instance_availability.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Instance Availability Notification Service Class</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-</body>
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-sop-classes">Supported SOP Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dimse-services">DIMSE Services</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#statuses">Statuses</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#c-find-statuses">C-FIND Statuses</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inventory-query-retrieve-find-service-statuses">Inventory Query/Retrieve (Find) Service Statuses</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pynetdicom-inventory-query-retrieve-find-statuses">pynetdicom Inventory Query/Retrieve (Find) Statuses</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#c-get-statuses">C-GET Statuses</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inventory-query-retrieve-get-service-statuses">Inventory Query/Retrieve (Get) Service Statuses</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pynetdicom-inventory-query-retrieve-get-statuses">pynetdicom Inventory Query/Retrieve (Get) Statuses</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#c-move-statuses">C-MOVE Statuses</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inventory-query-retrieve-move-service-statuses">Inventory Query/Retrieve (Move) Service Statuses</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pynetdicom-inventory-query-retrieve-move-statuses">pynetdicom Inventory Query/Retrieve (Move) Statuses</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2018-2025, pynetdicom contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
 </html>

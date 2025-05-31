@@ -110,7 +110,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
         responses = assoc.send_c_get(ds, PatientRootQueryRetrieveInformationModelGet)
         for (status, identifier) in responses:
             if status:
-                print('C-GET query status: 0x{0:04x}'.format(status.Status))
+                print(f"C-GET query status: 0x{status.Status:04x}")
             else:
                 print('Connection timed out, was aborted or received invalid response')
 

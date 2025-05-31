@@ -20,7 +20,7 @@ sending a copy of the matching SOP Instances to the Storage SCP specified
 using the C-MOVE query's *Move Destination* AE title.
 
 The source code for the application can be found :gh:`here
-<pynetdicom/tree/master/pynetdicom/apps/movescu>`
+<pynetdicom/tree/main/pynetdicom/apps/movescu>`
 
 Usage
 =====
