@@ -1,8 +1,8 @@
 .. _api:
 
-#############
-API Reference
-#############
+###
+API
+###
 
 :Release: |version|
 :Date: |today|

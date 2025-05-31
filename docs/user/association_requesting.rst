@@ -1,14 +1,10 @@
-.. _association:
-
-Association
-===========
 
 .. _assoc_scu:
 
 .. currentmodule:: pynetdicom.association
 
-Requesting an Association (SCU)
--------------------------------
+Requesting an association
+-------------------------
 
 Assuming you :ref:`have an AE <ae_create_scu>` and have added your requested
 presentation contexts then you can associate with a peer by using the
@@ -49,12 +45,12 @@ Some SCPs will reject an association request if the *Called AE Title* parameter
 value doesn't match its own title, so this can be set using the *ae_title*
 keyword parameter:
 
-::
+.. code-block:: python
 
     assoc = ae.associate("127.0.0.1", 11112, ae_title='STORE_SCP')
 
-Specifying Presentation Contexts for each Association
-.....................................................
+Specifying presentation contexts per association
+................................................
 
 Calling :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
 with only the *addr* and *port* parameters means the presentation
@@ -63,7 +59,7 @@ contexts in
 will be used with the association. To propose presentation contexts on a
 per-association basis you can use the *contexts* keyword parameter:
 
-::
+.. code-block:: python
 
     from pynetdicom import AE, build_context
 
@@ -134,7 +130,7 @@ Possible extended negotiation items are:
   <SOPClassCommonExtendedNegotiation>`
 * :class:`User Identity Negotiation <UserIdentityNegotiation>`
 
-Binding Event Handlers
+Binding event handlers
 ......................
 
 .. currentmodule:: pynetdicom.association
@@ -155,12 +151,11 @@ use the *evt_handlers* keyword parameter:
 
     def handle_open(event):
         """Print the remote's (host, port) when connected."""
-        msg = 'Connected with remote at {}'.format(event.address)
-        LOGGER.info(msg)
+        LOGGER.info(f"Connected with remote at {event.address}")
 
     def handle_accepted(event, arg1, arg2):
         """Demonstrate the use of the optional extra parameters"""
-        LOGGER.info("Extra args: '{}' and '{}'".format(arg1, arg2))
+        LOGGER.info(f"Extra args: '{arg1}' and '{arg2}'")
 
     # If a 2-tuple then only `event` parameter
     # If a 3-tuple then the third value should be a list of objects to pass the handler
@@ -191,13 +186,11 @@ Handlers can also be bound and unbound from events in an existing
 
     def handle_open(event):
         """Print the remote's (host, port) when connected."""
-        msg = 'Connected with remote at {}'.format(event.address)
-        LOGGER.info(msg)
+        LOGGER.info(f"Connected with remote at {event.address}")
 
     def handle_close(event):
         """Print the remote's (host, port) when disconnected."""
-        msg = 'Disconnected from remote at {}'.format(event.address)
-        LOGGER.info(msg)
+        LOGGER.info(f"Disconnected from remote at {event.address}")
 
     handlers = [(evt.EVT_CONN_OPEN, handle_open)]
 
@@ -212,8 +205,8 @@ Handlers can also be bound and unbound from events in an existing
         assoc.release()
 
 
-TLS
-...
+Using TLS connections
+.....................
 
 The client socket used for the association can be wrapped in TLS by supplying
 the *tls_args* keyword parameter to
@@ -244,7 +237,7 @@ value of the *server_hostname* keyword parameter in
 :meth:`~ssl.SSLContext.wrap_socket`.
 
 
-Outcomes of an Association Request
+Outcomes of an association request
 ..................................
 There are four potential outcomes of an association request: acceptance and
 establishment, association rejection, association abort or a connection
@@ -270,8 +263,8 @@ use the association:
         assoc.release()
 
 
-Using an Association (SCU)
---------------------------
+Using the association
+---------------------
 Once an association has been established with the peer then the agreed upon
 set of services are available for use. *pynetdicom* supports the usage
 of the following DIMSE services:
@@ -284,7 +277,7 @@ of the following DIMSE services:
 * C-GET, through the :meth:`Association.send_c_get()<send_c_get>` method.
   Any AE that uses the C-GET service will also be providing the C-STORE
   service and must implement and bind a handler for ``evt.EVT_C_STORE`` (as
-  outlined :ref:`here <assoc_scp>`)
+  outlined :doc:`here <association_accepting>`)
 * C-MOVE, through the :meth:`Association.send_c_move()<send_c_move>` method.
   The move destination can either be a different AE or the AE that made
   the C-MOVE request (provided a non-blocking Storage SCP has been started).
@@ -304,11 +297,11 @@ Attempting to use a service without an established association will raise a
 by the association will raise a :class:`ValueError`.
 
 For more information on using the services available to an association please
-read through the :ref:`examples <index_examples>` corresponding to the
+read through the :doc:`examples<../examples/index>` corresponding to the
 service class you're interested in.
 
-Releasing an Association
-........................
+Releasing the association
+.........................
 
 .. currentmodule:: pynetdicom.association
 
@@ -317,7 +310,7 @@ good idea to release the association using :meth:`Association.release`, otherwis
 the association will remain open until the network timeout expires or the
 peer aborts or closes the connection.
 
-Accessing User Identity Responses
+Accessing User Identity responses
 ---------------------------------
 
 If the association *Requestor* has sent a
@@ -326,253 +319,3 @@ item as part of the extended negotiation and has requested a response in the
 event of a positive identification then it can be accessed via the
 :attr:`Association.acceptor.user_identity<ServiceUser.user_identity>`
 property after the association has been established.
-
-.. _assoc_scp:
-
-Listening for Association Requests (SCP)
-----------------------------------------
-Assuming you have added your supported presentation contexts then you can start
-listening for association requests from peers with the
-:meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`
-method:
-
-.. code-block:: python
-
-    from pynetdicom import AE
-    from pynetdicom.sop_class import Verification
-
-    ae = AE()
-    ae.add_supported_context(Verification)
-
-    # Listen for association requests on a IPv4 address, IPv6 is also supported
-    ae.start_server(("127.0.0.1", 11112))
-
-The above is suitable as an implementation of the Verification Service
-Class, however other service classes will require that you implement and bind
-one or more of the :ref:`intervention event handlers<events_intervention>`.
-
-The association server can be started in both blocking (default) and
-non-blocking modes:
-
-.. code-block:: python
-
-    from pynetdicom import AE
-    from pynetdicom.sop_class import Verification
-
-    ae = AE()
-    ae.add_supported_context(Verification)
-
-    # Returns a ThreadedAssociationServer instance
-    server = ae.start_server(("127.0.0.1", 11112), block=False)
-
-    # Blocks
-    ae.start_server(("127.0.0.1", 11113), block=True)
-
-The returned
-:class:`~pynetdicom.transport.ThreadedAssociationServer`
-instances can be stopped using
-:meth:`~pynetdicom.transport.ThreadedAssociationServer.shutdown` and all active
-associations can be stopped using
-:meth:`AE.shutdown()<pynetdicom.ae.ApplicationEntity.shutdown>`.
-
-
-Specifying the AE Title
-.......................
-The AE title for each SCP can be set using the *ae_title* keyword parameter.
-If no value is set then the AE title of the parent AE will be used instead:
-
-.. code-block:: python
-
-    ae.start_server(("127.0.0.1", 11112), ae_title='STORE_SCP')
-
-
-Specifying Presentation Contexts for each SCP
-.............................................
-To support presentation contexts on a per-SCP basis you can use the
-*contexts* keyword parameter:
-
-.. code-block:: python
-
-    from pynetdicom import AE, build_context
-
-    ae = AE()
-    supported_cx = [build_context('1.2.840.10008.1.1')]
-    ae.start_server(("127.0.0.1", 11112), contexts=supported_cx)
-
-
-Binding Event Handlers
-......................
-
-If you want to bind handlers to any
-:ref:`events <user_events>` within any :class:`Association` instances
-generated by the SCP you can use the *evt_handlers* keyword parameter:
-
-.. code-block:: python
-
-    import logging
-
-    from pynetdicom import AE, evt, debug_logger
-    from pynetdicom.sop_class import Verification
-
-    debug_logger()
-    LOGGER = logging.getLogger('pynetdicom')
-
-    def handle_open(event):
-        """Print the remote's (host, port) when connected."""
-        msg = 'Connected with remote at {}'.format(event.address)
-        LOGGER.info(msg)
-
-    def handle_accepted(event, arg1, arg2):
-        """Demonstrate the use of the optional extra parameters"""
-        LOGGER.info("Extra args: '{}' and '{}'".format(arg1, arg2))
-
-    # If a 2-tuple then only `event` parameter
-    # If a 3-tuple then the third value should be a list of objects to pass the handler
-    handlers = [
-        (evt.EVT_CONN_OPEN, handle_open),
-        (evt.EVT_ACCEPTED, handle_accepted, ['optional', 'parameters']),
-    ]
-
-    ae = AE()
-    ae.add_supported_context(Verification)
-    ae.start_server(("127.0.0.1", 11112), evt_handlers=handlers)
-
-
-Handlers can also be bound and unbound from events in an existing
-:class:`~pynetdicom.transport.ThreadedAssociationServer`, provided you run in
-non-blocking mode:
-
-.. code-block:: python
-
-    import logging
-    import time
-
-    from pynetdicom import AE, evt, debug_logger
-    from pynetdicom.sop_class import Verification
-
-    debug_logger()
-    LOGGER = logging.getLogger('pynetdicom')
-
-    def handle_open(event):
-        """Print the remote's (host, port) when connected."""
-        msg = 'Connected with remote at {}'.format(event.address)
-        LOGGER.info(msg)
-
-    def handle_close(event):
-        """Print the remote's (host, port) when disconnected."""
-        msg = 'Disconnected from remote at {}'.format(event.address)
-        LOGGER.info(msg)
-
-    handlers = [(evt.EVT_CONN_OPEN, handle_open)]
-
-    ae = AE()
-    ae.add_supported_context(Verification)
-    scp = ae.start_server(("127.0.0.1", 11112), block=False, evt_handlers=handlers)
-
-    time.sleep(20)
-
-    scp.unbind(evt.EVT_CONN_OPEN, handle_open)
-    scp.bind(evt.EVT_CONN_CLOSE, handle_close)
-
-    LOGGER.info("Bindings changed")
-
-    time.sleep(20)
-
-    scp.shutdown()
-
-This will bind/unbind the handler from all currently running
-:class:`Association` instances generated  by the server as well as new
-:class:`Association` instances generated in response to future association
-requests. Associations created using
-:meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` will be
-unaffected.
-
-
-TLS
-...
-
-The client sockets generated by the association server can also be wrapped in
-TLS by  supplying a :class:`ssl.SSLContext` instance via the *ssl_context*
-keyword parameter:
-
-.. code-block:: python
-
-    import ssl
-
-    from pynetdicom import AE
-    from pynetdicom.sop_class import Verification
-
-    ae = AE()
-    ae.add_supported_context(Verification)
-
-    # Create the SSLContext, your requirements may vary
-    ssl_cx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-    ssl_cx.verify_mode = ssl.CERT_REQUIRED
-    ssl_cx.load_cert_chain(certfile='server.crt', keyfile='server.key')
-    ssl_cx.load_verify_locations(cafile='client.crt')
-
-    server = ae.start_server(("127.0.0.1", 11112), block=False, ssl_context=ssl_cx)
-
-
-Providing DIMSE Services (SCP)
-------------------------------
-
-If the association supports a service class that uses one or more of the
-DIMSE-C or -N services then a handler must be implemented and bound to the
-event corresponding to the service (excluding C-ECHO which has a default
-implementation that always returns a ``0x0000`` *Success* response):
-
-+----------------+----------------------------+
-| DIMSE service  | Event                      |
-+================+============================+
-| C-ECHO         | ``evt.EVT_C_ECHO``         |
-+----------------+----------------------------+
-| C-FIND         | ``evt.EVT_C_FIND``         |
-+----------------+----------------------------+
-| C-GET          | ``evt.EVT_C_GET``          |
-+----------------+----------------------------+
-| C-MOVE         | ``evt.EVT_C_MOVE``         |
-+----------------+----------------------------+
-| C-STORE        | ``evt.EVT_C_STORE``        |
-+----------------+----------------------------+
-| N-ACTION       | ``evt.EVT_N_ACTION``       |
-+----------------+----------------------------+
-| N-CREATE       | ``evt.EVT_N_CREATE``       |
-+----------------+----------------------------+
-| N-DELETE       | ``evt.EVT_N_DELETE``       |
-+----------------+----------------------------+
-| N-EVENT-REPORT | ``evt.EVT_N_EVENT_REPORT`` |
-+----------------+----------------------------+
-| N-GET          | ``evt.EVT_N_GET``          |
-+----------------+----------------------------+
-| N-SET          | ``evt.EVT_N_SET``          |
-+----------------+----------------------------+
-
-For instance, if your SCP is to support the Storage Service then you would
-implement and bind a handler for the ``evt.EVT_C_STORE`` event in manner
-similar to:
-
-.. code-block:: python
-
-    from pynetdicom import AE, evt
-    from pynetdicom.sop_class import CTImageStorage
-
-    ae = AE()
-    ae.add_supported_context(CTImageStorage)
-
-    def handle_store(event):
-        """Handle evt.EVT_C_STORE"""
-        # This is just a toy implementation that doesn't store anything and
-        # always returns a Success response
-        return 0x0000
-
-    handlers = [(evt.EVT_C_STORE, handle_store)]
-
-    # Listen for association requests
-    ae.start_server(("127.0.0.1", 11112), evt_handlers=handlers)
-
-For more detailed information on implementing the DIMSE service
-provider handlers please see the
-:ref:`handler implementation documentation<api_events>` and the
-:ref:`examples <index_examples>` corresponding to the service class you're
-interested in.

@@ -2634,7 +2634,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         self.sop_class_uid = primitive.sop_class_uid
         self.service_class_uid = primitive.service_class_uid
         self.related_general_sop_class_identification = (
-            primitive.related_general_sop_class_identification
+            primitive.related_general_sop_class_identification  # type: ignore[assignment]
         )
 
     def to_primitive(self) -> "SOPClassCommonExtendedNegotiation":
@@ -2652,7 +2652,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         primitive.sop_class_uid = self.sop_class_uid
         primitive.service_class_uid = self.service_class_uid
         primitive.related_general_sop_class_identification = (
-            self.related_general_sop_class_identification
+            self.related_general_sop_class_identification  # type: ignore[assignment]
         )
 
         return primitive

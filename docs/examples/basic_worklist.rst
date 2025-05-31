@@ -50,7 +50,7 @@ of a Query/Retrieve (Find) SCU, however BWM uses a different
         responses = assoc.send_c_find(ds, ModalityWorklistInformationFind)
         for (status, identifier) in responses:
             if status:
-                print('C-FIND query status: 0x{0:04x}'.format(status.Status))
+                print(f"C-FIND query status: 0x{status.Status:04x}")
             else:
                 print('Connection timed out, was aborted or received invalid response')
 

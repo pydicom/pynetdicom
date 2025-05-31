@@ -15,7 +15,7 @@ is established, responds to incoming C-ECHO requests. The application can be
 used to verify basic DICOM connectivity.
 
 The source code for the application can be found :gh:`here
-<pynetdicom/tree/master/pynetdicom/apps/echoscp>`
+<pynetdicom/tree/main/pynetdicom/apps/echoscp>`
 
 Usage
 =====

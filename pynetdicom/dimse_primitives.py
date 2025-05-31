@@ -518,7 +518,7 @@ class C_STORE(DIMSEPrimitive):
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*."""
-        self._AffectedSOPInstanceUID = value  # type: ignore
+        self._AffectedSOPInstanceUID = value
 
     @property
     def DataSet(self) -> BytesIO | None:
@@ -528,7 +528,7 @@ class C_STORE(DIMSEPrimitive):
     @DataSet.setter
     def DataSet(self, value: BytesIO | None) -> None:
         """Set the *Data Set*."""
-        self._dataset_variant = (value, "DataSet")  # type: ignore
+        self._dataset_variant = (value, "DataSet")
 
     @property
     def MoveOriginatorApplicationEntityTitle(self) -> str | None:
@@ -711,7 +711,7 @@ class C_FIND(DIMSEPrimitive):
     @Identifier.setter
     def Identifier(self, value: BytesIO | None) -> None:
         """Set the *Identifier*."""
-        self._dataset_variant = (value, "Identifier")  # type: ignore
+        self._dataset_variant = (value, "Identifier")
 
     @property
     def Priority(self) -> int:
@@ -848,7 +848,7 @@ class C_GET(DIMSEPrimitive):
     @Identifier.setter
     def Identifier(self, value: BytesIO | None) -> None:
         """Set the *Identifier*."""
-        self._dataset_variant = (value, "Identifier")  # type: ignore
+        self._dataset_variant = (value, "Identifier")
 
     @property
     def NumberOfCompletedSuboperations(self) -> int | None:
@@ -1039,7 +1039,7 @@ class C_MOVE(DIMSEPrimitive):
     @Identifier.setter
     def Identifier(self, value: BytesIO | None) -> None:
         """Set the *Identifier*."""
-        self._dataset_variant = (value, "Identifier")  # type: ignore
+        self._dataset_variant = (value, "Identifier")
 
     @property
     def MoveDestination(self) -> str | None:
@@ -1355,7 +1355,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value to use for the *Affected SOP Class UID* parameter.
         """
-        self._AffectedSOPInstanceUID = value  # type: ignore
+        self._AffectedSOPInstanceUID = value
 
     @property
     def EventInformation(self) -> BytesIO | None:
@@ -1371,7 +1371,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         io.BytesIO
             The value to use for the *Event Information* parameter.
         """
-        self._dataset_variant = (value, "EventInformation")  # type: ignore
+        self._dataset_variant = (value, "EventInformation")
 
     @property
     def EventReply(self) -> BytesIO | None:
@@ -1387,7 +1387,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         io.BytesIO
             The value to use for the *Event Reply* parameter.
         """
-        self._dataset_variant = (value, "EventReply")  # type: ignore
+        self._dataset_variant = (value, "EventReply")
 
     @property
     def EventTypeID(self) -> int | None:
@@ -1497,7 +1497,7 @@ class N_GET(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value to use for the *Affected SOP Class UID* parameter.
         """
-        self._AffectedSOPInstanceUID = value  # type: ignore
+        self._AffectedSOPInstanceUID = value
 
     @property
     def AttributeIdentifierList(self) -> BaseTag | list[BaseTag] | None:
@@ -1554,7 +1554,7 @@ class N_GET(DIMSEPrimitive):
     @AttributeList.setter
     def AttributeList(self, value: BytesIO | None) -> None:
         """Set the *Attribute List*."""
-        self._dataset_variant = (value, "AttributeList")  # type: ignore
+        self._dataset_variant = (value, "AttributeList")
 
     @property
     def RequestedSOPClassUID(self) -> UID | None:
@@ -1571,7 +1571,7 @@ class N_GET(DIMSEPrimitive):
     @RequestedSOPClassUID.setter
     def RequestedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Class UID*."""
-        self._RequestedSOPClassUID = value  # type: ignore
+        self._RequestedSOPClassUID = value
 
     @property
     def RequestedSOPInstanceUID(self) -> UID | None:
@@ -1588,7 +1588,7 @@ class N_GET(DIMSEPrimitive):
     @RequestedSOPInstanceUID.setter
     def RequestedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Instance UID*."""
-        self._RequestedSOPInstanceUID = value  # type: ignore
+        self._RequestedSOPInstanceUID = value
 
 
 class N_SET(DIMSEPrimitive):
@@ -1679,7 +1679,7 @@ class N_SET(DIMSEPrimitive):
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*."""
-        self._AffectedSOPInstanceUID = value  # type: ignore
+        self._AffectedSOPInstanceUID = value
 
     @property
     def AttributeList(self) -> BytesIO | None:
@@ -1695,7 +1695,7 @@ class N_SET(DIMSEPrimitive):
     @AttributeList.setter
     def AttributeList(self, value: BytesIO | None) -> None:
         """Set the *Attribute List*."""
-        self._dataset_variant = (value, "AttributeList")  # type: ignore
+        self._dataset_variant = (value, "AttributeList")
 
     @property
     def ModificationList(self) -> BytesIO | None:
@@ -1711,7 +1711,7 @@ class N_SET(DIMSEPrimitive):
     @ModificationList.setter
     def ModificationList(self, value: BytesIO | None) -> None:
         """Set the *Modification List*."""
-        self._dataset_variant = (value, "ModificationList")  # type: ignore
+        self._dataset_variant = (value, "ModificationList")
 
     @property
     def RequestedSOPClassUID(self) -> UID | None:
@@ -1727,7 +1727,7 @@ class N_SET(DIMSEPrimitive):
     @RequestedSOPClassUID.setter
     def RequestedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Class UID*."""
-        self._RequestedSOPClassUID = value  # type: ignore
+        self._RequestedSOPClassUID = value
 
     @property
     def RequestedSOPInstanceUID(self) -> UID | None:
@@ -1744,7 +1744,7 @@ class N_SET(DIMSEPrimitive):
     @RequestedSOPInstanceUID.setter
     def RequestedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Instance UID*."""
-        self._RequestedSOPInstanceUID = value  # type: ignore
+        self._RequestedSOPInstanceUID = value
 
 
 class N_ACTION(DIMSEPrimitive):
@@ -1838,7 +1838,7 @@ class N_ACTION(DIMSEPrimitive):
     @ActionInformation.setter
     def ActionInformation(self, value: BytesIO | None) -> None:
         """Set the *Action Information*."""
-        self._dataset_variant = (value, "ActionInformation")  # type: ignore
+        self._dataset_variant = (value, "ActionInformation")
 
     @property
     def ActionReply(self) -> BytesIO | None:
@@ -1854,7 +1854,7 @@ class N_ACTION(DIMSEPrimitive):
     @ActionReply.setter
     def ActionReply(self, value: BytesIO | None) -> None:
         """Set the *Action Reply*."""
-        self._dataset_variant = (value, "ActionReply")  # type: ignore
+        self._dataset_variant = (value, "ActionReply")
 
     @property
     def ActionTypeID(self) -> int | None:
@@ -1889,7 +1889,7 @@ class N_ACTION(DIMSEPrimitive):
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*."""
-        self._AffectedSOPInstanceUID = value  # type: ignore
+        self._AffectedSOPInstanceUID = value
 
     @property
     def RequestedSOPClassUID(self) -> UID | None:
@@ -1905,7 +1905,7 @@ class N_ACTION(DIMSEPrimitive):
     @RequestedSOPClassUID.setter
     def RequestedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Class UID*."""
-        self._RequestedSOPClassUID = value  # type: ignore
+        self._RequestedSOPClassUID = value
 
     @property
     def RequestedSOPInstanceUID(self) -> UID | None:
@@ -1922,7 +1922,7 @@ class N_ACTION(DIMSEPrimitive):
     @RequestedSOPInstanceUID.setter
     def RequestedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Instance UID*."""
-        self._RequestedSOPInstanceUID = value  # type: ignore
+        self._RequestedSOPInstanceUID = value
 
 
 class N_CREATE(DIMSEPrimitive):
@@ -2003,7 +2003,7 @@ class N_CREATE(DIMSEPrimitive):
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*."""
-        self._AffectedSOPInstanceUID = value  # type: ignore
+        self._AffectedSOPInstanceUID = value
 
     @property
     def AttributeList(self) -> BytesIO | None:
@@ -2019,7 +2019,7 @@ class N_CREATE(DIMSEPrimitive):
     @AttributeList.setter
     def AttributeList(self, value: BytesIO | None) -> None:
         """Set the *Attribute List*."""
-        self._dataset_variant = (value, "AttributeList")  # type: ignore
+        self._dataset_variant = (value, "AttributeList")
 
 
 class N_DELETE(DIMSEPrimitive):
@@ -2102,7 +2102,7 @@ class N_DELETE(DIMSEPrimitive):
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*."""
-        self._AffectedSOPInstanceUID = value  # type: ignore
+        self._AffectedSOPInstanceUID = value
 
     @property
     def RequestedSOPClassUID(self) -> UID | None:
@@ -2118,7 +2118,7 @@ class N_DELETE(DIMSEPrimitive):
     @RequestedSOPClassUID.setter
     def RequestedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Class UID*."""
-        self._RequestedSOPClassUID = value  # type: ignore
+        self._RequestedSOPClassUID = value
 
     @property
     def RequestedSOPInstanceUID(self) -> UID | None:
@@ -2135,4 +2135,4 @@ class N_DELETE(DIMSEPrimitive):
     @RequestedSOPInstanceUID.setter
     def RequestedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Instance UID*."""
-        self._RequestedSOPInstanceUID = value  # type: ignore
+        self._RequestedSOPInstanceUID = value

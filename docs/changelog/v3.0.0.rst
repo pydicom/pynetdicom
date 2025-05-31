@@ -5,10 +5,10 @@
 
 The major breaking changes with the version 3.0 release are:
 
-* Minimum required pydicom version is 3.0
-* Changed :attr:`~pynetdicom.presentation.StoragePresentationContexts` to match DCMTK
-  implementation
-* Various small changes required to support IPv6
+    * Minimum required pydicom version is 3.0
+    * Changed :attr:`~pynetdicom.presentation.StoragePresentationContexts` to match DCMTK
+      implementation
+    * Various small changes required to support IPv6
 
 Changes
 -------
@@ -61,7 +61,6 @@ Enhancements
   absent from the N-CREATE-RQ can now be done by adding it to the returned *Attribute
   List* dataset (it'll be removed from the dataset prior to sending) (:issue:`995`)
 * Added debugging handlers for the remaining DIMSE-N messages
-* Added :attr:`_config.DEFAULT_BIND_ADDRESS<pynetdicom._config.DEFAULT_BIND_ADDRESS>`
 * Added support for IPv6 connections (:issue:`984`)
 
 

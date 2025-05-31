@@ -627,8 +627,6 @@ def code_to_category(code: int) -> str:
 class Status(IntEnum):
     """Constants for common status codes.
 
-    .. versionadded:: 1.5
-
     New constants can be added with the ``Status.add(name, code)`` method but
     the documentation for it is missing due to a bug in Sphinx. `name` is
     the variable name of the constant to add as a :class:`str` and `code` is

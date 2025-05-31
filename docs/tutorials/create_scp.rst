@@ -17,7 +17,7 @@ In this tutorial you'll:
   :doc:`storescu<../apps/storescu>` application
 
 If you need to install *pynetdicom* please follow the instructions in the
-:doc:`installation guide<installation>`. For this tutorial we'll
+:doc:`installation guide</user/installation>`. For this tutorial we'll
 also be using the :doc:`storescu<../apps/storescu>` application that comes with
 *pynetdicom*.
 
@@ -97,7 +97,7 @@ the UID for :attr:`CT Image Storage
 Just as with the Echo SCU from the previous tutorial, we create a
 new :class:`AE<ae.ApplicationEntity>` instance. However, because this time
 we'll be the association *acceptor*, its up to us to specify what
-:doc:`presentation contexts<../user/presentation>` are *supported* rather than
+:doc:`presentation contexts</user/presentation_acceptor>` are *supported* rather than
 *requested*. Since we'll be supporting the storage of *CT Images* encoded
 using the *Explicit VR Little Endian* transfer syntax we use
 :meth:`~ae.ApplicationEntity.add_supported_context` to add a corresponding
@@ -180,7 +180,7 @@ the ``evt.EVT_C_STORE`` event, so we'd better fix that.
 Events and handlers
 ===================
 
-*pynetdicom* uses an :doc:`event-handler system<../user/events>` to give
+*pynetdicom* uses an :doc:`event-handler system</user/events_types>` to give
 access to data exchanged between AEs and as a way to customise the responses to
 service requests. Events come in two types: :ref:`notification events
 <events_notification>`, where the user is notified some event has occurred,
@@ -466,6 +466,6 @@ Next steps
 ==========
 
 That's it for the basics of *pynetdicom*. You might want to read through the
-:doc:`User Guide<../user/index>`, or check
-out the :doc:`SCP examples<../examples/index>` available in the documentation
-or the :doc:`applications<../apps/index>` that come with *pynetdicom*.
+:doc:`User Guide</user/index>`, or check
+out the :doc:`SCP examples</examples/index>` available in the documentation
+or the :doc:`applications</examples/index>` that come with *pynetdicom*.

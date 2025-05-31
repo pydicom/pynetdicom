@@ -67,8 +67,6 @@ _IteratorType = Iterator[tuple[_BasicReturnType, Dataset | None]]
 class NotificationEvent(NamedTuple):
     """Representation of a notification event.
 
-    .. versionadded:: 1.3
-
     Possible notification events are:
 
     * :class:`EVT_ABORTED`
@@ -136,8 +134,6 @@ EVT_REQUESTED = NotificationEvent("EVT_REQUESTED", "Association requested")
 #   Returns/yields needed if bound, can only have one handler per event
 class InterventionEvent(NamedTuple):
     """Representation of an intervention event.
-
-    .. versionadded:: 1.3
 
     Possible intervention events are:
 
@@ -277,10 +273,7 @@ def _remove_handler(
 
 
 def get_default_handler(event: InterventionEvent) -> Callable[["Event"], Any]:
-    """Return the default handler for an intervention `event`.
-
-    .. versionadded:: 1.3
-    """
+    """Return the default handler for an intervention `event`."""
     handlers = {
         EVT_ASYNC_OPS: _async_ops_handler,
         EVT_SOP_COMMON: _sop_common_handler,
@@ -305,8 +298,6 @@ def trigger(
     assoc: "Association", event: EventType, attrs: dict[str, Any] | None = None
 ) -> Any | None:
     """Trigger an `event` and call any bound handler(s).
-
-    .. versionadded:: 1.3
 
     Notification events can be bound to multiple handlers, intervention events
     can only be bound to a single handler.
@@ -402,8 +393,6 @@ def trigger(
 class Event:
     """Representation of an event.
 
-    .. versionadded:: 1.3
-
     .. warning::
 
        Some of :class:`Event`'s attributes are set dynamically when an event is
@@ -496,8 +485,6 @@ class Event:
     @property
     def action_type(self) -> int | None:
         """Return an N-ACTION request's `Action Type ID` as an :class:`int`.
-
-        .. versionadded:: 1.4
 
         Returns
         -------
@@ -699,10 +686,6 @@ class Event:
     def event(self) -> EventType:
         """Return the corresponding event.
 
-        .. versionadded:: 1.4
-
-        Returns
-        -------
         events.InterventionEvent or events.NotificationEvent
             The corresponding event as a
             :func:`namedtuple<collections.namedtuple>`.
@@ -740,8 +723,6 @@ class Event:
     def event_type(self) -> int | None:
         """Return an N-EVENT-REPORT request's `Event Type ID` as an
         :class:`int`.
-
-        .. versionadded:: 1.4
 
         Returns
         -------
@@ -947,10 +928,6 @@ class Event:
     def message_id(self) -> int:
         """Return a DIMSE service request's `Message ID` as :class:`int`.
 
-        .. versionadded:: 1.5
-
-        Returns
-        -------
         int
             The request's (0000,0110) *Message ID* value.
 
@@ -998,8 +975,6 @@ class Event:
     @property
     def move_destination(self) -> str | None:
         """Return a C-MOVE request's `Move Destination` as :class:`str`.
-
-        .. versionadded:: 1.4
 
         .. versionchanged:: 2.0
 

@@ -242,7 +242,7 @@ class PresentationContext:
         return self._abstract_syntax
 
     @abstract_syntax.setter
-    def abstract_syntax(self, value: str | bytes | UID) -> None:
+    def abstract_syntax(self, value: str | bytes | UID | None) -> None:
         """Set the context's *Abstract Syntax*."""
         self._abstract_syntax = set_uid(value, "abstract_syntax", True, False, True)
 
@@ -955,8 +955,6 @@ def build_role(
     uid: str | UID, scu_role: bool = False, scp_role: bool = False
 ) -> "SCP_SCU_RoleSelectionNegotiation":
     """Return a SCP/SCU Role Selection Negotiation item.
-
-    .. versionadded:: 1.2
 
     Parameters
     ----------

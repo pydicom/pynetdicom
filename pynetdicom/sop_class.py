@@ -653,47 +653,23 @@ def register_uid(
 
 # Well-known SOP Instance UIDs for the supported Service Classes
 DisplaySystemInstance = UID("1.2.840.10008.5.1.1.40.1")
-"""``1.2.840.10008.5.1.1.40.1``
-
-.. versionadded:: 1.5
-"""
+"""``1.2.840.10008.5.1.1.40.1``"""
 PrinterConfigurationRetrievalInstance = UID("1.2.840.10008.5.1.1.17.376")
-"""``1.2.840.10008.5.1.1.17.376``
-
-.. versionadded:: 1.5
-"""
+"""``1.2.840.10008.5.1.1.17.376``"""
 PrinterInstance = UID("1.2.840.10008.5.1.1.17")
-"""``1.2.840.10008.5.1.1.17``
-
-.. versionadded:: 1.5
-"""
+"""``1.2.840.10008.5.1.1.17``"""
 ProceduralEventLoggingInstance = UID("1.2.840.10008.1.40.1")
-"""``1.2.840.10008.1.40.1``
-
-.. versionadded:: 1.5
-"""
+"""``1.2.840.10008.1.40.1``"""
 StorageCommitmentPushModelInstance = UID("1.2.840.10008.1.20.1.1")
-"""``1.2.840.10008.1.20.1.1``
-
-.. versionadded:: 1.5
-"""
+"""``1.2.840.10008.1.20.1.1``"""
 StorageManagementInstance = UID("1.2.840.10008.5.1.4.1.1.201.1.1")
 """``1.2.840.10008.5.1.4.1.1.201.1.1``
 
 .. versionadded:: 2.1
 """
 SubstanceAdministrationLoggingInstance = UID("1.2.840.10008.1.42.1")
-"""``1.2.840.10008.1.42.1``
-
-.. versionadded:: 1.5
-"""
+"""``1.2.840.10008.1.42.1``"""
 UPSFilteredGlobalSubscriptionInstance = UID("1.2.840.10008.5.1.4.34.5.1")
-"""``1.2.840.10008.5.1.4.34.5.1``
-
-.. versionadded:: 1.5
-"""
+"""``1.2.840.10008.5.1.4.34.5.1``"""
 UPSGlobalSubscriptionInstance = UID("1.2.840.10008.5.1.4.34.5")
-"""``1.2.840.10008.5.1.4.34.5``
-
-.. versionadded:: 1.5
-"""
+"""``1.2.840.10008.5.1.4.34.5``"""

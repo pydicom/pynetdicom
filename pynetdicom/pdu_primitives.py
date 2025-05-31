@@ -371,12 +371,12 @@ class A_ASSOCIATE:
         for item in self.user_information:
             if isinstance(item, ImplementationClassUIDNotification):
                 found_item = True
-                item.implementation_class_uid = value  # type: ignore
+                item.implementation_class_uid = value
 
         # No ImplementationClassUIDNotification item found
         if not found_item:
             imp_uid = ImplementationClassUIDNotification()
-            imp_uid.implementation_class_uid = value  # type: ignore
+            imp_uid.implementation_class_uid = value
             self.user_information.append(imp_uid)
 
     @property
