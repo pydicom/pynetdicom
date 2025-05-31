@@ -1,7 +1,6 @@
 """pynetdicom configuration options"""
 
 from typing import Callable, Any
-import socket
 
 from pynetdicom._validators import validate_ae, validate_ui
 
