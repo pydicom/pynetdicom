@@ -1,0 +1,108 @@
+.. _v2.0.0:
+
+2.0.0
+=====
+
+The major breaking changes with the version 2.0 release are:
+
+  * Python 2 is no longer supported
+  * SOP class variable names now use their `new DICOM UID keywords
+    <https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html#table_A-1>`_
+    (for example, *VerificationSOPClass* becomes simply *Verification*)
+  * AE title values should be :class:`str` rather than :class:`bytes` and trailing
+    padding spaces are stripped from the raw value during decoding.
+
+
+Fixes
+.....
+
+* Fixed not processing multiple PDUs received when acting as the association
+  requestor with SSL/TLS (:pr:`528`)
+* Fixed not using the correct *Move Originator Message ID* when sending
+  C-STORE-RQs when acting as a Move SCP (:issue:`541`)
+* Fixed C-FIND, C-GET and C-MOVE SCPs sending the previous pending
+  Identifier with the final success response (:issue:`571`)
+* Fixed *Composite Instance Retrieve Without Bulk Data Get* SCPs not removing
+  *Overlay Data*, *Audio Sample Data* and *Curve Data* bulk data elements
+  (:pr:`608`)
+* Fixed not sending a failure response if all C-GET or C-MOVE sub-operations
+  failed when acting as an Query/Retrieve SCP (:issue:`577`)
+* Fixed :meth:`ServiceUser.requested_contexts
+  <pynetdicom.association.ServiceUser.requested_contexts>` and
+  :meth:`ServiceUser.supported_contexts
+  <pynetdicom.association.ServiceUser.supported_contexts>` not returning the
+  expected contexts (:issue:`636`)
+* Fixed `qrscp --clean` (:issue:`681`, :issue:`682`)
+* Fixed a memory leak when running :class:`~pynetdicom.transport.AssociationServer`
+  due to old Association threads not being garbage collected (:issue:`669`)
+* Fixed an exception in the state machine during association negotiation as the acceptor
+  when an A-ABORT-RQ PDU is received before the initial A-ASSOCIATE-RQ has been
+  processed (:issue:`721`)
+* Fixed network timeouts not working as expected on Windows (:issue:`653`)
+
+
+Enhancements
+............
+
+* Added the ability to pass a file path to a dataset to
+  :meth:`~pynetdicom.association.Association.send_c_store` (:issue:`517`)
+* Allow parsing of DIMSE command sets that contain elements with non-conformant
+  VMs (:issue:`554`)
+* Added a check when acting as a QR SCP that returns from the event handler
+  if the association is aborted or released (:issue:`592`)
+* Added :attr:`AE.connection_timeout
+  <pynetdicom.ae.ApplicationEntity.connection_timeout>` (:issue:`616`)
+* Updated to meet the 2021e version of the DICOM Standard
+* Added type hints
+* Handle non-conformant A-ASSOCIATE (RJ) 'Result', 'Source' and 'Diagnostic'
+  values during ACSE negotiation (:issue:`633`)
+* Added `query_model` keyword parameter to
+  :meth:`~pynetdicom.association.Association.send_c_cancel` to make sending a
+  C-CANCEL request easier (:issue:`535`)
+* Added the following configuration options:
+
+  * :attr:`~pynetdicom._config.CODECS` to allow customising the
+    codecs used when decoding text-like PDU parameters (:issue:`611`)
+  * :attr:`~pynetdicom._config.VALIDATORS` to allow customising the
+    validation performed on UIDs and AE titles (:issue:`515`, :issue:`549`)
+  * :attr:`~pynetdicom._config.WINDOWS_TIMER_RESOLUTION` to allow customisation
+    of the timer resolution used when running on Windows (:issue:`620`)
+  * :attr:`~pynetdicom._config.PASS_CONTEXTVARS` to allow user code to define
+    contextual behavior
+  * :attr:`~pynetdicom._config.STORE_SEND_CHUNKED_DATASET`
+    to allow the use of a chunked read when a file path is passed to
+    :meth:`~pynetdicom.association.Association.send_c_store` in order to
+    reduce the memory needed for sending datasets (:issue:`517`)
+  * :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET`
+    to allow storing received C-STORE datasets directly to file,
+    reducing the memory needed when receiving datasets (:issue:`517`)
+  * :attr:`~pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE` to allow the
+    use of the AE as an unrestricted Storage SCP (:issue:`505`)
+
+* The DUL reactor should be more performant when processing multiple successive events
+  (:pr:`651`)
+* Added :attr:`Association.network_timeout_response
+  <pynetdicom.association.Association.network_timeout_response>` to allow normal
+  association release on network timeout expiry rather than an abort (:issue:`619`)
+
+
+
+Changes
+.......
+
+* Removed support for Python 2.7, 3.5 and 3.6, added it for Python 3.9 and 3.10
+* Minimum *pydicom* version is 2.2
+* The *Failed SOP Instance UID List* sent with the final C-GET/C-MOVE SCP
+  failure or warning responses no longer includes the SOP Instance UIDs for
+  sub-operations that return a warning status
+* SOP Class and Instance variable names changed to match the new `UID keywords
+  <https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html#table_A-1>`_
+  from the DICOM Standard. In particular ``VerificationSOPClass`` is now simply
+  :attr:`~pynetdicom.sop_class.Verification`
+* All AE titles and DIMSE elements with a VR of **AE** should be set using an
+  ASCII :class:`str` rather than :class:`bytes`
+* The default bind address used when making association requests has been changed to
+  ``("127.0.0.1", 0)`` (:issue:`680`)
+* ``DULServiceProvider.primitive`` and ``DULServiceProvider.pdu`` have been removed
+* :meth:`AssociationSocket.connect<pynetdicom.transport.AssociationSocket.connect>`
+  now takes a :class:`~pynetdicom.transport.T_CONNECT` primitive

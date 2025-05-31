@@ -1,0 +1,832 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Event types &#8212; pynetdicom 3.0.0.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=afcbd73c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/events_types';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <script defer="defer" src="../_static/custom-icons.js?v=1cb01586"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Event Handlers" href="events_handlers.html" />
+    <link rel="prev" title="C-GET and SCP/SCU Role Selection" href="presentation_role_selection.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.0.0.dev0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/pydicom_flat_black.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">pynetdicom</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../service_classes/index.html">
+    Service Classes
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog/index.html">
+    Releases
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pydicom/pynetdicom/" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pynetdicom/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../service_classes/index.html">
+    Service Classes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog/index.html">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pydicom/pynetdicom/" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pynetdicom/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">DICOM concepts</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="concepts_uids.html">UIDs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts_information_model.html">DICOM Information Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts_ae.html">Application Entities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts_contexts.html">Presentation Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts_association.html">Association</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Presentation contexts</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="presentation_introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="presentation_private.html">Registering private or retired SOP Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="presentation_requestor.html">Contexts and the Association Requestor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="presentation_acceptor.html">Contexts and the Association Acceptor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="presentation_negotiation.html">Presentation Context Negotiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="presentation_role_selection.html">C-GET and SCP/SCU Role Selection</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Event handling</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Event types</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="events_handlers.html">Event Handlers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Application Entity</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="ae.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ae_scu.html">Use as an SCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ae_scp.html">Use as an SCP</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Association</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="association_requesting.html">Requesting an association</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="association_accepting.html">Listening for association requests</a></li>
+
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Event types</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="event-types">
+<span id="user-events"></span><h1>Event types<a class="headerlink" href="#event-types" title="Link to this heading">#</a></h1>
+<p><em>pynetdicom</em> uses an event-handler system to give the user access to the
+data exchanged between different services within an AE as well as the PDUs
+and data sent between the local and peer AEs. Two different types of events
+are used: <em>notification events</em> and <em>intervention events</em>. Events are imported
+using <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">pynetdicom</span> <span class="pre">import</span> <span class="pre">evt</span></code></p>
+</section>
+<section id="notification-events">
+<span id="events-notification"></span><h1>Notification Events<a class="headerlink" href="#notification-events" title="Link to this heading">#</a></h1>
+<p>Notification events are those events where bound event handlers don’t need
+to return or yield anything (i.e. the user is <em>notified</em> some event has
+occurred). Each notification event can have multiple handlers
+bound to it and any exceptions raised by the handlers are caught
+and the exception message logged instead. The table below lists the available
+notification events.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 66.7%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Event</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_assoc.html#pynetdicom._handlers.doc_handle_assoc" title="pynetdicom._handlers.doc_handle_assoc"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_ABORTED</span></code></a></p></td>
+<td><p>Association aborted</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_assoc.html#pynetdicom._handlers.doc_handle_assoc" title="pynetdicom._handlers.doc_handle_assoc"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_ACCEPTED</span></code></a></p></td>
+<td><p>Association accepted</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_acse.html#pynetdicom._handlers.doc_handle_acse" title="pynetdicom._handlers.doc_handle_acse"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_ACSE_RECV</span></code></a></p></td>
+<td><p>ACSE received a primitive from the DUL service provider</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_acse.html#pynetdicom._handlers.doc_handle_acse" title="pynetdicom._handlers.doc_handle_acse"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_ACSE_SENT</span></code></a></p></td>
+<td><p>ACSE sent a primitive to the DUL service provider</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_transport.html#pynetdicom._handlers.doc_handle_transport" title="pynetdicom._handlers.doc_handle_transport"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_CONN_CLOSE</span></code></a></p></td>
+<td><p>Connection with remote closed</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_transport.html#pynetdicom._handlers.doc_handle_transport" title="pynetdicom._handlers.doc_handle_transport"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_CONN_OPEN</span></code></a></p></td>
+<td><p>Connection with remote opened</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_data.html#pynetdicom._handlers.doc_handle_data" title="pynetdicom._handlers.doc_handle_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_DATA_RECV</span></code></a></p></td>
+<td><p>Data received from the peer AE</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_data.html#pynetdicom._handlers.doc_handle_data" title="pynetdicom._handlers.doc_handle_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_DATA_SENT</span></code></a></p></td>
+<td><p>Data sent to the peer AE</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_dimse.html#pynetdicom._handlers.doc_handle_dimse" title="pynetdicom._handlers.doc_handle_dimse"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_DIMSE_RECV</span></code></a></p></td>
+<td><p>DIMSE service received and decoded a message</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_dimse.html#pynetdicom._handlers.doc_handle_dimse" title="pynetdicom._handlers.doc_handle_dimse"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_DIMSE_SENT</span></code></a></p></td>
+<td><p>DIMSE service encoded and sent a message</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_assoc.html#pynetdicom._handlers.doc_handle_assoc" title="pynetdicom._handlers.doc_handle_assoc"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_ESTABLISHED</span></code></a></p></td>
+<td><p>Association established</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_fsm.html#pynetdicom._handlers.doc_handle_fsm" title="pynetdicom._handlers.doc_handle_fsm"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_FSM_TRANSITION</span></code></a></p></td>
+<td><p>State machine transitioning</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_pdu.html#pynetdicom._handlers.doc_handle_pdu" title="pynetdicom._handlers.doc_handle_pdu"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_PDU_RECV</span></code></a></p></td>
+<td><p>PDU received from the peer AE</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_pdu.html#pynetdicom._handlers.doc_handle_pdu" title="pynetdicom._handlers.doc_handle_pdu"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_PDU_SENT</span></code></a></p></td>
+<td><p>PDU sent to the peer AE</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_assoc.html#pynetdicom._handlers.doc_handle_assoc" title="pynetdicom._handlers.doc_handle_assoc"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_REJECTED</span></code></a></p></td>
+<td><p>Association rejected</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_assoc.html#pynetdicom._handlers.doc_handle_assoc" title="pynetdicom._handlers.doc_handle_assoc"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_RELEASED</span></code></a></p></td>
+<td><p>Association released</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_assoc.html#pynetdicom._handlers.doc_handle_assoc" title="pynetdicom._handlers.doc_handle_assoc"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_REQUESTED</span></code></a></p></td>
+<td><p>Association requested</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>By default a number of notification handlers are bound for logging purposes.
+If you wish to remove these then you can do the following before creating any
+associations:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">_config</span>
+
+<span class="c1"># Don&#39;t bind any of the default notification handlers</span>
+<span class="n">_config</span><span class="o">.</span><span class="n">LOG_HANDLER_LEVEL</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="intervention-events">
+<span id="events-intervention"></span><h1>Intervention Events<a class="headerlink" href="#intervention-events" title="Link to this heading">#</a></h1>
+<p>Intervention events are those events where the bound event handler <em>must</em> return
+or yield certain expected values so that <em>pynetdicom</em> can complete an action
+(i.e. user <em>intervention</em> is required).
+Each intervention event has only a single handler bound to it at all times.
+If the user hasn’t bound their own handler then a default will be
+used, which usually returns a negative response (i.e. service request failed,
+or extended negotiation ignored). The sole exception is the default handler
+for <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code> which returns an <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> <em>Success</em> status. The
+table below lists the possible intervention events.</p>
+<section id="association-related">
+<h2>Association related<a class="headerlink" href="#association-related" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Event</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_async.html#pynetdicom._handlers.doc_handle_async" title="pynetdicom._handlers.doc_handle_async"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_ASYNC_OPS</span></code></a></p></td>
+<td><p>Association request includes asynchronous operations negotiation item</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_sop_common.html#pynetdicom._handlers.doc_handle_sop_common" title="pynetdicom._handlers.doc_handle_sop_common"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_SOP_COMMON</span></code></a></p></td>
+<td><p>Association request includes SOP Class Common Extended negotiation item(s)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_sop_extended.html#pynetdicom._handlers.doc_handle_sop_extended" title="pynetdicom._handlers.doc_handle_sop_extended"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_SOP_EXTENDED</span></code></a></p></td>
+<td><p>Association request includes SOP Class Extended negotiation item(s)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_userid.html#pynetdicom._handlers.doc_handle_userid" title="pynetdicom._handlers.doc_handle_userid"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code></a></p></td>
+<td><p>Association request includes User Identity negotiation item</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="service-class-related">
+<h2>Service Class related<a class="headerlink" href="#service-class-related" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 66.7%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Event</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_echo.html#pynetdicom._handlers.doc_handle_echo" title="pynetdicom._handlers.doc_handle_echo"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code></a></p></td>
+<td><p>Received C-ECHO request</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_find.html#pynetdicom._handlers.doc_handle_find" title="pynetdicom._handlers.doc_handle_find"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code></a></p></td>
+<td><p>Received C-FIND request</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_c_get.html#pynetdicom._handlers.doc_handle_c_get" title="pynetdicom._handlers.doc_handle_c_get"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code></a></p></td>
+<td><p>Received C-GET request</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_move.html#pynetdicom._handlers.doc_handle_move" title="pynetdicom._handlers.doc_handle_move"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code></a></p></td>
+<td><p>Received C-MOVE request</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code></a></p></td>
+<td><p>Received C-STORE request</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_action.html#pynetdicom._handlers.doc_handle_action" title="pynetdicom._handlers.doc_handle_action"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_N_ACTION</span></code></a></p></td>
+<td><p>Received N-ACTION request</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_create.html#pynetdicom._handlers.doc_handle_create" title="pynetdicom._handlers.doc_handle_create"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_N_CREATE</span></code></a></p></td>
+<td><p>Received N-CREATE request</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_delete.html#pynetdicom._handlers.doc_handle_delete" title="pynetdicom._handlers.doc_handle_delete"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_N_DELETE</span></code></a></p></td>
+<td><p>Received N-DELETE request</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_event_report.html#pynetdicom._handlers.doc_handle_event_report" title="pynetdicom._handlers.doc_handle_event_report"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code></a></p></td>
+<td><p>Received N-EVENT-REPORT request</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_n_get.html#pynetdicom._handlers.doc_handle_n_get" title="pynetdicom._handlers.doc_handle_n_get"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code></a></p></td>
+<td><p>Received N-GET request</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_set.html#pynetdicom._handlers.doc_handle_set" title="pynetdicom._handlers.doc_handle_set"><code class="xref py py-func docutils literal notranslate"><span class="pre">evt.EVT_N_SET</span></code></a></p></td>
+<td><p>Received N-SET request</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="presentation_role_selection.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">C-GET and SCP/SCU Role Selection</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="events_handlers.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Event Handlers</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Event types</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#notification-events">Notification Events</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#intervention-events">Intervention Events</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#association-related">Association related</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#service-class-related">Service Class related</a></li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2018-2025, pynetdicom contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

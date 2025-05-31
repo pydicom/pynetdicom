@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.RTPatientPositionAcquisitionInstructionStorage
+====================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: RTPatientPositionAcquisitionInstructionStorage

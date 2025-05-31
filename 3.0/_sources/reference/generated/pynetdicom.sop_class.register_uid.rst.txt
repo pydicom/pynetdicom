@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.register\_uid
+===================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autofunction:: register_uid

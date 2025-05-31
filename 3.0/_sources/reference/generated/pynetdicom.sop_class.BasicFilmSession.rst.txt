@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.BasicFilmSession
+======================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: BasicFilmSession

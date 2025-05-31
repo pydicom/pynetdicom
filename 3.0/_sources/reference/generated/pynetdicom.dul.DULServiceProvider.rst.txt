@@ -1,0 +1,48 @@
+﻿pynetdicom.dul.DULServiceProvider
+=================================
+
+.. currentmodule:: pynetdicom.dul
+
+.. autoclass:: DULServiceProvider
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DULServiceProvider.__init__
+      ~DULServiceProvider.getName
+      ~DULServiceProvider.idle_timer_expired
+      ~DULServiceProvider.isDaemon
+      ~DULServiceProvider.is_alive
+      ~DULServiceProvider.join
+      ~DULServiceProvider.kill_dul
+      ~DULServiceProvider.peek_next_pdu
+      ~DULServiceProvider.receive_pdu
+      ~DULServiceProvider.run
+      ~DULServiceProvider.run_reactor
+      ~DULServiceProvider.send_pdu
+      ~DULServiceProvider.setDaemon
+      ~DULServiceProvider.setName
+      ~DULServiceProvider.start
+      ~DULServiceProvider.stop_dul
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DULServiceProvider.assoc
+      ~DULServiceProvider.daemon
+      ~DULServiceProvider.ident
+      ~DULServiceProvider.name
+      ~DULServiceProvider.native_id
+      ~DULServiceProvider.network_timeout
+   
+   

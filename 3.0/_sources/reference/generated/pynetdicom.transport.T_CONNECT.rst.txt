@@ -1,0 +1,30 @@
+﻿pynetdicom.transport.T\_CONNECT
+===============================
+
+.. currentmodule:: pynetdicom.transport
+
+.. autoclass:: T_CONNECT
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~T_CONNECT.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~T_CONNECT.address
+      ~T_CONNECT.address_info
+      ~T_CONNECT.result
+   
+   

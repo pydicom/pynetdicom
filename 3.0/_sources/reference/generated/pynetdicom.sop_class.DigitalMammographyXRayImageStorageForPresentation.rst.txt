@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.DigitalMammographyXRayImageStorageForPresentation
+=======================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: DigitalMammographyXRayImageStorageForPresentation

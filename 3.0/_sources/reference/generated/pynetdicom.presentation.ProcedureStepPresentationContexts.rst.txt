@@ -1,0 +1,6 @@
+﻿pynetdicom.presentation.ProcedureStepPresentationContexts
+=========================================================
+
+.. currentmodule:: pynetdicom.presentation
+
+.. autodata:: ProcedureStepPresentationContexts

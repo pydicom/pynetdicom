@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.BreastTomosynthesisImageStorage
+=====================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: BreastTomosynthesisImageStorage

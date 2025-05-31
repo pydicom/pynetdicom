@@ -1,0 +1,26 @@
+﻿pynetdicom.dimse\_messages.C\_ECHO\_RSP
+=======================================
+
+.. currentmodule:: pynetdicom.dimse_messages
+
+.. autoclass:: C_ECHO_RSP
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~C_ECHO_RSP.__init__
+      ~C_ECHO_RSP.decode_msg
+      ~C_ECHO_RSP.encode_msg
+      ~C_ECHO_RSP.message_to_primitive
+      ~C_ECHO_RSP.primitive_to_message
+   
+   
+
+   
+   
+   

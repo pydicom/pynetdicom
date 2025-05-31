@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.SimplifiedAdultEchoSRStorage
+==================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: SimplifiedAdultEchoSRStorage

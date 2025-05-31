@@ -1,0 +1,48 @@
+﻿pynetdicom.pdu\_primitives.A\_ASSOCIATE
+=======================================
+
+.. currentmodule:: pynetdicom.pdu_primitives
+
+.. autoclass:: A_ASSOCIATE
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~A_ASSOCIATE.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~A_ASSOCIATE.application_context_name
+      ~A_ASSOCIATE.called_ae_title
+      ~A_ASSOCIATE.called_presentation_address
+      ~A_ASSOCIATE.calling_ae_title
+      ~A_ASSOCIATE.calling_presentation_address
+      ~A_ASSOCIATE.diagnostic
+      ~A_ASSOCIATE.implementation_class_uid
+      ~A_ASSOCIATE.maximum_length_received
+      ~A_ASSOCIATE.mode
+      ~A_ASSOCIATE.presentation_context_definition_list
+      ~A_ASSOCIATE.presentation_context_definition_results_list
+      ~A_ASSOCIATE.presentation_requirements
+      ~A_ASSOCIATE.reason_str
+      ~A_ASSOCIATE.responding_ae_title
+      ~A_ASSOCIATE.responding_presentation_address
+      ~A_ASSOCIATE.result
+      ~A_ASSOCIATE.result_source
+      ~A_ASSOCIATE.result_str
+      ~A_ASSOCIATE.session_requirements
+      ~A_ASSOCIATE.source_str
+      ~A_ASSOCIATE.user_information
+   
+   

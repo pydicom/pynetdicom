@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.StorageCommitmentPushModel
+================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: StorageCommitmentPushModel

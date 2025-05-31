@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.DefinedProcedureProtocolInformationModelGet
+=================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: DefinedProcedureProtocolInformationModelGet

@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.RTRadiationSalvageRecordStorage
+=====================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: RTRadiationSalvageRecordStorage

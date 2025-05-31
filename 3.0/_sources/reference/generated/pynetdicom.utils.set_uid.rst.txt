@@ -1,0 +1,6 @@
+﻿pynetdicom.utils.set\_uid
+=========================
+
+.. currentmodule:: pynetdicom.utils
+
+.. autofunction:: set_uid

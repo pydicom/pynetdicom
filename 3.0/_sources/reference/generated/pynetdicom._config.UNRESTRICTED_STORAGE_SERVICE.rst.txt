@@ -1,0 +1,6 @@
+﻿pynetdicom.\_config.UNRESTRICTED\_STORAGE\_SERVICE
+==================================================
+
+.. currentmodule:: pynetdicom._config
+
+.. autodata:: UNRESTRICTED_STORAGE_SERVICE

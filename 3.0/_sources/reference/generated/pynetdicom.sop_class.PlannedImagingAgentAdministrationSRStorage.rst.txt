@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.PlannedImagingAgentAdministrationSRStorage
+================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: PlannedImagingAgentAdministrationSRStorage

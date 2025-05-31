@@ -1,0 +1,76 @@
+.. _v3.0.0:
+
+3.0.0
+=====
+
+The major breaking changes with the version 3.0 release are:
+
+    * Minimum required pydicom version is 3.0
+    * Changed :attr:`~pynetdicom.presentation.StoragePresentationContexts` to match DCMTK
+      implementation
+    * Various small changes required to support IPv6
+
+Changes
+-------
+
+* Move and Get SCPs are now limited to a maximum of 65535 matches (:issue:`982`)
+* Minimum supported pydicom version is 3.0 (:issue:`981`)
+* Added support for Python 3.13
+* Updated SOP classes to version 2025b of the DICOM Standard
+* P-DATA PDUs received during association release are now added to the normal DIMSE
+  messaging queue
+* The following changes have been made in order to support IPv6 connections:
+
+  * Changed :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` to accept
+    either a str or tuple[str, int, int] as the `addr` parameter.
+  * Changed :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` to accept
+    either a tuple[str, int] or tuple[str, int, int, int] as the `bind_address` keyword
+    parameter.
+  * Changed :meth:`AE.make_server()<pynetdicom.ae.ApplicationEntity.associate>` and
+    :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.associate>` to
+    accept either a tuple[str, int] or tuple[str, int, int, int] as the `address`
+    parameter.
+  * Added :class:`~pynetdicom.transport.AddressInformation`
+  * :attr:`ServiceUser.address<pynetdicom.association.ServiceUser.address>` and
+    :attr:`ServiceUser.port<pynetdicom.association.ServiceUser.port>` are now
+    read-only properties.
+  * Added :attr:`ServiceUser.address_info
+    <pynetdicom.association.ServiceUser.address_info>`.
+  * Changed :meth:`pynetdicom.transport.AssociationSocket` to accept an
+    :class:`~pynetdicom.transport.AddressInformation` instance as the `address`
+    keyword parameter.
+  * :attr:`RequestHandler.local<pynetdicom.transport.RequestHandler.local>` and
+    :attr:`RequestHandler.remote<pynetdicom.transport.RequestHandler.remote>` now
+    return an :class:`~pynetdicom.transport.AddressInformation` instance
+  * Added :attr:`T_CONNECT.address_info<pynetdicom.transport.T_CONNECT.address_info>`
+  * :attr:`A_ASSOCIATE.calling_presentation_address
+    <pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address>` and
+    :attr:`A_ASSOCIATE.called_presentation_address
+    <pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address>` are both now
+    set using an :class:`~pynetdicom.transport.AddressInformation` instance
+
+* Added the `block` optional argument to :meth:`Association.abort()
+  <pynetdicom.association.Association.abort>` to allow for operation in non-blocking
+  mode.
+
+
+Enhancements
+------------
+
+* Setting the *Affected SOP Instance UID* for an N-CREATE-RSP message when it's
+  absent from the N-CREATE-RQ can now be done by adding it to the returned *Attribute
+  List* dataset (it'll be removed from the dataset prior to sending) (:issue:`995`)
+* Added debugging handlers for the remaining DIMSE-N messages
+* Added support for IPv6 connections (:issue:`984`)
+
+
+Fixes
+-----
+* Fixed a state machine error caused by receiving N-EVENT-REPORT requests during
+  association release (:issue:`820`)
+* Added redundancy to ensure sockets are closed during abort and connection failure
+  (:issue:`979`)
+* Handle an exception due to the socket being discarded while trying to send an abort
+  while waiting for the socket to be discarded 🙃 (:issue:`806`)
+* Fixed :meth:`Association.abort()<pynetdicom.association.Association.abort>` causing
+  a deadlock when called within event handlers (:issue:`912`)

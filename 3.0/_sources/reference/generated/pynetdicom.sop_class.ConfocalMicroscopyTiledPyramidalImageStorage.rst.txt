@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.ConfocalMicroscopyTiledPyramidalImageStorage
+==================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ConfocalMicroscopyTiledPyramidalImageStorage

@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.WaveformAnnotationSRStorage
+=================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: WaveformAnnotationSRStorage
