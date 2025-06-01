@@ -1,6 +1,7 @@
 [
   {
-    "version": "dev",
+    "name": "dev",
+    "version": "3.1.0",
     "url": "https://pydicom.github.io/pynetdicom/dev/"
   },
   {
