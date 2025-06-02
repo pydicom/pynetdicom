@@ -5,9 +5,6 @@ import re
 
 
 # pynetdicom version
-# __version__: str = "3.0.0.dev0"
-
-
 __version__: str = version("pynetdicom")
 
 # DICOM Standard version used for SOP classes and instances
