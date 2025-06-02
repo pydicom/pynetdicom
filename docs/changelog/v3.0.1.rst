@@ -1,0 +1,8 @@
+.. _v3.0.1:
+
+3.0.1
+=====
+
+Fixes
+-----
+* Fixed incorrect `pynetdicom.__version__` (:issue:`1012`)
