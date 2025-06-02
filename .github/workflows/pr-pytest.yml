@@ -27,6 +27,7 @@ jobs:
       run: |
         conda install pytest
         conda install -c conda-forge pydicom
+        pip install -e .
     - name: Get OpenSSL version
       run: |
         python -c "import ssl; print('OpenSSL:', ssl.OPENSSL_VERSION_INFO)"
