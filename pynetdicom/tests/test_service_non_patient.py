@@ -15,8 +15,11 @@ from pynetdicom.sop_class import (
     HangingProtocolStorage,
 )
 
+from .utils import get_port
+
 
 # debug_logger()
+
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), "dicom_files")
 DATASET = dcmread(os.path.join(TEST_DS_DIR, "CTImageStorage.dcm"))
@@ -60,9 +63,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         req = C_STORE()
@@ -103,9 +106,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0001
@@ -129,9 +132,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0001
@@ -153,9 +156,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
@@ -176,9 +179,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0xFFF0
@@ -198,9 +201,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0xC002
@@ -220,9 +223,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0xC211
@@ -247,9 +250,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
@@ -279,9 +282,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
@@ -310,9 +313,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
@@ -341,9 +344,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
@@ -372,9 +375,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         status = assoc.send_c_store(DATASET, originator_aet="ORIGIN", originator_id=888)
         assert status.Status == 0x0000

@@ -3,6 +3,7 @@
 import logging
 import os
 import signal
+import socket
 import sys
 import threading
 import time
@@ -28,6 +29,8 @@ from pynetdicom import (
 from pynetdicom.presentation import build_context
 from pynetdicom.sop_class import RTImageStorage, Verification
 from pynetdicom.transport import AssociationServer, RequestHandler
+
+from .utils import get_port
 
 
 if hasattr(PYD_CONFIG, "settings"):
@@ -57,7 +60,7 @@ def test_blocking_handler():
 
     thread = threading.Thread(
         target=ae.start_server,
-        args=(("localhost", 11112),),
+        args=(("localhost", get_port()),),
         kwargs={"evt_handlers": handlers},
     )
     thread.daemon = True
@@ -84,7 +87,7 @@ class TestMakeServer:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
 
-        server = ae.make_server(("localhost", 11112))
+        server = ae.make_server(("localhost", get_port()))
         assert isinstance(server, AssociationServer)
 
     def test_custom_request_handler(self):
@@ -94,7 +97,7 @@ class TestMakeServer:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
 
-        server = ae.make_server(("localhost", 11112), request_handler=MyRequestHandler)
+        server = ae.make_server(("localhost", get_port()), request_handler=MyRequestHandler)
         assert server.RequestHandlerClass is MyRequestHandler
 
     def test_aet_bytes_deprecation(self):
@@ -108,7 +111,7 @@ class TestMakeServer:
         )
         with pytest.warns(DeprecationWarning, match=msg):
             server = ae.start_server(
-                ("localhost", 11112), block=False, ae_title=b"BADAE2"
+                ("localhost", get_port()), block=False, ae_title=b"BADAE2"
             )
             assert server.ae_title == "BADAE2"
             server.shutdown()
@@ -136,17 +139,17 @@ class TestStartServer:
         assert ae.ae_title == "TESTAET"
 
         ae.add_supported_context(Verification)
-        server = ae.start_server(("localhost", 11112), block=False)
+        server = ae.start_server(("localhost", get_port()), block=False)
         assert server.ae_title == ae.ae_title
 
         server.shutdown()
 
-        server = ae.start_server(("localhost", 11112), block=False, ae_title="MYAE")
+        server = ae.start_server(("localhost", get_port()), block=False, ae_title="MYAE")
         assert server.ae_title == "MYAE"
         ae.require_called_aet = True
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112, ae_title="MYAE")
+        assoc = ae.associate("localhost", get_port(), ae_title="MYAE")
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -163,10 +166,10 @@ class TestStartServer:
         assert ae.ae_title == "TESTAET"
 
         cx = build_context(Verification)
-        server = ae.start_server(("localhost", 11112), block=False, contexts=[cx])
+        server = ae.start_server(("localhost", get_port()), block=False, contexts=[cx])
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112, ae_title="MYAE")
+        assoc = ae.associate("localhost", get_port(), ae_title="MYAE")
         assert assoc.is_established
         assert assoc.accepted_contexts[0].abstract_syntax == Verification
         assoc.release()
@@ -184,14 +187,14 @@ class TestStartServer:
         assert ae.ae_title == "TESTAET"
 
         ae.add_supported_context(Verification)
-        server = ae.start_server(("::1", 11112), block=False)
+        server = ae.start_server(("::1", get_port()), block=False)
         assert server.address_info.is_ipv6
 
         server.shutdown()
 
         # Windows doesn't like the flowinfo/scope_id
         if not ON_WINDOWS:
-            server = ae.start_server(("::1", 11112, 1, 2), block=False)
+            server = ae.start_server(("::1", get_port(), 1, 2), block=False)
             assert server.address_info.is_ipv6
             assert server.address_info.flowinfo == 1
             assert server.address_info.scope_id == 2
@@ -226,7 +229,7 @@ class TestAEVerificationSCP:
         thread.daemon = True
         thread.start()
 
-        ae.start_server(("localhost", 11112))
+        ae.start_server(("localhost", get_port()))
 
         ae.shutdown()
 
@@ -237,7 +240,7 @@ class TestAEVerificationSCP:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         with pytest.raises(ValueError, match=r"No supported Presentation"):
-            ae.start_server(("localhost", 11112))
+            ae.start_server(("localhost", get_port()))
 
     def test_new_scu_scp_warning(self):
         """Test that a warning is given if scu_role and scp_role bad."""
@@ -245,7 +248,7 @@ class TestAEVerificationSCP:
         ae.add_supported_context("1.2.3.4", scp_role=False)
         msg = r"The following presentation contexts have "
         with pytest.raises(ValueError, match=msg):
-            ae.start_server(("localhost", 11112))
+            ae.start_server(("localhost", get_port()))
 
     def test_str_empty(self):
         """Test str output for default AE"""
@@ -270,13 +273,13 @@ class TestAEPresentationSCU:
         # Test AE.requested_contexts
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.requested_contexts = VerificationPresentationContexts
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assert ae.requested_contexts[0].context_id is None
@@ -292,7 +295,7 @@ class TestAEPresentationSCU:
         # Test associate(contexts=...)
         ae.requested_contexts = []
         assoc = ae.associate(
-            "localhost", 11112, contexts=VerificationPresentationContexts
+            "localhost", get_port(), contexts=VerificationPresentationContexts
         )
         assert assoc.is_established
 
@@ -312,7 +315,7 @@ class TestAEPresentationSCU:
         """Test that AE.associate raises exception if no requested contexts"""
         self.ae = ae = AE()
         with pytest.raises(RuntimeError):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
 
 
 class TestAEGoodTimeoutSetters:
@@ -380,10 +383,10 @@ class TestAEGoodTimeoutSetters:
         """Test changing acse_timeout with active associations."""
         ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assert assoc.acse_timeout == 30
@@ -399,10 +402,10 @@ class TestAEGoodTimeoutSetters:
         """Test changing dimse_timeout with active associations."""
         ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assert assoc.dimse_timeout == 30
@@ -417,10 +420,10 @@ class TestAEGoodTimeoutSetters:
         """Test changing network_timeout with active associations."""
         ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assert assoc.network_timeout == 60
@@ -435,10 +438,10 @@ class TestAEGoodTimeoutSetters:
         """Test changing connection_timeout with active associations."""
         ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assert assoc.connection_timeout is None
@@ -467,10 +470,10 @@ class TestAEGoodAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.release()
@@ -487,14 +490,14 @@ class TestAEGoodAssociation:
         ae.network_timeout = 5
         ae.maximum_pdu_size = 54321
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         scu_ae = AE()
         scu_ae.acse_timeout = 5
         scu_ae.dimse_timeout = 5
         scu_ae.network_timeout = 5
         scu_ae.add_requested_context(Verification)
-        assoc = scu_ae.associate("localhost", 11112, max_pdu=12345)
+        assoc = scu_ae.associate("localhost", get_port(), max_pdu=12345)
         assert assoc.is_established
 
         assert scp.active_associations[0].acceptor.maximum_length == (54321)
@@ -507,7 +510,7 @@ class TestAEGoodAssociation:
         assert scp.active_associations == []
 
         # Check 0 max pdu value - max PDU value maps to 0x10000 internally
-        assoc = scu_ae.associate("localhost", 11112, max_pdu=0)
+        assoc = scu_ae.associate("localhost", get_port(), max_pdu=0)
         assert assoc.requestor.maximum_length == 0
         assert scp.active_associations[0].requestor.maximum_length == 0
 
@@ -538,7 +541,7 @@ class TestAEGoodAssociation:
         ae.network_timeout = 0.5
         ae.add_supported_context(Verification)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[
                 (evt.EVT_ACSE_RECV, handle_acse_recv),
@@ -551,7 +554,7 @@ class TestAEGoodAssociation:
         scu_ae.dimse_timeout = 30
         scu_ae.network_timeout = 30
         scu_ae.add_requested_context(Verification)
-        assoc = scu_ae.associate("localhost", 11112)
+        assoc = scu_ae.associate("localhost", get_port())
         assert assoc.is_established
 
         # Hit the network timeout
@@ -568,7 +571,7 @@ class TestAEGoodAssociation:
 
         dimse_delay = 1
 
-        assoc = scu_ae.associate("localhost", 11112)
+        assoc = scu_ae.associate("localhost", get_port())
         assert assoc.is_established
         status = assoc.send_c_echo()
         time.sleep(1.5)
@@ -582,7 +585,7 @@ class TestAEGoodAssociation:
 
         acse_delay = 1
 
-        assoc = scu_ae.associate("localhost", 11112)
+        assoc = scu_ae.associate("localhost", get_port())
         assert not assoc.is_established
         assert assoc.is_aborted
         time.sleep(1.5)
@@ -595,7 +598,7 @@ class TestAEGoodAssociation:
 
         # The host exists and is routable, but there is a middlebox ignoring
         # the initial TCP SYN.
-        assoc = scu_ae.associate("example.com", 11112)
+        assoc = scu_ae.associate("example.com", get_port())
         assert not assoc.is_established
         assert assoc.is_aborted
         assert len(scp.active_associations) == 0
@@ -606,7 +609,7 @@ class TestAEGoodAssociation:
         scu_ae.connection_timeout = None
         scu_ae.dimse_timeout = 32
 
-        assoc = scu_ae.associate("localhost", 11112)
+        assoc = scu_ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assert scp.active_associations[0].acse_timeout == 21
@@ -628,7 +631,7 @@ class TestAEGoodAssociation:
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = scu_ae.associate(
                 "8.8.8.8",
-                11112,
+                get_port(),
                 bind_address=("", 0),
             )
             assert not assoc.is_established
@@ -651,10 +654,10 @@ class TestAEGoodAssociation:
             ae.dimse_timeout = 5
             ae.network_timeout = 5
             ae.add_supported_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
+            scp = ae.start_server(("localhost", get_port()), block=False)
 
             ae.add_requested_context(Verification)
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.release()
             assert assoc.is_released
@@ -669,7 +672,7 @@ class TestAEGoodAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        server = ae.start_server(("localhost", 11112), block=False)
+        server = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         msg = (
@@ -677,7 +680,7 @@ class TestAEGoodAssociation:
             r"str instead"
         )
         with pytest.warns(DeprecationWarning, match=msg):
-            assoc = ae.associate("localhost", 11112, ae_title=b"BADAE2")
+            assoc = ae.associate("localhost", get_port(), ae_title=b"BADAE2")
             assert assoc.acceptor.ae_title == "BADAE2"
             assert assoc.requestor.ae_title == "PYNETDICOM"
 
@@ -691,7 +694,7 @@ class TestAEBadAssociation:
         ae.add_requested_context(Verification)
 
         with pytest.raises(TypeError):
-            ae.associate(1112, 11112)
+            ae.associate(1112, get_port())
         with pytest.raises(TypeError):
             ae.associate("localhost", "1.2.3.4")
 
@@ -701,7 +704,7 @@ class TestAEBadAssociation:
         ae.add_requested_context(Verification)
         msg = r"Invalid 'ae_title' value - must not consist entirely of spaces"
         with pytest.raises(ValueError, match=msg):
-            ae.associate("localhost", 11112, ae_title="                ")
+            ae.associate("localhost", get_port(), ae_title="                ")
 
         msg = (
             r"Invalid 'ae_title' value '\u200b5' "
@@ -709,29 +712,29 @@ class TestAEBadAssociation:
         )
         with pytest.raises(ValueError, match=msg):
             aet = b"\xe2\x80\x8b\x35".decode("utf8")
-            ae.associate("localhost", 11112, ae_title=aet)
+            ae.associate("localhost", get_port(), ae_title=aet)
 
         msg = (
             r"Invalid 'ae_title' value '1234567890ABCDEFG' "
             r"- must not exceed 16 characters"
         )
         with pytest.raises(ValueError, match=msg):
-            ae.associate("localhost", 11112, ae_title="1234567890ABCDEFG")
+            ae.associate("localhost", get_port(), ae_title="1234567890ABCDEFG")
 
         msg = r"Invalid 'ae_title' value - must not be an empty str"
         with pytest.raises(ValueError, match=msg):
-            ae.associate("localhost", 11112, ae_title="")
+            ae.associate("localhost", get_port(), ae_title="")
 
         msg = (
             r"Invalid 'ae_title' value 'TEST\\ME' - must not contain control "
             r"characters or backslashes"
         )
         with pytest.raises(ValueError, match=msg):
-            ae.associate("localhost", 11112, ae_title="TEST\\ME")
+            ae.associate("localhost", get_port(), ae_title="TEST\\ME")
 
         msg = r"'ae_title' must be str, not 'int'"
         with pytest.raises(TypeError, match=msg):
-            ae.associate("localhost", 11112, ae_title=12345)
+            ae.associate("localhost", get_port(), ae_title=12345)
 
     def test_invalid_addr_raises(self):
         ae = AE()
@@ -755,22 +758,22 @@ class TestAEBadAssociation:
     def test_invalid_bind_raises(self):
         ae = AE()
         with pytest.raises(TypeError, match="'bind_address' must be tuple"):
-            ae.associate("localhost", 11112, bind_address=12)
+            ae.associate("localhost", get_port(), bind_address=12)
 
         with pytest.raises(TypeError, match="'bind_address' must be tuple"):
-            ae.associate("localhost", 11112, bind_address=(12,))
+            ae.associate("localhost", get_port(), bind_address=(12,))
 
         with pytest.raises(TypeError, match="'bind_address' must be tuple"):
-            ae.associate("localhost", 11112, bind_address=(12, 13))
+            ae.associate("localhost", get_port(), bind_address=(12, 13))
 
         with pytest.raises(TypeError, match="'bind_address' must be tuple"):
-            ae.associate("localhost", 11112, bind_address=(12, 13, 0, 0))
+            ae.associate("localhost", get_port(), bind_address=(12, 13, 0, 0))
 
         with pytest.raises(TypeError, match="'bind_address' must be tuple"):
-            ae.associate("localhost", 11112, bind_address=("localhost", 13, "foo", 0))
+            ae.associate("localhost", get_port(), bind_address=("localhost", 13, "foo", 0))
 
         with pytest.raises(TypeError, match="'bind_address' must be tuple"):
-            ae.associate("localhost", 11112, bind_address=("localhost", 13, 0, "foo"))
+            ae.associate("localhost", get_port(), bind_address=("localhost", 13, 0, "foo"))
 
 
 class TestAEGoodMiscSetters:
@@ -842,10 +845,10 @@ class TestAEGoodMiscSetters:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -853,12 +856,12 @@ class TestAEGoodMiscSetters:
 
         ae.require_calling_aet = ["MYAE"]
         assert ae.require_calling_aet == ["MYAE"]
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_rejected
 
         ae.require_calling_aet = ["PYNETDICOM"]
         assert ae.require_calling_aet == ["PYNETDICOM"]
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.release()
 
@@ -866,7 +869,7 @@ class TestAEGoodMiscSetters:
         with pytest.raises(ValueError, match=msg):
             ae.require_calling_aet = [""]
         assert ae.require_calling_aet == ["PYNETDICOM"]
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.release()
 
@@ -891,10 +894,10 @@ class TestAEGoodMiscSetters:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -902,10 +905,10 @@ class TestAEGoodMiscSetters:
 
         ae.require_called_aet = True
         assert ae.require_called_aet is True
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_rejected
 
-        assoc = ae.associate("localhost", 11112, ae_title="PYNETDICOM")
+        assoc = ae.associate("localhost", get_port(), ae_title="PYNETDICOM")
         assert assoc.is_established
         assoc.release()
 
@@ -949,10 +952,10 @@ class TestAEGoodMiscSetters:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert assoc.is_established
@@ -1073,13 +1076,13 @@ class TestAE_GoodExit:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
 
         # Test N associate/release cycles
         for ii in range(5):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.release()
             assert not assoc.is_established
@@ -1096,13 +1099,13 @@ class TestAE_GoodExit:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
 
         # Test N associate/abort cycles
         for ii in range(5):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.abort()
             assert not assoc.is_established

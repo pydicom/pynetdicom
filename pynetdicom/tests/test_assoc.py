@@ -13,6 +13,7 @@ import logging
 import os
 from pathlib import Path
 import queue
+import socket
 import sys
 import time
 
@@ -71,6 +72,7 @@ from pynetdicom.sop_class import (
 from pynetdicom.utils import set_timer_resolution
 
 from .hide_modules import hide_modules
+from .utils import get_port
 
 
 # debug_logger()
@@ -156,10 +158,10 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert not assoc.is_established
         assert assoc.is_aborted
 
@@ -172,10 +174,10 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         scp.active_associations[0].release()
@@ -192,10 +194,10 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         scp.active_associations[0].abort()
@@ -210,12 +212,12 @@ class TestAssociation:
         self.ae = ae = AE()
         ae.require_calling_aet = ["HAHA NOPE"]
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         time.sleep(0.1)
         assert assoc.is_rejected
         assert not assoc.is_established
@@ -229,18 +231,18 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         # Simple release
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
 
         # Simple release, then release again
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -250,7 +252,7 @@ class TestAssociation:
         assert assoc.is_released
 
         # Simple release, then abort
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -268,18 +270,18 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         # Simple abort
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.abort()
         assert not assoc.is_established
         assert assoc.is_aborted
 
         # Simple abort, then release
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.abort()
         assert not assoc.is_established
@@ -289,7 +291,7 @@ class TestAssociation:
         assert not assoc.is_released
 
         # Simple abort, then abort again
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.abort()
         assert assoc.is_aborted
@@ -305,14 +307,14 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ui = UserIdentityNegotiation()
         ui.user_identity_type = 0x01
         ui.primary_field = b"pynetdicom"
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112, ext_neg=[ui])
+        assoc = ae.associate("localhost", get_port(), ext_neg=[ui])
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -326,14 +328,14 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ext = SOPClassExtendedNegotiation()
         ext.sop_class_uid = "1.1.1.1"
         ext.service_class_application_information = b"\x01\x02"
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112, ext_neg=[ext])
+        assoc = ae.associate("localhost", get_port(), ext_neg=[ext])
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -347,7 +349,7 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ext = SOPClassCommonExtendedNegotiation()
         ext.related_general_sop_class_identification = ["1.2.1"]
@@ -355,7 +357,7 @@ class TestAssociation:
         ext.service_class_uid = "1.1.3"
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112, ext_neg=[ext])
+        assoc = ae.associate("localhost", get_port(), ext_neg=[ext])
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -370,13 +372,13 @@ class TestAssociation:
         ae.network_timeout = 5
         ae.maximum_associations = 1
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae = AE()
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        assoc_2 = ae.associate("localhost", 11112)
+        assoc_2 = ae.associate("localhost", get_port())
         assert not assoc_2.is_established
         assoc.release()
         assert assoc.is_released
@@ -391,10 +393,10 @@ class TestAssociation:
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
         ae.require_called_aet = True
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert not assoc.is_established
         assert assoc.is_rejected
 
@@ -408,10 +410,10 @@ class TestAssociation:
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
         ae.require_calling_aet = ["TESTSCP"]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert not assoc.is_established
         assert assoc.is_rejected
 
@@ -430,11 +432,11 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.dimse_timeout = 0.1
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_ECHO, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_ECHO, handle)]
         )
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.dimse_timeout == 0.1
         assert assoc.dimse.dimse_timeout == 0.1
         assert assoc.is_established
@@ -452,11 +454,11 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         for ii in range(10):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assert not assoc.is_released
             assoc.send_c_echo()
@@ -513,9 +515,9 @@ class TestAssociation:
             ae.add_requested_context(Verification)
             ae.add_requested_context(CTImageStorage)
             ae.add_supported_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
+            scp = ae.start_server(("localhost", get_port()), block=False)
 
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assoc.dimse_timeout = 0.1
             assert assoc.is_established
             assoc._accepted_cx[3] = assoc._rejected_cx[0]
@@ -540,7 +542,7 @@ class TestAssociation:
         """Test Association.get_events()."""
         ae = AE()
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert evt.EVT_C_STORE in assoc.get_events()
         assert evt.EVT_USER_ID in assoc.get_events()
 
@@ -559,10 +561,10 @@ class TestAssociation:
 
         hh = [(evt.EVT_REQUESTED, handle_req)]
 
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert not assoc.is_established
         assert assoc.is_aborted
 
@@ -585,10 +587,10 @@ class TestAssociation:
 
         hh = [(evt.EVT_REQUESTED, handle_req)]
 
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert not assoc.is_established
         assert assoc.is_rejected
 
@@ -612,10 +614,10 @@ class TestAssociation:
 
         hh = [(evt.EVT_REQUESTED, handle_req)]
 
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert not assoc.is_established
         assert assoc.is_aborted
 
@@ -628,18 +630,18 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("::1", 11112), block=False)
+        scp = ae.start_server(("::1", get_port()), block=False)
 
         # Simple release
         ae.add_requested_context(Verification)
-        assoc = ae.associate("::1", 11112)
+        assoc = ae.associate("::1", get_port())
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
 
         # Simple release, then release again
-        assoc = ae.associate("::1", 11112)
+        assoc = ae.associate("::1", get_port())
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -649,7 +651,7 @@ class TestAssociation:
         assert assoc.is_released
 
         # Simple release, then abort
-        assoc = ae.associate("::1", 11112)
+        assoc = ae.associate("::1", get_port())
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -678,9 +680,9 @@ class TestAssociation:
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assoc.release()
 
         assert assoc.is_aborted
@@ -715,12 +717,12 @@ class TestCStoreSCP:
         ae.add_supported_context(RTImageStorage)
         # Storage SCP
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
         )
 
         ae.add_requested_context(RTImageStorage)
         role = build_role(CTImageStorage, scu_role=False, scp_role=True)
-        assoc = ae.associate("localhost", 11112, ext_neg=[role])
+        assoc = ae.associate("localhost", get_port(), ext_neg=[role])
         assert assoc.is_established
 
         req = C_STORE()
@@ -754,12 +756,12 @@ class TestCStoreSCP:
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
         # Storage SCP
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage)
         role = build_role(CTImageStorage, scu_role=False, scp_role=True)
         assoc = ae.associate(
-            "localhost", 11112, ext_neg=[role], evt_handlers=[(evt.EVT_C_STORE, handle)]
+            "localhost", get_port(), ext_neg=[role], evt_handlers=[(evt.EVT_C_STORE, handle)]
         )
         assert assoc.is_established
 
@@ -793,12 +795,12 @@ class TestCStoreSCP:
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
         # Storage SCP
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage)
         role = build_role(CTImageStorage, scu_role=False, scp_role=True)
         assoc = ae.associate(
-            "localhost", 11112, ext_neg=[role], evt_handlers=[(evt.EVT_C_STORE, handle)]
+            "localhost", get_port(), ext_neg=[role], evt_handlers=[(evt.EVT_C_STORE, handle)]
         )
         assert assoc.is_established
 
@@ -835,12 +837,12 @@ class TestCStoreSCP:
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
         # Storage SCP
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage)
         role = build_role(CTImageStorage, scu_role=False, scp_role=True)
         assoc = ae.associate(
-            "localhost", 11112, ext_neg=[role], evt_handlers=[(evt.EVT_C_STORE, handle)]
+            "localhost", get_port(), ext_neg=[role], evt_handlers=[(evt.EVT_C_STORE, handle)]
         )
         assert assoc.is_established
 
@@ -876,12 +878,12 @@ class TestCStoreSCP:
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
         # Storage SCP
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage)
         role = build_role(CTImageStorage, scu_role=False, scp_role=True)
         assoc = ae.associate(
-            "localhost", 11112, ext_neg=[role], evt_handlers=[(evt.EVT_C_STORE, handle)]
+            "localhost", get_port(), ext_neg=[role], evt_handlers=[(evt.EVT_C_STORE, handle)]
         )
         assert assoc.is_established
 
@@ -915,12 +917,12 @@ class TestCStoreSCP:
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
         # Storage SCP
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage)
         role = build_role(CTImageStorage, scu_role=False, scp_role=True)
         assoc = ae.associate(
-            "localhost", 11112, ext_neg=[role], evt_handlers=[(evt.EVT_C_STORE, handle)]
+            "localhost", get_port(), ext_neg=[role], evt_handlers=[(evt.EVT_C_STORE, handle)]
         )
         assert assoc.is_established
 
@@ -963,10 +965,10 @@ class TestAssociationSendCEcho:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -983,10 +985,10 @@ class TestAssociationSendCEcho:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         with pytest.raises(ValueError):
             assoc.send_c_echo()
@@ -1002,10 +1004,10 @@ class TestAssociationSendCEcho:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         class DummyDIMSE:
             msg_queue = queue.Queue()
@@ -1034,10 +1036,10 @@ class TestAssociationSendCEcho:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         class DummyResponse:
             is_valid_response = False
@@ -1071,10 +1073,10 @@ class TestAssociationSendCEcho:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_echo()
         assert result.Status == 0x0000
@@ -1092,12 +1094,12 @@ class TestAssociationSendCEcho:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         handlers = [(evt.EVT_C_ECHO, handler)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_echo()
         assert result.Status == 0x0210
@@ -1115,12 +1117,12 @@ class TestAssociationSendCEcho:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         handlers = [(evt.EVT_C_ECHO, handler)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_echo()
         assert result.Status == 0xFFF0
@@ -1141,12 +1143,12 @@ class TestAssociationSendCEcho:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         handlers = [(evt.EVT_C_ECHO, handler)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_echo()
         assert result.Status == 0x0122
@@ -1169,11 +1171,11 @@ class TestAssociationSendCEcho:
         ae.network_timeout = 1
         ae.add_supported_context(Verification)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_ECHO, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_ECHO, handle)]
         )
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_echo()
         assert result == Dataset()
@@ -1191,13 +1193,13 @@ class TestAssociationSendCEcho:
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
         ae.add_supported_context("1.2.3.4")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context("1.2.3.4")
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         status = assoc.send_n_delete("1.2.3.4", "1.2.3")
         assert status == Dataset()
@@ -1214,11 +1216,11 @@ class TestAssociationSendCEcho:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(assoc.rejected_contexts) == 1
         cx = assoc.rejected_contexts[0]
@@ -1234,7 +1236,7 @@ class TestAssociationSendCEcho:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1243,7 +1245,7 @@ class TestAssociationSendCEcho:
         item.sop_class_uid = "1.2.3"
         item.service_class_uid = "2.3.4"
 
-        assoc = ae.associate("localhost", 11112, ext_neg=[item])
+        assoc = ae.associate("localhost", get_port(), ext_neg=[item])
         assert assoc.is_established
         result = assoc.send_c_echo()
         assert result.Status == 0x0000
@@ -1257,11 +1259,11 @@ class TestAssociationSendCEcho:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         ae.network_timeout = 1
 
@@ -1277,9 +1279,9 @@ class TestAssociationSendCEcho:
             self.ae = ae = AE()
             ae.add_requested_context(Verification)
             ae.add_supported_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
+            scp = ae.start_server(("localhost", get_port()), block=False)
 
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assert assoc.network_timeout == 60
             assoc.network_timeout = 0.5
@@ -1297,9 +1299,9 @@ class TestAssociationSendCEcho:
         self.ae = ae = AE()
         ae.add_requested_context(Verification)
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11113), block=False)
+        scp = ae.start_server(("localhost", get_port("remote")), block=False)
 
-        assoc = ae.associate("localhost", 11113)
+        assoc = ae.associate("localhost", get_port("remote"))
         ae.network_timeout = 0.5
         assoc.network_timeout = 60
         assert assoc.network_timeout == 60
@@ -1315,9 +1317,9 @@ class TestAssociationSendCEcho:
             self.ae = ae = AE()
             ae.add_requested_context(Verification)
             ae.add_supported_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
+            scp = ae.start_server(("localhost", get_port()), block=False)
 
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assoc.network_timeout_response = "A-RELEASE"
             assert assoc.is_established
             assoc.network_timeout = 0.5
@@ -1360,10 +1362,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assoc.release()
 
         assert assoc.is_released
@@ -1386,10 +1388,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         with pytest.raises(ValueError):
             assoc.send_c_store(DATASET)
@@ -1411,10 +1413,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         with pytest.raises(ValueError):
             assoc.send_c_store(DATASET, priority=0x0003)
@@ -1436,10 +1438,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         ds = Dataset()
         ds.SOPClassUID = CTImageStorage
@@ -1468,10 +1470,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(MRImageStorage, JPEG2000Lossless)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(MRImageStorage, JPEG2000Lossless)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_store(COMP_DATASET)
         assert result.Status == 0x0000
@@ -1493,10 +1495,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         class DummyDIMSE:
             msg_queue = queue.Queue()
@@ -1532,10 +1534,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         class DummyResponse:
             is_valid_response = False
@@ -1573,10 +1575,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0xC000
@@ -1598,10 +1600,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
@@ -1624,10 +1626,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
@@ -1650,10 +1652,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
@@ -1676,10 +1678,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         ds = Dataset()
         ds.SOPInstanceUID = "1.2.3.4"
@@ -1713,10 +1715,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         ds = Dataset()
         ds.SOPInstanceUID = "1.2.3.4"
@@ -1763,7 +1765,7 @@ class TestAssociationSendCStore:
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
         ae.add_supported_context("1.2.3")
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
         ae.add_requested_context("1.2.3")
@@ -1783,7 +1785,7 @@ class TestAssociationSendCStore:
             item.related_general_sop_class_identification = vv[1]
             ext_neg.append(item)
 
-        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", get_port(), ext_neg=ext_neg)
         assert assoc.is_established
 
         ds = Dataset()
@@ -1813,10 +1815,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert isinstance(DATASET_PATH, str)
@@ -1855,10 +1857,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert isinstance(DATASET_PATH, str)
@@ -1873,7 +1875,7 @@ class TestAssociationSendCStore:
         assert assoc.is_released
 
         ae.maximum_pdu_size = 0
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         status = assoc.send_c_store(p)
         assert status.Status == 0x0000
@@ -1906,10 +1908,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert isinstance(BAD_DATASET_PATH, str)
@@ -1941,11 +1943,11 @@ class TestAssociationSendCStore:
             CTImageStorage,
             [ExplicitVRBigEndian, ImplicitVRLittleEndian],
         )
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ExplicitVRBigEndian)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = dcmread(DATASET_PATH)
@@ -2000,10 +2002,10 @@ class TestAssociationSendCStore:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         ds = Dataset()
         ds.SOPClassUID = CTImageStorage
@@ -2043,12 +2045,12 @@ class TestAssociationSendCStore:
         ae.add_supported_context(
             SecondaryCaptureImageStorage, DeflatedExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(
             SecondaryCaptureImageStorage, DeflatedExplicitVRLittleEndian
         )
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
 
@@ -2086,10 +2088,10 @@ class TestAssociationSendCFind:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
@@ -2107,10 +2109,10 @@ class TestAssociationSendCFind:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         def test():
@@ -2132,10 +2134,10 @@ class TestAssociationSendCFind:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         with pytest.raises(ValueError):
             next(assoc.send_c_find(self.ds, query_model="XXX"))
@@ -2151,12 +2153,12 @@ class TestAssociationSendCFind:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         DATASET.PerimeterValue = b"\x00\x01"
 
@@ -2185,11 +2187,11 @@ class TestAssociationSendCFind:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         for status, ds in assoc.send_c_find(
@@ -2214,11 +2216,11 @@ class TestAssociationSendCFind:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         result = assoc.send_c_find(
@@ -2247,11 +2249,11 @@ class TestAssociationSendCFind:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         for status, ds in assoc.send_c_find(
@@ -2277,11 +2279,11 @@ class TestAssociationSendCFind:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         for status, ds in assoc.send_c_find(
@@ -2306,11 +2308,11 @@ class TestAssociationSendCFind:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         for status, ds in assoc.send_c_find(
@@ -2330,10 +2332,10 @@ class TestAssociationSendCFind:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         class DummyResponse:
             is_valid_response = False
@@ -2371,11 +2373,11 @@ class TestAssociationSendCFind:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         for status, ds in assoc.send_c_find(
@@ -2404,12 +2406,12 @@ class TestAssociationSendCFind:
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
 
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model, ExplicitVRLittleEndian)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         for status, ds in assoc.send_c_find(self.ds, model):
             assert status.Status in range(0xC000, 0xD000)
@@ -2432,10 +2434,10 @@ class TestAssociationSendCFind:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         class DummyMessage:
             is_valid_response = True
@@ -2480,13 +2482,13 @@ class TestAssociationSendCFind:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         class DummyDIMSE:
             msg_queue = queue.Queue()
@@ -2588,11 +2590,11 @@ class TestAssociationSendCFind:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         responses = assoc.send_c_find(
@@ -2619,13 +2621,13 @@ class TestAssociationSendCFind:
             ae.network_timeout = 5
             ae.add_supported_context("1.2.3.4")
             scp = ae.start_server(
-                ("localhost", 11112),
+                ("localhost", get_port()),
                 block=False,
                 evt_handlers=[(evt.EVT_C_FIND, handle)],
             )
 
             ae.add_requested_context("1.2.3.4")
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
 
             assoc.send_c_find(self.ds, "1.2.3.4")
@@ -2651,11 +2653,11 @@ class TestAssociationSendCFind:
         ae.network_timeout = 5
         ae.add_supported_context(RepositoryQuery)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
 
         ae.add_requested_context(RepositoryQuery)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         with caplog.at_level(logging.INFO, logger="pynetdicom"):
@@ -2690,11 +2692,11 @@ class TestAssociationSendCFind:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         with caplog.at_level(logging.INFO, logger="pynetdicom"):
@@ -2732,10 +2734,10 @@ class TestAssociationSendCCancel:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
@@ -2751,10 +2753,10 @@ class TestAssociationSendCCancel:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.send_c_cancel(1, 1)
         scp.shutdown()
@@ -2767,10 +2769,10 @@ class TestAssociationSendCCancel:
         ae.network_timeout = 5
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_supported_context(model)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(model)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.send_c_cancel(1, query_model=model)
         scp.shutdown()
@@ -2783,10 +2785,10 @@ class TestAssociationSendCCancel:
         ae.network_timeout = 5
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_supported_context(model)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(model)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.send_c_cancel(1, context_id=1, query_model=model)
         scp.shutdown()
@@ -2799,10 +2801,10 @@ class TestAssociationSendCCancel:
         ae.network_timeout = 5
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_supported_context(model)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(model)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -2845,10 +2847,10 @@ class TestAssociationSendCGet:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
@@ -2878,7 +2880,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
@@ -2889,7 +2891,7 @@ class TestAssociationSendCGet:
         role = build_role(CTImageStorage, scu_role=True, scp_role=True)
         assoc = ae.associate(
             "localhost",
-            11112,
+            get_port(),
             ext_neg=[role],
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
@@ -2917,12 +2919,12 @@ class TestAssociationSendCGet:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         with pytest.raises(ValueError):
@@ -2940,10 +2942,10 @@ class TestAssociationSendCGet:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         with pytest.raises(ValueError):
             next(assoc.send_c_get(self.ds, query_model="X"))
@@ -2959,12 +2961,12 @@ class TestAssociationSendCGet:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelGet, ExplicitVRLittleEndian
         )
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         DATASET.PerimeterValue = b"\x00\x01"
 
@@ -2996,7 +2998,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
@@ -3007,7 +3009,7 @@ class TestAssociationSendCGet:
         role = build_role(CTImageStorage, scu_role=True, scp_role=True)
         assoc = ae.associate(
             "localhost",
-            11112,
+            get_port(),
             ext_neg=[role],
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
@@ -3046,7 +3048,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
 
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=scp_handler
+            ("localhost", get_port()), block=False, evt_handlers=scp_handler
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -3055,7 +3057,7 @@ class TestAssociationSendCGet:
         role = build_role(CTImageStorage, scp_role=True, scu_role=True)
 
         assoc = ae.associate(
-            "localhost", 11112, evt_handlers=scu_handler, ext_neg=[role]
+            "localhost", get_port(), evt_handlers=scu_handler, ext_neg=[role]
         )
 
         assert assoc.is_established
@@ -3101,7 +3103,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
 
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=scp_handler
+            ("localhost", get_port()), block=False, evt_handlers=scp_handler
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -3110,7 +3112,7 @@ class TestAssociationSendCGet:
         role = build_role(CTImageStorage, scp_role=True, scu_role=True)
 
         assoc = ae.associate(
-            "localhost", 11112, evt_handlers=scu_handler, ext_neg=[role]
+            "localhost", get_port(), evt_handlers=scu_handler, ext_neg=[role]
         )
 
         assert assoc.is_established
@@ -3153,7 +3155,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
@@ -3164,7 +3166,7 @@ class TestAssociationSendCGet:
         role = build_role(CTImageStorage, scu_role=True, scp_role=True)
         assoc = ae.associate(
             "localhost",
-            11112,
+            get_port(),
             ext_neg=[role],
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
@@ -3209,7 +3211,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
@@ -3220,7 +3222,7 @@ class TestAssociationSendCGet:
         role = build_role(CTImageStorage, scu_role=True, scp_role=True)
         assoc = ae.associate(
             "localhost",
-            11112,
+            get_port(),
             ext_neg=[role],
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
@@ -3263,7 +3265,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
@@ -3274,7 +3276,7 @@ class TestAssociationSendCGet:
         role = build_role(CTImageStorage, scu_role=True, scp_role=True)
         assoc = ae.associate(
             "localhost",
-            11112,
+            get_port(),
             ext_neg=[role],
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
@@ -3310,7 +3312,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
@@ -3321,7 +3323,7 @@ class TestAssociationSendCGet:
         role = build_role(CTImageStorage, scu_role=True, scp_role=True)
         assoc = ae.associate(
             "localhost",
-            11112,
+            get_port(),
             ext_neg=[role],
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
@@ -3363,7 +3365,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_GET, handle_get)],
         )
@@ -3374,7 +3376,7 @@ class TestAssociationSendCGet:
         role = build_role(CTImageStorage, scu_role=True, scp_role=True)
         assoc = ae.associate(
             "localhost",
-            11112,
+            get_port(),
             ext_neg=[role],
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
@@ -3405,7 +3407,7 @@ class TestAssociationSendCGet:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
@@ -3417,7 +3419,7 @@ class TestAssociationSendCGet:
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112, ext_neg=[role])
+        assoc = ae.associate("localhost", get_port(), ext_neg=[role])
 
         class DummyMessage:
             is_valid_response = True
@@ -3463,7 +3465,7 @@ class TestAssociationSendCGet:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelGet, ExplicitVRLittleEndian
@@ -3475,7 +3477,7 @@ class TestAssociationSendCGet:
         role.scu_role = False
         role.scp_role = True
 
-        assoc = ae.associate("localhost", 11112, ext_neg=[role])
+        assoc = ae.associate("localhost", get_port(), ext_neg=[role])
 
         class DummyMessage:
             is_valid_response = True
@@ -3582,11 +3584,11 @@ class TestAssociationSendCGet:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle)]
+            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_GET, handle)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         responses = assoc.send_c_get(
@@ -3614,13 +3616,13 @@ class TestAssociationSendCGet:
             ae.network_timeout = 5
             ae.add_supported_context("1.2.3.4")
             scp = ae.start_server(
-                ("localhost", 11112),
+                ("localhost", get_port()),
                 block=False,
                 evt_handlers=[(evt.EVT_C_GET, handle)],
             )
 
             ae.add_requested_context("1.2.3.4")
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
 
             assoc.send_c_get(self.ds, "1.2.3.4")
@@ -3663,7 +3665,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=scp_handler
+            ("localhost", get_port()), block=False, evt_handlers=scp_handler
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -3677,7 +3679,7 @@ class TestAssociationSendCGet:
 
         assoc = ae.associate(
             "localhost",
-            11112,
+            get_port(),
             evt_handlers=scu_handler,
             ext_neg=[role_a, role_b, role_c],
         )
@@ -3735,7 +3737,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=scp_handler
+            ("localhost", get_port()), block=False, evt_handlers=scp_handler
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -3747,7 +3749,7 @@ class TestAssociationSendCGet:
 
         assoc = ae.associate(
             "localhost",
-            11112,
+            get_port(),
             evt_handlers=scu_handler,
             ext_neg=[role_c],
         )
@@ -3797,7 +3799,7 @@ class TestAssociationSendCGet:
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
 
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=scp_handler
+            ("localhost", get_port()), block=False, evt_handlers=scp_handler
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -3806,7 +3808,7 @@ class TestAssociationSendCGet:
         role = build_role(CTImageStorage, scp_role=True, scu_role=True)
 
         assoc = ae.associate(
-            "localhost", 11112, evt_handlers=scu_handler, ext_neg=[role]
+            "localhost", get_port(), evt_handlers=scu_handler, ext_neg=[role]
         )
 
         assert assoc.is_established
@@ -3864,12 +3866,12 @@ class TestAssociationSendCMove:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
@@ -3888,10 +3890,10 @@ class TestAssociationSendCMove:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         with pytest.raises(ValueError):
@@ -3913,10 +3915,10 @@ class TestAssociationSendCMove:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         with pytest.raises(ValueError):
             next(assoc.send_c_move(self.ds, "TESTMOVE", query_model="X"))
@@ -3932,12 +3934,12 @@ class TestAssociationSendCMove:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelMove, ExplicitVRLittleEndian
         )
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         DATASET.PerimeterValue = b"\x00\x01"
 
@@ -3959,7 +3961,7 @@ class TestAssociationSendCMove:
 
         # Move SCP
         def handle_move(event):
-            yield "localhost", 11113
+            yield "localhost", get_port("remote")
             yield 2
             yield 0xFF00, self.good
 
@@ -3969,13 +3971,13 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         for status, ds in assoc.send_c_move(
             self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
@@ -4000,13 +4002,13 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         for status, ds in assoc.send_c_move(
@@ -4025,7 +4027,7 @@ class TestAssociationSendCMove:
             return 0xA700
 
         def handle_move(event):
-            yield "localhost", 11113
+            yield "localhost", get_port("remote")
             yield 2
             yield 0xFF00, self.good
             yield 0xFF00, self.good
@@ -4036,20 +4038,20 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113),
+            ("localhost", get_port("remote")),
             block=False,
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         result = assoc.send_c_move(
@@ -4077,7 +4079,7 @@ class TestAssociationSendCMove:
             return 0xB000
 
         def handle_move(event):
-            yield "localhost", 11113
+            yield "localhost", get_port("remote")
             yield 2
             yield 0xFF00, self.good
             yield 0xFF00, self.good
@@ -4088,21 +4090,21 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113),
+            ("localhost", get_port("remote")),
             block=False,
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         result = assoc.send_c_move(
@@ -4128,7 +4130,7 @@ class TestAssociationSendCMove:
             return 0x0000
 
         def handle_move(event):
-            yield "localhost", 11113
+            yield "localhost", get_port("remote")
             yield 2
             yield 0xC000, None
             yield 0xFF00, self.good
@@ -4139,20 +4141,20 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113),
+            ("localhost", get_port("remote")),
             block=False,
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         result = assoc.send_c_move(
@@ -4177,7 +4179,7 @@ class TestAssociationSendCMove:
             return 0xB007
 
         def handle_move(event):
-            yield "localhost", 11113
+            yield "localhost", get_port("remote")
             yield 2
             yield 0xFF00, self.good
             yield 0xFF00, self.good
@@ -4188,21 +4190,21 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113),
+            ("localhost", get_port("remote")),
             block=False,
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         result = assoc.send_c_move(
@@ -4233,7 +4235,7 @@ class TestAssociationSendCMove:
             return 0x0000
 
         def handle_move(event):
-            yield "localhost", 11113
+            yield "localhost", get_port("remote")
             yield 2
             yield 0xFE00, self.good
             yield 0xFF00, self.good
@@ -4244,20 +4246,20 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113),
+            ("localhost", get_port("remote")),
             block=False,
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         result = assoc.send_c_move(
@@ -4286,14 +4288,14 @@ class TestAssociationSendCMove:
         # Storage SCP
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         # Move SCP
         def handle_move(event):
-            yield "localhost", 11112
+            yield "localhost", get_port()
             yield 2
             yield 0xFF00, self.good
 
@@ -4302,7 +4304,7 @@ class TestAssociationSendCMove:
         ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11113),
+            ("localhost", get_port("remote")),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
@@ -4312,7 +4314,7 @@ class TestAssociationSendCMove:
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
 
-        assoc = ae.associate("localhost", 11113)
+        assoc = ae.associate("localhost", get_port("remote"))
         assert assoc.is_established
 
         result = assoc.send_c_move(
@@ -4340,7 +4342,7 @@ class TestAssociationSendCMove:
             return 0xA700
 
         def handle_move(event):
-            yield "localhost", 11113
+            yield "localhost", get_port("remote")
             yield 2
             yield 0xFFF0, self.good
             yield 0xFF00, self.good
@@ -4351,20 +4353,20 @@ class TestAssociationSendCMove:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11113),
+            ("localhost", get_port("remote")),
             block=False,
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         for status, ds in assoc.send_c_move(
@@ -4391,14 +4393,14 @@ class TestAssociationSendCMove:
         # Storage SCP
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         # Move SCP
         def handle_move(event):
-            yield "localhost", 11112
+            yield "localhost", get_port()
             yield 2
             yield 0xFF00, self.good
             yield 0xFF00, self.good
@@ -4408,7 +4410,7 @@ class TestAssociationSendCMove:
         ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11113),
+            ("localhost", get_port("remote")),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
@@ -4419,7 +4421,7 @@ class TestAssociationSendCMove:
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
 
         for ii in range(20):
-            assoc = ae.associate("localhost", 11113)
+            assoc = ae.associate("localhost", get_port("remote"))
             assert assoc.is_established
             assert not assoc.is_released
             result = assoc.send_c_move(
@@ -4444,7 +4446,7 @@ class TestAssociationSendCMove:
         """Test the connection timing out"""
 
         def handle(event):
-            yield ("localhost", 11112)
+            yield ("localhost", get_port())
             yield 2
             yield 0xFF00, self.good
             yield 0xFF00, self.good
@@ -4456,11 +4458,11 @@ class TestAssociationSendCMove:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         class DummyMessage:
             is_valid_response = True
@@ -4496,7 +4498,7 @@ class TestAssociationSendCMove:
         """Test the connection timing out"""
 
         def handle(event):
-            yield ("localhost", 11112)
+            yield ("localhost", get_port())
             yield 2
             yield 0xFF00, self.good
             yield 0xFF00, self.good
@@ -4508,13 +4510,13 @@ class TestAssociationSendCMove:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelMove, ExplicitVRLittleEndian
         )
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         class DummyMessage:
             is_valid_response = True
@@ -4624,14 +4626,14 @@ class TestAssociationSendCMove:
         # Storage SCP
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         # Move SCP
         def handle_move(event):
-            yield "localhost", 11112
+            yield "localhost", get_port()
             yield 2
             yield 0xFF00, self.good
 
@@ -4640,7 +4642,7 @@ class TestAssociationSendCMove:
         ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11113),
+            ("localhost", get_port("remote")),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
@@ -4650,7 +4652,7 @@ class TestAssociationSendCMove:
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
 
-        assoc = ae.associate("localhost", 11113)
+        assoc = ae.associate("localhost", get_port("remote"))
         assert assoc.is_established
 
         result = assoc.send_c_move(
@@ -4678,7 +4680,7 @@ class TestAssociationSendCMove:
             return 0x0000
 
         def handle_move(event):
-            yield "localhost", 11112
+            yield "localhost", get_port()
             yield 2
             yield 0xFF00, self.good
 
@@ -4691,7 +4693,7 @@ class TestAssociationSendCMove:
             # Storage SCP
             ae.add_supported_context(CTImageStorage)
             store_scp = ae.start_server(
-                ("localhost", 11112),
+                ("localhost", get_port()),
                 block=False,
                 evt_handlers=[(evt.EVT_C_STORE, handle_store)],
             )
@@ -4699,7 +4701,7 @@ class TestAssociationSendCMove:
             ae.add_requested_context(CTImageStorage)
             ae.add_supported_context("1.2.3.4")
             move_scp = ae.start_server(
-                ("localhost", 11113),
+                ("localhost", get_port("remote")),
                 block=False,
                 evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
             )
@@ -4707,7 +4709,7 @@ class TestAssociationSendCMove:
             # Move SCU
             ae.add_requested_context("1.2.3.4")
 
-            assoc = ae.associate("localhost", 11113)
+            assoc = ae.associate("localhost", get_port("remote"))
             assert assoc.is_established
 
             assoc.send_c_move(self.ds, "TESTMOVE", "1.2.3.4")
@@ -4735,14 +4737,14 @@ class TestAssociationSendCMove:
         # Storage SCP
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_C_STORE, handle_store)],
         )
 
         # Move SCP
         def handle_move(event):
-            yield "localhost", 11112
+            yield "localhost", get_port()
             yield 2
             yield 0xFF00, self.good
 
@@ -4751,7 +4753,7 @@ class TestAssociationSendCMove:
         ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ("localhost", 11113),
+            ("localhost", get_port("remote")),
             block=False,
             evt_handlers=[(evt.EVT_C_MOVE, handle_move)],
         )
@@ -4761,7 +4763,7 @@ class TestAssociationSendCMove:
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
 
-        assoc = ae.associate("localhost", 11113)
+        assoc = ae.associate("localhost", get_port("remote"))
         assert assoc.is_established
 
         with caplog.at_level(logging.INFO, logger="pynetdicom"):
@@ -4805,13 +4807,13 @@ class TestGetValidContext:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -4834,13 +4836,13 @@ class TestGetValidContext:
         ae.add_supported_context(
             CTImageStorage, [ExplicitVRLittleEndian, JPEGBaseline8Bit]
         )
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         # Uncompressed accepted, different uncompressed sent
@@ -4867,13 +4869,13 @@ class TestGetValidContext:
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
         ae.add_supported_context(CTImageStorage, JPEGBaseline8Bit)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         # Confirm otherwise OK
@@ -4930,13 +4932,13 @@ class TestGetValidContext:
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
         ae.add_supported_context(CTImageStorage, JPEGBaseline8Bit)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         # Confirm matching otherwise OK
@@ -4976,7 +4978,7 @@ class TestGetValidContext:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
@@ -4988,7 +4990,7 @@ class TestGetValidContext:
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112, ext_neg=[role])
+        assoc = ae.associate("localhost", get_port(), ext_neg=[role])
         assert assoc.is_established
 
         # Confirm matching otherwise OK
@@ -5027,13 +5029,13 @@ class TestGetValidContext:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         # Test otherwise OK
@@ -5058,13 +5060,13 @@ class TestGetValidContext:
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
         ae.add_supported_context(CTImageStorage, JPEGBaseline8Bit)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         # Uncompressed accepted, different uncompressed sent
@@ -5087,13 +5089,13 @@ class TestGetValidContext:
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
         ae.add_supported_context(CTImageStorage, JPEGBaseline8Bit)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         # Confirm otherwise OK
@@ -5147,13 +5149,13 @@ class TestGetValidContext:
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
         ae.add_supported_context(CTImageStorage, JPEGBaseline8Bit)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         # Confirm matching otherwise OK
@@ -5191,7 +5193,7 @@ class TestGetValidContext:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
@@ -5203,7 +5205,7 @@ class TestGetValidContext:
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112, ext_neg=[role])
+        assoc = ae.associate("localhost", get_port(), ext_neg=[role])
         assert assoc.is_established
 
         # Confirm matching otherwise OK
@@ -5242,13 +5244,13 @@ class TestGetValidContext:
         ae.add_supported_context(Verification)
         ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         cx = assoc._get_valid_context(CTImageStorage, ExplicitVRLittleEndian, "scu")
@@ -5275,13 +5277,13 @@ class TestGetValidContext:
         ae.add_supported_context(Verification)
         ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
         ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         cx = assoc._get_valid_context(CTImageStorage, ExplicitVRLittleEndian, "scu")
@@ -5308,14 +5310,14 @@ class TestGetValidContext:
         ae.add_supported_context(Verification)
         ae.add_supported_context(MRImageStorage, ExplicitVRLittleEndian)
         ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(MRImageStorage, ExplicitVRBigEndian)
         ae.add_requested_context(MRImageStorage, ExplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -5344,10 +5346,10 @@ class TestGetValidContext:
 
         contexts = []
         handlers = [(evt.EVT_N_ACTION, handle, [contexts])]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(UnifiedProcedureStepPull)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -5373,10 +5375,10 @@ class TestGetValidContext:
         ae.acse_timeout = 5
         ae.add_supported_context(UnifiedProcedureStepPull)
 
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(UnifiedProcedureStepPull)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -5401,10 +5403,10 @@ class TestGetValidContext:
         ae.acse_timeout = 5
         ae.add_supported_context(UnifiedProcedureStepPull)
 
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(UnifiedProcedureStepPull)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -5429,10 +5431,10 @@ class TestGetValidContext:
         ae.acse_timeout = 5
         ae.add_supported_context(UnifiedProcedureStepPull)
 
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(UnifiedProcedureStepPull)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -5459,10 +5461,10 @@ class TestGetValidContext:
         ae.acse_timeout = 5
         ae.add_supported_context(UnifiedProcedureStepPull)
 
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(UnifiedProcedureStepPull)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -5487,12 +5489,12 @@ class TestGetValidContext:
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         # ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -5526,14 +5528,14 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -5572,13 +5574,13 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         assert dummy not in scp._handlers[evt.EVT_DIMSE_SENT]
         scp.unbind(evt.EVT_DIMSE_SENT, dummy)
         assert dummy not in scp._handlers[evt.EVT_DIMSE_SENT]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -5604,7 +5606,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         scp.bind(evt.EVT_C_ECHO, dummy)
         assert scp.get_handlers(evt.EVT_C_ECHO) == (dummy, None)
         scp.unbind(evt.EVT_C_ECHO, dummy)
@@ -5622,11 +5624,11 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         scp.bind(evt.EVT_C_ECHO, dummy)
         assert scp.get_handlers(evt.EVT_C_ECHO) == (dummy, None)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -5655,7 +5657,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ABORTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
@@ -5663,7 +5665,7 @@ class TestEventHandlingAcceptor:
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -5713,7 +5715,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
@@ -5721,7 +5723,7 @@ class TestEventHandlingAcceptor:
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -5796,7 +5798,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ABORTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
@@ -5804,7 +5806,7 @@ class TestEventHandlingAcceptor:
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_RELEASED) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -5874,9 +5876,9 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ABORTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -5904,10 +5906,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ABORTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.abort()
 
@@ -5931,7 +5933,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACCEPTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
@@ -5939,7 +5941,7 @@ class TestEventHandlingAcceptor:
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -5989,10 +5991,10 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
@@ -6008,7 +6010,7 @@ class TestEventHandlingAcceptor:
         assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
         assert child.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
 
-        assoc2 = ae.associate("localhost", 11112)
+        assoc2 = ae.associate("localhost", get_port())
 
         assoc.release()
         assoc2.release()
@@ -6032,10 +6034,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACCEPTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6054,7 +6056,7 @@ class TestEventHandlingAcceptor:
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_ACCEPTED) == []
 
-        assoc2 = ae.associate("localhost", 11112)
+        assoc2 = ae.associate("localhost", get_port())
 
         assoc.release()
         assoc2.release()
@@ -6076,10 +6078,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACCEPTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.abort()
 
@@ -6106,7 +6108,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_RELEASED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
@@ -6114,7 +6116,7 @@ class TestEventHandlingAcceptor:
         assert scp.get_handlers(evt.EVT_RELEASED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6165,10 +6167,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_RELEASED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_RELEASED) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6210,9 +6212,9 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_RELEASED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6243,9 +6245,9 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_RELEASED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6273,10 +6275,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_RELEASED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.release()
 
@@ -6303,7 +6305,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ESTABLISHED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == [(handle, None)]
@@ -6311,7 +6313,7 @@ class TestEventHandlingAcceptor:
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6361,12 +6363,12 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
 
         scp.bind(evt.EVT_ESTABLISHED, handle)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6400,11 +6402,11 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ESTABLISHED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         scp.unbind(evt.EVT_ESTABLISHED, handle)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6432,10 +6434,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ESTABLISHED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.release()
 
@@ -6462,7 +6464,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_REQUESTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
@@ -6470,7 +6472,7 @@ class TestEventHandlingAcceptor:
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6520,12 +6522,12 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
         scp.bind(evt.EVT_REQUESTED, handle)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6559,11 +6561,11 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_REQUESTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         scp.unbind(evt.EVT_REQUESTED, handle)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6591,10 +6593,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_REQUESTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.release()
 
@@ -6622,7 +6624,7 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_REJECTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
@@ -6630,7 +6632,7 @@ class TestEventHandlingAcceptor:
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_rejected
 
         assert scp.get_handlers(evt.EVT_ABORTED) == []
@@ -6667,12 +6669,12 @@ class TestEventHandlingAcceptor:
         ae.require_called_aet = True
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_REJECTED) == []
 
         scp.bind(evt.EVT_REJECTED, handle)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_rejected
 
         assert scp.get_handlers(evt.EVT_REJECTED) == [(handle, None)]
@@ -6699,11 +6701,11 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_REJECTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         scp.unbind(evt.EVT_REJECTED, handle)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_rejected
 
         assert scp.get_handlers(evt.EVT_REJECTED) == []
@@ -6726,10 +6728,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_REJECTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_rejected
             scp.shutdown()
 
@@ -6753,9 +6755,9 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACCEPTED, handle, args)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_ACCEPTED) == [(handle, args)]
@@ -6788,9 +6790,9 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_C_ECHO, handle_echo, args)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_C_ECHO) == (handle_echo, args)
@@ -6830,14 +6832,14 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -6875,9 +6877,9 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -6902,9 +6904,9 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -6928,9 +6930,9 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -6956,8 +6958,8 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ABORTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -6992,9 +6994,9 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -7039,9 +7041,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ABORTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -7081,9 +7083,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ABORTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -7111,10 +7113,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ABORTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
             assert assoc.is_established
             assoc.abort()
 
@@ -7138,9 +7140,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACCEPTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -7175,10 +7177,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACCEPTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
             assert assoc.is_established
             assoc.abort()
 
@@ -7205,9 +7207,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_RELEASED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -7242,9 +7244,9 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert assoc.get_handlers(evt.EVT_RELEASED) == []
@@ -7277,9 +7279,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_RELEASED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -7309,9 +7311,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_RELEASED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -7339,10 +7341,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_RELEASED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
             assert assoc.is_established
             assoc.release()
 
@@ -7369,9 +7371,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ESTABLISHED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -7406,10 +7408,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ESTABLISHED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
             assert assoc.is_established
             assoc.release()
 
@@ -7436,9 +7438,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_REQUESTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert assoc.get_handlers(evt.EVT_ABORTED) == []
@@ -7472,10 +7474,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_REQUESTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
             assert assoc.is_established
             assoc.release()
 
@@ -7503,9 +7505,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_REJECTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_rejected
 
         assert assoc.get_handlers(evt.EVT_ABORTED) == []
@@ -7535,10 +7537,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_REJECTED, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
             assert assoc.is_rejected
             scp.shutdown()
 
@@ -7562,9 +7564,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACCEPTED, handle, args)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert assoc.get_handlers(evt.EVT_ACCEPTED) == [(handle, args)]
@@ -7627,9 +7629,9 @@ class TestAssociationWindows:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
 
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.send_c_echo().Status == 0x0000
         assoc.release()
         assert assoc.is_released
@@ -7653,9 +7655,9 @@ class TestAssociationWindows:
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
 
-            scp = ae.start_server(("localhost", 11112), block=False)
+            scp = ae.start_server(("localhost", get_port()), block=False)
 
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
 
             min_val, max_val, during_timer = self.get_timer_info()
             assert during_timer < pre_timer

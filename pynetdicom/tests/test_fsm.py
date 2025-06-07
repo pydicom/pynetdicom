@@ -35,6 +35,7 @@ from .encoded_pdu_items import (
     a_release_rp,
 )
 from .parrot import ThreadedParrot
+from .utils import get_port
 
 
 # debug_logger()
@@ -205,10 +206,10 @@ class TestStateBase:
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address_info = AddressInformation("localhost", 11112)
+        assoc.acceptor.address_info = AddressInformation("localhost", get_port())
 
         # Association Requestor object -> local AE
-        assoc.requestor.address_info = AddressInformation("", 11113)
+        assoc.requestor.address_info = AddressInformation("", get_port("remote"))
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -242,7 +243,7 @@ class TestStateBase:
             primitive.calling_presentation_address = AddressInformation("localhost", 0)
             # The TCP/IP address of the destination, pynetdicom includes port too
             primitive.called_presentation_address = AddressInformation(
-                "localhost", 11112
+                "localhost", get_port()
             )
             # Proposed presentation contexts
             cx = build_context(Verification)
@@ -344,9 +345,9 @@ class TestStateBase:
 
         return fsm
 
-    def start_server(self, commands):
+    def start_server(self, commands, port):
         """Start the receiving server."""
-        server = ThreadedParrot(("localhost", 11112), commands)
+        server = ThreadedParrot(("localhost", port), commands)
         thread = threading.Thread(target=server.serve_forever)
         thread.daemon = True
         thread.start()
@@ -370,7 +371,7 @@ class TestStateBase:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack("ll", 1, 0))
-        sock.connect(("localhost", 11112))
+        sock.connect(("localhost", get_port()))
 
         ae = AE()
         ae.add_supported_context(Verification)
@@ -383,10 +384,10 @@ class TestStateBase:
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address_info = AddressInformation("localhost", 11112)
+        assoc.acceptor.address_info = AddressInformation("localhost", get_port())
 
         # Association Requestor object -> local AE
-        assoc.requestor.address_info = AddressInformation("", 11113)
+        assoc.requestor.address_info = AddressInformation("", get_port("remote"))
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -429,7 +430,7 @@ class TestState01(TestStateBase):
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         # AE-1: Issue TRANSPORT_CONNECT primitive to <transport service>
         commands = [("recv", None), ("send", a_abort), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -456,11 +457,11 @@ class TestState01(TestStateBase):
         # Sta1 + Evt3 -> <ignore> -> Sta1
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         commands = [("send", a_associate_ac), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.assoc._mode = "acceptor"
         self.move_to_state(self.assoc, scp)
 
-        self.assoc.dul.socket.socket.connect(("localhost", 11112))
+        self.assoc.dul.socket.socket.connect(("localhost", get_port()))
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
@@ -481,11 +482,11 @@ class TestState01(TestStateBase):
         # Sta1 + Evt4 -> <ignore> -> Sta1
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         commands = [("send", a_associate_rj), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.assoc._mode = "acceptor"
         self.move_to_state(self.assoc, scp)
 
-        self.assoc.dul.socket.socket.connect(("localhost", 11112))
+        self.assoc.dul.socket.socket.connect(("localhost", get_port()))
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
@@ -515,11 +516,11 @@ class TestState01(TestStateBase):
         # Sta1 + Evt6 -> <ignore> -> Sta1
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         commands = [("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.assoc._mode = "acceptor"
         self.move_to_state(self.assoc, scp)
 
-        self.assoc.dul.socket.socket.connect(("localhost", 11112))
+        self.assoc.dul.socket.socket.connect(("localhost", get_port()))
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
@@ -605,11 +606,11 @@ class TestState01(TestStateBase):
         # Sta1 + Evt10 -> <ignore> -> Sta1
         # Evt10: Receive P-DATA-TF PDU from <remote>
         commands = [("send", p_data_tf), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.assoc._mode = "acceptor"
         self.move_to_state(self.assoc, scp)
 
-        self.assoc.dul.socket.socket.connect(("localhost", 11112))
+        self.assoc.dul.socket.socket.connect(("localhost", get_port()))
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
@@ -652,11 +653,11 @@ class TestState01(TestStateBase):
         # Sta1 + Evt12 -> <ignore> -> Sta1
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         commands = [("send", a_release_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.assoc._mode = "acceptor"
         self.move_to_state(self.assoc, scp)
 
-        self.assoc.dul.socket.socket.connect(("localhost", 11112))
+        self.assoc.dul.socket.socket.connect(("localhost", get_port()))
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
@@ -677,11 +678,11 @@ class TestState01(TestStateBase):
         # Sta1 + Evt13 -> <ignore> -> Sta1
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         commands = [("send", a_release_rp), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.assoc._mode = "acceptor"
         self.move_to_state(self.assoc, scp)
 
-        self.assoc.dul.socket.socket.connect(("localhost", 11112))
+        self.assoc.dul.socket.socket.connect(("localhost", get_port()))
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
@@ -746,11 +747,11 @@ class TestState01(TestStateBase):
         # Sta1 + Evt16 -> <ignore> -> Sta1
         # Evt16: Receive A-ABORT PDU from <remote>
         commands = [("send", a_abort), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.assoc._mode = "acceptor"
         self.move_to_state(self.assoc, scp)
 
-        self.assoc.dul.socket.socket.connect(("localhost", 11112))
+        self.assoc.dul.socket.socket.connect(("localhost", get_port()))
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
@@ -771,11 +772,11 @@ class TestState01(TestStateBase):
         # Sta1 + Evt17 -> <ignore> -> Sta1
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.assoc._mode = "acceptor"
         self.move_to_state(self.assoc, scp)
 
-        self.assoc.dul.socket.socket.connect(("localhost", 11112))
+        self.assoc.dul.socket.socket.connect(("localhost", get_port()))
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
@@ -819,11 +820,11 @@ class TestState01(TestStateBase):
         # Sta1 + Evt19 -> <ignore> -> Sta1
         # Evt19: Received unrecognised or invalid PDU from <remote>
         commands = [("send", b"\x08\x00\x00\x00\x00\x00\x00"), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.assoc._mode = "acceptor"
         self.move_to_state(self.assoc, scp)
 
-        self.assoc.dul.socket.socket.connect(("localhost", 11112))
+        self.assoc.dul.socket.socket.connect(("localhost", get_port()))
         self.assoc.dul.socket._is_connected = True
 
         scp.step()
@@ -852,7 +853,7 @@ class TestState02(TestStateBase):
         # Sta2 + Evt1 -> <ignore> -> Sta2
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -883,7 +884,7 @@ class TestState02(TestStateBase):
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         # AA-1: Send A-ABORT PDU, start ARTIM
         commands = [("send", a_associate_ac), ("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -902,7 +903,7 @@ class TestState02(TestStateBase):
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # AA-1: Send A-ABORT PDU, start ARTIM
         commands = [("send", a_associate_rj), ("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -928,7 +929,7 @@ class TestState02(TestStateBase):
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         # AE-6: Stop ARTIM, issue A-ASSOCIATE or A-ASSOCIATE-RJ PDU
         commands = [("send", a_associate_rq), ("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -949,7 +950,7 @@ class TestState02(TestStateBase):
         bad_request = a_associate_rq[:6] + b"\x00\x02" + a_associate_rq[8:]
         assert len(bad_request) == len(a_associate_rq)
         commands = [("send", bad_request), ("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -968,7 +969,7 @@ class TestState02(TestStateBase):
         # Sta2 + Evt7 -> <ignore> -> Sta2
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
@@ -992,7 +993,7 @@ class TestState02(TestStateBase):
         # Sta2 + Evt8 -> <ignore> -> Sta2
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -1016,7 +1017,7 @@ class TestState02(TestStateBase):
         # Sta2 + Evt9 -> <ignore> -> Sta2
         # Evt9: Receive P-DATA primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
@@ -1041,7 +1042,7 @@ class TestState02(TestStateBase):
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # AA-1: Send A-ABORT PDU, start ARTIM
         commands = [("send", p_data_tf), ("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -1060,7 +1061,7 @@ class TestState02(TestStateBase):
         # Sta2 + Evt11 -> <ignore> -> Sta2
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
@@ -1085,7 +1086,7 @@ class TestState02(TestStateBase):
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         # AA-1: Send A-ABORT PDU, start ARTIM
         commands = [("send", a_release_rq), ("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -1104,7 +1105,7 @@ class TestState02(TestStateBase):
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         # AA-1: Send A-ABORT PDU, start ARTIM
         commands = [("send", a_release_rp), ("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -1123,7 +1124,7 @@ class TestState02(TestStateBase):
         # Sta2 + Evt14 -> <ignore> -> Sta2
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
@@ -1148,7 +1149,7 @@ class TestState02(TestStateBase):
         # Sta2 + Evt15 -> <ignore> -> Sta2
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
@@ -1173,7 +1174,7 @@ class TestState02(TestStateBase):
         # Evt16: Receive A-ABORT PDU from <remote>
         # AA-2: Stop ARTIM, close connection
         commands = [("send", a_abort), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -1191,7 +1192,7 @@ class TestState02(TestStateBase):
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # AA-5: Stop ARTIM timer
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -1209,7 +1210,7 @@ class TestState02(TestStateBase):
         # Sta2 + Evt18 -> AA-2 -> Sta1
         # Evt18: ARTIM timer expired from <local service>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -1232,7 +1233,7 @@ class TestState02(TestStateBase):
         # Evt19: Received unrecognised or invalid PDU from <remote>
         # AA-1: Send A-ABORT PDU, start ARTIM
         commands = [("send", b"\x08\x00\x00\x00\x00\x00\x00\x00"), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -1259,7 +1260,7 @@ class TestState03(TestStateBase):
         # Sta3 + Evt1 -> <ignore> -> Sta3
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         commands = [("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
 
         def _neg_as_acc():
@@ -1300,7 +1301,7 @@ class TestState03(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
 
         def _neg_as_acc():
@@ -1341,7 +1342,7 @@ class TestState03(TestStateBase):
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         commands = [("send", a_associate_rq), ("send", a_associate_rj), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
 
         def _neg_as_acc():
@@ -1380,7 +1381,7 @@ class TestState03(TestStateBase):
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         commands = [("send", a_associate_rq), ("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
 
         def _neg_as_acc():
@@ -1411,7 +1412,7 @@ class TestState03(TestStateBase):
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
         # AE-7: Send A-ASSOCIATE-AC PDU
         commands = [("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
         self.wait_on_state(assoc.dul.state_machine, "Sta6")
@@ -1433,7 +1434,7 @@ class TestState03(TestStateBase):
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
         # AE-8: Send A-ASSOCIATE-RJ PDU and start ARTIM
         commands = [("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1464,7 +1465,7 @@ class TestState03(TestStateBase):
         # Sta3 + Evt9 -> <ignore> -> Sta3
         # Evt9: Receive P-DATA primitive from <local user>
         commands = [("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1496,7 +1497,7 @@ class TestState03(TestStateBase):
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         commands = [("send", a_associate_rq), ("send", p_data_tf), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1530,7 +1531,7 @@ class TestState03(TestStateBase):
         # Sta3 + Evt11 -> <ignore> -> Sta3
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
         commands = [("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1562,7 +1563,7 @@ class TestState03(TestStateBase):
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         commands = [("send", a_associate_rq), ("send", a_release_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1596,7 +1597,7 @@ class TestState03(TestStateBase):
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         commands = [("send", a_associate_rq), ("send", a_release_rp), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1630,7 +1631,7 @@ class TestState03(TestStateBase):
         # Sta3 + Evt14 -> <ignore> -> Sta3
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
         commands = [("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1662,7 +1663,7 @@ class TestState03(TestStateBase):
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
         # AA-1: Send A-ABORT PDU, start ARTIM
         commands = [("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1694,7 +1695,7 @@ class TestState03(TestStateBase):
         # Evt16: Receive A-ABORT PDU from <remote>
         # AA-3: Issue A-ABORT or A-P-ABORT primitive, close connection
         commands = [("send", a_associate_rq), ("send", a_abort), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1728,7 +1729,7 @@ class TestState03(TestStateBase):
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # AA-4: Issue A-P-ABORT primitive
         commands = [("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1762,7 +1763,7 @@ class TestState03(TestStateBase):
         # Sta3 + Evt18 -> <ignore> -> Sta3
         # Evt18: ARTIM timer expired from <local service>
         commands = [("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1802,7 +1803,7 @@ class TestState03(TestStateBase):
             ("send", b"\x08\x00\x00\x00\x00\x00\x00\x00"),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
 
@@ -1857,7 +1858,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt1 -> <ignore> -> Sta4
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
@@ -1887,7 +1888,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt3 -> <ignore> -> Sta4
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         commands = [("send", a_associate_ac), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -1910,7 +1911,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt4 -> <ignore> -> Sta4
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         commands = [("send", a_associate_rj), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -1942,7 +1943,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt6 -> <ignore> -> Sta4
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         commands = [("send", a_associate_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -1965,7 +1966,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt7 -> <ignore> -> Sta4
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
@@ -1988,7 +1989,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt8 -> <ignore> -> Sta4
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
@@ -2011,7 +2012,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt9 -> <ignore> -> Sta4
         # Evt9: Receive P-DATA primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
@@ -2034,7 +2035,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt10 -> <ignore> -> Sta4
         # Evt10: Receive P-DATA-TF PDU from <remote>
         commands = [("send", p_data_tf), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2057,7 +2058,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt11 -> <ignore> -> Sta4
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
@@ -2080,7 +2081,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt12 -> <ignore> -> Sta4
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         commands = [("send", a_release_rq), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2103,7 +2104,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt13 -> <ignore> -> Sta4
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         commands = [("send", a_release_rp), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2126,7 +2127,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt14 -> <ignore> -> Sta4
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
@@ -2149,7 +2150,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt15 -> <ignore> -> Sta4
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_abort())
@@ -2172,7 +2173,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt16 -> <ignore> -> Sta4
         # Evt16: Receive A-ABORT PDU from <remote>
         commands = [("send", a_abort), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2195,7 +2196,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt17 -> <ignore> -> Sta4
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2216,7 +2217,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt18 -> <ignore> -> Sta4
         # Evt18: ARTIM timer expired from <local service>
         commands = [("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -2240,7 +2241,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt19 -> <ignore> -> Sta4
         # Evt19: Received unrecognised or invalid PDU from <remote>
         commands = [("send", b"\x08\x00\x00\x00\x00\x00\x00\x00\x00"), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2272,7 +2273,7 @@ class TestState05(TestStateBase):
         # Sta5 + Evt1 -> <ignore> -> Sta5
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         commands = [("recv", None), ("exit", None)]  # recv a-associate-rq
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
@@ -2307,7 +2308,7 @@ class TestState05(TestStateBase):
             ("send", a_associate_ac),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2328,7 +2329,7 @@ class TestState05(TestStateBase):
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # AE-4: Issue A-ASSOCIATE (rj) primitive
         commands = [("recv", None), ("send", a_associate_rj), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2363,7 +2364,7 @@ class TestState05(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2388,7 +2389,7 @@ class TestState05(TestStateBase):
         # Sta5 + Evt7 -> <ignore> -> Sta5
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
         commands = [("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
@@ -2412,7 +2413,7 @@ class TestState05(TestStateBase):
         # Sta5 + Evt8 -> <ignore> -> Sta5
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
         commands = [("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
@@ -2436,7 +2437,7 @@ class TestState05(TestStateBase):
         # Sta5 + Evt9 -> <ignore> -> Sta5
         # Evt9: Receive P-DATA primitive from <local user>
         commands = [("recv", None), ("exit", None)]  # recv a-associate-rq
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
@@ -2460,7 +2461,7 @@ class TestState05(TestStateBase):
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         commands = [("recv", None), ("send", p_data_tf), ("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2487,7 +2488,7 @@ class TestState05(TestStateBase):
         # Sta5 + Evt11 -> <ignore> -> Sta5
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
         commands = [("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
@@ -2516,7 +2517,7 @@ class TestState05(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2547,7 +2548,7 @@ class TestState05(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2573,7 +2574,7 @@ class TestState05(TestStateBase):
         # Sta5 + Evt14 -> <ignore> -> Sta5
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
         commands = [("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
@@ -2597,7 +2598,7 @@ class TestState05(TestStateBase):
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
         # AA-1: Send A-ABORT PDU and restart ARTIM
         commands = [("recv", None), ("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_abort())
@@ -2628,7 +2629,7 @@ class TestState05(TestStateBase):
         #       Otherwise
         #           Issue A-P-ABORT primitive and close transport
         commands = [("recv", None), ("send", a_abort), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2649,7 +2650,7 @@ class TestState05(TestStateBase):
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # AA-4: Issue A-P-ABORT primitive
         commands = [("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2671,7 +2672,7 @@ class TestState05(TestStateBase):
         # Sta5 + Evt18 -> <ignore> -> Sta5
         # Evt18: ARTIM timer expired from <local service>
         commands = [("recv", None), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -2701,7 +2702,7 @@ class TestState05(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2737,7 +2738,7 @@ class TestState06(TestStateBase):
         # Sta6 + Evt1 -> <ignore> -> Sta6
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         commands = [("recv", None), ("send", a_associate_ac), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
@@ -2775,7 +2776,7 @@ class TestState06(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2809,7 +2810,7 @@ class TestState06(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2850,7 +2851,7 @@ class TestState06(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2878,7 +2879,7 @@ class TestState06(TestStateBase):
         # Sta6 + Evt7 -> <ignore> -> Sta6
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
         commands = [("recv", None), ("send", a_associate_ac), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
@@ -2903,7 +2904,7 @@ class TestState06(TestStateBase):
         # Sta6 + Evt8 -> <ignore> -> Sta6
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
         commands = [("recv", None), ("send", a_associate_ac), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
@@ -2928,7 +2929,7 @@ class TestState06(TestStateBase):
         # Evt9: Receive P-DATA primitive from <local user>
         # DT-1: Send P-DATA-TD PDU
         commands = [("recv", None), ("send", a_associate_ac), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
@@ -2956,7 +2957,7 @@ class TestState06(TestStateBase):
             ("send", p_data_tf),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -2977,7 +2978,7 @@ class TestState06(TestStateBase):
         # Sta6 + Evt11 -> AR-1 -> Sta7
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
         commands = [("recv", None), ("send", a_associate_ac), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
@@ -3004,7 +3005,7 @@ class TestState06(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3032,7 +3033,7 @@ class TestState06(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3060,7 +3061,7 @@ class TestState06(TestStateBase):
         # Sta6 + Evt14 -> <ignore> -> Sta6
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
         commands = [("recv", None), ("send", a_associate_ac), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
@@ -3090,7 +3091,7 @@ class TestState06(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.abort()
@@ -3124,7 +3125,7 @@ class TestState06(TestStateBase):
             ("send", a_abort),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3146,7 +3147,7 @@ class TestState06(TestStateBase):
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # AA-4: Issue A-P-ABORT primitive
         commands = [("recv", None), ("send", a_associate_ac), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3169,7 +3170,7 @@ class TestState06(TestStateBase):
         # Sta6 + Evt18 -> <ignore> -> Sta6
         # Evt18: ARTIM timer expired from <local service>
         commands = [("recv", None), ("send", a_associate_ac), ("exit", None)]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -3201,7 +3202,7 @@ class TestState06(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3247,7 +3248,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
@@ -3287,7 +3288,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3323,7 +3324,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3366,7 +3367,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3400,7 +3401,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
@@ -3431,7 +3432,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
@@ -3462,7 +3463,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
@@ -3494,7 +3495,7 @@ class TestState07(TestStateBase):
             ("send", p_data_tf),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3524,7 +3525,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
@@ -3556,7 +3557,7 @@ class TestState07(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3585,7 +3586,7 @@ class TestState07(TestStateBase):
             ("send", a_release_rp),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3615,7 +3616,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
@@ -3647,7 +3648,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_abort())
@@ -3678,7 +3679,7 @@ class TestState07(TestStateBase):
             ("send", a_abort),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3706,7 +3707,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3735,7 +3736,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -3769,7 +3770,7 @@ class TestState07(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3821,7 +3822,7 @@ class TestState08(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
@@ -3861,7 +3862,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3892,7 +3893,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3930,7 +3931,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -3959,7 +3960,7 @@ class TestState08(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
@@ -3990,7 +3991,7 @@ class TestState08(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
@@ -4022,7 +4023,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
@@ -4053,7 +4054,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4082,7 +4083,7 @@ class TestState08(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
@@ -4115,7 +4116,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4146,7 +4147,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4176,7 +4177,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
@@ -4206,7 +4207,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_abort())
@@ -4237,7 +4238,7 @@ class TestState08(TestStateBase):
             ("send", a_abort),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4265,7 +4266,7 @@ class TestState08(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4294,7 +4295,7 @@ class TestState08(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -4328,7 +4329,7 @@ class TestState08(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4378,7 +4379,7 @@ class TestState09(TestStateBase):
             ("send", a_release_rq),  # collide
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
@@ -4427,7 +4428,7 @@ class TestState09(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4470,7 +4471,7 @@ class TestState09(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4520,7 +4521,7 @@ class TestState09(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4561,7 +4562,7 @@ class TestState09(TestStateBase):
             ("send", a_release_rq),  # collide
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
@@ -4601,7 +4602,7 @@ class TestState09(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
@@ -4641,7 +4642,7 @@ class TestState09(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
@@ -4683,7 +4684,7 @@ class TestState09(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4724,7 +4725,7 @@ class TestState09(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
@@ -4766,7 +4767,7 @@ class TestState09(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4809,7 +4810,7 @@ class TestState09(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4851,7 +4852,7 @@ class TestState09(TestStateBase):
             ("recv", None),  # recv a-release-rp
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
@@ -4893,7 +4894,7 @@ class TestState09(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_abort())
@@ -4936,7 +4937,7 @@ class TestState09(TestStateBase):
             ("send", a_abort),  # trigger event
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -4973,7 +4974,7 @@ class TestState09(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -5011,7 +5012,7 @@ class TestState09(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -5054,7 +5055,7 @@ class TestState09(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -5115,7 +5116,7 @@ class TestState10(TestStateBase):
             ("send", a_release_rq),  # collide
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5158,7 +5159,7 @@ class TestState10(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5195,7 +5196,7 @@ class TestState10(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5239,7 +5240,7 @@ class TestState10(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5274,7 +5275,7 @@ class TestState10(TestStateBase):
             ("send", a_release_rq),  # collide
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5308,7 +5309,7 @@ class TestState10(TestStateBase):
             ("send", a_release_rq),  # collide
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5341,7 +5342,7 @@ class TestState10(TestStateBase):
             ("send", a_release_rq),  # collide
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5377,7 +5378,7 @@ class TestState10(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5412,7 +5413,7 @@ class TestState10(TestStateBase):
             ("send", a_release_rq),  # collide
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5448,7 +5449,7 @@ class TestState10(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5484,7 +5485,7 @@ class TestState10(TestStateBase):
             ("send", a_release_rp),  # trigger event
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5515,7 +5516,7 @@ class TestState10(TestStateBase):
             ("send", a_release_rq),  # collide
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5550,7 +5551,7 @@ class TestState10(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5587,7 +5588,7 @@ class TestState10(TestStateBase):
             ("send", a_abort),  # trigger event
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5618,7 +5619,7 @@ class TestState10(TestStateBase):
             ("send", a_release_rq),  # collide
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5650,7 +5651,7 @@ class TestState10(TestStateBase):
             ("send", a_release_rq),  # collide
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5687,7 +5688,7 @@ class TestState10(TestStateBase):
             ("recv", a_abort),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -5745,7 +5746,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
         self.assoc.dul.send_pdu(self.get_associate("request"))
 
@@ -5804,7 +5805,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -5855,7 +5856,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -5913,7 +5914,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -5962,7 +5963,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
@@ -6013,7 +6014,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
@@ -6064,7 +6065,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
@@ -6117,7 +6118,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -6166,7 +6167,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
@@ -6219,7 +6220,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -6269,7 +6270,7 @@ class TestState11(TestStateBase):
             ("send", a_release_rp),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -6317,7 +6318,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
@@ -6369,7 +6370,7 @@ class TestState11(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_abort())
@@ -6420,7 +6421,7 @@ class TestState11(TestStateBase):
             ("send", a_abort),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -6468,7 +6469,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -6517,7 +6518,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -6564,7 +6565,7 @@ class TestState11(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -6635,7 +6636,7 @@ class TestState12(TestStateBase):
             ("send", a_release_rp),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
         assoc.dul.send_pdu(self.get_associate("request"))
@@ -6694,7 +6695,7 @@ class TestState12(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -6748,7 +6749,7 @@ class TestState12(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -6809,7 +6810,7 @@ class TestState12(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -6861,7 +6862,7 @@ class TestState12(TestStateBase):
             ("send", a_release_rp),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -6912,7 +6913,7 @@ class TestState12(TestStateBase):
             ("send", a_release_rp),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -6963,7 +6964,7 @@ class TestState12(TestStateBase):
             ("send", a_release_rp),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -7016,7 +7017,7 @@ class TestState12(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -7068,7 +7069,7 @@ class TestState12(TestStateBase):
             ("send", a_release_rp),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -7121,7 +7122,7 @@ class TestState12(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -7175,7 +7176,7 @@ class TestState12(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -7228,7 +7229,7 @@ class TestState12(TestStateBase):
             ("recv", None),  # recv a-release-rp
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
         assoc.dul.send_pdu(self.get_release(True))
@@ -7281,7 +7282,7 @@ class TestState12(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
         assoc.dul.send_pdu(self.get_abort())
@@ -7334,7 +7335,7 @@ class TestState12(TestStateBase):
             ("send", a_abort),  # trigger event
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -7382,7 +7383,7 @@ class TestState12(TestStateBase):
             ("send", a_release_rp),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -7431,7 +7432,7 @@ class TestState12(TestStateBase):
             ("send", a_release_rp),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -7485,7 +7486,7 @@ class TestState12(TestStateBase):
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         assoc, fsm = self.get_acceptor_assoc()
         self.move_to_state(assoc, scp)
 
@@ -7564,7 +7565,7 @@ class TestState13(TestStateBase):
             ("send", a_associate_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("request"))
@@ -7603,7 +7604,7 @@ class TestState13(TestStateBase):
             ("send", a_associate_ac),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -7632,7 +7633,7 @@ class TestState13(TestStateBase):
             ("send", a_associate_rj),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -7668,7 +7669,7 @@ class TestState13(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -7702,7 +7703,7 @@ class TestState13(TestStateBase):
             ("send", a_associate_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("accept"))
@@ -7731,7 +7732,7 @@ class TestState13(TestStateBase):
             ("send", a_associate_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_associate("reject"))
@@ -7760,7 +7761,7 @@ class TestState13(TestStateBase):
             ("send", a_associate_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_pdata())
@@ -7790,7 +7791,7 @@ class TestState13(TestStateBase):
             ("send", p_data_tf),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -7816,7 +7817,7 @@ class TestState13(TestStateBase):
             ("send", a_associate_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(False))
@@ -7846,7 +7847,7 @@ class TestState13(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -7873,7 +7874,7 @@ class TestState13(TestStateBase):
             ("send", a_release_rp),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -7899,7 +7900,7 @@ class TestState13(TestStateBase):
             ("send", a_associate_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_release(True))
@@ -7928,7 +7929,7 @@ class TestState13(TestStateBase):
             ("send", a_associate_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.send_pdu(self.get_abort())
@@ -7958,7 +7959,7 @@ class TestState13(TestStateBase):
             ("send", a_abort),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -7984,7 +7985,7 @@ class TestState13(TestStateBase):
             ("send", a_associate_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -8011,7 +8012,7 @@ class TestState13(TestStateBase):
             ("send", a_associate_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -8043,7 +8044,7 @@ class TestState13(TestStateBase):
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.move_to_state(self.assoc, scp)
 
         scp.step()
@@ -8086,7 +8087,7 @@ class TestParrotAttack(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
         self.assoc.start()
 
         for ii in range(len(commands) - 1):
@@ -8163,7 +8164,7 @@ class TestParrotAttack(TestStateBase):
             ("send", a_release_rq),
             ("exit", None),
         ]
-        self.scp = scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands, port=get_port())
 
         assoc, fsm = self.get_acceptor_assoc()
         assoc.start()
@@ -8228,10 +8229,10 @@ class TestStateMachineFunctionalRequestor:
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address_info = AddressInformation("localhost", 11112)
+        assoc.acceptor.address_info = AddressInformation("localhost", get_port())
 
         # Association Requestor object -> local AE
-        assoc.requestor.address_info = AddressInformation("localhost", 11113)
+        assoc.requestor.address_info = AddressInformation("localhost", get_port("remote"))
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -8306,7 +8307,7 @@ class TestStateMachineFunctionalRequestor:
         """Test normal association/release."""
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8355,7 +8356,7 @@ class TestStateMachineFunctionalRequestor:
         self.ae = ae = AE()
         ae.require_called_aet = True
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8399,7 +8400,7 @@ class TestStateMachineFunctionalRequestor:
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8448,7 +8449,7 @@ class TestStateMachineFunctionalRequestor:
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8496,7 +8497,7 @@ class TestStateMachineFunctionalRequestor:
         ae.network_timeout = 0.5
         ae.acse_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8547,7 +8548,7 @@ class TestStateMachineFunctionalRequestor:
         """Test association acceptance then send DIMSE message."""
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8619,7 +8620,7 @@ class TestStateMachineFunctionalRequestor:
 
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8689,7 +8690,7 @@ class TestStateMachineFunctionalRequestor:
 
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8752,10 +8753,10 @@ class TestStateMachineFunctionalAcceptor:
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address_info = AddressInformation("localhost", 11112)
+        assoc.acceptor.address_info = AddressInformation("localhost", get_port())
 
         # Association Requestor object -> local AE
-        assoc.requestor.address_info = AddressInformation("localhost", 11113)
+        assoc.requestor.address_info = AddressInformation("localhost", get_port("remote"))
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -8808,7 +8809,7 @@ class TestStateMachineFunctionalAcceptor:
         """Test receiving an A-ASSOC-RQ with invalid protocol version."""
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         assert self.fsm.current_state == "Sta1"
 
@@ -8866,10 +8867,10 @@ class TestEventHandling:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
@@ -8891,10 +8892,10 @@ class TestEventHandling:
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
@@ -8932,10 +8933,10 @@ class TestEventHandling:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         time.sleep(0.5)
@@ -8978,12 +8979,12 @@ class TestEventHandling:
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         # Confirm that the handler is bound
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         time.sleep(0.5)
@@ -9034,9 +9035,9 @@ class TestEventHandling:
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
         assert assoc.is_established
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
@@ -9071,9 +9072,9 @@ class TestEventHandling:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
@@ -9114,9 +9115,9 @@ class TestEventHandling:
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
@@ -9156,10 +9157,10 @@ class TestEventHandling:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.release()
 

@@ -46,6 +46,8 @@ from pynetdicom.sop_class import (
     RTConventionalMachineVerification,
 )
 
+from .utils import get_port
+
 
 # debug_logger()
 
@@ -342,11 +344,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -400,11 +402,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -455,11 +457,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -507,11 +509,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -559,11 +561,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -615,11 +617,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -667,11 +669,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -755,11 +757,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -807,11 +809,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -862,11 +864,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -917,11 +919,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -976,11 +978,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -1035,11 +1037,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -1063,11 +1065,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 0.5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status = assoc.send_c_store(ds)
@@ -1087,11 +1089,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(DisplaySystem)
         ae.add_requested_context(DisplaySystem)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         status, ds = assoc.send_n_get([], DisplaySystem, "1.2.3.4")
         assert status.Status == 0x0000
@@ -1138,11 +1140,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -1190,11 +1192,11 @@ class TestNServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(sop_class)
         ae.add_requested_context(sop_class)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         (func, args) = send_function[msg_type]
         rsp = func(assoc, *args)
@@ -1245,9 +1247,9 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         req = C_FIND()
@@ -1282,9 +1284,9 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1314,11 +1316,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1345,11 +1347,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1374,11 +1376,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1401,11 +1403,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1428,11 +1430,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1455,11 +1457,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1484,11 +1486,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1506,11 +1508,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1535,11 +1537,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1567,11 +1569,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1595,11 +1597,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1628,11 +1630,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1661,11 +1663,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1696,11 +1698,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1737,11 +1739,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1778,11 +1780,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1820,11 +1822,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1860,11 +1862,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1898,11 +1900,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1939,11 +1941,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model=UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -1981,9 +1983,9 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         identifier = Dataset()
@@ -2024,11 +2026,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -2052,11 +2054,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -2082,11 +2084,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -2113,11 +2115,11 @@ class TestUPSFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(UnifiedProcedureStepPull)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, UnifiedProcedureStepPull)
         status, identifier = next(result)
@@ -2166,7 +2168,7 @@ class TestNEventReport:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PrintJob)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=scp_hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=scp_hh)
 
         events = []
 
@@ -2179,7 +2181,7 @@ class TestNEventReport:
         scu_hh = [(evt.EVT_N_EVENT_REPORT, handle_ner)]
 
         ae.add_requested_context(PrintJob)
-        assoc = ae.associate("localhost", 11112, evt_handlers=scu_hh)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=scu_hh)
         assert assoc.is_established
 
         status, attr = assoc.send_n_get([0x00080008], PrintJob, "1.2.3.4")
@@ -2201,7 +2203,7 @@ class TestNEventReport:
             ds = Dataset()
             ds.PatientName = "Test2"
 
-            assoc = event.assoc.ae.associate("localhost", 11113)
+            assoc = event.assoc.ae.associate("localhost", get_port("remote"))
             assoc.send_n_event_report(ds, 1, PrintJob, "1.2.3")
             assoc.release()
 
@@ -2212,7 +2214,7 @@ class TestNEventReport:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PrintJob)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=scp_hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=scp_hh)
 
         events = []
 
@@ -2224,11 +2226,11 @@ class TestNEventReport:
 
         scu_hh = [(evt.EVT_N_EVENT_REPORT, handle_ner)]
         ner_scp = ae.start_server(
-            ("localhost", 11113), block=False, evt_handlers=scu_hh
+            ("localhost", get_port("remote")), block=False, evt_handlers=scu_hh
         )
 
         ae.add_requested_context(PrintJob)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.release()
@@ -2274,10 +2276,10 @@ class TestNCreate:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
@@ -2314,10 +2316,10 @@ class TestNCreate:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
@@ -2351,10 +2353,10 @@ class TestNCreate:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
@@ -2391,10 +2393,10 @@ class TestNCreate:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
@@ -2432,10 +2434,10 @@ class TestNCreate:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=hh)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=hh)
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):

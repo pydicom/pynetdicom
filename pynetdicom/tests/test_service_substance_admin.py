@@ -19,6 +19,8 @@ from pynetdicom.sop_class import (
     _SUBSTANCE_ADMINISTRATION_CLASSES,
 )
 
+from .utils import get_port
+
 
 # debug_logger()
 
@@ -84,9 +86,9 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
@@ -116,11 +118,11 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
@@ -147,11 +149,11 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
@@ -176,11 +178,11 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
@@ -203,11 +205,11 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
@@ -230,11 +232,11 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(ProductCharacteristicsQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
@@ -261,9 +263,9 @@ class TestSubstanceAdministrationQueryServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(NewFind)
         ae.add_requested_context(NewFind, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, NewFind)
         status, identifier = next(result)

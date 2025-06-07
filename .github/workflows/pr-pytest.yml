@@ -25,7 +25,7 @@ jobs:
         conda-channels: anaconda, conda-forge
     - name: Install dependencies
       run: |
-        conda install pytest
+        conda install pytest pytest-xdist
         conda install -c conda-forge pydicom
     - name: Get OpenSSL version
       run: |
@@ -34,7 +34,7 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        pytest -x --ignore=pynetdicom/apps
+        pytest -x --ignore=pynetdicom/apps -n auto
 
   windows:
     runs-on: windows-latest
@@ -63,7 +63,7 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          pytest -x --cov pynetdicom --ignore=pynetdicom/apps
+          pytest -x --cov pynetdicom --ignore=pynetdicom/apps  -n auto
       - name: Send coverage results
         if: ${{ success() }}
         uses: codecov/codecov-action@v5
@@ -128,7 +128,7 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        pytest -x --cov pynetdicom --ignore=pynetdicom/apps
+        pytest -x --cov pynetdicom --ignore=pynetdicom/apps -n auto
     - name: Send coverage results
       if: ${{ success() }}
       uses: codecov/codecov-action@v5

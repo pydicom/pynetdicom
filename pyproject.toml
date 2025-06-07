@@ -49,6 +49,7 @@ dev = [
     "pyfakefs >=5.3",
     "pytest >=7.4",
     "pytest-cov >=4.1",
+    "pytest-xdist >= 3.7",
     "ruff >=0.1",
     "sqlalchemy >=2.0",
 ]
@@ -64,6 +65,7 @@ tests = [
     "pyfakefs >=5.3",
     "pytest >=7.4",
     "pytest-cov >=4.1",
+    "pytest-xdist >= 3.7",
     "sqlalchemy >=2.0",
 ]
 

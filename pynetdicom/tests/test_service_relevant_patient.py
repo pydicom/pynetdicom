@@ -1,7 +1,6 @@
 """Tests for the RelevantPatientInformationQueryServiceClass."""
 
 from io import BytesIO
-import os
 import time
 
 import pytest
@@ -17,6 +16,8 @@ from pynetdicom.sop_class import (
     BreastImagingRelevantPatientInformationQuery,
     CardiacRelevantPatientInformationQuery,
 )
+
+from .utils import get_port
 
 
 # debug_logger()
@@ -56,11 +57,11 @@ class TestRelevantPatientServiceClass:
         ae.add_requested_context(
             GeneralRelevantPatientInformationQuery, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         req = C_FIND()
@@ -95,11 +96,11 @@ class TestRelevantPatientServiceClass:
         ae.add_requested_context(
             GeneralRelevantPatientInformationQuery, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -125,11 +126,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -153,11 +154,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -179,11 +180,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -203,11 +204,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -227,11 +228,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -252,11 +253,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -276,11 +277,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -303,11 +304,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -333,11 +334,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -363,11 +364,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -392,11 +393,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -418,11 +419,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -444,11 +445,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -470,11 +471,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -501,11 +502,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -538,11 +539,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -573,11 +574,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -608,11 +609,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -639,11 +640,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
@@ -665,11 +666,11 @@ class TestRelevantPatientServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)

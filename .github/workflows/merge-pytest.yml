@@ -25,13 +25,13 @@ jobs:
         conda-channels: anaconda, conda-forge
     - name: Install dependencies
       run: |
-        conda install pytest
+        conda install pytest pytest-xdist
         conda install -c conda-forge pydicom
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        pytest --ignore=pynetdicom/apps
+        pytest --ignore=pynetdicom/apps -n auto
 
   windows:
     runs-on: windows-latest
@@ -57,7 +57,7 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          pytest --cov pynetdicom --ignore=pynetdicom/apps && coverage xml
+          pytest --cov pynetdicom --ignore=pynetdicom/apps  -n auto && coverage xml
       - name: Send coverage results
         if: success()
         uses: codecov/codecov-action@v5
@@ -123,7 +123,7 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
-        pytest --cov pynetdicom --ignore=pynetdicom/apps
+        pytest --cov pynetdicom --ignore=pynetdicom/apps -n auto
     - name: Send coverage results
       if: success()
       uses: codecov/codecov-action@v5

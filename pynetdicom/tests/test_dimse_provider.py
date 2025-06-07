@@ -4,6 +4,8 @@ from datetime import datetime
 import queue
 from io import BytesIO
 import logging
+import os
+import socket
 import sys
 import threading
 import time
@@ -78,6 +80,8 @@ from pynetdicom.sop_class import (
     Printer,
 )
 
+from .utils import get_port
+
 
 # debug_logger()
 
@@ -89,11 +93,11 @@ class DummyAssociation:
         self.dul = DummyDUL()
         self.requestor = ServiceUser(self, "requestor")
         self.requestor.ae_title = "TEST_LOCAL      "
-        self.requestor.address_info = AddressInformation("127.0.0.1", 11112)
+        self.requestor.address_info = AddressInformation("127.0.0.1", get_port())
         self.requestor.maximum_length = 31682
         self.acceptor = ServiceUser(self, "acceptor")
         self.acceptor.ae_title = "TEST_REMOTE     "
-        self.acceptor.address_info = AddressInformation("127.0.0.2", 11113)
+        self.acceptor.address_info = AddressInformation("127.0.0.2", get_port("remote"))
         self.acse_timeout = 11
         self.dimse_timeout = 1
         self.network_timeout = 13
@@ -244,10 +248,10 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -274,10 +278,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
@@ -315,10 +319,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.send_c_echo(msg_id=12)
@@ -362,10 +366,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         child = scp.active_associations[0]
@@ -412,10 +416,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -443,10 +447,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
@@ -482,10 +486,10 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -528,10 +532,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -576,10 +580,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -615,10 +619,10 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -645,10 +649,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
@@ -685,10 +689,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == []
         assert assoc.is_established
         assoc.send_c_echo(msg_id=12)
@@ -732,10 +736,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assoc.send_c_echo(msg_id=12)
         assert len(scp.active_associations) == 1
@@ -771,10 +775,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -802,10 +806,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
@@ -841,10 +845,10 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert assoc.get_handlers(evt.EVT_DIMSE_RECV) == []
@@ -887,10 +891,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=handlers)
         assert assoc.is_established
         assert assoc.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
         assoc.send_c_echo(msg_id=12)
@@ -932,10 +936,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
