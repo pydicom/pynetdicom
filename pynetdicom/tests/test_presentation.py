@@ -48,6 +48,8 @@ from pynetdicom.sop_class import (
     CTImageStorage,
 )
 
+from .utils import get_port
+
 
 PYDICOM_VERSION = __version__.split(".")[:2]
 
@@ -1294,13 +1296,13 @@ class TestNegotiateAsRequestorWithRoleSelection:
         ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1", scu_role=True, scp_role=True)
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         role = SCP_SCU_RoleSelectionNegotiation()
         role.sop_class_uid = "1.2.840.10008.1.1"
         role.scu_role = True
 
-        assoc = ae.associate("localhost", 11112, ext_neg=[role])
+        assoc = ae.associate("localhost", get_port(), ext_neg=[role])
         assert assoc.is_established
         cx = assoc.accepted_contexts[0]
         assert cx.as_scu is True
@@ -1314,13 +1316,13 @@ class TestNegotiateAsRequestorWithRoleSelection:
         ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1", scu_role=True, scp_role=True)
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         role = SCP_SCU_RoleSelectionNegotiation()
         role.sop_class_uid = "1.2.840.10008.1.1"
         role.scp_role = True
 
-        assoc = ae.associate("localhost", 11112, ext_neg=[role])
+        assoc = ae.associate("localhost", get_port(), ext_neg=[role])
         assert assoc.is_established
         cx = assoc.accepted_contexts[0]
         assert cx.as_scu is False

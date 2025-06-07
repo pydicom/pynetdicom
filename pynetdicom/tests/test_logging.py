@@ -55,6 +55,8 @@ from pynetdicom.pdu_primitives import (
 from pynetdicom.sop_class import CTImageStorage, Verification
 from pynetdicom.transport import AddressInformation
 
+from .utils import get_port
+
 
 # debug_logger()
 
@@ -213,9 +215,9 @@ class TestStandardDIMSE:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = N_DELETE()
@@ -234,9 +236,9 @@ class TestStandardDIMSE:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = N_GET()
@@ -255,9 +257,9 @@ class TestStandardDIMSE:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = N_EVENT_REPORT()
@@ -278,9 +280,9 @@ class TestStandardDIMSE:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = C_MOVE()
@@ -313,7 +315,7 @@ class TestStandardLogging:
         primitive.called_ae_title = "1234567890123456"
         # The TCP/IP address of the source, pynetdicom includes port too
         primitive.calling_presentation_address = AddressInformation(
-            "127.127.127.127", 111112
+            "127.127.127.127", get_port()
         )
         # The TCP/IP address of the destination, pynetdicom includes port too
         primitive.called_presentation_address = AddressInformation("0.0.0.0", 0)
@@ -346,7 +348,7 @@ class TestStandardLogging:
         primitive.called_ae_title = "1234567890123456"
         # The TCP/IP address of the source, pynetdicom includes port too
         primitive.calling_presentation_address = AddressInformation(
-            "127.127.127.127", 111112
+            "127.127.127.127", get_port()
         )
         # The TCP/IP address of the destination, pynetdicom includes port too
         primitive.called_presentation_address = AddressInformation("0.0.0.0", 0)
@@ -476,8 +478,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
@@ -520,8 +522,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_scp_scu_role(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
@@ -551,8 +553,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_async_ops(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
@@ -580,8 +582,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_sop_ext(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
@@ -613,8 +615,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_sop_common(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
@@ -649,8 +651,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_user_identity(self.associate_rq, *info)
             pdu = A_ASSOCIATE_RQ()
@@ -678,8 +680,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             pdu = A_ASSOCIATE_RQ()
             pdu.from_primitive(self.associate_rq)
@@ -723,8 +725,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_scp_scu_role(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
@@ -754,8 +756,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_async_ops(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
@@ -783,8 +785,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_sop_ext(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
@@ -816,8 +818,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_sop_common(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
@@ -852,8 +854,8 @@ class TestStandardLogging:
             self.ae = ae = AE()
             ae.add_supported_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_user_identity(self.associate_rq, *info)
             pdu = A_ASSOCIATE_RQ()
@@ -885,8 +887,8 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
@@ -930,7 +932,7 @@ class TestStandardLogging:
             ae.add_requested_context("1.2.840.10008.1.4")
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
+            scp = ae.start_server(("localhost", get_port()), block=False)
 
             ext_neg = []
             ext_neg.append(build_role("1.2.840.10008.1.2", scu_role=True))
@@ -938,7 +940,7 @@ class TestStandardLogging:
             ext_neg.append(
                 build_role("1.2.840.10008.1.4", scu_role=True, scp_role=True)
             )
-            assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+            assoc = ae.associate("localhost", get_port(), ext_neg=ext_neg)
 
             self.add_scp_scu_role(self.associate_ac)
             contexts = self.associate_ac.presentation_context_definition_results_list
@@ -977,8 +979,8 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_async_ops(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
@@ -1009,8 +1011,8 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_sop_ext(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
@@ -1045,8 +1047,8 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_user_identity_rsp(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
@@ -1075,8 +1077,8 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             primitive = self.associate_ac
             primitive.presentation_context_definition_results_list = []
@@ -1113,8 +1115,8 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             pdu = A_ASSOCIATE_AC()
             pdu.from_primitive(self.associate_ac)
@@ -1158,7 +1160,7 @@ class TestStandardLogging:
             ae.add_requested_context("1.2.840.10008.1.4")
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
+            scp = ae.start_server(("localhost", get_port()), block=False)
 
             ext_neg = []
             ext_neg.append(build_role("1.2.840.10008.1.2", scu_role=True))
@@ -1166,7 +1168,7 @@ class TestStandardLogging:
             ext_neg.append(
                 build_role("1.2.840.10008.1.4", scu_role=True, scp_role=True)
             )
-            assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+            assoc = ae.associate("localhost", get_port(), ext_neg=ext_neg)
 
             self.add_scp_scu_role(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
@@ -1201,8 +1203,8 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_async_ops(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
@@ -1233,8 +1235,8 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_sop_ext(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
@@ -1269,8 +1271,8 @@ class TestStandardLogging:
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
             ae.add_requested_context(Verification)
-            scp = ae.start_server(("localhost", 11112), block=False)
-            assoc = ae.associate("localhost", 11112)
+            scp = ae.start_server(("localhost", get_port()), block=False)
+            assoc = ae.associate("localhost", get_port())
 
             self.add_user_identity_rsp(self.associate_ac)
             pdu = A_ASSOCIATE_AC()
@@ -1307,11 +1309,11 @@ class TestDebuggingLogging:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         hh = [(evt.EVT_FSM_TRANSITION, debug_fsm)]
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=hh)
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -1326,14 +1328,16 @@ class TestDebuggingLogging:
         ae.require_called_aet = True
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
             (evt.EVT_DATA_RECV, debug_data, [3, True, True]),
         ]
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=hh, ext_neg=[role])
+            assoc = ae.associate(
+                "localhost", get_port(), evt_handlers=hh, ext_neg=[role]
+            )
             assert assoc.is_rejected
 
         scp.shutdown()
@@ -1350,13 +1354,13 @@ class TestDebuggingLogging:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         hh = [
             (evt.EVT_DATA_SENT, debug_data, [7, True, True]),
         ]
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=hh)
             assert assoc.is_established
             assoc.abort()
             assert assoc.is_aborted
@@ -1373,14 +1377,16 @@ class TestDebuggingLogging:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
             (evt.EVT_DATA_SENT, debug_data, [1, True, False]),
         ]
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=hh, ext_neg=[role])
+            assoc = ae.associate(
+                "localhost", get_port(), evt_handlers=hh, ext_neg=[role]
+            )
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -1397,14 +1403,16 @@ class TestDebuggingLogging:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
             (evt.EVT_DATA_SENT, debug_data, [4, True, True]),
         ]
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=hh, ext_neg=[role])
+            assoc = ae.associate(
+                "localhost", get_port(), evt_handlers=hh, ext_neg=[role]
+            )
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -1423,14 +1431,16 @@ class TestDebuggingLogging:
         self.ae = ae = AE()
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         role = build_role("1.2.840.10008.1.1", scp_role=True)
         hh = [
             (evt.EVT_DATA_SENT, debug_data, [1, False, True]),
         ]
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=hh, ext_neg=[role])
+            assoc = ae.associate(
+                "localhost", get_port(), evt_handlers=hh, ext_neg=[role]
+            )
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()

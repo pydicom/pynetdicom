@@ -1,6 +1,7 @@
 """DUL service testing"""
 
 import logging
+import os
 import socket
 import threading
 import time
@@ -22,7 +23,7 @@ from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 from pynetdicom.sop_class import Verification
 from .encoded_pdu_items import a_associate_ac, a_release_rq
 from .parrot import start_server, ThreadedParrot, ParrotRequest
-from .utils import sleep
+from .utils import sleep, get_port
 
 
 # debug_logger()
@@ -153,7 +154,7 @@ class TestDUL:
                 ("send", b"\x07\x00\x00\x00\x00\x04"),
                 ("exit", None),
             ]
-            self.scp = scp = start_server(commands)
+            self.scp = scp = start_server(commands, port=get_port())
 
             def handle(event):
                 scp.step()
@@ -166,7 +167,7 @@ class TestDUL:
             ae.dimse_timeout = 5
             ae.network_timeout = 0.2
             ae.add_requested_context("1.2.840.10008.1.1")
-            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=hh)
             assert assoc.is_established
 
             scp.step()  # send short pdu
@@ -193,7 +194,7 @@ class TestDUL:
                 ("send", b"\x00\x00"),  # Send short remainder
                 ("exit", None),
             ]
-            self.scp = scp = start_server(commands)
+            self.scp = scp = start_server(commands, port=get_port())
 
             def handle(event):
                 scp.step()  # recv A-ASSOCIATE-RQ
@@ -206,7 +207,7 @@ class TestDUL:
             ae.dimse_timeout = 5
             ae.network_timeout = 0.5
             ae.add_requested_context("1.2.840.10008.1.1")
-            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=hh)
             assert assoc.is_established
 
             scp.step()  # send short pdu
@@ -233,7 +234,7 @@ class TestDUL:
                 ("send", b"\x07\x00\x00\x00\x00\x02\x00"),  # Send short PDU
                 ("exit", None),
             ]
-            self.scp = scp = start_server(commands)
+            self.scp = scp = start_server(commands, port=get_port())
 
             def handle(event):
                 scp.step()
@@ -246,7 +247,7 @@ class TestDUL:
             ae.dimse_timeout = 5
             # ae.network_timeout = 0.5
             ae.add_requested_context("1.2.840.10008.1.1")
-            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=hh)
             assert assoc.is_established
 
             scp.step()  # send short pdu
@@ -268,7 +269,7 @@ class TestDUL:
                 ("recv", None),
                 ("exit", None),
             ]
-            self.scp = scp = start_server(commands)
+            self.scp = scp = start_server(commands, port=get_port())
 
             def handle(event):
                 scp.step()
@@ -281,7 +282,7 @@ class TestDUL:
             ae.dimse_timeout = 5
             ae.network_timeout = 5
             ae.add_requested_context("1.2.840.10008.1.1")
-            assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+            assoc = ae.associate("localhost", get_port(), evt_handlers=hh)
             assert assoc.is_established
 
             scp.step()  # send bad PDU
@@ -304,7 +305,7 @@ class TestDUL:
             ("recv", None),
             ("exit", None),
         ]
-        self.scp = scp = start_server(commands)
+        self.scp = scp = start_server(commands, port=get_port())
 
         def handle(event):
             scp.step()
@@ -317,7 +318,7 @@ class TestDUL:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=hh)
         assert assoc.is_established
 
         scp.step()  # send bad PDU
@@ -341,7 +342,7 @@ class TestDUL:
             ("recv", None),  # recv a-abort
             ("exit", None),
         ]
-        self.scp = scp = start_server(commands)
+        self.scp = scp = start_server(commands, port=get_port())
 
         def handle(event):
             scp.step()
@@ -354,7 +355,7 @@ class TestDUL:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112, evt_handlers=hh)
+        assoc = ae.associate("localhost", get_port(), evt_handlers=hh)
 
         assert assoc.is_established
 
@@ -388,10 +389,10 @@ class TestDUL:
         ae.acse_timeout = 5
         ae.add_supported_context(Verification)
 
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         dul = assoc.dul
 
@@ -411,10 +412,10 @@ class TestDUL:
             ae.acse_timeout = 5
             ae.add_supported_context(Verification)
 
-            scp = ae.start_server(("localhost", 11112), block=False)
+            scp = ae.start_server(("localhost", get_port()), block=False)
 
             ae.add_requested_context(Verification)
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", get_port())
 
             assoc._kill = True
             dul = assoc.dul

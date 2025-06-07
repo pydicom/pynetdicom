@@ -1,6 +1,8 @@
 """Association testing for DIMSE-N services"""
 
+import os
 import queue
+import socket
 import time
 
 import pytest
@@ -24,6 +26,7 @@ from pynetdicom.sop_class import (
     Printer,
 )
 
+from .utils import get_port
 
 # debug_logger()
 
@@ -63,13 +66,13 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         assoc.release()
         assert not assoc.is_established
@@ -91,13 +94,13 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -124,7 +127,7 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
@@ -132,7 +135,7 @@ class TestAssociationSendNEventReport:
         ae.add_requested_context(
             ModalityPerformedProcedureStepNotification, ExplicitVRLittleEndian
         )
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -161,13 +164,13 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -196,13 +199,13 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         class DummyResponse:
@@ -253,13 +256,13 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -289,13 +292,13 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -325,13 +328,13 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -361,13 +364,13 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -399,11 +402,13 @@ class TestAssociationSendNEventReport:
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
 
         handlers = [(evt.EVT_N_EVENT_REPORT, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
 
@@ -439,11 +444,13 @@ class TestAssociationSendNEventReport:
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
 
         handlers = [(evt.EVT_N_EVENT_REPORT, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         class DummyReply:
             def getvalue(self):
@@ -511,13 +518,13 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStepNotification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -547,11 +554,11 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.dimse = DummyDIMSE()
@@ -590,13 +597,13 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -633,13 +640,13 @@ class TestAssociationSendNEventReport:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112),
+            ("localhost", get_port()),
             block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -691,11 +698,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(DisplaySystem)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
@@ -718,11 +727,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(DisplaySystem)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
         msg = (
             r"No presentation context for 'Verification SOP Class' has been "
@@ -752,11 +763,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(DisplaySystem)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status, ds = assoc.send_n_get(
@@ -783,11 +796,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(DisplaySystem)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         class DummyResponse:
@@ -832,11 +847,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(DisplaySystem)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status, ds = assoc.send_n_get(
@@ -865,11 +882,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(DisplaySystem)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status, ds = assoc.send_n_get(
@@ -902,11 +921,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(DisplaySystem)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status, ds = assoc.send_n_get(
@@ -939,11 +960,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(DisplaySystem)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status, ds = assoc.send_n_get(
@@ -970,11 +993,13 @@ class TestAssociationSendNGet:
         ae.add_supported_context(ModalityPerformedProcedureStepRetrieve)
 
         handlers = [(evt.EVT_N_GET, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
 
@@ -1004,11 +1029,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(DisplaySystem)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         class DummyReply:
@@ -1068,11 +1095,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(DisplaySystem)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status, ds = assoc.send_n_get(
@@ -1096,11 +1125,11 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.dimse = DummyDIMSE()
@@ -1142,11 +1171,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -1191,11 +1222,13 @@ class TestAssociationSendNGet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_GET, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -1245,11 +1278,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
@@ -1272,11 +1307,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -1306,11 +1343,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep, ExplicitVRLittleEndian)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         mod_list = Dataset()
@@ -1339,11 +1378,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         mod_list = Dataset()
@@ -1372,11 +1413,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         class DummyResponse:
@@ -1423,11 +1466,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -1454,11 +1499,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -1485,11 +1532,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -1516,11 +1565,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -1549,11 +1600,13 @@ class TestAssociationSendNSet:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_SET, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
 
@@ -1584,11 +1637,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep, ExplicitVRLittleEndian)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         class DummyReply:
@@ -1650,11 +1705,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -1680,11 +1737,11 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.dimse = DummyDIMSE()
@@ -1722,11 +1779,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -1770,11 +1829,13 @@ class TestAssociationSendNSet:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_SET, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -1822,11 +1883,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(ProceduralEventLogging)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.release()
@@ -1849,11 +1912,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(ProceduralEventLogging)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -1879,11 +1944,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(ProceduralEventLogging, ExplicitVRLittleEndian)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -1909,11 +1976,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(ProceduralEventLogging)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         class DummyDIMSE:
@@ -1953,11 +2022,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(ProceduralEventLogging)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         class DummyResponse:
@@ -2003,11 +2074,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(ProceduralEventLogging)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2034,11 +2107,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(ProceduralEventLogging)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2065,11 +2140,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(ProceduralEventLogging)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2096,11 +2173,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(ProceduralEventLogging)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2127,11 +2206,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(PrintJob)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(PrintJob)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         class DummyReply:
@@ -2188,11 +2269,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(PrintJob)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(PrintJob)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2215,11 +2298,11 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.dimse = DummyDIMSE()
@@ -2258,11 +2341,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2303,11 +2388,13 @@ class TestAssociationSendNAction:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_ACTION, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2357,10 +2444,12 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.release()
@@ -2384,10 +2473,12 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -2414,10 +2505,12 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.add_requested_context(ModalityPerformedProcedureStep, ExplicitVRLittleEndian)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2444,10 +2537,12 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2475,10 +2570,12 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         class DummyResponse:
@@ -2525,10 +2622,12 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2556,10 +2655,12 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2587,10 +2688,12 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2618,10 +2721,12 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2650,11 +2755,13 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
 
         assert assoc.is_established
 
@@ -2684,10 +2791,12 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         class DummyReply:
@@ -2750,10 +2859,12 @@ class TestAssociationSendNCreate:
         ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
-        scp = ae.start_server(("localhost", 11112), evt_handlers=handlers, block=False)
+        scp = ae.start_server(
+            ("localhost", get_port()), evt_handlers=handlers, block=False
+        )
 
         ae.add_requested_context(ModalityPerformedProcedureStep)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2778,11 +2889,11 @@ class TestAssociationSendNCreate:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.dimse = DummyDIMSE()
@@ -2820,11 +2931,13 @@ class TestAssociationSendNCreate:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_CREATE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_CREATE, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2864,11 +2977,13 @@ class TestAssociationSendNCreate:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_CREATE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_CREATE, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
@@ -2916,11 +3031,13 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_DELETE, handle)],
         )
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.release()
@@ -2943,11 +3060,13 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_DELETE, handle)],
         )
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         msg = (
@@ -2974,11 +3093,13 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_DELETE, handle)],
         )
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status = assoc.send_n_delete(BasicFilmSession, "1.2.840.10008.5.1.1.40.1")
@@ -2999,11 +3120,13 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_DELETE, handle)],
         )
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         class DummyResponse:
@@ -3044,11 +3167,13 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_DELETE, handle)],
         )
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status = assoc.send_n_delete(BasicFilmSession, "1.2.840.10008.5.1.1.40.1")
@@ -3070,11 +3195,13 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_DELETE, handle)],
         )
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status = assoc.send_n_delete(BasicFilmSession, "1.2.840.10008.5.1.1.40.1")
@@ -3096,11 +3223,13 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_DELETE, handle)],
         )
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status = assoc.send_n_delete(BasicFilmSession, "1.2.840.10008.5.1.1.40.1")
@@ -3126,11 +3255,13 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_DELETE, handle)],
         )
 
         ae.add_requested_context(BasicFilmSession)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status = assoc.send_n_delete(BasicFilmSession, "1.2.840.10008.5.1.1.40.1")
@@ -3150,11 +3281,11 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         ae.add_supported_context(Printer)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", get_port()), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         ae.add_requested_context(Printer)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         assoc.dimse = DummyDIMSE()
@@ -3191,11 +3322,13 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_DELETE, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         status = assoc.send_n_delete(
@@ -3231,11 +3364,13 @@ class TestAssociationSendNDelete:
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
-            ("localhost", 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_N_DELETE, handle)],
         )
 
         ae.add_requested_context(BasicGrayscalePrintManagementMeta)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
 
         ds = Dataset()
