@@ -7773,6 +7773,7 @@ class TestAssociationWindows:
 
         scp.shutdown()
 
+    @pytest.mark.serial
     @pytest.mark.skipif(not HAVE_CTYPES, reason="No ctypes module")
     def test_set_timer_resolution(self):
         """Test setting the windows timer resolution works."""

@@ -57,7 +57,9 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          pytest --cov pynetdicom --ignore=pynetdicom/apps  -n auto && coverage xml
+          pytest --cov pynetdicom --ignore=pynetdicom/apps  -n auto -m "not serial"
+          pytest --cov pynetdicom --ignore=pynetdicom/apps  -n auto -m "serial"
+          coverage xml
       - name: Send coverage results
         if: success()
         uses: codecov/codecov-action@v5
