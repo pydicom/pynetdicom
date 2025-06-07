@@ -130,3 +130,8 @@ exclude = [
     "build_tools/*",
     "docs/*",
 ]
+
+[tool.pytest.ini_options]
+markers = [
+    "serial",
+]

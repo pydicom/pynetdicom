@@ -7748,6 +7748,7 @@ class TestAssociationWindows:
 
         return minimum.value, maximum.value, current.value
 
+    @pytest.mark.serial
     @hide_modules(["ctypes"])
     def test_no_ctypes(self):
         """Test no exception raised if ctypes not available."""
