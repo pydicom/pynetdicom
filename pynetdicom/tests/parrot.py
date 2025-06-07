@@ -16,9 +16,6 @@ from pynetdicom.transport import AssociationServer
 LOGGER = logging.getLogger(__name__)
 
 
-
-
-
 class ParrotRequest(BaseRequestHandler):
     @property
     def commands(self):

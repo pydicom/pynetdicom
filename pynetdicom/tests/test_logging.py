@@ -1335,7 +1335,9 @@ class TestDebuggingLogging:
             (evt.EVT_DATA_RECV, debug_data, [3, True, True]),
         ]
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            assoc = ae.associate("localhost", get_port(), evt_handlers=hh, ext_neg=[role])
+            assoc = ae.associate(
+                "localhost", get_port(), evt_handlers=hh, ext_neg=[role]
+            )
             assert assoc.is_rejected
 
         scp.shutdown()
@@ -1382,7 +1384,9 @@ class TestDebuggingLogging:
             (evt.EVT_DATA_SENT, debug_data, [1, True, False]),
         ]
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            assoc = ae.associate("localhost", get_port(), evt_handlers=hh, ext_neg=[role])
+            assoc = ae.associate(
+                "localhost", get_port(), evt_handlers=hh, ext_neg=[role]
+            )
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -1406,7 +1410,9 @@ class TestDebuggingLogging:
             (evt.EVT_DATA_SENT, debug_data, [4, True, True]),
         ]
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            assoc = ae.associate("localhost", get_port(), evt_handlers=hh, ext_neg=[role])
+            assoc = ae.associate(
+                "localhost", get_port(), evt_handlers=hh, ext_neg=[role]
+            )
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -1432,7 +1438,9 @@ class TestDebuggingLogging:
             (evt.EVT_DATA_SENT, debug_data, [1, False, True]),
         ]
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            assoc = ae.associate("localhost", get_port(), evt_handlers=hh, ext_neg=[role])
+            assoc = ae.associate(
+                "localhost", get_port(), evt_handlers=hh, ext_neg=[role]
+            )
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()

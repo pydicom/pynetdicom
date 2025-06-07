@@ -103,7 +103,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -153,7 +155,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -194,7 +198,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -220,7 +226,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -244,7 +252,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -267,7 +277,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -289,7 +301,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -327,7 +341,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -354,7 +370,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -386,7 +404,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -417,7 +437,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -448,7 +470,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -492,7 +516,9 @@ class TestStorageServiceClass:
         ae.maximum_pdu_size = 256
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -536,7 +562,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -563,7 +591,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -597,7 +627,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ext_neg = []
         item = SOPClassExtendedNegotiation()
@@ -641,7 +673,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -676,7 +710,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -706,7 +742,9 @@ class TestStorageServiceClass:
         ae.add_supported_context(CTImageStorage)
         ts = ae.supported_contexts[0].transfer_syntax[0]
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -741,7 +779,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -766,7 +806,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -788,7 +830,9 @@ class TestStorageServiceClass:
         handlers = [(evt.EVT_C_STORE, handle)]
 
         self.ae = ae = AE()
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.add_requested_context(CTImageStorage)
         ae.add_requested_context("1.2.3")
@@ -835,7 +879,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(NewStorage)
         ae.add_requested_context(NewStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established

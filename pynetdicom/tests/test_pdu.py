@@ -1559,7 +1559,9 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
         assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         assoc = ae.associate("localhost", get_port())
@@ -1640,7 +1642,9 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
         assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         assoc = ae.associate("localhost", get_port())
@@ -1674,7 +1678,9 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", get_port())
@@ -1704,7 +1710,9 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
         assert scp.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
         assoc = ae.associate("localhost", get_port())
@@ -1783,7 +1791,9 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
         assert scp.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
         assoc = ae.associate("localhost", get_port())
@@ -1823,7 +1833,9 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", get_port())
@@ -2219,7 +2231,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", get_port())

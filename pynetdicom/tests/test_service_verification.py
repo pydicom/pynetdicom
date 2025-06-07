@@ -43,7 +43,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -65,7 +67,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -90,7 +94,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -116,7 +122,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -138,7 +146,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -161,7 +171,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -183,7 +195,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -205,7 +219,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -231,7 +247,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -262,7 +280,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -292,7 +312,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -319,7 +341,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -348,7 +372,9 @@ class TestVerificationServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -376,7 +402,9 @@ class TestVerificationServiceClass:
         ae.dimse_timeout = 0.05
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -404,7 +432,9 @@ class TestVerificationServiceClass:
         ae.dimse_timeout = 0.05
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established

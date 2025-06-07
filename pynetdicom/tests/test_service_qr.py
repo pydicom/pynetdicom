@@ -119,7 +119,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -158,7 +160,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -194,7 +198,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -229,7 +235,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -262,7 +270,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -293,7 +303,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -324,7 +336,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -356,7 +370,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -417,7 +433,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -453,7 +471,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -485,7 +505,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -522,7 +544,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -559,7 +583,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -598,7 +624,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -643,7 +671,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -688,7 +718,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -732,7 +764,9 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -774,7 +808,9 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -814,7 +850,9 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -856,7 +894,9 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -900,7 +940,9 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
@@ -945,7 +987,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -977,7 +1021,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1011,7 +1057,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1046,7 +1094,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1082,7 +1132,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1124,7 +1176,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port(), evt_handlers=scu_handlers)
         assert assoc.is_established
@@ -1170,7 +1224,9 @@ class TestQRFindServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelFind, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 1
@@ -1211,7 +1267,9 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(NewFind)
         ae.add_requested_context(NewFind, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1244,7 +1302,9 @@ class TestQRFindServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(RepositoryQuery)
         ae.add_requested_context(RepositoryQuery, ExplicitVRLittleEndian)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1329,7 +1389,9 @@ class TestQRGetServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelGet, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1374,7 +1436,9 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
 
@@ -1413,7 +1477,9 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
 
@@ -1457,14 +1523,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1502,14 +1572,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1545,14 +1619,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1586,14 +1664,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1623,14 +1705,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1659,14 +1745,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1696,7 +1786,9 @@ class TestQRGetServiceClass:
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1735,7 +1827,9 @@ class TestQRGetServiceClass:
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1766,14 +1860,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1804,14 +1902,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1842,14 +1944,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1882,14 +1988,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1925,14 +2035,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -1975,14 +2089,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2017,14 +2135,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2062,14 +2184,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2110,14 +2236,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2158,14 +2288,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2203,14 +2337,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2247,14 +2385,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2294,14 +2436,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2347,14 +2493,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2400,14 +2550,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2451,14 +2605,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2495,14 +2653,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2540,14 +2702,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2586,14 +2752,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2630,14 +2800,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2679,14 +2853,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2730,14 +2908,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2779,14 +2961,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2829,14 +3015,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2878,14 +3068,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2929,14 +3123,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -2978,14 +3176,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -3028,14 +3230,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -3072,14 +3278,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -3119,13 +3329,17 @@ class TestQRGetServiceClass:
             roles.append(build_role(cx.abstract_syntax, scp_role=True))
             ae.add_supported_context(cx.abstract_syntax, scu_role=False, scp_role=True)
 
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=roles, evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=roles, evt_handlers=handlers
+        )
 
         assert assoc.is_established
 
@@ -3185,14 +3399,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
 
         identifier = Dataset()
@@ -3248,14 +3466,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -3306,14 +3528,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet, msg_id=65534
@@ -3359,14 +3585,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -3396,14 +3626,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -3435,14 +3669,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -3475,14 +3713,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -3518,14 +3760,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -3565,7 +3811,9 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         has_dataset = []
 
@@ -3580,7 +3828,9 @@ class TestQRGetServiceClass:
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -3622,14 +3872,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(
             self.query, PatientRootQueryRetrieveInformationModelGet
@@ -3670,14 +3924,18 @@ class TestQRGetServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(NewGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
         result = assoc.send_c_get(self.query, NewGet)
         status, identifier = next(result)
@@ -3760,7 +4018,9 @@ class TestQRMoveServiceClass:
         ae.add_requested_context(
             PatientRootQueryRetrieveInformationModelMove, ExplicitVRLittleEndian
         )
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3801,7 +4061,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3833,7 +4095,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3866,7 +4130,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3900,7 +4166,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3931,7 +4199,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3967,7 +4237,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4004,7 +4276,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4047,7 +4321,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4088,7 +4364,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4126,7 +4404,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4160,7 +4440,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4194,7 +4476,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4223,7 +4507,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4259,7 +4545,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4294,7 +4582,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4329,7 +4619,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4364,7 +4656,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4399,7 +4693,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4436,7 +4732,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4476,7 +4774,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4523,7 +4823,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4566,7 +4868,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4612,7 +4916,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4652,7 +4958,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4697,7 +5005,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4739,7 +5049,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4781,7 +5093,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4825,7 +5139,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4875,7 +5191,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4925,7 +5243,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4973,7 +5293,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5014,7 +5336,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5057,7 +5381,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5098,7 +5424,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5139,7 +5467,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5180,7 +5510,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5229,7 +5561,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5280,7 +5614,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5335,7 +5671,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5384,7 +5722,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5435,7 +5775,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         assoc = ae.associate("localhost", get_port())
         identifier = Dataset()
@@ -5492,7 +5834,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5547,7 +5891,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5600,7 +5946,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5642,7 +5990,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5684,7 +6034,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5726,7 +6078,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5760,7 +6114,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5797,7 +6153,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5834,7 +6192,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5872,7 +6232,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5913,7 +6275,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -5966,7 +6330,9 @@ class TestQRMoveServiceClass:
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
         scp = ae.start_server(
-            ("localhost", get_port()), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle)]
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle)],
         )
 
         ae.acse_timeout = 5
@@ -6005,7 +6371,9 @@ class TestQRMoveServiceClass:
 
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
@@ -6046,7 +6414,9 @@ class TestQRMoveServiceClass:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate("localhost", get_port())
@@ -6090,7 +6460,9 @@ class TestQRMoveServiceClass:
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate("localhost", get_port())
@@ -6126,7 +6498,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         has_dataset = []
 
@@ -6181,7 +6555,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -6229,7 +6605,9 @@ class TestQRMoveServiceClass:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(NewMove)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -6302,14 +6680,18 @@ class TestQRCompositeInstanceWithoutBulk:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
 
         assert assoc.is_established
         result = assoc.send_c_get(
@@ -6362,14 +6744,18 @@ class TestQRCompositeInstanceWithoutBulk:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
 
         assert assoc.is_established
         result = assoc.send_c_get(
@@ -6426,14 +6812,18 @@ class TestQRCompositeInstanceWithoutBulk:
         ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
         ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         role = build_role(CTImageStorage, scp_role=True)
         handlers = [(evt.EVT_C_STORE, handle_store)]
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", get_port(), ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            "localhost", get_port(), ext_neg=[role], evt_handlers=handlers
+        )
 
         assert assoc.is_established
         result = assoc.send_c_get(
@@ -6510,7 +6900,9 @@ class TestBasicWorklistServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(NewFind)
         ae.add_requested_context(NewFind)
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5

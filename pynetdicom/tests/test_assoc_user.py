@@ -68,7 +68,9 @@ class TestServiceUserAcceptor:
         primitive.application_context_name = "1.2.840.10008.3.1.1.1"
         primitive.calling_ae_title = "LOCAL_AE_TITLE  "
         primitive.called_ae_title = "REMOTE_AE_TITLE "
-        primitive.calling_presentation_address = AddressInformation("127.0.0.1", get_port())
+        primitive.calling_presentation_address = AddressInformation(
+            "127.0.0.1", get_port()
+        )
         primitive.called_presentation_address = AddressInformation("127.0.0.2", 11113)
 
         # Presentation Contexts
@@ -1402,7 +1404,9 @@ class TestServiceUserRequestor:
         primitive.application_context_name = "1.2.840.10008.3.1.1.1"
         primitive.calling_ae_title = "LOCAL_AE_TITLE  "
         primitive.called_ae_title = "REMOTE_AE_TITLE "
-        primitive.calling_presentation_address = AddressInformation("127.0.0.1", get_port())
+        primitive.calling_presentation_address = AddressInformation(
+            "127.0.0.1", get_port()
+        )
         primitive.called_presentation_address = AddressInformation("127.0.0.2", 11113)
 
         # Presentation Contexts

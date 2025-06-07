@@ -97,7 +97,9 @@ class TestMakeServer:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
 
-        server = ae.make_server(("localhost", get_port()), request_handler=MyRequestHandler)
+        server = ae.make_server(
+            ("localhost", get_port()), request_handler=MyRequestHandler
+        )
         assert server.RequestHandlerClass is MyRequestHandler
 
     def test_aet_bytes_deprecation(self):
@@ -144,7 +146,9 @@ class TestStartServer:
 
         server.shutdown()
 
-        server = ae.start_server(("localhost", get_port()), block=False, ae_title="MYAE")
+        server = ae.start_server(
+            ("localhost", get_port()), block=False, ae_title="MYAE"
+        )
         assert server.ae_title == "MYAE"
         ae.require_called_aet = True
 
@@ -770,10 +774,14 @@ class TestAEBadAssociation:
             ae.associate("localhost", get_port(), bind_address=(12, 13, 0, 0))
 
         with pytest.raises(TypeError, match="'bind_address' must be tuple"):
-            ae.associate("localhost", get_port(), bind_address=("localhost", 13, "foo", 0))
+            ae.associate(
+                "localhost", get_port(), bind_address=("localhost", 13, "foo", 0)
+            )
 
         with pytest.raises(TypeError, match="'bind_address' must be tuple"):
-            ae.associate("localhost", get_port(), bind_address=("localhost", 13, 0, "foo"))
+            ae.associate(
+                "localhost", get_port(), bind_address=("localhost", 13, 0, "foo")
+            )
 
 
 class TestAEGoodMiscSetters:

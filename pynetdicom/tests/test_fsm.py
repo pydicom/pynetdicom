@@ -8232,7 +8232,9 @@ class TestStateMachineFunctionalRequestor:
         assoc.acceptor.address_info = AddressInformation("localhost", get_port())
 
         # Association Requestor object -> local AE
-        assoc.requestor.address_info = AddressInformation("localhost", get_port("remote"))
+        assoc.requestor.address_info = AddressInformation(
+            "localhost", get_port("remote")
+        )
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -8756,7 +8758,9 @@ class TestStateMachineFunctionalAcceptor:
         assoc.acceptor.address_info = AddressInformation("localhost", get_port())
 
         # Association Requestor object -> local AE
-        assoc.requestor.address_info = AddressInformation("localhost", get_port("remote"))
+        assoc.requestor.address_info = AddressInformation(
+            "localhost", get_port("remote")
+        )
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -8892,7 +8896,9 @@ class TestEventHandling:
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         assoc = ae.associate("localhost", get_port())
@@ -8979,7 +8985,9 @@ class TestEventHandling:
         ae.add_supported_context("1.2.840.10008.1.1")
         ae.add_requested_context("1.2.840.10008.1.1")
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         # Confirm that the handler is bound
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
@@ -9157,7 +9165,9 @@ class TestEventHandling:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
-        scp = ae.start_server(("localhost", get_port()), block=False, evt_handlers=handlers)
+        scp = ae.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             assoc = ae.associate("localhost", get_port())
