@@ -48,5 +48,5 @@ agree on the encoding techniques they are able to support (i.e. byte ordering,
 compression, etc.).
 
 The official DICOM transfer syntaxes are defined in
-:dcm:`Part 5<part05.html#chapter_8>` of the DICOM Standard and the Standard also
+:dcm:`Part 5<part05/chapter_8.html>` of the DICOM Standard and the Standard also
 allows the use of privately defined transfer syntaxes.

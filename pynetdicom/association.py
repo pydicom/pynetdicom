@@ -1175,7 +1175,7 @@ class Association(threading.Thread):
             *Identifier* :class:`~pydicom.dataset.Dataset` If the status
             category is not 'Pending' this will be ``None``. The exact contents
             of the response *Identifier* are Service Class specific (see the
-            DICOM Standard, :dcm:`Part 4<part04.html>`).
+            DICOM Standard, :dcm:`Part 4<part04/ps3.4.html>`).
 
         Raises
         ------
