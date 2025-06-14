@@ -50,9 +50,9 @@ the *ae_title* keyword parameter in
 References
 ..........
 
-* DICOM Standard, Part 5 :dcm:`Section 6.2<part05.html#sect_6.2>`
-* DICOM Standard, Part 5 :dcm:`Section 6.1.2.1<part05.html#sect_6.1.3>`
-* DICOM Standard, Part 5 :dcm:`Section 6.1.3<part05.html#sect_6.1.3>`
-* DICOM Standard, Part 8 :dcm:`Section 9.3.2<part08.html#sect_9.3.2>`
-* DICOM Standard, Part 8 :dcm:`Annex B.1<part08.html#sect_B.1>`
-* DICOM Standard, Part 8 :dcm:`Annex B.2<part08.html#sect_B.2>`
+* DICOM Standard, Part 5 :dcm:`Section 6.2<part05/sect_6.2.html>`
+* DICOM Standard, Part 5 :dcm:`Section 6.1.2.1<part05/chapter_6.html#sect_6.1.2.1>`
+* DICOM Standard, Part 5 :dcm:`Section 6.1.3<part05/chapter_6.html#sect_6.1.3>`
+* DICOM Standard, Part 8 :dcm:`Section 9.3.2<part08/sect_9.3.2.html>`
+* DICOM Standard, Part 8 :dcm:`Annex B.1<part08/chapter_B.html#sect_B.1>`
+* DICOM Standard, Part 8 :dcm:`Annex B.2<part08/sect_B.2.html>`

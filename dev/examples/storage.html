@@ -624,7 +624,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
     <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span>
 
     <span class="c1"># Save the dataset using the SOP Instance UID as the filename</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">enforce_file_format</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Return a &#39;Success&#39; status</span>
     <span class="k">return</span> <span class="mh">0x0000</span>
