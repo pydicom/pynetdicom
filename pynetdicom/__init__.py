@@ -23,7 +23,7 @@ PYNETDICOM_IMPLEMENTATION_VERSION: str = f"PYNETDICOM_{''.join(_version)}"
 assert 1 <= len(PYNETDICOM_IMPLEMENTATION_VERSION) <= 16
 
 PYNETDICOM_IMPLEMENTATION_UID: UID = UID(f"{PYNETDICOM_UID_PREFIX}{'.'.join(_version)}")
-"""The (0002,0012) *Implementation Class UID* used by *pynetdicom* FIXM"""
+"""The (0002,0012) *Implementation Class UID* used by *pynetdicom*"""
 assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 
 
