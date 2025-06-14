@@ -1,9 +1,13 @@
-from operator import attrgetter
-import inspect
-import subprocess
-import os
-import sys
 from functools import partial
+import inspect
+from operator import attrgetter
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+import pynetdicom
+
 
 REVISION_CMD = "git rev-parse --short HEAD"
 
@@ -31,44 +35,57 @@ def _linkcode_resolve(domain, info, package, url_fmt, revision):
     ...                   revision='xxxx')
     'http://hg.python.org/cpython/file/xxxx/Lib/tty/tty.py#L18'
     """
-
     if revision is None:
         return
+
     if domain not in ("py", "pyx"):
         return
+
     if not info.get("module") or not info.get("fullname"):
         return
 
-    class_name = info["fullname"].split(".")[0]
-    if type(class_name) != str:
-        # Python 2 only
-        class_name = class_name.encode("utf-8")
-    module = __import__(info["module"], fromlist=[class_name])
+    modname = info['module']
+    fullname = info['fullname']
 
-    try:
-        obj = attrgetter(info["fullname"])(module)
-    except AttributeError as exc:
-        # print(module, attrgetter(info['fullname']))
-        # raise exc
-        pass
+    submod = sys.modules.get(modname)
+    if submod is None:
+        return None
+
+    obj = submod
+    for part in fullname.split('.'):
+        try:
+            obj = getattr(obj, part)
+        except AttributeError:
+            return None
+
+    if inspect.isfunction(obj):
+        obj = inspect.unwrap(obj)
 
     try:
         fn = inspect.getsourcefile(obj)
-    except Exception:
+    except TypeError as exc:
         fn = None
-    if not fn:
-        try:
-            fn = inspect.getsourcefile(sys.modules[obj.__module__])
-        except Exception:
-            fn = None
-    if not fn:
-        return
 
-    fn = os.path.relpath(fn, start=os.path.dirname(__import__(package).__file__))
+    if not fn or fn.endswith('__init__.py'):
+        # The UID gets resolved to the venv pydicom install otherwise
+        if fullname == "PYNETDICOM_IMPLEMENTATION_UID":
+            fn = Path(pynetdicom.__file__)
+        else:
+            try:
+                fn = inspect.getsourcefile(sys.modules[obj.__module__])
+            except (TypeError, AttributeError, KeyError):
+                fn = None
+
+    if not fn:
+        return None
+
+    startdir = Path(pynetdicom.__file__).parent
+    fn = os.path.relpath(fn, start=startdir).replace(os.path.sep, "/")
     try:
         lineno = inspect.getsourcelines(obj)[1]
     except Exception:
         lineno = ""
+
     return url_fmt.format(revision=revision, package=package, path=fn, lineno=lineno)
 
 

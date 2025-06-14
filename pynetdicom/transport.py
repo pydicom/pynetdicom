@@ -33,6 +33,8 @@ from pynetdicom.pdu_primitives import A_ASSOCIATE
 from pynetdicom.presentation import PresentationContext
 
 if TYPE_CHECKING:  # pragma: no cover
+    from socketserver import BaseServer
+
     from pynetdicom.ae import ApplicationEntity
     from pynetdicom.association import Association
     from pynetdicom.dul import _QueueType
@@ -675,6 +677,14 @@ class RequestHandler(BaseRequestHandler):
     """
 
     server: "AssociationServer"
+
+    def __init__(
+        self,
+        request: socket.socket | tuple[bytes, socket.socket],
+        client_address: Any,
+        server: "BaseServer",
+    ) -> None:
+        super().__init__(request, client_address, server)
 
     @property
     def ae(self) -> "ApplicationEntity":
