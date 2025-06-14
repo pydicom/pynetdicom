@@ -28,8 +28,9 @@ their attributes added to a sqlite database that is used to manage Instances
 for the Query/Retrieve service.
 
 In addition, the ``qrscp`` application implements a Service Class Provider (SCP) for the
-:dcm:`Basic Modality Worklist<part04/chapter_K.html>`, and :dcm:`Unified Procedure Step<part04/Chapter_CC>`
-service classes, but currently will only return empty results (0 records)
+:dcm:`Basic Modality Worklist<part04/chapter_K.html>`, and :dcm:`Unified Procedure Step
+<part04/chapter_CC.html>` service classes, but currently will only return empty results
+(0 records)
 
 .. warning::
 

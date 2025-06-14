@@ -246,9 +246,9 @@ class ApplicationEntity:
         ----------
 
         * DICOM Standard, Part 8,
-          :dcm:`Section 7.1.1.13<part08.html#sect_7.1.1.13>`
+          :dcm:`Section 7.1.1.13<part08/chapter_7.html#sect_7.1.1.13>`
         * DICOM Standard, Part 8,
-          :dcm:`Table 9-18<part08.html#table_9-18>`
+          :dcm:`Table 9-18<part08/sect_9.3.3.2.html#table_9-18>`
         """
         if transfer_syntax is None:
             transfer_syntax = DEFAULT_TRANSFER_SYNTAXES

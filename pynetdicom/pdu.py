@@ -389,14 +389,14 @@ class A_ASSOCIATE_RQ(PDU):
         * Item length (1)
         * User data Sub-items (2 or more)
 
-            * Maximum Length Received Sub-item (1)
-            * Implementation Class UID Sub-item (1)
-            * Optional User Data Sub-items (0 or more)
+          * Maximum Length Received Sub-item (1)
+          * Implementation Class UID Sub-item (1)
+          * Optional User Data Sub-items (0 or more)
 
     **Encoding**
 
     When encoded, an A-ASSOCIATE-RQ PDU has the following structure, taken
-    from `Table 9-11<part08/sect_9.3.2.html>` (offsets shown with Python
+    from :dcm:`Table 9-11<part08/sect_9.3.2.html>` (offsets shown with Python
     indexing). PDUs are always encoded using Big Endian.
 
     +--------+-------------+------------------+
@@ -775,8 +775,8 @@ class A_ASSOCIATE_AC(PDU):
     **Encoding**
 
     When encoded, an A-ASSOCIATE-AC PDU has the following structure, taken
-    from Table 9-17 (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian.
+    from :dcm:`Table 9-17<part08/sect_9.3.3.html#table_9-17>` (offsets shown with
+    Python indexing). PDUs are always encoded using Big Endian.
 
     +--------+-------------+------------------+
     | Offset | Length      | Description      |
@@ -1170,8 +1170,8 @@ class A_ASSOCIATE_RJ(PDU):
     **Encoding**
 
     When encoded, an A-ASSOCIATE-RJ PDU has the following structure, taken
-    from Table 9-21 (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian.
+    from :dcm:`Table 9-21<part08/sect_9.3.4.html#table_9-21>` (offsets shown with
+    Python indexing). PDUs are always encoded using Big Endian.
 
     +--------+-------------+-------------------+
     | Offset | Length      | Description       |
@@ -1400,8 +1400,8 @@ class P_DATA_TF(PDU):
     **Encoding**
 
     When encoded, a P-DATA-TF PDU has the following structure, taken
-    from Table 9-22 (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian.
+    from :dcm:`Table 9-22<part08/sect_9.3.5.html#table_9-22>` (offsets shown with
+    Python indexing). PDUs are always encoded using Big Endian.
 
     +--------+-------------+-------------------------------+
     | Offset | Length      | Description                   |
@@ -1635,8 +1635,8 @@ class A_RELEASE_RQ(PDU):
     **Encoding**
 
     When encoded, an A-RELEASE-RQ PDU has the following structure, taken
-    from Table 9-24 (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian.
+    from :dcm:`Table 9-24<part08/sect_9.3.6.html#table_9-24>` (offsets shown with
+    Python indexing). PDUs are always encoded using Big Endian.
 
     +--------+-------------+---------------+
     | Offset | Length      | Description   |
@@ -1767,8 +1767,8 @@ class A_RELEASE_RP(PDU):
     **Encoding**
 
     When encoded, an A-RELEASE-RP PDU has the following structure, taken
-    from Table 9-25 (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian.
+    from :dcm:`Table 9-25<part08/sect_9.3.7.html#table_9-25>` (offsets shown with
+    Python indexing). PDUs are always encoded using Big Endian.
 
     +--------+-------------+---------------+
     | Offset | Length      | Description   |
@@ -1907,8 +1907,8 @@ class A_ABORT_RQ(PDU):
     **Encoding**
 
     When encoded, an A-ABORT-RQ PDU has the following structure, taken
-    from Table 9-26 (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian.
+    from :dcm:`Table 9-26<part08/sect_9.3.8.html#table_9-26>` (offsets shown with
+    Python indexing). PDUs are always encoded using Big Endian.
 
     +--------+-------------+-------------------+
     | Offset | Length      | Description       |

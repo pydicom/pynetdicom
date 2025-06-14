@@ -207,11 +207,11 @@ class PresentationContext:
     References
     ----------
 
-    * DICOM Standard, Part 7, Annexes :dcm:`D.3.2<part07.html#sect_D.3.2>`
-      and :dcm:`D.3.3.4<part07.html#sect_D.3.3.4>`
+    * DICOM Standard, Part 7, Annexes :dcm:`D.3.2<part07/sect_D.3.2.html>`
+      and :dcm:`D.3.3.4<part07/sect_D.3.3.4.html>`
     * DICOM Standard, Part 8, Sections :dcm:`9.3.2.2
-      <part08.html#sect_9.3.2.2>`, :dcm:`9.3.3.2 <part08.html#sect_9.3.3.2>`
-      and :dcm:`Annex B <part08.html#chapter_B>`
+      <part08/sect_9.3.2.2.html>`, :dcm:`9.3.3.2 <part08/sect_9.3.3.2.html>`
+      and :dcm:`Annex B <part08/chapter_B.html>`
     """
 
     def __init__(self) -> None:
