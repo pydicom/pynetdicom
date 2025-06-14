@@ -33,5 +33,5 @@ must not start with ``0`` unless the component itself is ``0`` (e.g.
 ``1.2.0.4`` is valid but ``1.2.08.4`` is invalid) and the maximum length of a
 UID is 64 total characters.
 
-More information on DICOM UIDs is available in :dcm:`Part 5 <part05.html>`
+More information on DICOM UIDs is available in :dcm:`Part 5 <part05/ps3.5.html>`
 of the DICOM Standard.
