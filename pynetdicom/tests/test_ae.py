@@ -1487,7 +1487,7 @@ class TestAESupportedPresentationContexts:
 
     def test_scu_role_raises(self):
         """Test add_supported_context raises if scu_role wrong type."""
-        with pytest.raises(TypeError, match=""):
+        with pytest.raises(TypeError, match="`scu_role` must be None or bool"):
             self.ae.add_supported_context("1.2.3", scu_role="abc")
 
         assert self.ae.supported_contexts == []
@@ -1541,7 +1541,7 @@ class TestAESupportedPresentationContexts:
 
     def test_scp_role_raises(self):
         """Test add_supported_context raises if scp_role wrong type."""
-        with pytest.raises(TypeError, match=""):
+        with pytest.raises(TypeError, match="`scp_role` must be None or bool"):
             self.ae.add_supported_context("1.2.3", scp_role="abc")
 
         assert self.ae.supported_contexts == []
