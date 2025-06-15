@@ -7780,8 +7780,11 @@ class TestAssociationWindows:
         """Test setting the windows timer resolution works."""
         min_val, max_val, now = self.get_timer_info()
         # Ensure we always start with the worst resolution
+        print(f"Initial ({min_val}, {max_val}, {now})")
+        max_val *= max_val * 2 if max_val == min_val else max_val
         with set_timer_resolution(max_val / 10000):
             min_val, max_val, pre_timer = self.get_timer_info()
+            print(f"Set to max ({min_val}, {max_val}, {pre_timer})")
             # Set the timer resolution to the minimum plus 10%
             pynetdicom._config.WINDOWS_TIMER_RESOLUTION = min_val * 1.10 / 10000
 
@@ -7797,6 +7800,7 @@ class TestAssociationWindows:
             assoc = ae.associate("localhost", get_port())
 
             min_val, max_val, during_timer = self.get_timer_info()
+            print(f"During association ({min_val}, {max_val}, {during_timer})")
             assert during_timer < pre_timer
             assoc.release()
             assert assoc.is_released
