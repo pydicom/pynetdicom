@@ -196,9 +196,9 @@ if not version_match or version_match.isdigit() or version_match == "latest":
         # but we want the whole url if we are effectively in a released version
         json_url = "_static/switcher.json"
     else:
-        version_match = f"v{release}"
+        version_match = release
 elif version_match == "stable":
-    version_match = f"v{release}"
+    version_match = release
 
 html_theme_options = {
     "logo": {
