@@ -1042,14 +1042,12 @@ def _send_c_find_rq(event: "Event") -> list[str]:
     if msg.data_set and msg.data_set.getvalue() != b"":
         dataset = "Present"
 
-    sop_class = cast(UID, cs.AffectedSOPClassUID)
-
     s = [
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-FIND RQ",
         f"Presentation Context ID       : {msg.context_id}",
         f"Message ID                    : {cs.MessageID}",
-        f"Affected SOP Class UID        : {sop_class.name}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
         f"Identifier                    : {dataset}",
         f"Priority                      : {priority}",
         f"{' END DIMSE MESSAGE ':=^76}",
@@ -1088,8 +1086,8 @@ def _send_c_find_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        affected_sop = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {affected_sop}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     s.append(f"Identifier                    : {dataset}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
@@ -1170,8 +1168,8 @@ def _send_c_get_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        affected_sop = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {affected_sop}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     s.append(f"Identifier                    : {dataset}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
@@ -1254,8 +1252,8 @@ def _send_c_move_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        affected_sop = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {affected_sop}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     s.append(f"Identifier                    : {identifier}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
@@ -1429,11 +1427,11 @@ def _recv_c_store_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        affected_sop = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {affected_sop}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
+
     s.append(f"Status                        : {status_str}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
@@ -1511,8 +1509,8 @@ def _recv_c_find_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        affected_sop = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {affected_sop}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     s.append(f"Identifier                    : {dataset}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
@@ -1618,17 +1616,20 @@ def _recv_c_get_rsp(event: "Event") -> list[str]:
     ]
 
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     if "NumberOfRemainingSuboperations" in cs:
         nr_ops = cs.NumberOfRemainingSuboperations
         s.append(f"Remaining Sub-operations      : {nr_ops}")
+
     if "NumberOfCompletedSuboperations" in cs:
         nr_ops = cs.NumberOfCompletedSuboperations
         s.append(f"Completed Sub-operations      : {nr_ops}")
+
     if "NumberOfFailedSuboperations" in cs:
         nr_ops = cs.NumberOfFailedSuboperations
         s.append(f"Failed Sub-operations         : {nr_ops}")
+
     if "NumberOfWarningSuboperations" in cs:
         nr_ops = cs.NumberOfWarningSuboperations
         s.append(f"Warning Sub-operations        : {nr_ops}")
@@ -1697,17 +1698,20 @@ def _recv_c_move_rsp(event: "Event") -> list[str]:
     ]
 
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     if "NumberOfRemainingSuboperations" in cs:
         nr_ops = cs.NumberOfRemainingSuboperations
         s.append(f"Remaining Sub-operations      : {nr_ops}")
+
     if "NumberOfCompletedSuboperations" in cs:
         nr_ops = cs.NumberOfCompletedSuboperations
         s.append(f"Completed Sub-operations      : {nr_ops}")
+
     if "NumberOfFailedSuboperations" in cs:
         nr_ops = cs.NumberOfFailedSuboperations
         s.append(f"Failed Sub-operations         : {nr_ops}")
+
     if "NumberOfWarningSuboperations" in cs:
         nr_ops = cs.NumberOfWarningSuboperations
         s.append(f"Warning Sub-operations        : {nr_ops}")
@@ -1773,11 +1777,11 @@ def _send_n_event_report_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
+
     if "EventTypeID" in cs:
         s.append(f"Event Type ID                 : {cs.EventTypeID}")
 
@@ -1808,7 +1812,7 @@ def _send_n_get_rq(event: "Event") -> list[str]:
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-GET RQ",
         f"Message ID                    : {cs.MessageID}",
-        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID.name}",
         f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
         f"Attribute Identifier List     : {nr_attr}",
         f"{' END DIMSE MESSAGE ':=^76}",
@@ -1839,11 +1843,10 @@ def _send_n_get_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
 
     s.append(f"Attribute List                : {attr_list}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
@@ -1872,7 +1875,7 @@ def _send_n_set_rq(event: "Event") -> list[str]:
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-SET RQ",
         f"Message ID                    : {cs.MessageID}",
-        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID.name}",
         f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
         f"Modification List             : {mod_list}",
         f"{' END DIMSE MESSAGE ':=^76}",
@@ -1903,11 +1906,10 @@ def _send_n_set_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
 
     s.append(f"Attribute List                : {attr_list}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
@@ -1936,6 +1938,7 @@ def _send_n_action_rq(event: "Event") -> list[str]:
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-ACTION RQ",
         f"Message ID                    : {cs.MessageID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID.name}",
         f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
         f"Action Type ID                : {cs.ActionTypeID}",
         f"Action Information            : {action_info}",
@@ -1968,14 +1971,14 @@ def _send_n_action_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
 
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
 
-    s.append(f"Action Type ID                : {cs.ActionTypeID}")
+    if "ActionTypeID" in cs:
+        s.append(f"Action Type ID                : {cs.ActionTypeID}")
+
     s.append(f"Action Reply                  : {action_reply}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
@@ -2003,19 +2006,14 @@ def _send_n_create_rq(event: "Event") -> list[str]:
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-CREATE RQ",
         f"Message ID                    : {cs.MessageID}",
-        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
     ]
-    sop_instance = "None"
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
 
-    s.extend(
-        [
-            f"Affected SOP Instance UID     : {sop_instance}",
-            f"Attribute List                : {attr_list}",
-            f"{' END DIMSE MESSAGE ':=^76}",
-        ]
-    )
+    s.append(f"Attribute List                : {attr_list}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
+
     for line in s:
         LOGGER.debug(line)
 
@@ -2043,12 +2041,10 @@ def _send_n_create_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
 
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
 
     s.append(f"Attribute List                : {attr_list}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
@@ -2073,7 +2069,7 @@ def _send_n_delete_rq(event: "Event") -> list[str]:
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-DELETE RQ",
         f"Message ID                    : {cs.MessageID}",
-        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID.name}",
         f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
         f"{' END DIMSE MESSAGE ':=^76}",
     ]
@@ -2099,11 +2095,10 @@ def _send_n_delete_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
 
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
@@ -2163,11 +2158,11 @@ def _recv_n_event_report_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
+
     if "EventTypeID" in cs:
         s.append(f"Event Type ID                 : {cs.EventTypeID}")
 
@@ -2198,7 +2193,7 @@ def _recv_n_get_rq(event: "Event") -> list[str]:
         f"{' INCOMING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-GET RQ",
         f"Message ID                    : {cs.MessageID}",
-        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID.name}",
         f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
         f"Attribute Identifier List     : {nr_attr}",
         f"{' END DIMSE MESSAGE ':=^76}",
@@ -2231,11 +2226,10 @@ def _recv_n_get_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
 
     s.append(f"Attribute List                : {dataset}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
@@ -2264,7 +2258,7 @@ def _recv_n_set_rq(event: "Event") -> list[str]:
         f"{' INCOMING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-SET RQ",
         f"Message ID                    : {cs.MessageID}",
-        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID.name}",
         f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
         f"Modification List             : {mod_list}",
         f"{' END DIMSE MESSAGE ':=^76}",
@@ -2295,11 +2289,10 @@ def _recv_n_set_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
 
     s.append(f"Attribute List                : {attr_list}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
@@ -2328,6 +2321,7 @@ def _recv_n_action_rq(event: "Event") -> list[str]:
         f"{' INCOMING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-ACTION RQ",
         f"Message ID                    : {cs.MessageID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID.name}",
         f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
         f"Action Type ID                : {cs.ActionTypeID}",
         f"Action Information            : {action_info}",
@@ -2360,14 +2354,14 @@ def _recv_n_action_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
 
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
 
-    s.append(f"Action Type ID                : {cs.ActionTypeID}")
+    if "ActionTypeID" in cs:
+        s.append(f"Action Type ID                : {cs.ActionTypeID}")
+
     s.append(f"Action Reply                  : {action_reply}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
@@ -2395,19 +2389,15 @@ def _recv_n_create_rq(event: "Event") -> list[str]:
         f"{' INCOMING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-CREATE RQ",
         f"Message ID                    : {cs.MessageID}",
-        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID}",
     ]
-    sop_instance = "None"
-    if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
+    if "AffectedSOPClassUID" in cs:
+        s.append(f"Affected SOP Class UID     : {cs.AffectedSOPClassUID.name}")
 
-    s.extend(
-        [
-            f"Affected SOP Instance UID     : {sop_instance}",
-            f"Attribute List                : {attr_list}",
-            f"{' END DIMSE MESSAGE ':=^76}",
-        ]
-    )
+    if "AffectedSOPInstanceUID" in cs:
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
+
+    s.append(f"Attribute List                : {attr_list}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
@@ -2435,12 +2425,10 @@ def _recv_n_create_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
 
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
 
     s.append(f"Attribute List                : {attr_list}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
@@ -2465,7 +2453,7 @@ def _recv_n_delete_rq(event: "Event") -> list[str]:
         f"{' INCOMING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-DELETE RQ",
         f"Message ID                    : {cs.MessageID}",
-        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID.name}",
         f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
         f"{' END DIMSE MESSAGE ':=^76}",
     ]
@@ -2491,11 +2479,10 @@ def _recv_n_delete_rsp(event: "Event") -> list[str]:
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        sop_class = cs.AffectedSOPClassUID.name
-        s.append(f"Affected SOP Class UID        : {sop_class}")
+        s.append(f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}")
+
     if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+        s.append(f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}")
 
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")

@@ -2,7 +2,10 @@ name: pull-request-type-lint-format
 
 on:
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - 2.*
+      - 3.*
 
 jobs:
 

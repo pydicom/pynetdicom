@@ -1,4 +1,29 @@
+import os
+import socket
 import time
+
+
+PORTS = {None: (11112, 11113)}
+
+
+def get_port(src: str = "local") -> int:
+    """Return a probably-open port that each worker can use"""
+    worker_id = os.environ.get("PYTEST_XDIST_WORKER")
+    if worker_id in PORTS:
+        return PORTS[worker_id][0] if src == "local" else PORTS[worker_id][1]
+
+    # local, peer
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as l:
+        l.bind(("localhost", 0))
+        l.listen(1)
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as r:
+            r.bind(("localhost", 0))
+            r.listen(1)
+
+            PORTS[worker_id] = (l.getsockname()[1], r.getsockname()[1])
+
+    return get_port(src)
 
 
 def sleep(duration):

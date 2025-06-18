@@ -63,7 +63,7 @@ Enhancements
     corresponding value is a callable function (``is_cancelled()``) that
     takes a *Message ID* value and returns True if a C-CANCEL message with
     a corresponding *Message ID Being Responded To* value has been received.
-* Added thread names ('threadtype@timestamp').
+* Added thread names (``threadtype@timestamp``).
 * Added ``build_role()`` to simplify creating SCP/SCU Role Selection
   Negotiation items.
 

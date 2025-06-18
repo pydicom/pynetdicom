@@ -205,8 +205,8 @@ class SteppingParrotRequest(ParrotRequest):
             self.event.clear()
 
 
-def start_server(commands, handler=SteppingParrotRequest):
-    server = ThreadedParrot(("localhost", 11112), commands, handler)
+def start_server(commands, handler=SteppingParrotRequest, port=11112):
+    server = ThreadedParrot(("localhost", port), commands, handler)
     thread = threading.Thread(target=server.serve_forever)
     thread.daemon = True
     thread.start()

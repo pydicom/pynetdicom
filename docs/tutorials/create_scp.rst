@@ -120,7 +120,7 @@ Open a new terminal and start our SCP running:
 
 And in another terminal, run :doc:`storescu<../apps/storescu>` on
 :gh:`this dataset
-<pynetdicom/raw/master/pynetdicom/tests/dicom_files/CTImageStorage.dcm>`:
+<pynetdicom/raw/main/pynetdicom/tests/dicom_files/CTImageStorage.dcm>`:
 
 .. code-block:: text
 

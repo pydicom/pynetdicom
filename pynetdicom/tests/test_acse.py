@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import logging
+import os
 import queue
 import select
 import socket
@@ -55,6 +56,7 @@ from .encoded_pdu_items import (
     a_p_abort,
 )
 from .parrot import ThreadedParrot, ParrotRequest
+from .utils import get_port
 
 
 # debug_logger()
@@ -322,15 +324,17 @@ class TestNegotiationRequestor:
 
     def test_receive_accept(self):
         """Test establishment if A-ASSOCIATE result is acceptance."""
+        port = get_port()
+
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
         assert assoc.is_established is True
         assoc.release()
 
@@ -349,16 +353,18 @@ class TestNegotiationAcceptor:
 
     def test_response_has_rejected(self):
         """Test that the A-ASSOCIATE-AC contains rejected contexts."""
+        port = get_port()
+
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
 
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
         assert assoc.is_established
 
         pcdrl = assoc.acceptor.get_contexts("pcdrl")
@@ -620,6 +626,7 @@ class TestUserIdentityNegotiation:
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
     def test_check_usrid_not_authorised(self, req, rsp):
         """Check _check_user_identity if requestor not authorised"""
+        port = get_port()
 
         def handle(event):
             return False, rsp[1]
@@ -629,11 +636,11 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 2
         ae.dimse_timeout = 2
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -657,6 +664,7 @@ class TestUserIdentityNegotiation:
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
     def test_check_usrid_authorised(self, req, rsp):
         """Check _check_user_identity if requestor authorised"""
+        port = get_port()
 
         def handle(event):
             return True, rsp[1]
@@ -666,11 +674,11 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -697,6 +705,7 @@ class TestUserIdentityNegotiation:
 
     def test_check_usrid_callback_exception(self):
         """Check _check_user_identity if exception in callback"""
+        port = get_port()
 
         def handle(event):
             raise ValueError
@@ -707,11 +716,11 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -734,6 +743,7 @@ class TestUserIdentityNegotiation:
 
     def test_check_usrid_none(self):
         """Check _check_user_identity if exception in callback"""
+        port = get_port()
 
         def handle(event):
             raise ValueError
@@ -744,11 +754,11 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -764,6 +774,7 @@ class TestUserIdentityNegotiation:
 
     def test_check_usrid_server_response_exception(self):
         """Check _check_user_identity exception in setting server response"""
+        port = get_port()
 
         def handle(event):
             return True, 123
@@ -773,11 +784,11 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -801,6 +812,8 @@ class TestUserIdentityNegotiation:
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
     def test_handler(self, req, rsp):
         """Test the handler bound to evt.EVT_USER_ID"""
+        port = get_port()
+
         attrs = {}
 
         def handle(event):
@@ -815,11 +828,11 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -850,6 +863,7 @@ class TestUserIdentityNegotiation:
 
     def test_functional_authorised_response(self):
         """Test a functional workflow where the user is authorised."""
+        port = get_port()
 
         def handle(event):
             return True, b"\x00\x01"
@@ -859,7 +873,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -870,7 +884,7 @@ class TestUserIdentityNegotiation:
         item.secondary_field = b"test"
         item.positive_response_requested = True
 
-        assoc = ae.associate("localhost", 11112, ext_neg=[item])
+        assoc = ae.associate("localhost", port, ext_neg=[item])
 
         assert assoc.is_established
 
@@ -880,6 +894,7 @@ class TestUserIdentityNegotiation:
 
     def test_functional_authorised_no_response(self):
         """Test a functional workflow where the user is authorised."""
+        port = get_port()
 
         def handle(event):
             return True, None
@@ -889,7 +904,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -900,7 +915,7 @@ class TestUserIdentityNegotiation:
         item.secondary_field = b"test"
         item.positive_response_requested = True
 
-        assoc = ae.associate("localhost", 11112, ext_neg=[item])
+        assoc = ae.associate("localhost", port, ext_neg=[item])
 
         assert assoc.is_established
 
@@ -910,6 +925,7 @@ class TestUserIdentityNegotiation:
 
     def test_functional_not_authorised(self):
         """Test a functional workflow where the user isn't authorised."""
+        port = get_port()
 
         def handle(event):
             return False, None
@@ -919,7 +935,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -930,7 +946,7 @@ class TestUserIdentityNegotiation:
         item.secondary_field = b"test"
         item.positive_response_requested = True
 
-        assoc = ae.associate("localhost", 11112, ext_neg=[item])
+        assoc = ae.associate("localhost", port, ext_neg=[item])
 
         assert assoc.is_rejected
 
@@ -938,6 +954,7 @@ class TestUserIdentityNegotiation:
 
     def test_req_response_reject(self):
         """Test requestor response if assoc rejected."""
+        port = get_port()
 
         def handle(event):
             return True, b"\x00\x01"
@@ -948,7 +965,7 @@ class TestUserIdentityNegotiation:
         ae.require_calling_aet = ["HAHA NOPE"]
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -959,7 +976,7 @@ class TestUserIdentityNegotiation:
         item.secondary_field = b"test"
         item.positive_response_requested = True
 
-        assoc = ae.associate("localhost", 11112, ext_neg=[item])
+        assoc = ae.associate("localhost", port, ext_neg=[item])
 
         assert assoc.is_rejected
         assert assoc.acceptor.user_identity is None
@@ -970,6 +987,7 @@ class TestUserIdentityNegotiation:
 
     def test_req_response_no_user_identity(self):
         """Test requestor response if no response from acceptor."""
+        port = get_port()
 
         def handle(event):
             return True, None
@@ -979,7 +997,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -990,7 +1008,7 @@ class TestUserIdentityNegotiation:
         item.secondary_field = b"test"
         item.positive_response_requested = True
 
-        assoc = ae.associate("localhost", 11112, ext_neg=[item])
+        assoc = ae.associate("localhost", port, ext_neg=[item])
 
         assert assoc.is_established
         assert assoc.acceptor.user_identity is None
@@ -1001,6 +1019,7 @@ class TestUserIdentityNegotiation:
 
     def test_req_response_user_identity(self):
         """Test requestor response if assoc rejected."""
+        port = get_port()
 
         def handle(event):
             return True, b"\x00\x01"
@@ -1010,7 +1029,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1021,7 +1040,7 @@ class TestUserIdentityNegotiation:
         item.secondary_field = b"test"
         item.positive_response_requested = True
 
-        assoc = ae.associate("localhost", 11112, ext_neg=[item])
+        assoc = ae.associate("localhost", port, ext_neg=[item])
 
         assert assoc.is_established
         assert assoc.acceptor.user_identity.server_response == b"\x00\x01"
@@ -1033,6 +1052,7 @@ class TestUserIdentityNegotiation:
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
     def test_logging(self, req, rsp):
         """Test the logging output works with user identity"""
+        port = get_port()
 
         def handle(event):
             return True, rsp[1]
@@ -1042,7 +1062,7 @@ class TestUserIdentityNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1056,7 +1076,7 @@ class TestUserIdentityNegotiation:
             item.secondary_field = req[2]
         item.positive_response_requested = req[3]
 
-        assoc = ae.associate("localhost", 11112, ext_neg=[item])
+        assoc = ae.associate("localhost", port, ext_neg=[item])
         if assoc.is_established:
             assoc.release()
         scp.shutdown()
@@ -1076,13 +1096,15 @@ class TestSOPClassExtendedNegotiation:
 
     def test_check_ext_no_req(self):
         """Test the an empty SOP Extended request"""
+        port = get_port()
+
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1099,13 +1121,15 @@ class TestSOPClassExtendedNegotiation:
 
     def test_check_ext_default(self):
         """Test the default handler bound to evt.EVT_SOP_EXTENDED"""
+        port = get_port()
+
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1129,6 +1153,7 @@ class TestSOPClassExtendedNegotiation:
 
     def test_check_ext_user_implemented_none(self):
         """Test the handler returning the request"""
+        port = get_port()
 
         def handle(event):
             return event.app_info
@@ -1138,10 +1163,10 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1174,6 +1199,7 @@ class TestSOPClassExtendedNegotiation:
 
     def test_check_ext_bad_implemented_raises(self):
         """Test exception raised by handler"""
+        port = get_port()
 
         def handle(event):
             raise ValueError
@@ -1184,10 +1210,10 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1212,6 +1238,7 @@ class TestSOPClassExtendedNegotiation:
 
     def test_check_ext_bad_implemented_type(self):
         """Test bad type returned by handler"""
+        port = get_port()
 
         def handle(event):
             return b"\x01\x02"
@@ -1221,10 +1248,10 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1249,6 +1276,7 @@ class TestSOPClassExtendedNegotiation:
 
     def test_check_ext_bad_implemented_item_value(self):
         """Test bad value returned by handler"""
+        port = get_port()
 
         def handle(event):
             out = {}
@@ -1265,10 +1293,10 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1296,6 +1324,7 @@ class TestSOPClassExtendedNegotiation:
 
     def test_functional_no_response(self):
         """Test a functional workflow with no response."""
+        port = get_port()
         attrs = {}
 
         def handle(event):
@@ -1307,7 +1336,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1322,7 +1351,7 @@ class TestSOPClassExtendedNegotiation:
         item.service_class_application_information = b"\x00\x02"
         ext_neg.append(item)
 
-        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", port, ext_neg=ext_neg)
 
         assert assoc.is_established
         assoc.release()
@@ -1339,6 +1368,7 @@ class TestSOPClassExtendedNegotiation:
 
     def test_functional_response(self):
         """Test a functional workflow with response."""
+        port = get_port()
 
         def handle(event):
             return event.app_info
@@ -1348,7 +1378,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1363,7 +1393,7 @@ class TestSOPClassExtendedNegotiation:
         item.service_class_application_information = b"\x00\x02"
         ext_neg.append(item)
 
-        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", port, ext_neg=ext_neg)
 
         assert assoc.is_established
         assoc.release()
@@ -1372,6 +1402,7 @@ class TestSOPClassExtendedNegotiation:
 
     def test_req_response_reject(self):
         """Test requestor response if assoc rejected."""
+        port = get_port()
 
         def handle(event):
             return event.app_info
@@ -1382,7 +1413,7 @@ class TestSOPClassExtendedNegotiation:
         ae.require_calling_aet = ["HAHA NOPE"]
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1397,7 +1428,7 @@ class TestSOPClassExtendedNegotiation:
         item.service_class_application_information = b"\x00\x02"
         ext_neg.append(item)
 
-        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", port, ext_neg=ext_neg)
 
         assert assoc.is_rejected
         assert assoc.acceptor.sop_class_extended == {}
@@ -1408,10 +1439,12 @@ class TestSOPClassExtendedNegotiation:
 
     def test_req_response_no_response(self):
         """Test requestor response if no response from acceptor."""
+        port = get_port()
+
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1426,7 +1459,7 @@ class TestSOPClassExtendedNegotiation:
         item.service_class_application_information = b"\x00\x02"
         ext_neg.append(item)
 
-        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", port, ext_neg=ext_neg)
 
         assert assoc.is_established
         assert assoc.acceptor.sop_class_extended == {}
@@ -1437,6 +1470,7 @@ class TestSOPClassExtendedNegotiation:
 
     def test_req_response_sop_class_ext(self):
         """Test requestor response if response received."""
+        port = get_port()
 
         def handle(event):
             return event.app_info
@@ -1446,7 +1480,7 @@ class TestSOPClassExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1461,7 +1495,7 @@ class TestSOPClassExtendedNegotiation:
         item.service_class_application_information = b"\x00\x02"
         ext_neg.append(item)
 
-        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", port, ext_neg=ext_neg)
 
         assert assoc.is_established
         rsp = assoc.acceptor.sop_class_extended
@@ -1490,13 +1524,15 @@ class TestSOPClassCommonExtendedNegotiation:
 
     def test_check_ext_no_req(self):
         """Test the default handler for evt.EVT_SOP_COMMON"""
+        port = get_port()
+
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1511,13 +1547,15 @@ class TestSOPClassCommonExtendedNegotiation:
 
     def test_check_ext_default(self):
         """Test the default handler implementation"""
+        port = get_port()
+
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1546,6 +1584,7 @@ class TestSOPClassCommonExtendedNegotiation:
 
     def test_check_ext_user_implemented_none(self):
         """Test handler returning request"""
+        port = get_port()
 
         def handle(event):
             return event.items
@@ -1555,10 +1594,10 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1587,6 +1626,7 @@ class TestSOPClassCommonExtendedNegotiation:
 
     def test_check_ext_bad_implemented_raises(self):
         """Test exception in handler"""
+        port = get_port()
 
         def handle(event):
             raise ValueError
@@ -1597,10 +1637,10 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1630,6 +1670,7 @@ class TestSOPClassCommonExtendedNegotiation:
 
     def test_check_ext_bad_implemented_type(self):
         """Test bad type returned by handler"""
+        port = get_port()
 
         def handle(event):
             return b"\x00\x01"
@@ -1639,10 +1680,10 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1672,6 +1713,7 @@ class TestSOPClassCommonExtendedNegotiation:
 
     def test_functional_no_response(self):
         """Test a functional workflow with no response."""
+        port = get_port()
 
         def handle(event):
             return {}
@@ -1681,7 +1723,7 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1700,7 +1742,7 @@ class TestSOPClassCommonExtendedNegotiation:
             item.related_general_sop_class_identification = vv[1]
             ext_neg.append(item)
 
-        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", port, ext_neg=ext_neg)
 
         assert assoc.is_established
         assert assoc.acceptor.accepted_common_extended == {}
@@ -1712,6 +1754,7 @@ class TestSOPClassCommonExtendedNegotiation:
 
     def test_functional_response(self):
         """Test a functional workflow with response."""
+        port = get_port()
 
         def handle(event):
             del event.items["1.2.3.1"]
@@ -1722,7 +1765,7 @@ class TestSOPClassCommonExtendedNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1741,7 +1784,7 @@ class TestSOPClassCommonExtendedNegotiation:
             item.related_general_sop_class_identification = vv[1]
             ext_neg.append(item)
 
-        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", port, ext_neg=ext_neg)
         assert assoc.is_established
 
         scp_assoc = scp.active_associations[0]
@@ -1770,13 +1813,15 @@ class TestAsyncOpsNegotiation:
 
     def test_check_async_no_req(self):
         """Test the default evt.EVT_ASYNC_OPS handler"""
+        port = get_port()
+
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1789,6 +1834,7 @@ class TestAsyncOpsNegotiation:
 
     def test_check_user_implemented_none(self):
         """Test the response when user callback returns values."""
+        port = get_port()
 
         def handle(event):
             return 1, 2
@@ -1798,10 +1844,10 @@ class TestAsyncOpsNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1817,6 +1863,7 @@ class TestAsyncOpsNegotiation:
 
     def test_check_user_implemented_raises(self):
         """Test the response when the user callback raises exception."""
+        port = get_port()
 
         def handle(event):
             raise ValueError
@@ -1827,11 +1874,11 @@ class TestAsyncOpsNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate("localhost", 11112)
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
 
@@ -1847,6 +1894,7 @@ class TestAsyncOpsNegotiation:
 
     def test_req_response_reject(self):
         """Test requestor response if assoc rejected."""
+        port = get_port()
 
         def handle(event):
             return 1, 2
@@ -1857,18 +1905,18 @@ class TestAsyncOpsNegotiation:
         ae.require_calling_aet = ["HAHA NOPE"]
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
         ext_neg = []
         item = AsynchronousOperationsWindowNegotiation()
         item.maximum_number_operations_invoked = 0
         item.maximum_number_operations_performed = 1
         ext_neg.append(item)
 
-        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", port, ext_neg=ext_neg)
 
         assert assoc.is_rejected
         assert assoc.acceptor.asynchronous_operations == (1, 1)
@@ -1879,10 +1927,12 @@ class TestAsyncOpsNegotiation:
 
     def test_req_response_no_response(self):
         """Test requestor response if no response from acceptor."""
+        port = get_port()
+
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1892,7 +1942,7 @@ class TestAsyncOpsNegotiation:
         item.maximum_number_operations_performed = 1
         ext_neg.append(item)
 
-        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", port, ext_neg=ext_neg)
 
         assert assoc.is_established
         assert assoc.acceptor.asynchronous_operations == (1, 1)
@@ -1903,6 +1953,7 @@ class TestAsyncOpsNegotiation:
 
     def test_req_response_async(self):
         """Test requestor response if response received"""
+        port = get_port()
 
         def handle(event):
             return event.invoked, event.performed
@@ -1912,7 +1963,7 @@ class TestAsyncOpsNegotiation:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1922,7 +1973,7 @@ class TestAsyncOpsNegotiation:
         item.maximum_number_operations_performed = 2
         ext_neg.append(item)
 
-        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", port, ext_neg=ext_neg)
 
         assert assoc.is_established
         # Because pynetdicom doesn't support async ops this is always 1, 1
@@ -1957,10 +2008,10 @@ class TestNegotiateRelease:
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address_info = AddressInformation("localhost", 11112)
+        assoc.acceptor.address_info = AddressInformation("localhost", get_port())
 
         # Association Requestor object -> local AE
-        assoc.requestor.address_info = AddressInformation("", 11113)
+        assoc.requestor.address_info = AddressInformation("", get_port("remote"))
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -1977,7 +2028,7 @@ class TestNegotiateRelease:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack("ll", 1, 0))
-        sock.connect(("localhost", 11112))
+        sock.connect(("localhost", get_port()))
 
         ae = AE()
         ae.add_supported_context(Verification)
@@ -1990,10 +2041,10 @@ class TestNegotiateRelease:
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = "ANY_SCU"
-        assoc.acceptor.address_info = AddressInformation("localhost", 11112)
+        assoc.acceptor.address_info = AddressInformation("localhost", get_port())
 
         # Association Requestor object -> local AE
-        assoc.requestor.address_info = AddressInformation("", 11113)
+        assoc.requestor.address_info = AddressInformation("", get_port("remote"))
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = ae.implementation_class_uid
@@ -2007,7 +2058,7 @@ class TestNegotiateRelease:
 
     def start_server(self, commands):
         """Start the receiving server."""
-        server = ThreadedParrot(("localhost", 11112), commands, ParrotRequest)
+        server = ThreadedParrot(("localhost", get_port()), commands, ParrotRequest)
         thread = threading.Thread(target=server.serve_forever)
         thread.daemon = True
         thread.start()
@@ -2236,13 +2287,15 @@ class TestEventHandlingAcceptor:
 
     def test_no_handlers(self):
         """Test with no transport event handlers bound."""
+        port = get_port()
+
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -2260,6 +2313,7 @@ class TestEventHandlingAcceptor:
 
     def test_acse_sent(self):
         """Test binding to EVT_ACSE_SENT."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2269,10 +2323,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == [(handle, None)]
@@ -2305,6 +2359,7 @@ class TestEventHandlingAcceptor:
 
     def test_acse_sent_bind(self):
         """Test binding to EVT_ACSE_SENT."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2314,10 +2369,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
         assert assoc.is_established
 
         assoc.send_c_echo(msg_id=12)
@@ -2351,6 +2406,7 @@ class TestEventHandlingAcceptor:
 
     def test_acse_sent_unbind(self):
         """Test unbinding EVT_ACSE_SENT."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2360,10 +2416,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
         assert assoc.is_established
 
         child = scp.active_associations[0]
@@ -2401,6 +2457,7 @@ class TestEventHandlingAcceptor:
 
     def test_acse_sent_raises(self, caplog):
         """Test the handler for EVT_ACSE_SENT raising exception."""
+        port = get_port()
 
         def handle(event):
             raise NotImplementedError("Exception description")
@@ -2409,10 +2466,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", port)
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -2431,6 +2488,7 @@ class TestEventHandlingAcceptor:
 
     def test_acse_recv(self):
         """Test starting bound to EVT_ACSE_RECV."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2440,10 +2498,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == [(handle, None)]
@@ -2475,6 +2533,7 @@ class TestEventHandlingAcceptor:
 
     def test_acse_recv_bind(self):
         """Test binding to EVT_ACSE_RECV."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2483,10 +2542,10 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -2519,6 +2578,7 @@ class TestEventHandlingAcceptor:
 
     def test_acse_recv_unbind(self):
         """Test unbinding to EVT_ACSE_RECV."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2528,10 +2588,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == [(handle, None)]
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -2567,6 +2627,7 @@ class TestEventHandlingAcceptor:
 
     def test_acse_recv_raises(self, caplog):
         """Test the handler for EVT_ACSE_RECV raising exception."""
+        port = get_port()
 
         def handle(event):
             raise NotImplementedError("Exception description")
@@ -2575,10 +2636,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", port)
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -2611,13 +2672,15 @@ class TestEventHandlingRequestor:
 
     def test_no_handlers(self):
         """Test with no transport event handlers bound."""
+        port = get_port()
+
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -2635,6 +2698,7 @@ class TestEventHandlingRequestor:
 
     def test_acse_sent(self):
         """Test binding to EVT_ACSE_SENT."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2644,10 +2708,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", port, evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
@@ -2676,6 +2740,7 @@ class TestEventHandlingRequestor:
 
     def test_acse_sent_ap_abort(self):
         """Test binding to EVT_ACSE_SENT."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2685,10 +2750,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", port, evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
@@ -2716,6 +2781,7 @@ class TestEventHandlingRequestor:
 
     def test_acse_sent_bind(self):
         """Test binding to EVT_ACSE_SENT."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2725,10 +2791,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
         assert assoc.get_handlers(evt.EVT_ACSE_SENT) == []
         assert assoc.is_established
         assoc.send_c_echo(msg_id=12)
@@ -2762,6 +2828,7 @@ class TestEventHandlingRequestor:
 
     def test_acse_sent_unbind(self):
         """Test unbinding EVT_ACSE_SENT."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2771,10 +2838,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", port, evt_handlers=handlers)
         assert assoc.is_established
         assoc.send_c_echo(msg_id=12)
         assert len(scp.active_associations) == 1
@@ -2802,6 +2869,7 @@ class TestEventHandlingRequestor:
 
     def test_acse_sent_raises(self, caplog):
         """Test the handler for EVT_ACSE_SENT raising exception."""
+        port = get_port()
 
         def handle(event):
             raise NotImplementedError("Exception description")
@@ -2810,10 +2878,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+            assoc = ae.associate("localhost", port, evt_handlers=handlers)
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
@@ -2832,6 +2900,7 @@ class TestEventHandlingRequestor:
 
     def test_acse_recv(self):
         """Test starting bound to EVT_ACSE_RECV."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2841,10 +2910,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", port, evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
@@ -2873,6 +2942,7 @@ class TestEventHandlingRequestor:
 
     def test_acse_recv_ap_abort(self):
         """Test A-P-ABORT with EVT_ACSE_RECV."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2883,8 +2953,8 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
 
-        scp = ae.start_server(("localhost", 11112), block=False)
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False)
+        assoc = ae.associate("localhost", port, evt_handlers=handlers)
         child = scp.active_associations[0]
 
         child.acse.send_abort(0x02)
@@ -2905,6 +2975,7 @@ class TestEventHandlingRequestor:
 
     def test_acse_recv_bind(self):
         """Test binding to EVT_ACSE_RECV."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2913,10 +2984,10 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
 
-        assoc = ae.associate("localhost", 11112)
+        assoc = ae.associate("localhost", port)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert assoc.get_handlers(evt.EVT_ACSE_RECV) == []
@@ -2943,6 +3014,7 @@ class TestEventHandlingRequestor:
 
     def test_acse_recv_unbind(self):
         """Test unbinding to EVT_ACSE_RECV."""
+        port = get_port()
         triggered = []
 
         def handle(event):
@@ -2952,10 +3024,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False)
+        scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
 
-        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", port, evt_handlers=handlers)
         assert assoc.is_established
         assert assoc.get_handlers(evt.EVT_ACSE_RECV) == [(handle, None)]
         assoc.send_c_echo(msg_id=12)
@@ -2988,6 +3060,7 @@ class TestEventHandlingRequestor:
 
     def test_acse_recv_raises(self, caplog):
         """Test the handler for EVT_ACSE_RECV raising exception."""
+        port = get_port()
 
         def handle(event):
             raise NotImplementedError("Exception description")
@@ -2996,10 +3069,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        scp = ae.start_server(("localhost", 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("localhost", port), block=False, evt_handlers=handlers)
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = ae.associate("localhost", 11112)
+            assoc = ae.associate("localhost", port)
             assert assoc.is_established
             assoc.send_c_echo()
             assoc.release()
