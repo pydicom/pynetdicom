@@ -2245,7 +2245,7 @@ class Association(threading.Thread):
     # DIMSE-N services provided by the Association
     def send_n_action(
         self,
-        dataset: Dataset,
+        dataset: Dataset | None,
         action_type: int,
         class_uid: str | UID,
         instance_uid: str | UID,
@@ -2458,7 +2458,7 @@ class Association(threading.Thread):
 
     def send_n_create(
         self,
-        dataset: Dataset,
+        dataset: Dataset | None,
         class_uid: str | UID,
         instance_uid: str | UID | None = None,
         msg_id: int = 1,
@@ -2819,7 +2819,7 @@ class Association(threading.Thread):
 
     def send_n_event_report(
         self,
-        dataset: Dataset,
+        dataset: Dataset | None,
         event_type: int,
         class_uid: str | UID,
         instance_uid: str | UID,

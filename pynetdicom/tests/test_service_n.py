@@ -2424,7 +2424,7 @@ class TestNCreate:
             "'evt.EVT_N_CREATE' handler doesn't include one in the 'Attribute List' "
             "dataset"
         ) in caplog.text
-        assert "Affected SOP Instance UID     : None" in caplog.text
+        assert "Affected SOP Instance UID     :" not in caplog.text
 
     def test_rq_no_instance_uid_success_no_ds_error(self, caplog):
         """Test the -RQ not sending an Affected SOP Instance UID."""
