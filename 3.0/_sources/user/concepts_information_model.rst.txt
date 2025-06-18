@@ -22,7 +22,7 @@ information about related real-world objects (such as the
 *Patient*, *Study*, *Series*, *Equipment*, etc).
 
 There are many different DICOM IODs and they're all defined in
-:dcm:`Part 3 <part03.html>` of the DICOM Standard.
+:dcm:`Part 3 <part03/ps3.3.html>` of the DICOM Standard.
 
 .. _concepts_sop_classes:
 
@@ -47,7 +47,7 @@ A Service-Object Pair (SOP) Class is defined by the union of an IOD and a
   N-EVENT-REPORT and N-GET services. The *Print Job SOP Class* is an
   abstraction of a print job containing one or more films to be printed.
 
-The DIMSE-C and DIMSE-N services are defined in :dcm:`Part 7<part07.html>` of
+The DIMSE-C and DIMSE-N services are defined in :dcm:`Part 7<part07/ps3.7.html>` of
 the DICOM Standard. Every DICOM SOP class has its own UID that can be found in
 :dcm:`Part 6<part06/chapter_A.html>`.
 
@@ -67,5 +67,5 @@ of managed SOP instances (*Query/Retrieve Service Class*), printing of images
 The labels *Service Class User* and *Service Class Provider* are derived from
 whether or not an AE *uses* or *provides* the services in a Service Class.
 
-Service Classes are defined in :dcm:`Part 4<part04.html>` of the DICOM
+Service Classes are defined in :dcm:`Part 4<part04/ps3.4.html>` of the DICOM
 Standard.

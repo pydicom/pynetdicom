@@ -72,7 +72,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
         ds.file_meta = event.file_meta
 
         # Save the dataset using the SOP Instance UID as the filename
-        ds.save_as(ds.SOPInstanceUID, write_like_original=False)
+        ds.save_as(ds.SOPInstanceUID, enforce_file_format=True)
 
         # Return a 'Success' status
         return 0x0000

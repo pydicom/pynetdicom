@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>DICOM Information Model &#8212; pynetdicom 3.0.1 documentation</title>
+    <title>DICOM Information Model &#8212; pynetdicom 3.0.2 documentation</title>
   
   
   
@@ -31,9 +31,9 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f6f8154" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=b0f7bde4" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f6f8154" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=08bfcbec"></script>
+    <script src="../_static/documentation_options.js?v=3f474186"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -50,7 +50,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://pydicom.github.io/pynetdicom/dev/_static/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v3.0.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v3.0.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -62,7 +62,7 @@
     <link rel="prev" title="UIDs" href="concepts_uids.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="3.0.1" />
+  <meta name="docsearch:version" content="3.0.2" />
   </head>
   
   
@@ -549,7 +549,7 @@ information about related real-world objects (such as the
 <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.3.3.html">CT Image IOD</a> which contains objects like
 <em>Patient</em>, <em>Study</em>, <em>Series</em>, <em>Equipment</em>, etc).</p>
 <p>There are many different DICOM IODs and they’re all defined in
-<a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part03.html">Part 3</a> of the DICOM Standard.</p>
+<a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part03/ps3.3.html">Part 3</a> of the DICOM Standard.</p>
 </section>
 <section id="sop-classes">
 <span id="concepts-sop-classes"></span><h2>SOP Classes<a class="headerlink" href="#sop-classes" title="Link to this heading">#</a></h2>
@@ -572,7 +572,7 @@ Class</em>, which is the union of the <em>Print Job IOD</em> and the DIMSE
 N-EVENT-REPORT and N-GET services. The <em>Print Job SOP Class</em> is an
 abstraction of a print job containing one or more films to be printed.</p></li>
 </ul>
-<p>The DIMSE-C and DIMSE-N services are defined in <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07.html">Part 7</a> of
+<p>The DIMSE-C and DIMSE-N services are defined in <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part07/ps3.7.html">Part 7</a> of
 the DICOM Standard. Every DICOM SOP class has its own UID that can be found in
 <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html">Part 6</a>.</p>
 </section>
@@ -587,7 +587,7 @@ of managed SOP instances (<em>Query/Retrieve Service Class</em>), printing of im
 (<em>Print Management Service Class</em>) and many others.</p>
 <p>The labels <em>Service Class User</em> and <em>Service Class Provider</em> are derived from
 whether or not an AE <em>uses</em> or <em>provides</em> the services in a Service Class.</p>
-<p>Service Classes are defined in <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04.html">Part 4</a> of the DICOM
+<p>Service Classes are defined in <a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part04/ps3.4.html">Part 4</a> of the DICOM
 Standard.</p>
 </section>
 </section>
