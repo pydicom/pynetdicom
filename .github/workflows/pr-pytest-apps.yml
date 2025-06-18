@@ -2,7 +2,7 @@ name: pull-request-pytest-apps
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, protected ]
 
 jobs:
 
