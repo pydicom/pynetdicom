@@ -107,22 +107,21 @@ class AddressInformation:
             value = "255.255.255.255" if value == "<broadcast>" else value
             flags = 0
         else:
-            # getaddrinfo interprets "" as localhost. Set the AI_PASSIVE flag
+            # getaddrinfo interprets "" as "0.0.0.0" or "::". Set the AI_PASSIVE flag
             # to return an address that can be used with BIND.
-            value = None
             flags = socket.AI_PASSIVE
 
         # getaddrinfo translates a hostname into IPv4 and/or IPv6-addresses.
-        entries = socket.getaddrinfo(value, 0, flags=flags)
+        entries = socket.getaddrinfo(value if value else None, 0, flags=flags)
 
         # Use the first IPv4 address, or the first IPv6 address if there are no
         # IPv4 addresses available.
         ipv4_entries = [addr for addr in entries if addr[0] == socket.AF_INET]
         ipv6_entries = [addr for addr in entries if addr[0] == socket.AF_INET6]
         if ipv4_entries:
-            self._addr = ipv4_entries[0][4][0]
+            self._addr = cast(str, ipv4_entries[0][4][0])
         elif ipv6_entries:
-            self._addr = ipv6_entries[0][4][0]
+            self._addr = cast(str, ipv6_entries[0][4][0])
         else:
             raise socket.gaierror("Address resolution failed")
 

@@ -103,10 +103,14 @@ class TestAddressInformation:
         assert addr.as_tuple == ("::1", 0, 10, 11)
 
     def test_no_ipv4(self):
+        # Check to ensure we have IPv6 entries
+        localhost_entries = getaddrinfo_no_ipv4("localhost", 0)
+
         with mock.patch("socket.getaddrinfo", new=getaddrinfo_no_ipv4):
-            addr = AddressInformation("localhost", 0)
-            assert addr.address == "::1"
-            assert addr.port == 0
+            if localhost_entries:
+                addr = AddressInformation("localhost", 0)
+                assert addr.address == "::1"
+                assert addr.port == 0
 
             addr = AddressInformation("", 0)
             assert addr.address in ("::0", "::")
@@ -171,6 +175,10 @@ class TestAddressInformation:
         addr.address = "192.168.0.1"
         assert addr.address == "192.168.0.1"
         assert addr.address_family == socket.AF_INET
+
+    def test_resolve_hostname(self):
+        with pytest.raises(socket.gaierror):
+            AddressInformation("remotehost", 0)
 
 
 class TestTConnect:
