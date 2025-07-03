@@ -117,7 +117,7 @@ class TestAddressInformation:
             assert addr.port == 0
 
             # IPv6 does not use broadcast.
-            with pytest.raises(socket.gaierror):
+            with pytest.raises(socket.gaierror, match="Address resolution failed"):
                 AddressInformation("<broadcast>", 0)
 
     def test_from_tuple(self):
