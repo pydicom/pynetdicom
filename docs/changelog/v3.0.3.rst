@@ -1,0 +1,9 @@
+.. _v3.0.3:
+
+3.0.3
+=====
+
+Fixes
+-----
+
+* Fixed being unable to resolve IPv4 address when using the hostname (:issue:`1033`, :pr:`1034`)
