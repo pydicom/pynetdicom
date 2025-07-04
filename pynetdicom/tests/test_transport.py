@@ -11,6 +11,7 @@ from struct import pack
 import sys
 import threading
 import time
+from unittest import mock
 
 import pytest
 
@@ -56,6 +57,14 @@ DATASET = dcmread(os.path.join(DCM_DIR, "RTImageStorage.dcm"))
 
 # debug_logger()
 
+_original_getaddrinfo = socket.getaddrinfo
+
+
+def getaddrinfo_no_ipv4(*args, **kwargs):
+    """Calls socket.getaddrinfo and leaves out the IPv4 results."""
+    entries = _original_getaddrinfo(*args, **kwargs)
+    return [addr for addr in entries if addr[0] != socket.AF_INET]
+
 
 class TestAddressInformation:
     """Tests for AssociationInformation."""
@@ -93,6 +102,24 @@ class TestAddressInformation:
         assert addr.scope_id == 11
         assert addr.as_tuple == ("::1", 0, 10, 11)
 
+    def test_no_ipv4(self):
+        # Check to ensure we have IPv6 entries
+        localhost_entries = getaddrinfo_no_ipv4("localhost", 0)
+
+        with mock.patch("socket.getaddrinfo", new=getaddrinfo_no_ipv4):
+            if localhost_entries:
+                addr = AddressInformation("localhost", 0)
+                assert addr.address == "::1"
+                assert addr.port == 0
+
+            addr = AddressInformation("", 0)
+            assert addr.address in ("::0", "::")
+            assert addr.port == 0
+
+            # IPv6 does not use broadcast.
+            with pytest.raises(socket.gaierror, match="Address resolution failed"):
+                AddressInformation("<broadcast>", 0)
+
     def test_from_tuple(self):
         addr = AddressInformation.from_tuple(("localhost", get_port()))
         assert isinstance(addr, AddressInformation)
@@ -106,7 +133,7 @@ class TestAddressInformation:
 
         addr = AddressInformation.from_tuple(("::0", get_port("remote")))
         assert isinstance(addr, AddressInformation)
-        assert addr.address == "::0"
+        assert addr.address in ("::0", "::")
         assert addr.port == get_port("remote")
 
     def test_from_add_port(self):
@@ -117,14 +144,14 @@ class TestAddressInformation:
 
         addr = AddressInformation.from_addr_port("::0", get_port("remote"))
         assert isinstance(addr, AddressInformation)
-        assert addr.address == "::0"
+        assert addr.address in ("::0", "::")
         assert addr.port == get_port("remote")
         assert addr.flowinfo == 0
         assert addr.scope_id == 0
 
         addr = AddressInformation.from_addr_port(("::0", 12, 13), get_port("remote"))
         assert isinstance(addr, AddressInformation)
-        assert addr.address == "::0"
+        assert addr.address in ("::0", "::")
         assert addr.port == get_port("remote")
         assert addr.flowinfo == 12
         assert addr.scope_id == 13
@@ -143,11 +170,15 @@ class TestAddressInformation:
         assert addr.address == "192.168.0.1"
         assert addr.address_family == socket.AF_INET
         addr.address = "::0"
-        assert addr.address == "::0"
+        assert addr.address in ("::0", "::")
         assert addr.address_family == socket.AF_INET6
         addr.address = "192.168.0.1"
         assert addr.address == "192.168.0.1"
         assert addr.address_family == socket.AF_INET
+
+    def test_resolve_hostname(self):
+        with pytest.raises(socket.gaierror):
+            AddressInformation("remotehost", 0)
 
 
 class TestTConnect:
@@ -164,9 +195,9 @@ class TestTConnect:
     def test_address_request(self):
         """Test init with an A-ASSOCIATE primitive"""
         request = A_ASSOCIATE()
-        request.called_presentation_address = AddressInformation("123.4", 12)
+        request.called_presentation_address = AddressInformation("1.2.3.4", 12)
         conn = T_CONNECT(request)
-        assert conn.address == ("123.4", 12)
+        assert conn.address == ("1.2.3.4", 12)
         assert conn.request is request
 
         msg = r"A connection attempt has not yet been made"
@@ -176,7 +207,7 @@ class TestTConnect:
     def test_result_setter(self):
         """Test setting the result value."""
         request = A_ASSOCIATE()
-        request.called_presentation_address = AddressInformation("123.4", 12)
+        request.called_presentation_address = AddressInformation("1.2.3.4", 12)
         conn = T_CONNECT(request)
 
         msg = r"Invalid connection result 'foo'"
@@ -191,7 +222,7 @@ class TestTConnect:
 
     def test_address_inf(self):
         request = A_ASSOCIATE()
-        request.called_presentation_address = AddressInformation("123.4", 12)
+        request.called_presentation_address = AddressInformation("1.2.3.4", 12)
         conn = T_CONNECT(request)
         assert conn.address_info is request.called_presentation_address
 
