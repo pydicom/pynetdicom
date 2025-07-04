@@ -7,3 +7,4 @@ Fixes
 -----
 
 * Fixed the default logging handlers for N-ACTION treating *Action Type ID* as mandatory (:issue:`1027`)
+* Fixed being unable to resolve IPv4 address when using the hostname (:issue:`1033`, :pr:`1034`)
