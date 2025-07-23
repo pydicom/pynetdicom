@@ -852,12 +852,12 @@ class AssociationServer(TCPServer):
         self.address_info = AddressInformation.from_tuple(address)
         self.address_family = self.address_info.address_family
         self.allow_reuse_address = True
-        self.server_address: tuple[str, int] | tuple[str, int, int, int] = address  # type: ignore[assignment]
+        self.server_address: tuple[str, int] | tuple[str, int, int, int] = address
         self.socket: socket.socket | None = None  # type: ignore[assignment]
 
         request_handler = request_handler or RequestHandler
 
-        super().__init__(address, request_handler, bind_and_activate=True)  # type: ignore[arg-type]
+        super().__init__(address, request_handler, bind_and_activate=True)
 
         self.timeout = 60
 

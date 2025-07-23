@@ -2496,8 +2496,8 @@ DatasetType = Dataset | None
 UserReturnType = tuple[StatusType, DatasetType]
 DestinationType = tuple[str, int] | tuple[str, int, dict[str, Any]]
 CFindType = Iterator[UserReturnType]
-CGetType = Iterator[int | StatusType | DatasetType]
-CMoveType = Iterator[DestinationType | int | StatusType | DatasetType]
+CGetType = Iterator[int | UserReturnType]
+CMoveType = Iterator[DestinationType | int | UserReturnType]
 
 
 # Example handlers used for the documentation
