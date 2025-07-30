@@ -187,7 +187,7 @@ if "dev" in pynetdicom.__version__:
     version_match = "dev"
     json_url = "_static/switcher.json"
 else:
-    version_match = ".".join(pynetdicom.__version__.split(".")[:2])
+    version_match = ".".join(pynetdicom.__version__.split(".")[:2]) + ".*"
     json_url = "https://pydicom.github.io/pynetdicom/dev/_static/switcher.json"
 
 html_theme_options = {
