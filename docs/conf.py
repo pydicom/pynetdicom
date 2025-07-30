@@ -183,10 +183,12 @@ html_theme = "pydata_sphinx_theme"
 # html_theme_path = [pydata_sphinx_theme.get_html_theme_path()]
 
 # Define the version we use for matching in the version switcher.
-json_url = "https://pydicom.github.io/pynetdicom/dev/_static/switcher.json"
-version_match = "dev" if "dev" in pynetdicom.__version__ else pynetdicom.__version__
-if version_match == "dev":
+if "dev" in pynetdicom.__version__:
+    version_match = "dev"
     json_url = "_static/switcher.json"
+else:
+    version_match = ".".join(pynetdicom.__version__.split(".")[:2])
+    json_url = "https://pydicom.github.io/pynetdicom/dev/_static/switcher.json"
 
 html_theme_options = {
     "logo": {
