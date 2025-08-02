@@ -1,8 +1,8 @@
 
 .. currentmodule:: pynetdicom.presentation
 
-Introduction
-------------
+What is a Presentation Context?
+-------------------------------
 
 :dcm:`Presentation Contexts <part08/chapter_7.html#sect_7.1.1.13>`
 are used in DICOM to fully define the content and the

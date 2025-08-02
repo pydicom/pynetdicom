@@ -69,6 +69,7 @@ extensions = [
     "sphinx.ext.linkcode",
     "sphinx.ext.extlinks",
     "sphinx_copybutton",
+    "sphinx_design",
 ]
 
 autosummary_generate = True
@@ -205,7 +206,7 @@ html_theme_options = {
     "navbar_center": ["navbar-nav"],
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "navbar_persistent": ["search-button"],
-    "header_links_before_dropdown": 5,
+    "header_links_before_dropdown": 6,
     "icon_links": [
         {
             "name": "GitHub",

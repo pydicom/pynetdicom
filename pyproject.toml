@@ -59,6 +59,7 @@ docs = [
     "sphinx-copybutton >=0.5",
     "pydata-sphinx-theme >=0.16.1",
     "sphinxcontrib-jquery >=4.1",
+    "sphinx_design >=0.6",
 ]
 tests = [
     "coverage >=7.3",
