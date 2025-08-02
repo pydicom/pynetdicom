@@ -10,7 +10,7 @@ from pydicom._uid_dict import UID_dictionary
 from pydicom.uid import UID
 
 from pynetdicom import AE, _config
-from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
+from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES, ALL_TRANSFER_SYNTAXES
 from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 from pynetdicom.presentation import (
     build_context,
@@ -126,7 +126,7 @@ class TestPresentationContext:
 
         pc.add_transfer_syntax("1.2.840.10008.1.1")
         assert (
-            "A UID has been added to 'transfer_syntax' that is not a "
+            "A UID has been added to 'transfer_syntax' that is not a known public "
             "transfer syntax" in caplog.text
         )
 
@@ -295,11 +295,12 @@ class TestPresentationContext:
         msg = "Invalid 'abstract_syntax' value '1.4.1.' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             pc.abstract_syntax = UID("1.4.1.")
+
         assert pc.abstract_syntax is None
 
         _config.ENFORCE_UID_CONFORMANCE = False
-        pc.abstract_syntax = UID("1.4.1.")
 
+        pc.abstract_syntax = UID("1.4.1.")
         assert pc.abstract_syntax == UID("1.4.1.")
         assert isinstance(pc.abstract_syntax, UID)
 
@@ -432,6 +433,18 @@ class TestPresentationContext:
         assert "1.2.3" == repr(cx)
         cx = build_context("1.2.840.10008.1.1")
         assert "Verification SOP Class" == repr(cx)
+
+    def test_transfer_syntaxes_dont_warn(self, caplog):
+        """Test that all transfer syntaxes are known to pydicom"""
+        caplog.set_level(logging.WARNING, logger="pynetdicom.presentation")
+        for ts in ALL_TRANSFER_SYNTAXES:
+            cx = build_context("1.2.3", ts)
+
+        for ts in DEFAULT_TRANSFER_SYNTAXES:
+            cx = build_context("1.2.3", ts)
+
+        assert caplog.text == ""
+
 
 
 class TestNegotiateAsAcceptor:
