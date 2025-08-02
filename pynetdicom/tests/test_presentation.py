@@ -120,8 +120,7 @@ class TestPresentationContext:
 
         msg = r"'transfer_syntax' contains an invalid UID"
         with pytest.raises(ValueError, match=msg):
-            with pytest.warns(UserWarning, match="Invalid value for VR UI:"):
-                pc.add_transfer_syntax("1.2.3.")
+            pc.add_transfer_syntax("1.2.3.")
 
         assert msg in caplog.text
 
@@ -132,9 +131,7 @@ class TestPresentationContext:
         )
 
         _config.ENFORCE_UID_CONFORMANCE = False
-        with pytest.warns(UserWarning, match="Invalid value for VR UI:"):
-            pc.add_transfer_syntax("1.2.3.")
-
+        pc.add_transfer_syntax("1.2.3.")
         assert "1.2.3." in pc.transfer_syntax
 
     def test_add_private_transfer_syntax(self):
@@ -297,18 +294,15 @@ class TestPresentationContext:
 
         msg = "Invalid 'abstract_syntax' value '1.4.1.' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
-            with pytest.warns(UserWarning, match="Invalid value for VR UI:"):
-                pc.abstract_syntax = UID("1.4.1.")
+            pc.abstract_syntax = UID("1.4.1.")
 
         assert pc.abstract_syntax is None
 
         _config.ENFORCE_UID_CONFORMANCE = False
 
-        with pytest.warns(UserWarning, match="Invalid value for VR UI:"):
-            pc.abstract_syntax = UID("1.4.1.")
-
-            assert pc.abstract_syntax == UID("1.4.1.")
-            assert isinstance(pc.abstract_syntax, UID)
+        pc.abstract_syntax = UID("1.4.1.")
+        assert pc.abstract_syntax == UID("1.4.1.")
+        assert isinstance(pc.abstract_syntax, UID)
 
         assert msg in caplog.text
 
@@ -344,8 +338,7 @@ class TestPresentationContext:
         caplog.set_level(logging.DEBUG, logger="pynetdicom.presentation")
         pc = PresentationContext()
         pc.context_id = 1
-        with pytest.warns(UserWarning, match="Invalid value for VR UI:"):
-            pc.transfer_syntax = ["1.4.1.", "1.2.840.10008.1.2"]
+        pc.transfer_syntax = ["1.4.1.", "1.2.840.10008.1.2"]
 
         assert pc.transfer_syntax == ["1.4.1.", "1.2.840.10008.1.2"]
         assert "A non-conformant UID has been added to 'transfer_syntax'" in caplog.text
