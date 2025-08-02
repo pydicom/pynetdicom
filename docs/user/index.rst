@@ -22,7 +22,7 @@ User Guide
 
 .. toctree::
    :maxdepth: 2
-   :caption: Presentation contexts
+   :caption: Presentation Contexts
 
    presentation_introduction
    presentation_private
@@ -52,3 +52,16 @@ User Guide
 
    association_requesting
    association_accepting
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Applications
+
+   /apps/echoscu
+   /apps/echoscp
+   /apps/findscu
+   /apps/getscu
+   /apps/movescu
+   /apps/qrscp
+   /apps/storescu
+   /apps/storescp

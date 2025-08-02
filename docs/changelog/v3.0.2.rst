@@ -1,0 +1,9 @@
+.. _v3.0.2:
+
+3.0.2
+=====
+
+Fixes
+-----
+
+* Fixed the default logging handlers for N-ACTION treating *Action Type ID* as mandatory (:issue:`1027`)
