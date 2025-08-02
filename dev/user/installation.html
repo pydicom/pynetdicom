@@ -31,9 +31,10 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f6f8154" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f9d927c" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f6f8154" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f9d927c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -46,6 +47,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user/installation';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -180,23 +182,13 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../changelog/index.html">
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog/index.html">
     Releases
   </a>
 </li>
 
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -442,9 +434,9 @@
 <li class="toctree-l1"><a class="reference internal" href="concepts_contexts.html">Presentation Contexts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="concepts_association.html">Association</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Presentation contexts</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Presentation Contexts</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="presentation_introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="presentation_introduction.html">What is a Presentation Context?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="presentation_private.html">Registering private or retired SOP Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="presentation_requestor.html">Contexts and the Association Requestor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="presentation_acceptor.html">Contexts and the Association Acceptor</a></li>
@@ -471,6 +463,17 @@
 
 <li class="toctree-l1"><a class="reference internal" href="association_accepting.html">Listening for association requests</a></li>
 
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Applications</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../apps/echoscu.html">echoscu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/echoscp.html">echoscp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/findscu.html">findscu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/getscu.html">getscu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/movescu.html">movescu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/qrscp.html">qrscp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/storescu.html">storescu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/storescp.html">storescp</a></li>
 </ul>
 </div>
 </nav></div>
@@ -535,31 +538,25 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
 <section id="install-the-official-release">
 <h2>Install the official release<a class="headerlink" href="#install-the-official-release" title="Link to this heading">#</a></h2>
-<p><em>pynetdicom</em> requires <a class="reference external" href="https://www.python.org/">Python</a> and <a class="reference external" href="https://pydicom.github.io/pydicom/stable/tutorials/installation.html">pydicom</a>. In
+<p><em>pynetdicom</em> requires <a class="reference external" href="https://www.python.org/">Python</a> and <a class="reference external" href="https://pydicom.github.io/pydicom/dev/guides/user/installation.html">pydicom</a>. In
 addition, if you want to use the <a class="reference internal" href="../apps/qrscp.html"><span class="doc">qrscp</span></a> application then
 <a class="reference external" href="https://www.sqlalchemy.org/">sqlalchemy</a> is also required.</p>
-<section id="install-using-pip">
-<h3>Install using pip<a class="headerlink" href="#install-using-pip" title="Link to this heading">#</a></h3>
-<p><em>pynetdicom</em> is available on <a class="reference external" href="https://pypi.python.org/pypi/pynetdicom/">PyPi</a>,
-the official third-party Python software repository. The simplest way to
-install (or upgrade) from PyPi is using <a class="reference external" href="https://pip.pypa.io/">pip</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">pip</span>
-<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">pynetdicom</span>
+<div class="sd-tab-set sd-width-content-min docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" data-sync-group="install" data-sync-id="pip" for="sd-tab-item-0">
+pip</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>pynetdicom
 </pre></div>
 </div>
-</section>
-<section id="install-using-conda">
-<h3>Install using conda<a class="headerlink" href="#install-using-conda" title="Link to this heading">#</a></h3>
-<p><em>pynetdicom</em> is also available for <a class="reference external" href="https://docs.conda.io/">conda</a> on
-<a class="reference external" href="https://anaconda.org/conda-forge/pynetdicom">conda-forge</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">pynetdicom</span>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" data-sync-group="install" data-sync-id="conda" for="sd-tab-item-1">
+conda</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>pynetdicom
 </pre></div>
 </div>
-<p>To upgrade the installed version on conda do:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">update</span> <span class="n">pynetdicom</span>
-</pre></div>
 </div>
-</section>
+</div>
 </section>
 <section id="install-the-development-version">
 <h2>Install the development version<a class="headerlink" href="#install-the-development-version" title="Link to this heading">#</a></h2>
@@ -636,11 +633,7 @@ changes.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-official-release">Install the official release</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-pip">Install using pip</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-using-conda">Install using conda</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-official-release">Install the official release</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-development-version">Install the development version</a></li>
 </ul>
   </nav></div>

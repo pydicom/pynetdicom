@@ -31,9 +31,10 @@
 <link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="_static/css/pynetdicom.css?v=0f6f8154" />
+    <link rel="stylesheet" type="text/css" href="_static/css/pynetdicom.css?v=0f9d927c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/css/pynetdicom.css?v=0f6f8154" />
+    <link rel="stylesheet" type="text/css" href="_static/css/pynetdicom.css?v=0f9d927c" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
   <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -46,6 +47,7 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=ccdb6887"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -179,23 +181,13 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="changelog/index.html">
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog/index.html">
     Releases
   </a>
 </li>
 
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -282,10 +274,6 @@
     </div>
   
 
-  
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
   
 </div>
 
@@ -455,123 +443,192 @@
                 <article class="bd-article">
                   
   <section id="pynetdicom">
-<h1><em>pynetdicom</em><a class="headerlink" href="#pynetdicom" title="Link to this heading">#</a></h1>
-<p><a class="extlink-gh reference external" href="https://github.com/pydicom/pynetdicom">pynetdicom</a> is a pure Python package
-that implements the <a class="reference external" href="https://www.dicomstandard.org/">DICOM</a> networking protocol.
-Working with
-<a class="extlink-gh reference external" href="https://github.com/pydicom/pydicom">pydicom</a>, it allows the easy creation
-of DICOM Application Entities (AEs), which can then act as <em>Service Class
-Users</em> (SCUs) and <em>Service Class Providers</em> (SCPs) by associating with other
-AEs and using or providing the services available to the association.</p>
-<section id="user-guide">
-<h2>User guide<a class="headerlink" href="#user-guide" title="Link to this heading">#</a></h2>
-<p>An overview for using <em>pynetdcom</em> and the concepts relevant to DICOM networking.</p>
+<h1>pynetdicom<a class="headerlink" href="#pynetdicom" title="Link to this heading">#</a></h1>
+<p><em>pynetdicom</em> is a <a class="reference external" href="https://www.python.org/">Python</a> package that implements the
+<a class="reference external" href="https://www.dicomstandard.org/">DICOM</a> networking protocol. Working with
+<a class="extlink-gh reference external" href="https://github.com/pydicom/pydicom">pydicom</a>, it allows the easy creation of DICOM Application Entities,
+which can then act as <em>Service Class Users</em> (SCUs) and <em>Service Class Providers</em>
+(SCPs) by associating with other DICOM applications.</p>
 <div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="user/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/concepts_uids.html">UIDs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/concepts_information_model.html">DICOM Information Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/concepts_ae.html">Application Entities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/concepts_contexts.html">Presentation Contexts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/concepts_association.html">Association</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/presentation_introduction.html">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/presentation_private.html">Registering private or retired SOP Classes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/presentation_requestor.html">Contexts and the Association Requestor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/presentation_acceptor.html">Contexts and the Association Acceptor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/presentation_negotiation.html">Presentation Context Negotiation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/presentation_role_selection.html">C-GET and SCP/SCU Role Selection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/events_types.html">Event types</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/events_types.html#notification-events">Notification Events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/events_types.html#intervention-events">Intervention Events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/events_handlers.html">Event Handlers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/ae.html">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/ae_scu.html">Use as an SCU</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/ae_scp.html">Use as an SCP</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/association_requesting.html">Requesting an association</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/association_requesting.html#using-the-association">Using the association</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/association_requesting.html#accessing-user-identity-responses">Accessing User Identity responses</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/association_accepting.html">Listening for association requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/association_accepting.html#providing-dimse-services">Providing DIMSE services</a></li>
-</ul>
-</li>
-</ul>
 </div>
-</section>
-<section id="tutorials">
-<h2>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading">#</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/create_scu.html">Writing your first SCU</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/create_scp.html">Writing your first SCP</a></li>
-</ul>
-</li>
-</ul>
+<section id="install">
+<h2>Install<a class="headerlink" href="#install" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set sd-width-content-min docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+pip</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pynetdicom
+</pre></div>
 </div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+conda</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>pynetdicom
+</pre></div>
+</div>
+</div>
+</div>
+<p>For more detailed instructions, see the <a class="reference internal" href="user/installation.html"><span class="doc">installation guide</span></a>.</p>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
-<p>Example source code and applications.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/index.html#code-examples">Code Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/index.html#example-applications">Example applications</a></li>
-</ul>
-</li>
-</ul>
+<div class="sd-tab-set sd-width-content-min docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+Echo SCU</label><div class="sd-tab-content docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Request a peer AE respond to a DICOM C-ECHO</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">Verification</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">ae_title</span><span class="o">=</span><span class="s2">&quot;MY_AE_TITLE&quot;</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
+
+<span class="c1"># Send an association request to the peer at IP 127.0.0.1, port 11112</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="c1"># Send a C-ECHO request, returns the response status as a pydicom Dataset</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_echo</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="c1"># A success response is 0x0000</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;C-ECHO response: 0x</span><span class="si">{</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="si">:</span><span class="s2">04X</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Connection timed out, was aborted or received an invalid response&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Association request rejected, aborted or never connected&quot;</span><span class="p">)</span>
+</pre></div>
 </div>
-</section>
-<section id="reference">
-<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading">#</a></h2>
-<p>Documentation for <cite>pynetdicom’s</cite> public functions, classes and other objects.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="reference/index.html">API</a></li>
-</ul>
 </div>
-</section>
-<section id="services">
-<h2>Services<a class="headerlink" href="#services" title="Link to this heading">#</a></h2>
-<p>Supported DICOM service classes.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="service_classes/index.html">Service Classes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/application_event.html">Application Event Logging Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/display_system_service_class.html">Display System Management Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/inventory_service_class.html">Inventory Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/instance_availability.html">Instance Availability Notification Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/media_creation.html">Media Creation Management Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/print_management.html">Print Management Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/protocol_approval_service_class.html">Protocol Approval Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/rt_machine.html">RT Machine Verification Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/storage_service_class.html">Storage Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/storage_commitment.html">Storage Commitment Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/storage_management.html">Storage Management Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/ups.html">Unified Procedure Step Service Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="service_classes/verification_service_class.html">Verification Service Class</a></li>
-</ul>
-</li>
-</ul>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+Storage SCU</label><div class="sd-tab-content docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Request a peer AE store a DICOM dataset</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">examples</span><span class="p">,</span> <span class="n">dcmread</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom.sop_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">CTImageStorage</span>
+
+<span class="c1"># pydicom&#39;s example CT dataset</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">dcmread</span><span class="p">(</span><span class="n">examples</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="s2">&quot;ct&quot;</span><span class="p">))</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">ae_title</span><span class="o">=</span><span class="s2">&quot;MY_AE_TITLE&quot;</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>  <span class="c1"># Must match the dataset being sent</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="c1"># Send a C-STORE request, returns the response status as a pydicom Dataset</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>  <span class="c1"># May also be the path to the dataset</span>
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="c1"># A success response is 0x0000</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;C-STORE response: 0x</span><span class="si">{</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="si">:</span><span class="s2">04X</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Connection timed out, was aborted or received an invalid response&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Association request rejected, aborted or never connected&quot;</span><span class="p">)</span>
+</pre></div>
 </div>
+</div>
+<input id="sd-tab-item-4" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
+Storage SCP</label><div class="sd-tab-content docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Listen for storage requests from peer AEs</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">uuid4</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynetdicom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AllStoragePresentationContexts</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle a C-STORE request event.&quot;&quot;&quot;</span>
+    <span class="c1"># Write the received dataset directly to file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">encoded_dataset</span><span class="p">())</span>
+
+    <span class="c1"># Return a &#39;Success&#39; status</span>
+    <span class="k">return</span> <span class="mh">0x0000</span>
+
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">ae_title</span><span class="o">=</span><span class="s2">&quot;MY_AE_TITLE&quot;</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">AllStoragePresentationContexts</span>
+
+<span class="c1"># Start listening for incoming association requests</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>More service class-specific code examples can be found <a class="reference internal" href="examples/index.html"><span class="doc">here</span></a>.</p>
 </section>
-<section id="releases">
-<h2>Releases<a class="headerlink" href="#releases" title="Link to this heading">#</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="changelog/index.html">Releases</a></li>
-</ul>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-2 sd-g-xs-2 sd-g-sm-3 sd-g-md-4 sd-g-lg-4 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-text-center docutils">
+<img alt="" class="sd-card-img-top" src="_images/user-guide.svg" />
+<div class="sd-card-header docutils">
+<p class="sd-card-text"><strong>User guide</strong></p>
+</div>
+<div class="sd-card-body docutils">
+<p class="sd-card-text">The user guide contains an introduction to relevant DICOM concepts
+and usage of <em>pynetdicom’s</em> core classes and functions.</p>
+</div>
+<div class="sd-card-footer docutils">
+<p class="sd-card-text"><span class="sd-d-grid"><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-primary sd-stretched-link reference internal" href="user/index.html"><span class="doc">User guide</span></a></span></p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-text-center docutils">
+<img alt="" class="sd-card-img-top" src="_images/learning.svg" />
+<div class="sd-card-header docutils">
+<p class="sd-card-text"><strong>Learning resources</strong></p>
+</div>
+<div class="sd-card-body docutils">
+<p class="sd-card-text">Our collection of code examples and tutorials should help you learn the basics
+of creating your own SCUs and SCPs.</p>
+</div>
+<div class="sd-card-footer docutils">
+<p class="sd-card-text"><span class="sd-d-grid"><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-primary sd-stretched-link reference internal" href="learning/index.html"><span class="doc">Learning resources</span></a></span></p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-text-center docutils">
+<img alt="" class="sd-card-img-top" src="_images/service-classes.svg" />
+<div class="sd-card-header docutils">
+<p class="sd-card-text"><strong>Service classes</strong></p>
+</div>
+<div class="sd-card-body docutils">
+<p class="sd-card-text">The service class documentation contains information on each of the DICOM
+services supported by <em>pynetdicom</em>.</p>
+</div>
+<div class="sd-card-footer docutils">
+<p class="sd-card-text"><span class="sd-d-grid"><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-primary sd-stretched-link reference internal" href="service_classes/index.html"><span class="doc">Service classes</span></a></span></p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-text-center docutils">
+<img alt="" class="sd-card-img-top" src="_images/api-reference.svg" />
+<div class="sd-card-header docutils">
+<p class="sd-card-text"><strong>API reference</strong></p>
+</div>
+<div class="sd-card-body docutils">
+<p class="sd-card-text">The API reference documentation contains detailed descriptions of the classes,
+functions, modules and other objects included in <em>pynetdicom</em>.</p>
+</div>
+<div class="sd-card-footer docutils">
+<p class="sd-card-text"><span class="sd-d-grid"><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-primary sd-stretched-link reference internal" href="reference/index.html"><span class="doc">API reference</span></a></span></p>
+</div>
+</div>
+</div>
+</div>
 </div>
 </section>
 </section>
@@ -601,29 +658,6 @@ AEs and using or providing the services available to the association.</p>
             </div>
             
             
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#user-guide">User guide</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorials">Tutorials</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#services">Services</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#releases">Releases</a></li>
-</ul>
-  </nav></div>
-
-</div></div>
               
             
           </div>

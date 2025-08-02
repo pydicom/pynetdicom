@@ -40,20 +40,3 @@ Code Examples
 * :doc:`Relevant Patient Information Query (C-FIND) <relevant_patient>`
 * :doc:`Storage (C-STORE) <storage>`
 * :doc:`Verification (C-ECHO) <verification>`
-
-
-Example applications
---------------------
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Example applications
-
-   ../apps/echoscp
-   ../apps/echoscu
-   ../apps/findscu
-   ../apps/getscu
-   ../apps/movescu
-   ../apps/qrscp
-   ../apps/storescp
-   ../apps/storescu

@@ -6,32 +6,28 @@ Install the official release
 ============================
 
 *pynetdicom* requires `Python <https://www.python.org/>`_ and `pydicom
-<https://pydicom.github.io/pydicom/stable/tutorials/installation.html>`_. In
+<https://pydicom.github.io/pydicom/dev/guides/user/installation.html>`_. In
 addition, if you want to use the :doc:`qrscp<../apps/qrscp>` application then
 `sqlalchemy <https://www.sqlalchemy.org/>`_ is also required.
 
-Install using pip
------------------
 
-*pynetdicom* is available on `PyPi <https://pypi.python.org/pypi/pynetdicom/>`_,
-the official third-party Python software repository. The simplest way to
-install (or upgrade) from PyPi is using `pip <https://pip.pypa.io/>`_::
+.. tab-set::
+    :sync-group: install
+    :class: sd-width-content-min
 
-    python -m pip install -U pip
-    python -m pip install -U pynetdicom
+    .. tab-item:: pip
+        :sync: pip
 
+        .. code-block:: bash
 
-Install using conda
--------------------
+            pip install -U pynetdicom
 
-*pynetdicom* is also available for `conda <https://docs.conda.io/>`_ on
-`conda-forge <https://anaconda.org/conda-forge/pynetdicom>`_::
+    .. tab-item:: conda
+        :sync: conda
 
-  conda install -c conda-forge pynetdicom
+        .. code-block:: bash
 
-To upgrade the installed version on conda do::
-
-  conda update pynetdicom
+            conda install -c conda-forge pynetdicom
 
 
 Install the development version

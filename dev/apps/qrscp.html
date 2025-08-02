@@ -31,9 +31,10 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f6f8154" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f9d927c" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f6f8154" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f9d927c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -46,6 +47,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'apps/qrscp';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -58,7 +60,7 @@
     <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="storescp" href="storescp.html" />
+    <link rel="next" title="storescu" href="storescu.html" />
     <link rel="prev" title="movescu" href="movescu.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -146,7 +148,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../user/index.html">
     User Guide
   </a>
@@ -160,7 +162,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../examples/index.html">
     Examples
   </a>
@@ -180,23 +182,13 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../changelog/index.html">
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog/index.html">
     Releases
   </a>
 </li>
 
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -314,7 +306,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../user/index.html">
     User Guide
   </a>
@@ -328,7 +320,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../examples/index.html">
     Examples
   </a>
@@ -430,29 +422,58 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Code examples</span></p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Get started</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../examples/basic_worklist.html">Basic Worklist Management Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/display.html">Display System Management Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/mpps.html">Modality Performed Procedure Step Management Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/print.html">Print Management Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/qr_find.html">Query/Retrieve (Find) Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/qr_get.html">Query/Retrieve (Get) Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/qr_move.html">Query/Retrieve (Move) Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/relevant_patient.html">Relevant Patient Information Query Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/storage.html">Storage Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/verification.html">Verification Service Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Example applications</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">DICOM concepts</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user/concepts_uids.html">UIDs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/concepts_information_model.html">DICOM Information Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/concepts_ae.html">Application Entities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/concepts_contexts.html">Presentation Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/concepts_association.html">Association</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Presentation Contexts</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_introduction.html">What is a Presentation Context?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_private.html">Registering private or retired SOP Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_requestor.html">Contexts and the Association Requestor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_acceptor.html">Contexts and the Association Acceptor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_negotiation.html">Presentation Context Negotiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_role_selection.html">C-GET and SCP/SCU Role Selection</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Event handling</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user/events_types.html">Event types</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="../user/events_handlers.html">Event Handlers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Application Entity</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user/ae.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/ae_scu.html">Use as an SCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/ae_scp.html">Use as an SCP</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Association</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user/association_requesting.html">Requesting an association</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="../user/association_accepting.html">Listening for association requests</a></li>
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Applications</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="echoscp.html">echoscp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="echoscu.html">echoscu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="echoscp.html">echoscp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="findscu.html">findscu</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getscu.html">getscu</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movescu.html">movescu</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">qrscp</a></li>
-<li class="toctree-l1"><a class="reference internal" href="storescp.html">storescp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="storescu.html">storescu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storescp.html">storescp</a></li>
 </ul>
 </div>
 </nav></div>
@@ -494,7 +515,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../examples/index.html" class="nav-link">Examples</a></li>
+    <li class="breadcrumb-item"><a href="../user/index.html" class="nav-link">User Guide</a></li>
     
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">qrscp</span></li>
   </ul>
@@ -697,11 +718,11 @@ service classes as an SCP. The following SOP classes are supported:</p>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
 <td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td><p>1.2.840.10008.1.2.2</p></td>
-<td><p>Explicit VR Big Endian</p></td>
-</tr>
-<tr class="row-odd"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
 <td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
 </tr>
 <tr class="row-even"><td><p>1.2.840.10008.1.2.4.50</p></td>
 <td><p>JPEG Baseline (Process 1)</p></td>
@@ -735,8 +756,98 @@ Prediction (Process 14 [Selection Value 1])</p></td>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2.4.93</p></td>
 <td><p>JPEG 2000 Part 2 Multi-component Image Compression</p></td>
 </tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.94</p></td>
+<td><p>JPIP Referenced</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.95</p></td>
+<td><p>JPIP Referenced Deflate</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.100</p></td>
+<td><p>MPEG2 Main Profile / Main Level</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.100.1</p></td>
+<td><p>Fragmentable MPEG2 Main Profile / Main Level</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.101</p></td>
+<td><p>MPEG2 Main Profile / High Level</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.101.1</p></td>
+<td><p>Fragmentable MPEG2 Main Profile / High Level</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.102</p></td>
+<td><p>MPEG-4 AVC/H.264 High Profile / Level 4.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.102.1</p></td>
+<td><p>Fragmentable MPEG-4 AVC/H.264 High Profile / Level 4.1</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.103</p></td>
+<td><p>MPEG-4 AVC/H.264 BD-compatible High Profile</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.103.1</p></td>
+<td><p>Fragmentable MPEG-4 AVC/H.264 BD-compatible High Profile</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.104</p></td>
+<td><p>MPEG-4 AVC/H.264 High Profile For 2D Video</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.104.1</p></td>
+<td><p>Fragmentable MPEG-4 AVC/H.264 High Profile For 2D Video</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.105</p></td>
+<td><p>MPEG-4 AVC/H.264 High Profile For 3D Video</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.105.1</p></td>
+<td><p>Fragmentable MPEG-4 AVC/H.264 High Profile For 3D Video</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.106</p></td>
+<td><p>MPEG-4 AVC/H.264 Stereo High Profile</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.106.1</p></td>
+<td><p>Fragmentable MPEG-4 AVC/H.264 Stereo High Profile</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.107</p></td>
+<td><p>HEVC/H.265 Main Profile / Level 5.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.108</p></td>
+<td><p>HEVC/H.265 Main 10 Profile / Level 5.1</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.110</p></td>
+<td><p>JPEG XL Lossless</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.111</p></td>
+<td><p>JPEG XL JPEG Recompression</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.112</p></td>
+<td><p>JPEG XL</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.201</p></td>
+<td><p>High-Throughput JPEG 2000 Lossless</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.202</p></td>
+<td><p>High-Throughput JPEG 2000 RPCL</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.203</p></td>
+<td><p>High-Throughput JPEG 2000</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.204</p></td>
+<td><p>JPIP HT2K Referenced</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.205</p></td>
+<td><p>JPIP HTJ2k Referenced Deflate</p></td>
+</tr>
 <tr class="row-even"><td><p>1.2.840.10008.1.2.5</p></td>
 <td><p>RLE Lossless</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.7.1</p></td>
+<td><p>SMPTE ST 2110-20 Uncompressed Progressive Active Video</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.7.2</p></td>
+<td><p>SMPTE ST 2110-20 Uncompressed Interlaced Active Video</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.7.3</p></td>
+<td><p>SMPTE ST 2110-30 PCM Digital Audio</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.8.1</p></td>
+<td><p>Deflated Image Frame Compression</p></td>
 </tr>
 </tbody>
 </table>
@@ -1295,11 +1406,11 @@ Instructions Storage</p></td>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
 <td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td><p>1.2.840.10008.1.2.2</p></td>
-<td><p>Explicit VR Big Endian</p></td>
-</tr>
-<tr class="row-odd"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
 <td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
 </tr>
 <tr class="row-even"><td><p>1.2.840.10008.1.2.4.50</p></td>
 <td><p>JPEG Baseline (Process 1)</p></td>
@@ -1333,8 +1444,98 @@ Prediction (Process 14 [Selection Value 1])</p></td>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2.4.93</p></td>
 <td><p>JPEG 2000 Part 2 Multi-component Image Compression</p></td>
 </tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.94</p></td>
+<td><p>JPIP Referenced</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.95</p></td>
+<td><p>JPIP Referenced Deflate</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.100</p></td>
+<td><p>MPEG2 Main Profile / Main Level</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.100.1</p></td>
+<td><p>Fragmentable MPEG2 Main Profile / Main Level</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.101</p></td>
+<td><p>MPEG2 Main Profile / High Level</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.101.1</p></td>
+<td><p>Fragmentable MPEG2 Main Profile / High Level</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.102</p></td>
+<td><p>MPEG-4 AVC/H.264 High Profile / Level 4.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.102.1</p></td>
+<td><p>Fragmentable MPEG-4 AVC/H.264 High Profile / Level 4.1</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.103</p></td>
+<td><p>MPEG-4 AVC/H.264 BD-compatible High Profile</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.103.1</p></td>
+<td><p>Fragmentable MPEG-4 AVC/H.264 BD-compatible High Profile</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.104</p></td>
+<td><p>MPEG-4 AVC/H.264 High Profile For 2D Video</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.104.1</p></td>
+<td><p>Fragmentable MPEG-4 AVC/H.264 High Profile For 2D Video</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.105</p></td>
+<td><p>MPEG-4 AVC/H.264 High Profile For 3D Video</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.105.1</p></td>
+<td><p>Fragmentable MPEG-4 AVC/H.264 High Profile For 3D Video</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.106</p></td>
+<td><p>MPEG-4 AVC/H.264 Stereo High Profile</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.106.1</p></td>
+<td><p>Fragmentable MPEG-4 AVC/H.264 Stereo High Profile</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.107</p></td>
+<td><p>HEVC/H.265 Main Profile / Level 5.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.108</p></td>
+<td><p>HEVC/H.265 Main 10 Profile / Level 5.1</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.110</p></td>
+<td><p>JPEG XL Lossless</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.111</p></td>
+<td><p>JPEG XL JPEG Recompression</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.112</p></td>
+<td><p>JPEG XL</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.201</p></td>
+<td><p>High-Throughput JPEG 2000 Lossless</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.202</p></td>
+<td><p>High-Throughput JPEG 2000 RPCL</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.203</p></td>
+<td><p>High-Throughput JPEG 2000</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.4.204</p></td>
+<td><p>JPIP HT2K Referenced</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.4.205</p></td>
+<td><p>JPIP HTJ2k Referenced Deflate</p></td>
+</tr>
 <tr class="row-even"><td><p>1.2.840.10008.1.2.5</p></td>
 <td><p>RLE Lossless</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.7.1</p></td>
+<td><p>SMPTE ST 2110-20 Uncompressed Progressive Active Video</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.7.2</p></td>
+<td><p>SMPTE ST 2110-20 Uncompressed Interlaced Active Video</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.7.3</p></td>
+<td><p>SMPTE ST 2110-30 PCM Digital Audio</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.8.1</p></td>
+<td><p>Deflated Image Frame Compression</p></td>
 </tr>
 </tbody>
 </table>
@@ -1517,11 +1718,11 @@ Model - GET</p></td>
       </div>
     </a>
     <a class="right-next"
-       href="storescp.html"
+       href="storescu.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">storescp</p>
+        <p class="prev-next-title">storescu</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

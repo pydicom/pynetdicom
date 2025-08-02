@@ -31,9 +31,10 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f6f8154" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f9d927c" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f6f8154" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f9d927c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -46,6 +47,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'apps/findscu';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -59,7 +61,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="getscu" href="getscu.html" />
-    <link rel="prev" title="echoscu" href="echoscu.html" />
+    <link rel="prev" title="echoscp" href="echoscp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="3.1.0.dev0" />
@@ -146,7 +148,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../user/index.html">
     User Guide
   </a>
@@ -160,7 +162,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../examples/index.html">
     Examples
   </a>
@@ -180,23 +182,13 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../changelog/index.html">
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog/index.html">
     Releases
   </a>
 </li>
 
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -314,7 +306,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../user/index.html">
     User Guide
   </a>
@@ -328,7 +320,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../examples/index.html">
     Examples
   </a>
@@ -430,29 +422,58 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Code examples</span></p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Get started</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../examples/basic_worklist.html">Basic Worklist Management Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/display.html">Display System Management Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/mpps.html">Modality Performed Procedure Step Management Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/print.html">Print Management Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/qr_find.html">Query/Retrieve (Find) Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/qr_get.html">Query/Retrieve (Get) Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/qr_move.html">Query/Retrieve (Move) Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/relevant_patient.html">Relevant Patient Information Query Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/storage.html">Storage Service Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/verification.html">Verification Service Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Example applications</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">DICOM concepts</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user/concepts_uids.html">UIDs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/concepts_information_model.html">DICOM Information Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/concepts_ae.html">Application Entities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/concepts_contexts.html">Presentation Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/concepts_association.html">Association</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Presentation Contexts</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_introduction.html">What is a Presentation Context?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_private.html">Registering private or retired SOP Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_requestor.html">Contexts and the Association Requestor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_acceptor.html">Contexts and the Association Acceptor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_negotiation.html">Presentation Context Negotiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/presentation_role_selection.html">C-GET and SCP/SCU Role Selection</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Event handling</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user/events_types.html">Event types</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="../user/events_handlers.html">Event Handlers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Application Entity</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user/ae.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/ae_scu.html">Use as an SCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/ae_scp.html">Use as an SCP</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Association</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user/association_requesting.html">Requesting an association</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="../user/association_accepting.html">Listening for association requests</a></li>
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Applications</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="echoscp.html">echoscp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="echoscu.html">echoscu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="echoscp.html">echoscp</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">findscu</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getscu.html">getscu</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movescu.html">movescu</a></li>
 <li class="toctree-l1"><a class="reference internal" href="qrscp.html">qrscp</a></li>
-<li class="toctree-l1"><a class="reference internal" href="storescp.html">storescp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="storescu.html">storescu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storescp.html">storescp</a></li>
 </ul>
 </div>
 </nav></div>
@@ -494,7 +515,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../examples/index.html" class="nav-link">Examples</a></li>
+    <li class="breadcrumb-item"><a href="../user/index.html" class="nav-link">User Guide</a></li>
     
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">findscu</span></li>
   </ul>
@@ -921,12 +942,12 @@ Management services as an SCU. The following SOP classes are supported:</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="echoscu.html"
+       href="echoscp.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">echoscu</p>
+        <p class="prev-next-title">echoscp</p>
       </div>
     </a>
     <a class="right-next"

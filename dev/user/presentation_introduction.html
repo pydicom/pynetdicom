@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Introduction &#8212; pynetdicom 3.1.0.dev0 documentation</title>
+    <title>What is a Presentation Context? &#8212; pynetdicom 3.1.0.dev0 documentation</title>
   
   
   
@@ -31,9 +31,10 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f6f8154" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f9d927c" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f6f8154" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pynetdicom.css?v=0f9d927c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -46,6 +47,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user/presentation_introduction';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -180,23 +182,13 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../changelog/index.html">
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog/index.html">
     Releases
   </a>
 </li>
 
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -438,9 +430,9 @@
 <li class="toctree-l1"><a class="reference internal" href="concepts_contexts.html">Presentation Contexts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="concepts_association.html">Association</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Presentation contexts</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Presentation Contexts</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Introduction</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">What is a Presentation Context?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="presentation_private.html">Registering private or retired SOP Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="presentation_requestor.html">Contexts and the Association Requestor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="presentation_acceptor.html">Contexts and the Association Acceptor</a></li>
@@ -467,6 +459,17 @@
 
 <li class="toctree-l1"><a class="reference internal" href="association_accepting.html">Listening for association requests</a></li>
 
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Applications</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../apps/echoscu.html">echoscu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/echoscp.html">echoscp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/findscu.html">findscu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/getscu.html">getscu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/movescu.html">movescu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/qrscp.html">qrscp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/storescu.html">storescu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apps/storescp.html">storescp</a></li>
 </ul>
 </div>
 </nav></div>
@@ -510,7 +513,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Introduction</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">What is a Presentation Context?</span></li>
   </ul>
 </nav>
 </div>
@@ -527,8 +530,8 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h1>
+  <section id="what-is-a-presentation-context">
+<h1>What is a Presentation Context?<a class="headerlink" href="#what-is-a-presentation-context" title="Link to this heading">#</a></h1>
 <p><a class="extlink-dcm reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.1.13">Presentation Contexts</a>
 are used in DICOM to fully define the content and the
 encoding of a piece of data (typically a DICOM dataset). They consist of three
