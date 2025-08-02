@@ -2,10 +2,23 @@
 
 import logging
 
+from pydicom._uid_dict import UID_dictionary
 from pydicom.uid import UID
 
 from ._version import __version__
 
+
+# fmt: off
+# Update pydicom's UID dictionary with any missing transfer syntaxes
+UID_dictionary.update(
+    {
+        '1.2.840.10008.1.2.4.110': ('JPEG XL Lossless', 'Transfer Syntax', '', '', 'JPEGXLLossless'),
+        '1.2.840.10008.1.2.4.111': ('JPEG XL JPEG Recompression', 'Transfer Syntax', '', '', 'JPEGXLJPEGRecompression'),
+        '1.2.840.10008.1.2.4.112': ('JPEG XL', 'Transfer Syntax', '', '', 'JPEGXL'),
+        '1.2.840.10008.1.2.8.1': ('Deflated Image Frame Compression', 'Transfer Syntax', '', '', 'DeflatedImageFrameCompression'),
+    }
+)
+# fmt: on
 
 _version = __version__.split(".")[:3]
 
