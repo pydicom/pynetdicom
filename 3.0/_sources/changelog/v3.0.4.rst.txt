@@ -1,0 +1,10 @@
+.. _v3.0.4:
+
+3.0.4
+=====
+
+Fixes
+-----
+
+Fixed unknown transfer syntax warnings due to pydicom v3.0 using an older version of the
+DICOM Standard.
