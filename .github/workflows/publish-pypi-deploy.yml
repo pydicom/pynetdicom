@@ -45,7 +45,7 @@ jobs:
 
     steps:
     - name: Download the package files
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         path: dist/
         merge-multiple: true
