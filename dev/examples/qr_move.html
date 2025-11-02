@@ -715,7 +715,7 @@ query against that, which is the approach taken by the
 </div>
 <p>It’s also possible to get more control over the association with the Storage
 SCP that’ll be receiving any matching datasets by yielding <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port,</span>
-<span class="pre">kwargs)</span></code> instead of <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port)</span></code>, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>
+<span class="pre">kwargs)</span></code> instead of <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port)</span></code>, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>
 containing keyword parameters that’ll be passed to
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>. In
 particular, this allows you to tailor the presentation contexts that will be
