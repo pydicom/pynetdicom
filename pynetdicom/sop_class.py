@@ -4,7 +4,7 @@ import inspect
 from keyword import iskeyword
 import logging
 import sys
-from typing import Optional, cast
+from typing import cast
 
 from pydicom.uid import UID
 
@@ -142,7 +142,7 @@ class SOPClass(UID):
 
     """
 
-    _service_class: Optional[type[ServiceClass]] = None
+    _service_class: type[ServiceClass] | None = None
     _name: str = ""
 
     def __new__(cls: type["SOPClass"], val: str) -> "SOPClass":
