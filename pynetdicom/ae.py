@@ -1495,7 +1495,7 @@ class ApplicationEntity:
         s.append("")
         if self.require_calling_aet != []:
             ae_titles = self.require_calling_aet
-            s.append((f"  Required calling AE title(s): {', '.join(ae_titles)}"))
+            s.append(f"  Required calling AE title(s): {', '.join(ae_titles)}")
         s.append(f"  Require called AE title: {self.require_called_aet}")
         s.append("")
 
