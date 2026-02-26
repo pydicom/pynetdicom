@@ -139,7 +139,7 @@ class StateMachine:
             If `state` is not a valid state.
         """
         # Validate that state is acceptable
-        if state in STATES.keys():
+        if state in STATES:
             self.current_state = state
         else:
             msg = f"Invalid state '{state}' for State Machine"

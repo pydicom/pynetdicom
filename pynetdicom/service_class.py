@@ -422,7 +422,7 @@ class ServiceClass:
             ``True`` if a C-CANCEL message has been received with a *Message ID
             Being Responded To* corresponding to `msg_id`, ``False`` otherwise.
         """
-        if msg_id in self.dimse.cancel_req.keys():
+        if msg_id in self.dimse.cancel_req:
             del self.dimse.cancel_req[msg_id]
             return True
 
