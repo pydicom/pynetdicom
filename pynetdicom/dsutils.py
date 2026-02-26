@@ -145,7 +145,6 @@ def encode(
         The encoded dataset as :class:`bytes` (if successful) or ``None`` if
         the encoding failed.
     """
-    # pylint: disable=broad-except
     fp = DicomBytesIO()
     fp.is_implicit_VR = is_implicit_vr
     fp.is_little_endian = is_little_endian

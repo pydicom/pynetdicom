@@ -20,7 +20,6 @@ from pydicom.dataset import Dataset
 from pydicom.tag import BaseTag
 from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRBigEndian
 
-# pylint: disable=no-name-in-module
 from pynetdicom.acse import ACSE
 from pynetdicom import _config, evt
 from pynetdicom.dimse import DIMSEServiceProvider
@@ -90,7 +89,6 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.transport import AssociationServer, AssociationSocket
 
 
-# pylint: enable=no-name-in-module
 LOGGER = logging.getLogger(__name__)
 HandlerType = dict[
     evt.EventType,
@@ -580,7 +578,6 @@ class Association(threading.Thread):
                 "or 'acceptor'"
             )
 
-        # pylint: disable=attribute-defined-outside-init
         self._mode = mode
 
     @property
@@ -2213,7 +2210,6 @@ class Association(threading.Thread):
                 #   statuses should contain an Identifier dataset
                 #   with a (0008,0058) Failed SOP Instance UID List
                 #    element however this can't be assumed
-                # pylint: disable=broad-except
                 with self.lock:
                     try:
                         identifier = decode(
@@ -2438,7 +2434,6 @@ class Association(threading.Thread):
             b: BytesIO = rsp.ActionReply  # type: ignore
             if b and b.getvalue() != b"":
                 # Attempt to decode the response's dataset
-                # pylint: disable=broad-except
                 try:
                     action_reply = decode(
                         b,
@@ -2676,7 +2671,6 @@ class Association(threading.Thread):
             b: BytesIO = rsp.AttributeList  # type: ignore
             if b and b.getvalue() != b"":
                 # Attempt to decode the response's dataset
-                # pylint: disable=broad-except
                 try:
                     attribute_list = decode(
                         b,
@@ -3007,7 +3001,6 @@ class Association(threading.Thread):
             b: BytesIO = rsp.EventReply  # type: ignore
             if b and b.getvalue() != b"":
                 # Attempt to decode the response"s dataset
-                # pylint: disable=broad-except
                 try:
                     event_reply = decode(
                         b,
@@ -3215,7 +3208,6 @@ class Association(threading.Thread):
             b: BytesIO = rsp.AttributeList  # type: ignore
             if b and b.getvalue() != b"":
                 # Attempt to decode the response"s dataset
-                # pylint: disable=broad-except
                 try:
                     attribute_list = decode(
                         b,
@@ -3466,7 +3458,6 @@ class Association(threading.Thread):
             b: BytesIO = rsp.AttributeList  # type: ignore
             if b and b.getvalue() != b"":
                 # Attempt to decode the response's dataset
-                # pylint: disable=broad-except
                 try:
                     attribute_list = decode(
                         b,
@@ -3824,7 +3815,6 @@ class ServiceUser:
 
             return items
 
-        # pylint: disable=unidiomatic-typecheck
         for item in self.user_information:
             if type(item) in self._ext_neg.keys():
                 items.append(item)
@@ -4177,7 +4167,6 @@ class ServiceUser:
                 "has started"
             )
 
-        # pylint: disable=unidiomatic-typecheck
         if type(item) in self._ext_neg:
             # Do nothing if item not in _ext_neg
             if item in self._ext_neg[type(item)]:

@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, cast
 
 from pynetdicom import evt
 
-# pylint: disable=no-name-in-module
 from pynetdicom.dimse_messages import (
     C_STORE_RQ,
     C_STORE_RSP,
@@ -38,7 +37,6 @@ from pynetdicom.dimse_messages import (
     DIMSEMessage,
 )
 
-# pylint: enable=no-name-in-module
 from pynetdicom.dimse_primitives import (
     C_STORE,
     C_FIND,

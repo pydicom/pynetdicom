@@ -2267,7 +2267,6 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     @scu_role.setter
     def scu_role(self, value: int | None) -> None:
         """Set the *SCU Role* field value."""
-        # pylint: disable=attribute-defined-outside-init
         if value not in [0, 1, None]:
             raise ValueError("SCU Role parameter value must be 0 or 1")
         else:
@@ -2286,7 +2285,6 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     @scp_role.setter
     def scp_role(self, value: int | None) -> None:
         """Set the *SCP Role* field value."""
-        # pylint: disable=attribute-defined-outside-init
         if value not in [0, 1, None]:
             raise ValueError("SCP Role parameter value must be 0 or 1")
         else:
@@ -2809,7 +2807,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         value_list : list of pydicom.uid.UID
             A list of UIDs.
         """
-        # pylint: disable=attribute-defined-outside-init
         self._related_general_sop_class_identification = []
 
         for value in value_list:
