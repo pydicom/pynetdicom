@@ -11,7 +11,6 @@ import threading
 from typing import (
     cast,
     TypeVar,
-    Type,
     Any,
     Sequence,
 )
@@ -806,7 +805,7 @@ class ApplicationEntity:
         contexts: ListCXType | None = None,
         ssl_context: SSLContext | None = None,
         evt_handlers: list[EventHandlerType] | None = None,
-        server_class: Type[_T] | None = None,
+        server_class: type[_T] | None = None,
         **kwargs: Any,
     ) -> _T | ThreadedAssociationServer:
         """Return an association server.

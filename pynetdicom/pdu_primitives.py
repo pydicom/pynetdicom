@@ -3,7 +3,7 @@ Implementation of the service parameter primitives.
 """
 
 import logging
-from typing import cast, Type, TypeAlias, TYPE_CHECKING
+from typing import cast, TypeAlias, TYPE_CHECKING
 
 from pydicom.uid import UID
 
@@ -43,14 +43,14 @@ _UI: TypeAlias = (
     "SOPClassCommonExtendedNegotiation | UserIdentityNegotiation"
 )
 _UITypes = (
-    Type["MaximumLengthNotification"]
-    | Type["ImplementationClassUIDNotification"]
-    | Type["ImplementationVersionNameNotification"]
-    | Type["AsynchronousOperationsWindowNegotiation"]
-    | Type["SCP_SCU_RoleSelectionNegotiation"]
-    | Type["SOPClassExtendedNegotiation"]
-    | Type["SOPClassCommonExtendedNegotiation"]
-    | Type["UserIdentityNegotiation"]
+    type["MaximumLengthNotification"]
+    | type["ImplementationClassUIDNotification"]
+    | type["ImplementationVersionNameNotification"]
+    | type["AsynchronousOperationsWindowNegotiation"]
+    | type["SCP_SCU_RoleSelectionNegotiation"]
+    | type["SOPClassExtendedNegotiation"]
+    | type["SOPClassCommonExtendedNegotiation"]
+    | type["UserIdentityNegotiation"]
 )
 
 

@@ -8,7 +8,6 @@ import traceback
 from types import TracebackType
 from typing import (
     TYPE_CHECKING,
-    Type,
     cast,
     Any,
     TypeVar,
@@ -71,7 +70,7 @@ DatasetType = Dataset | None
 UserReturnType = tuple[StatusType, DatasetType]
 _T = TypeVar("_T", bound=DIMSEPrimitive)
 _ExcInfoType = (
-    tuple[None, None, None] | tuple[Type[BaseException], BaseException, TracebackType]
+    tuple[None, None, None] | tuple[type[BaseException], BaseException, TracebackType]
 )
 DestinationType = tuple[str, int] | tuple[str, int, dict[str, Any]]
 
@@ -112,7 +111,7 @@ class attempt:
 
     def __exit__(
         self,
-        exc_type: Type[BaseException] | None,
+        exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
     ) -> bool | None:

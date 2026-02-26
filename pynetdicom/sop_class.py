@@ -4,7 +4,7 @@ import inspect
 from keyword import iskeyword
 import logging
 import sys
-from typing import Optional, Type, cast, Dict
+from typing import Optional, cast
 
 from pydicom.uid import UID
 
@@ -41,7 +41,7 @@ from pynetdicom.service_class_n import (
 LOGGER = logging.getLogger(__name__)
 
 
-def uid_to_service_class(uid: str) -> Type[ServiceClass]:
+def uid_to_service_class(uid: str) -> type[ServiceClass]:
     """Return the :class:`~pynetdicom.service_class.ServiceClass` object
     corresponding to `uid`.
 
@@ -142,10 +142,10 @@ class SOPClass(UID):
 
     """
 
-    _service_class: Optional[Type[ServiceClass]] = None
+    _service_class: Optional[type[ServiceClass]] = None
     _name: str = ""
 
-    def __new__(cls: Type["SOPClass"], val: str) -> "SOPClass":
+    def __new__(cls: type["SOPClass"], val: str) -> "SOPClass":
         if isinstance(val, SOPClass):
             return val
 
@@ -157,7 +157,7 @@ class SOPClass(UID):
         return cast(ServiceClass, self._service_class)
 
 
-def _generate_sop_classes(sop_class_dict: Dict[str, str]) -> None:
+def _generate_sop_classes(sop_class_dict: dict[str, str]) -> None:
     """Generate the SOP Classes."""
     for name, uid in sop_class_dict.items():
         sop_class: SOPClass = SOPClass(uid)
@@ -572,7 +572,7 @@ def uid_to_sop_class(uid: str) -> SOPClass:
 def register_uid(
     uid: str,
     keyword: str,
-    service_class: Type[ServiceClass],
+    service_class: type[ServiceClass],
     dimse_msg_type: str = "",
 ) -> None:
     """Register a private or public SOP Class UID `uid` with the
