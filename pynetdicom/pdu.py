@@ -1093,21 +1093,22 @@ class A_ASSOCIATE_AC(PDU):
 
     def __str__(self) -> str:
         """Return a string representation of the PDU."""
-        s = ["A-ASSOCIATE-AC PDU"]
-        s.append("==================")
-        s.append(f"  PDU type: 0x{self.pdu_type:02X}")
-        s.append(f"  PDU length: {self.pdu_length} bytes")
-        s.append(f"  Protocol version: {self.protocol_version}")
-        s.append(f"  Reserved (Called AET):  {self._reserved_aet}")
-        s.append(f"  Reserved (Calling AET): {self._reserved_aec}")
-        s.append("")
+        s = [
+            "A-ASSOCIATE-AC PDU",
+            "==================",
+            f"  PDU type: 0x{self.pdu_type:02X}",
+            f"  PDU length: {self.pdu_length} bytes",
+            f"  Protocol version: {self.protocol_version}",
+            f"  Reserved (Called AET):  {self._reserved_aet}",
+            f"  Reserved (Calling AET): {self._reserved_aec}",
+            "",
+            "  Variable Items:",
+            "  ---------------",
+            "  * Application Context Item",
+            f"    -  Context name: ={self.application_context_name}",
+        ]
 
-        s.append("  Variable Items:")
-        s.append("  ---------------")
-        s.append("  * Application Context Item")
-        s.append(f"    -  Context name: ={self.application_context_name}")
         s.append("  * Presentation Context Item(s):")
-
         for cx in self.presentation_context:
             item_str_list = str(cx).split("\n")
             s.append(f"    -  {item_str_list[0]}")

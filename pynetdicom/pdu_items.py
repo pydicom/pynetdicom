@@ -1342,10 +1342,12 @@ class AbstractSyntaxSubItem(PDUItem):
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
-        s = ["Abstract Syntax Sub-item"]
-        s.append(f"  Item type: 0x{self.item_type:02X}")
-        s.append(f"  Item length: {self.item_length} bytes")
-        s.append(f"  Syntax name: ={self.abstract_syntax.name}")  # type: ignore
+        s = [
+            "Abstract Syntax Sub-item",
+            f"  Item type: 0x{self.item_type:02X}",
+            f"  Item length: {self.item_length} bytes",
+            f"  Syntax name: ={self.abstract_syntax.name}",  # type: ignore
+        ]
 
         return "\n".join(s)
 
@@ -1466,9 +1468,11 @@ class TransferSyntaxSubItem(PDUItem):
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
-        s = ["Transfer syntax sub item"]
-        s.append(f"  Item type: 0x{self.item_type:02X}")
-        s.append(f"  Item length: {self.item_length} bytes")
+        s = [
+            "Transfer syntax sub item",
+            f"  Item type: 0x{self.item_type:02X}",
+            f"  Item length: {self.item_length} bytes",
+        ]
         if self.transfer_syntax_name:
             s.append(f"  Transfer syntax name: ={self.transfer_syntax_name.name}")
 
@@ -3441,14 +3445,15 @@ class PresentationDataValueItem(PDUItem):
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
-        s = ["Presentation Value Data Item"]
-        s.append(f"  Item length: {self.item_length} bytes")
-        s.append(f"  Context ID: {self.presentation_context_id}")
-
-        pdv_sample = [
+        pdv_samples = ' '.join(
             f"0x{b:02X}" for b in self.presentation_data_value[:10]  # type: ignore
+        )
+        s = [
+            "Presentation Value Data Item",
+            f"  Item length: {self.item_length} bytes",
+            f"  Context ID: {self.presentation_context_id}",
+            f"  Data value: {pdv_samples} ...",
         ]
-        s.append(f"  Data value: {' '.join(pdv_sample)} ...")
 
         return "\n".join(s)
 
