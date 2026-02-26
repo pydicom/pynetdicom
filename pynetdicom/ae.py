@@ -1556,7 +1556,7 @@ class ApplicationEntity:
         """
         # The supported presentation contexts are stored internally as a dict
         return sorted(
-            list(self._supported_contexts.values()),
+            self._supported_contexts.values(),
             key=lambda cx: cast(UID, cx.abstract_syntax),
         )
 

@@ -479,7 +479,7 @@ def get_files(fpaths, recurse=False):
         else:
             bad.append(fpath)
 
-    return sorted(list({pp for pp in out if os.path.isfile(pp)})), bad
+    return sorted({pp for pp in out if os.path.isfile(pp)}), bad
 
 
 def setup_logging(args, app_name):
