@@ -1328,7 +1328,7 @@ class ApplicationEntity:
     @require_calling_aet.setter
     def require_calling_aet(self, ae_titles: list[str]) -> None:
         """Set the required calling AE title."""
-        if any([isinstance(v, bytes) for v in ae_titles]):
+        if any(isinstance(v, bytes) for v in ae_titles):
             warnings.warn(
                 "The use of a list of bytes with 'require_calling_aet' is "
                 "deprecated, use a list of ASCII str instead",
