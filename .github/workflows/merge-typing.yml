@@ -22,7 +22,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: pip install .[dev]
+      run: pip install . --group dev
     - name: Run typing check with mypy
       run: |
         mypy

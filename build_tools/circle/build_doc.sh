@@ -96,7 +96,7 @@ python3 -m venv venv
 . venv/bin/activate
 
 pip install -U pip
-pip install -e .[docs]
+pip install -e . --group docs
 
 # The pipefail is requested to propagate exit code
 set -o pipefail && cd docs && make $MAKE_TARGET 2>&1 | tee ~/log.txt

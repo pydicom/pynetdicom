@@ -40,6 +40,19 @@ homepage = "https://github.com/pydicom/pynetdicom"
 
 [project.optional-dependencies]
 apps = ["sqlalchemy"]
+
+[project.scripts]
+echoscp = "pynetdicom.apps.echoscp.echoscp:main"
+echoscu = "pynetdicom.apps.echoscu.echoscu:main"
+findscu = "pynetdicom.apps.findscu.findscu:main"
+getscu = "pynetdicom.apps.getscu.getscu:main"
+movescu = "pynetdicom.apps.movescu.movescu:main"
+qrscp = "pynetdicom.apps.qrscp.qrscp:main"
+storescp = "pynetdicom.apps.storescp.storescp:main"
+storescu = "pynetdicom.apps.storescu.storescu:main"
+
+
+[dependency-groups]
 dev = [
     "asv >=0.6",
     "black >=23.1",
@@ -69,17 +82,6 @@ tests = [
     "pytest-xdist >= 3.7",
     "sqlalchemy >=2.0",
 ]
-
-
-[project.scripts]
-echoscp = "pynetdicom.apps.echoscp.echoscp:main"
-echoscu = "pynetdicom.apps.echoscu.echoscu:main"
-findscu = "pynetdicom.apps.findscu.findscu:main"
-getscu = "pynetdicom.apps.getscu.getscu:main"
-movescu = "pynetdicom.apps.movescu.movescu:main"
-qrscp = "pynetdicom.apps.qrscp.qrscp:main"
-storescp = "pynetdicom.apps.storescp.storescp:main"
-storescu = "pynetdicom.apps.storescu.storescu:main"
 
 
 [tool.black]

@@ -60,7 +60,7 @@ Testing
 To install the test requirements use:
 
   ```bash
-  pip install -e .[tests]
+  pip install -e . --group tests
   ```
 
 Then to run the core tests:
@@ -78,7 +78,7 @@ Documentation
 To install the documentation build requirements use:
 
   ```bash
-  pip install -e .[docs]
+  pip install -e . --group docs
   ```
 
 To build the documentation run:

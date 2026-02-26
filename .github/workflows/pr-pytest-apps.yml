@@ -24,7 +24,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: pip install -e .[tests]
+      run: pip install -e . --group tests
     - name: Switch to development pydicom
       run: |
         pip install git+https://github.com/pydicom/pydicom
@@ -52,7 +52,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: pip install -e .[tests]
+      run: pip install -e . --group tests
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
