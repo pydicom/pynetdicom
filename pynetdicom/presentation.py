@@ -970,7 +970,6 @@ def build_role(
 
 
 # Service specific pre-generated Presentation Contexts
-# pylint: disable=line-too-long,invalid-name
 ApplicationEventLoggingPresentationContexts = [
     build_context(uid) for uid in sorted(_APPLICATION_EVENT_CLASSES.values())
 ]

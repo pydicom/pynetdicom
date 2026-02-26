@@ -34,7 +34,6 @@ class InvalidEventError(Exception):
     pass
 
 
-# pylint: disable=invalid-name
 class StateMachine:
     """Implementation of the DICOM Upper Layer State Machine.
 
@@ -1036,7 +1035,6 @@ def AA_8(dul: "DULServiceProvider") -> str:
 
 # Finite State Machine
 # Machine State Definitions, PS3.8 Tables 9-1, 9-2, 9-3, 9-4, 9-5
-# pylint: disable=line-too-long
 STATES = {
     # No association
     "Sta1": "Idle",

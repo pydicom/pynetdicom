@@ -569,7 +569,6 @@ def code_to_category(code: int) -> str:
     """Return a *Status* category as :class:`str` or ``'Unknown'`` if not
     recognised.
     """
-    # pylint: disable=too-many-return-statements
     if isinstance(code, int) and code >= 0:
         if code == 0x0000:
             return STATUS_SUCCESS

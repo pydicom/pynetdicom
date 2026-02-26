@@ -134,7 +134,6 @@ class PDU:
         if other is self:
             return True
 
-        # pylint: disable=protected-access
         if isinstance(other, self.__class__):
             self_dict = {
                 enc[0]: getattr(self, enc[0]) for enc in self._encoders if enc[0]

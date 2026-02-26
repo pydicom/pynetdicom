@@ -1081,7 +1081,6 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
         client_address: tuple[str, int] | str,
     ) -> None:
         """Process a connection request."""
-        # pylint: disable=broad-except
         try:
             self.finish_request(request, client_address)
         except Exception:

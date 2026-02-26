@@ -98,7 +98,6 @@ class NotificationEvent(NamedTuple):
         return self.name
 
 
-# pylint: disable=line-too-long
 EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
 EVT_ACCEPTED = NotificationEvent("EVT_ACCEPTED", "Association request accepted")  # noqa
 EVT_ACSE_RECV = NotificationEvent(
@@ -189,7 +188,6 @@ EVT_N_EVENT_REPORT = InterventionEvent(
 )  # noqa
 EVT_N_GET = InterventionEvent("EVT_N_GET", "N-GET request received")
 EVT_N_SET = InterventionEvent("EVT_N_SET", "N-SET request received")
-# pylint: enable=line-too-long
 
 _INTERVENTION_EVENTS = [
     ii[1]

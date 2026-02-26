@@ -53,7 +53,6 @@ class ApplicationEntity:
     or both.
     """
 
-    # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, ae_title: str = "PYNETDICOM") -> None:
         """Create a new Application Entity.
 

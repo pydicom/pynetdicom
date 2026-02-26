@@ -436,7 +436,6 @@ class DIMSEMessage:
 
                     # Command Set is always encoded Implicit VR Little Endian
                     #   decode(dataset, is_implicit_VR, is_little_endian)
-                    # pylint: disable=attribute-defined-outside-init
                     self.command_set = decode(self.encoded_command_set, True, True)
 
                     # Determine which DIMSE Message class to use
@@ -745,7 +744,6 @@ class DIMSEMessage:
             :ref:`pynetdicom.dimse_primitives<api_dimse_primitives>`
             to convert to the current ``DIMSEMessage`` object.
         """
-        # pylint: disable=too-many-branches,too-many-statements
         cls_type_name = self.__class__.__name__.replace("_", "-")
         if cls_type_name not in _COMMAND_SET_KEYWORDS:
             raise ValueError(

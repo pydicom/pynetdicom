@@ -44,10 +44,6 @@ DimseServiceType: TypeAlias = (
 DimsePrimitiveType: TypeAlias = "C_CANCEL | DimseServiceType"
 
 
-# pylint: disable=invalid-name
-# pylint: disable=attribute-defined-outside-init
-# pylint: disable=too-many-instance-attributes
-# pylint: disable=anomalous-backslash-in-string
 class DIMSEPrimitive:
     """Base class for the DIMSE primitives."""
 

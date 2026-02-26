@@ -178,7 +178,6 @@ _SERVICE_CLASSES = {
 }
 
 # Generate the various SOP classes
-# pylint: disable=line-too-long
 _APPLICATION_EVENT_CLASSES = {
     "ProceduralEventLogging": "1.2.840.10008.1.40",
     "SubstanceAdministrationLogging": "1.2.840.10008.1.42",
@@ -509,7 +508,6 @@ _SERVICE_TO_UID_GROUP = {
 }
 
 
-# pylint: enable=line-too-long
 _generate_sop_classes(_APPLICATION_EVENT_CLASSES)
 _generate_sop_classes(_BASIC_WORKLIST_CLASSES)
 _generate_sop_classes(_COLOR_PALETTE_CLASSES)
