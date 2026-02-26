@@ -11,10 +11,9 @@ import threading
 from typing import (
     cast,
     TypeVar,
-    Type,
     Any,
-    Sequence,
 )
+from collections.abc import Sequence
 import warnings
 
 from pydicom.uid import UID
@@ -806,7 +805,7 @@ class ApplicationEntity:
         contexts: ListCXType | None = None,
         ssl_context: SSLContext | None = None,
         evt_handlers: list[EventHandlerType] | None = None,
-        server_class: Type[_T] | None = None,
+        server_class: type[_T] | None = None,
         **kwargs: Any,
     ) -> _T | ThreadedAssociationServer:
         """Return an association server.
@@ -1328,7 +1327,7 @@ class ApplicationEntity:
     @require_calling_aet.setter
     def require_calling_aet(self, ae_titles: list[str]) -> None:
         """Set the required calling AE title."""
-        if any([isinstance(v, bytes) for v in ae_titles]):
+        if any(isinstance(v, bytes) for v in ae_titles):
             warnings.warn(
                 "The use of a list of bytes with 'require_calling_aet' is "
                 "deprecated, use a list of ASCII str instead",
@@ -1477,8 +1476,7 @@ class ApplicationEntity:
             s.append("\tNone")
         for context in self.requested_contexts:
             s.append(f"\t{cast(UID, context.abstract_syntax).name}")
-            for transfer_syntax in context.transfer_syntax:
-                s.append(f"\t\t{transfer_syntax.name}")
+            s.extend(f"\t\t{transfer_syntax.name}" for transfer_syntax in context.transfer_syntax)
 
         s.append("")
         s.append("  Supported Presentation Contexts:")
@@ -1486,8 +1484,7 @@ class ApplicationEntity:
             s.append("\tNone")
         for context in self.supported_contexts:
             s.append(f"\t{cast(UID, context.abstract_syntax).name}")
-            for transfer_syntax in context.transfer_syntax:
-                s.append(f"\t\t{transfer_syntax.name}")
+            s.extend(f"\t\t{transfer_syntax.name}" for transfer_syntax in context.transfer_syntax)
 
         s.append("")
         s.append(f"  ACSE timeout: {self.acse_timeout} s")
@@ -1498,7 +1495,7 @@ class ApplicationEntity:
         s.append("")
         if self.require_calling_aet != []:
             ae_titles = self.require_calling_aet
-            s.append((f"  Required calling AE title(s): {', '.join(ae_titles)}"))
+            s.append(f"  Required calling AE title(s): {', '.join(ae_titles)}")
         s.append(f"  Require called AE title: {self.require_called_aet}")
         s.append("")
 
@@ -1508,11 +1505,8 @@ class ApplicationEntity:
             f"/{self.maximum_associations}"
         )
 
-        for assoc in self.active_associations:
-            s.append(
-                f"\tPeer: {assoc.remote['ae_title']} on "
-                f"{assoc.remote['address']}:{assoc.remote['port']}"
-            )
+        s.extend(f"\tPeer: {assoc.remote['ae_title']} on "
+                f"{assoc.remote['address']}:{assoc.remote['port']}" for assoc in self.active_associations)
 
         return "\n".join(s)
 
@@ -1556,7 +1550,7 @@ class ApplicationEntity:
         """
         # The supported presentation contexts are stored internally as a dict
         return sorted(
-            list(self._supported_contexts.values()),
+            self._supported_contexts.values(),
             key=lambda cx: cast(UID, cx.abstract_syntax),
         )
 

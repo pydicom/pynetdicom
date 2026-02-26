@@ -18,7 +18,8 @@ except ImportError:
     #   and must use "ssl.SSLContext" in type hints
     _HAS_SSL = False
 import threading
-from typing import TYPE_CHECKING, Any, cast, Callable
+from typing import TYPE_CHECKING, Any, cast
+from collections.abc import Callable
 import warnings
 
 from pynetdicom import evt, _config
@@ -191,20 +192,14 @@ class AddressInformation:
         """Return ``True`` if the address belongs to the IPv4 family, ``False``
         otherwise.
         """
-        if "." in self.address:
-            return True
-
-        return False
+        return "." in self.address
 
     @property
     def is_ipv6(self) -> bool:
         """Return ``True`` if the address belongs to the IPv6 family, ``False``
         otherwise.
         """
-        if ":" in self.address:
-            return True
-
-        return False
+        return ":" in self.address
 
 
 class T_CONNECT:

@@ -245,7 +245,7 @@ def pretty_element(elem: DataElement) -> str:
                     value = f"({len(elem.value)} bytes of binary data)"
             else:
                 # Multiple values - probably non-conformant
-                total_length = sum([len(ii) for ii in elem.value])
+                total_length = sum(len(ii) for ii in elem.value)
                 value = f"({total_length} bytes of binary data)"
         elif elem.VR != "SQ":
             # Non-sequence elements

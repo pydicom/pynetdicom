@@ -1,6 +1,7 @@
 """pynetdicom configuration options"""
 
-from typing import Callable, Any
+from typing import Any
+from collections.abc import Callable
 
 from pynetdicom._validators import validate_ae, validate_ui
 

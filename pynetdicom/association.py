@@ -7,12 +7,11 @@ from pathlib import Path
 import threading
 import time
 from typing import (
-    Callable,
     Any,
-    Iterator,
     TYPE_CHECKING,
     cast,
 )
+from collections.abc import Callable, Iterator
 import warnings
 
 from pydicom import dcmread
@@ -1234,7 +1233,7 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                "  Abstract Syntax:   =" f"{cast(UID, context.abstract_syntax).name}"
+                f"  Abstract Syntax:   ={cast(UID, context.abstract_syntax).name}"
             )
 
         query_model = UID(query_model)
@@ -2371,7 +2370,7 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                "  Abstract Syntax:   =" f"{cast(UID, context.abstract_syntax).name}"
+                f"  Abstract Syntax:   ={cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -2939,7 +2938,7 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                "  Abstract Syntax:   =" f"{cast(UID, context.abstract_syntax).name}"
+                f"  Abstract Syntax:   ={cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -3167,7 +3166,7 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                "  Abstract Syntax:   =" f"{cast(UID, context.abstract_syntax).name}"
+                f"  Abstract Syntax:   ={cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -3403,7 +3402,7 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                "  Abstract Syntax:   =" f"{cast(UID, context.abstract_syntax).name}"
+                f"  Abstract Syntax:   ={cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -3825,9 +3824,7 @@ class ServiceUser:
             return items
 
         # pylint: disable=unidiomatic-typecheck
-        for item in self.user_information:
-            if type(item) in self._ext_neg.keys():
-                items.append(item)
+        items.extend(item for item in self.user_information if type(item) in self._ext_neg)
 
         return items
 

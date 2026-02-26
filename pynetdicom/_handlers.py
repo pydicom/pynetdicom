@@ -2,7 +2,8 @@
 
 import logging
 from struct import unpack, calcsize
-from typing import TYPE_CHECKING, cast, Any, Sequence, Iterator
+from typing import TYPE_CHECKING, cast, Any
+from collections.abc import Sequence, Iterator
 
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
@@ -57,13 +58,7 @@ LOGGER = logging.getLogger(__name__)
 def debug_fsm(event: "Event") -> None:
     """Debugging handler for the FSM."""
     LOGGER.debug(
-        "{}: {} + {} -> {} -> {}".format(
-            event.assoc.mode[0].upper(),
-            event.current_state,
-            event.fsm_event,
-            event.action,
-            event.next_state,
-        )
+        f"{event.assoc.mode[0].upper()}: {event.current_state} + {event.fsm_event} -> {event.action} -> {event.next_state}"
     )
 
 
@@ -139,7 +134,7 @@ def debug_data(
             len_bytes = calcsize(fmt)
             length = unpack(fmt, data[idx + 2 : idx + 2 + len_bytes])[0]
 
-            s = f" {idx:>{digits}}: 0x{data_type:02X} - {name} " f"({length} bytes)"
+            s = f" {idx:>{digits}}: 0x{data_type:02X} - {name} ({length} bytes)"
 
             # Presentation Content Item
             if data_type == 0x20:
