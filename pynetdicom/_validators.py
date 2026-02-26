@@ -64,7 +64,7 @@ def validate_ui(value: UID) -> tuple[bool, str]:
 
         return False, "UID is non-conformant"
 
-    if not 0 < len(value):
+    if not len(value) > 0:
         return False, "must not be an empty str"
 
     if not len(value) < 65:
