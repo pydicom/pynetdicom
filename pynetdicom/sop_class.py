@@ -159,8 +159,7 @@ class SOPClass(UID):
 
 def _generate_sop_classes(sop_class_dict: Dict[str, str]) -> None:
     """Generate the SOP Classes."""
-    for name in sop_class_dict:
-        uid = sop_class_dict[name]
+    for name, uid in sop_class_dict.items():
         sop_class: SOPClass = SOPClass(uid)
         sop_class._service_class = uid_to_service_class(uid)
         docstring = f"``{uid}``"

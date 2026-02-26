@@ -690,15 +690,13 @@ class A_ASSOCIATE_RQ(PDU):
         for cx in self.presentation_context:
             item_str_list = str(cx).split("\n")
             s.append(f"    - {item_str_list[0]}")
-            for jj in item_str_list[1:-1]:
-                s.append(f"      {jj}")
+            s.extend(f"      {jj}" for jj in item_str_list[1:-1])
 
         s.append("  * User Information Item(s):")
         for item in cast(UserInformationItem, self.user_information).user_data:
             item_str_list = str(item).split("\n")
             s.append(f"    - {item_str_list[0]}")
-            for jj in item_str_list[1:-1]:
-                s.append(f"      {jj}")
+            s.extend(f"      {jj}" for jj in item_str_list[1:-1])
 
         return "\n".join(s)
 
@@ -1112,15 +1110,13 @@ class A_ASSOCIATE_AC(PDU):
         for cx in self.presentation_context:
             item_str_list = str(cx).split("\n")
             s.append(f"    -  {item_str_list[0]}")
-            for jj in item_str_list[1:-1]:
-                s.append(f"       {jj}")
+            s.extend(f"       {jj}" for jj in item_str_list[1:-1])
 
         s.append("  * User Information Item(s):")
         for item in cast(UserInformationItem, self.user_information).user_data:
             item_str_list = str(item).split("\n")
             s.append(f"    -  {item_str_list[0]}")
-            for jj in item_str_list[1:-1]:
-                s.append(f"       {jj}")
+            s.extend(f"       {jj}" for jj in item_str_list[1:-1])
 
         return "\n".join(s)
 

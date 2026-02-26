@@ -811,10 +811,7 @@ def negotiate_as_requestor(
     requestor_contexts = {context.context_id: context for context in rq_contexts}
     acceptor_contexts = {context.context_id: context for context in ac_contexts}
 
-    for context_id in requestor_contexts:
-        # Convenience variable
-        rq_context = requestor_contexts[context_id]
-
+    for context_id, rq_context in requestor_contexts.items():
         context = PresentationContext()
         context.context_id = context_id
         context.abstract_syntax = rq_context.abstract_syntax

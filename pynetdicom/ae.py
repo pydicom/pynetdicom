@@ -1477,8 +1477,7 @@ class ApplicationEntity:
             s.append("\tNone")
         for context in self.requested_contexts:
             s.append(f"\t{cast(UID, context.abstract_syntax).name}")
-            for transfer_syntax in context.transfer_syntax:
-                s.append(f"\t\t{transfer_syntax.name}")
+            s.extend(f"\t\t{transfer_syntax.name}" for transfer_syntax in context.transfer_syntax)
 
         s.append("")
         s.append("  Supported Presentation Contexts:")
@@ -1486,8 +1485,7 @@ class ApplicationEntity:
             s.append("\tNone")
         for context in self.supported_contexts:
             s.append(f"\t{cast(UID, context.abstract_syntax).name}")
-            for transfer_syntax in context.transfer_syntax:
-                s.append(f"\t\t{transfer_syntax.name}")
+            s.extend(f"\t\t{transfer_syntax.name}" for transfer_syntax in context.transfer_syntax)
 
         s.append("")
         s.append(f"  ACSE timeout: {self.acse_timeout} s")
@@ -1508,11 +1506,8 @@ class ApplicationEntity:
             f"/{self.maximum_associations}"
         )
 
-        for assoc in self.active_associations:
-            s.append(
-                f"\tPeer: {assoc.remote['ae_title']} on "
-                f"{assoc.remote['address']}:{assoc.remote['port']}"
-            )
+        s.extend(f"\tPeer: {assoc.remote['ae_title']} on "
+                f"{assoc.remote['address']}:{assoc.remote['port']}" for assoc in self.active_associations)
 
         return "\n".join(s)
 

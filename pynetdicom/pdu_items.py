@@ -2894,8 +2894,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             f"{self.related_general_sop_class_identification_length} bytes",
             "  Related general SOP class ID(s):",
         ]
-        for uid in self.related_general_sop_class_identification:
-            s.append(f"    ={uid} ({uid.name})")
+        s.extend(f"    ={uid} ({uid.name})" for uid in self.related_general_sop_class_identification)
 
         s.append("")
 

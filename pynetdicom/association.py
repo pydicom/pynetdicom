@@ -3825,9 +3825,7 @@ class ServiceUser:
             return items
 
         # pylint: disable=unidiomatic-typecheck
-        for item in self.user_information:
-            if type(item) in self._ext_neg:
-                items.append(item)
+        items.extend(item for item in self.user_information if type(item) in self._ext_neg)
 
         return items
 
