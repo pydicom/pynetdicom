@@ -129,7 +129,7 @@ class PDU:
         """Return an iterable of tuples that contain field encoders."""
         raise NotImplementedError
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Return ``True`` if `self` equals `other`."""
         if other is self:
             return True
@@ -217,7 +217,7 @@ class PDU:
         """Return the total length of the encoded PDU as :class:`int`."""
         return 6 + self.pdu_length
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         """Return ``True`` if `self` does not equal `other`."""
         return not self == other
 

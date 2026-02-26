@@ -3,7 +3,7 @@ Implementation of the service parameter primitives.
 """
 
 import logging
-from typing import Any, cast, Type, TypeAlias, TYPE_CHECKING
+from typing import cast, Type, TypeAlias, TYPE_CHECKING
 
 from pydicom.uid import UID
 
@@ -58,14 +58,14 @@ _UITypes = (
 class ServiceParameter:
     """Base class for Service Parameters"""
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Equality of two ServiceParameters"""
         if isinstance(other, self.__class__):
             return other.__dict__ == self.__dict__
 
         return False
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         """Inequality of two ServiceParameters"""
         return not self == other
 

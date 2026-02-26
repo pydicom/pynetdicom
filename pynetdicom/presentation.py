@@ -1,7 +1,7 @@
 """Implementation of the Presentation service."""
 
 import logging
-from typing import Any, TYPE_CHECKING, NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from pydicom.uid import UID
 
@@ -337,7 +337,7 @@ class PresentationContext:
 
         self._context_id = value
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Return ``True`` if `self` is equal to `other`."""
         if self is other:
             return True
@@ -359,7 +359,7 @@ class PresentationContext:
             )
         )
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         """Return ``True`` if `self` does not equal `other`."""
         return not self == other
 
