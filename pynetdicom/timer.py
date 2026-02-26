@@ -71,10 +71,7 @@ class Timer:
             return False
 
         # Timer has started
-        if self.remaining < 0:
-            return True
-
-        return False
+        return self.remaining < 0
 
     @property
     def remaining(self) -> float:

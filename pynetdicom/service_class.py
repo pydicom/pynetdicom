@@ -441,10 +441,7 @@ class ServiceClass:
         bool
             ``True`` if the status is valid, ``False`` otherwise.
         """
-        if status in self.statuses:
-            return True
-
-        return False
+        return status in self.statuses
 
     def _n_action_scp(self, req: N_ACTION, context: "PresentationContext") -> None:
         """Implementation of the DIMSE N-ACTION service.
