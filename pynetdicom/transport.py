@@ -18,7 +18,8 @@ except ImportError:
     #   and must use "ssl.SSLContext" in type hints
     _HAS_SSL = False
 import threading
-from typing import TYPE_CHECKING, Any, cast, Callable
+from typing import TYPE_CHECKING, Any, cast
+from collections.abc import Callable
 import warnings
 
 from pynetdicom import evt, _config

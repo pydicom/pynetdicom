@@ -7,12 +7,11 @@ from pathlib import Path
 import threading
 import time
 from typing import (
-    Callable,
     Any,
-    Iterator,
     TYPE_CHECKING,
     cast,
 )
+from collections.abc import Callable, Iterator
 import warnings
 
 from pydicom import dcmread

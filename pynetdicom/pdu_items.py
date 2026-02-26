@@ -42,7 +42,8 @@
 
 import logging
 from struct import Struct
-from typing import Any, TYPE_CHECKING, Iterator, cast, Callable, TypeAlias
+from typing import Any, TYPE_CHECKING, cast, TypeAlias
+from collections.abc import Iterator, Callable
 
 from pydicom.uid import UID
 

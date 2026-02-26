@@ -21,7 +21,8 @@ There are seven different PDUs:
 
 import logging
 from struct import Struct
-from typing import Iterator, Any, Callable, TYPE_CHECKING, cast, TypeAlias
+from typing import Any, TYPE_CHECKING, cast, TypeAlias
+from collections.abc import Iterator, Callable
 
 from pydicom.uid import UID
 

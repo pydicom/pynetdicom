@@ -12,8 +12,8 @@ from typing import (
     cast,
     TypeVar,
     Any,
-    Sequence,
 )
+from collections.abc import Sequence
 import warnings
 
 from pydicom.uid import UID

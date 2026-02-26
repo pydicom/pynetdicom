@@ -11,9 +11,8 @@ from typing import (
     cast,
     Any,
     TypeVar,
-    Iterator,
-    Sequence,
 )
+from collections.abc import Iterator, Sequence
 
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag

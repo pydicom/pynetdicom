@@ -2,7 +2,8 @@
 
 import logging
 from struct import unpack, calcsize
-from typing import TYPE_CHECKING, cast, Any, Sequence, Iterator
+from typing import TYPE_CHECKING, cast, Any
+from collections.abc import Sequence, Iterator
 
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
