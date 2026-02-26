@@ -109,7 +109,6 @@ exclude = [
     "pynetdicom/benchmarks",
 ]
 files = "pynetdicom/"
-show_error_codes = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 warn_return_any = true
