@@ -139,7 +139,7 @@ def debug_data(
             len_bytes = calcsize(fmt)
             length = unpack(fmt, data[idx + 2 : idx + 2 + len_bytes])[0]
 
-            s = f" {idx:>{digits}}: 0x{data_type:02X} - {name} " f"({length} bytes)"
+            s = f" {idx:>{digits}}: 0x{data_type:02X} - {name} ({length} bytes)"
 
             # Presentation Content Item
             if data_type == 0x20:

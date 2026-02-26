@@ -1059,7 +1059,7 @@ class MaximumLengthNotification(ServiceParameter):
         """String representation of the class."""
         s = [
             "Maximum Length Negotiation",
-            f"  Maximum length received: " f"{self.maximum_length_received:d} bytes\n",
+            f"  Maximum length received: {self.maximum_length_received:d} bytes\n",
         ]
         return "\n".join(s)
 

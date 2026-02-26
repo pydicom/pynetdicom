@@ -353,7 +353,7 @@ def _check_identifier(identifier, model):
         #   keyword is present
         if attr[level][0] not in identifier:
             raise InvalidIdentifier(
-                f"The Identifier is missing a unique key for " f"the '{level}' level"
+                f"The Identifier is missing a unique key for the '{level}' level"
             )
 
 

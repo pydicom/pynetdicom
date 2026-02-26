@@ -908,7 +908,7 @@ class PresentationContextItemAC(PDUItem):
         }
         if self.result_reason not in _result:
             LOGGER.error(
-                "Invalid Presentation Context Item 'Result' " f"{self.result_reason}"
+                f"Invalid Presentation Context Item 'Result' {self.result_reason}"
             )
             return "(no value available)"
 
@@ -2888,8 +2888,8 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             f"  Item length: {self.item_length} bytes",
             f"  SOP class UID length: {self.sop_class_uid_length} bytes",
             f"  SOP class: ={self.sop_class_uid.name}",  # type: ignore
-            f"  Service class UID length: " f"{self.service_class_uid_length} bytes",
-            "  Service class UID: =" f"{self.service_class_uid.name}",  # type: ignore
+            f"  Service class UID length: {self.service_class_uid_length} bytes",
+            f"  Service class UID: ={self.service_class_uid.name}",  # type: ignore
             f"  Related general SOP class ID length: "
             f"{self.related_general_sop_class_identification_length} bytes",
             "  Related general SOP class ID(s):",
@@ -3157,13 +3157,13 @@ class UserIdentitySubItemRQ(PDUItem):
             f"  Item type: 0x{self.item_type:02X}",
             f"  Item length: {self.item_length} bytes",
             f"  User identity type: {self.user_identity_type}",
-            f"  Positive response requested: " f"{self.positive_response_requested}",
+            f"  Positive response requested: {self.positive_response_requested}",
             f"  Primary field length: {self.primary_field_length} bytes",
             f"  Primary field: {self.primary_field!r}",
         ]
         if self.user_identity_type == 0x02:
             s.append(
-                f"  Secondary field length: " f"{self.secondary_field_length} bytes"
+                f"  Secondary field length: {self.secondary_field_length} bytes"
             )
             s.append(f"  Secondary field: {self.secondary_field!r}\n")
         else:
