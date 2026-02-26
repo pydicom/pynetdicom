@@ -2903,7 +2903,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     def _wrap_generate_items(self, b: bytes) -> list[UID]:  # type: ignore
         """Return a list of UID items generated from `bytestream`."""
-        return [uid for uid in self._generate_items(b)]
+        return list(self._generate_items(b))
 
     def _wrap_list(self, uid_list: list[UID]) -> bytes:
         """Return `uid_list` encoded as bytes.
