@@ -57,13 +57,7 @@ LOGGER = logging.getLogger(__name__)
 def debug_fsm(event: "Event") -> None:
     """Debugging handler for the FSM."""
     LOGGER.debug(
-        "{}: {} + {} -> {} -> {}".format(
-            event.assoc.mode[0].upper(),
-            event.current_state,
-            event.fsm_event,
-            event.action,
-            event.next_state,
-        )
+        f"{event.assoc.mode[0].upper()}: {event.current_state} + {event.fsm_event} -> {event.action} -> {event.next_state}"
     )
 
 
