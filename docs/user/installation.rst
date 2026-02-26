@@ -52,7 +52,7 @@ in the activated environment change to the ``pynetdicom`` directory and install
 *pynetdicom* and the required development packages::
 
     cd pynetdicom/
-    python -m pip install -e .[dev]
+    python -m pip install -e . --group dev
 
 When you want to update your copy of the source code, run ``git pull`` from
 within the ``pynetdicom`` directory and Git will download and apply any
