@@ -26,12 +26,12 @@ jobs:
     - name: Run type check using mypy
       run: |
         mypy
+    - name : Run linting check using ruff
+      run: |
+        ruff check
     - name: Run formatting check using black
       run: |
         black . --check
-    - name : Run linting check using ruff
-      run: |
-        ruff check .
     - name: Run spell check using codespell
       run: |
         codespell -d pynetdicom
