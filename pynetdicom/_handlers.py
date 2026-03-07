@@ -57,7 +57,7 @@ LOGGER = logging.getLogger(__name__)
 # Debugging handlers
 def debug_fsm(event: "Event") -> None:
     """Debugging handler for the FSM."""
-    
+
     LOGGER.debug(
         "{}: {} + {} -> {} -> {}".format(  # noqa: UP032
             event.assoc.mode[0].upper(),
