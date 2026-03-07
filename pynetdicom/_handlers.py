@@ -65,8 +65,8 @@ def debug_fsm(event: "Event") -> None:
             event.fsm_event,
             event.action,
             event.next_state,
-        )
-    )  # noqa: UP032
+        )  # noqa: UP032
+    )
 
 
 def debug_data(
