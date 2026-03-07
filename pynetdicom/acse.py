@@ -78,8 +78,7 @@ class ACSE:
             default values for the number of operations invoked/performed
             (1, 1).
         """
-        # pylint: disable=broad-except
-        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)   # noqa: B010
 
         try:
             # Response is always ignored as async ops is not supported
@@ -113,8 +112,7 @@ class ACSE:
             The {SOP Class UID : SOPClassCommonExtendedNegotiation} items for
             the accepted SOP Class Common Extended negotiation items.
         """
-        # pylint: disable=broad-except
-        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)   # noqa: B010
 
         try:
             rsp = evt.trigger(
@@ -155,8 +153,7 @@ class ACSE:
         list of pdu_primitives.SOPClassExtendedNegotiation
             The SOP Class Extended Negotiation items to be sent in response
         """
-        # pylint: disable=broad-except
-        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)   # noqa: B010
 
         try:
             user_response = evt.trigger(
@@ -207,8 +204,7 @@ class ACSE:
             The negotiation response, if a positive response is requested,
             otherwise None.
         """
-        # pylint: disable=broad-except
-        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)  # noqa: B010
 
         # The UserIdentityNegotiation (request) item
         req = self.requestor.user_identity
@@ -361,9 +357,7 @@ class ACSE:
 
         # SOP Class Common Extended Negotiation items
         #   Note: No response items are allowed
-        # pylint: disable=protected-access
         self.acceptor._common_ext = self._check_sop_class_common_extended()
-        # pylint: enable=protected-access
 
         # Asynchronous Operations Window Negotiation items
         if self.requestor.asynchronous_operations != (1, 1):
@@ -382,7 +376,6 @@ class ACSE:
             reject_assoc_rsd = (0x02, 0x03, 0x02)
 
         if reject_assoc_rsd:
-            # pylint: disable=no-value-for-parameter
             LOGGER.info("Rejecting Association")
             self.send_reject(*reject_assoc_rsd)
             evt.trigger(self.assoc, evt.EVT_REJECTED, {})
@@ -410,13 +403,11 @@ class ACSE:
                 rq_roles,
             )
 
-        # pylint: disable=protected-access
         # Accepted contexts are stored as {context ID : context}
         self.assoc._accepted_cx = {
             cast(int, cx.context_id): cx for cx in result if cx.result == 0x00
         }
         self.assoc._rejected_cx = [cx for cx in result if cx.result != 0x00]
-        # pylint: enable=protected-access
 
         # Add any SCP/SCU Role Selection Negotiation response items
         for role_item in ac_roles:
@@ -498,7 +489,6 @@ class ACSE:
                     ac_roles,
                 )
 
-                # pylint: disable=protected-access
                 # Accepted contexts are stored as {context ID : context}
                 self.assoc._accepted_cx = {
                     cast(int, cx.context_id): cx
@@ -508,7 +498,6 @@ class ACSE:
                 self.assoc._rejected_cx = [
                     cx for cx in negotiated_contexts if cx.result != 0x00
                 ]
-                # pylint: enable=protected-access
 
                 evt.trigger(self.assoc, evt.EVT_ACCEPTED, {})
 

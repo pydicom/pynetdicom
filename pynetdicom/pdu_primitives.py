@@ -135,8 +135,6 @@ class A_ASSOCIATE:
       :dcm:`Section 7.1.1<part08/chapter_7.html#sect_7.1.1>`
     """
 
-    # pylint: disable=too-many-instance-attributes
-
     def __init__(self) -> None:
         self._application_context_name: UID | None = None
         self._calling_ae_title: str = "DEFAULT"
@@ -220,7 +218,6 @@ class A_ASSOCIATE:
     @called_presentation_address.setter
     def called_presentation_address(self, value: "AddressInformation | None") -> None:
         """Set the Called Presentation Address parameter."""
-        # pylint: disable=attribute-defined-outside-init
         from pynetdicom.transport import AddressInformation
 
         if value is None or isinstance(value, AddressInformation):
@@ -280,7 +277,6 @@ class A_ASSOCIATE:
         """
         from pynetdicom.transport import AddressInformation
 
-        # pylint: disable=attribute-defined-outside-init
         if value is None or isinstance(value, AddressInformation):
             self._calling_presentation_address = value
             return
@@ -324,7 +320,6 @@ class A_ASSOCIATE:
     def diagnostic(self, value: int | None) -> None:
         """
         Set the A-ASSOCIATE Service primitive's Diagnostic parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if value is None:
             pass
         elif value not in [1, 2, 3, 7]:
@@ -442,7 +437,6 @@ class A_ASSOCIATE:
         """Set the A-ASSOCIATE Service primitive's Presentation Context
         Definition List parameter.
         """
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value_list, list):
             valid_items = []
             for item in value_list:
@@ -482,7 +476,6 @@ class A_ASSOCIATE:
         self, value_list: list[PresentationContext]
     ) -> None:
         """Set the Presentation Context Definition Results List parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value_list, list):
             valid_items = []
             for item in value_list:
@@ -584,7 +577,6 @@ class A_ASSOCIATE:
     @result.setter
     def result(self, value: int | None) -> None:
         """Set the A-ASSOCIATE Service primitive's Result parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if value is None:
             pass
         elif value not in [0, 1, 2]:
@@ -615,7 +607,6 @@ class A_ASSOCIATE:
     @result_source.setter
     def result_source(self, value: int | None) -> None:
         """Set the A-ASSOCIATE Service primitive's Result Source parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if value is None:
             pass
         elif value not in [1, 2, 3]:
@@ -669,7 +660,6 @@ class A_ASSOCIATE:
     @user_information.setter
     def user_information(self, value_list: _UserInformationPrimitiveType) -> None:
         """Set the A-ASSOCIATE primitive's User Information parameter."""
-        # pylint: disable=attribute-defined-outside-init
         valid_usr_info_items = []
 
         if isinstance(value_list, list):
@@ -748,7 +738,6 @@ class A_RELEASE:
     @result.setter
     def result(self, value: str | None) -> None:
         """Set the Result parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if value is not None and value != "affirmative":
             LOGGER.error("A_RELEASE.result must be None or 'affirmative'")
             raise ValueError("A_RELEASE.result must be None or 'affirmative'")
@@ -920,7 +909,6 @@ class P_DATA:
     @presentation_data_value_list.setter
     def presentation_data_value_list(self, value_list: list[tuple[int, bytes]]) -> None:
         """Set the Presentation Data Value List."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value_list, list):
             for pdv in value_list:
                 if isinstance(pdv, list):
@@ -1044,7 +1032,6 @@ class MaximumLengthNotification(ServiceParameter):
     @maximum_length_received.setter
     def maximum_length_received(self, val: int) -> None:
         """User defined Maximum Length to be used during an Association."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(val, int):
             if val < 0:
                 LOGGER.error("Maximum Length Received must be greater than 0")
@@ -1307,7 +1294,6 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
     @maximum_number_operations_invoked.setter
     def maximum_number_operations_invoked(self, value: int) -> None:
         """Sets the Maximum Number Operations Invoked parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, int):
             pass
         else:
@@ -1340,7 +1326,6 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
     @maximum_number_operations_performed.setter
     def maximum_number_operations_performed(self, value: int) -> None:
         """Sets the Maximum Number Operations Performed parameter"""
-        # pylint: disable=attribute-defined-outside-init
         if not isinstance(value, int):
             LOGGER.error("Maximum Number Operations Performed must be an int")
             raise TypeError("Maximum Number Operations Performed must be an int")
@@ -1453,7 +1438,6 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     @scp_role.setter
     def scp_role(self, value: bool | None) -> None:
         """Sets the SCP Role parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bool) or value is None:
             pass
         else:
@@ -1481,7 +1465,6 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     @scu_role.setter
     def scu_role(self, value: bool | None) -> None:
         """Sets the SCU Role parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bool) or value is None:
             pass
         else:
@@ -1600,7 +1583,6 @@ class SOPClassExtendedNegotiation(ServiceParameter):
     @service_class_application_information.setter
     def service_class_application_information(self, value: bytes | None) -> None:
         """Sets the Service Class Application Information parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes) or value is None:
             pass
         else:
@@ -1720,7 +1702,6 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         self, uid_list: list[str | bytes | UID]
     ) -> None:
         """Sets the Service Class Application Information parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(uid_list, list):
             # Test that all the items in the list are UID compatible and
             #   convert them to pydicom.uid.UID if required
@@ -1926,7 +1907,6 @@ class UserIdentityNegotiation(ServiceParameter):
     @positive_response_requested.setter
     def positive_response_requested(self, value: bool) -> None:
         """Sets the Positive Response Requested parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bool):
             pass
         else:
@@ -1955,7 +1935,6 @@ class UserIdentityNegotiation(ServiceParameter):
     @primary_field.setter
     def primary_field(self, value: bytes | None) -> None:
         """Sets the Primary Field parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             pass
         elif value is None:
@@ -1988,7 +1967,6 @@ class UserIdentityNegotiation(ServiceParameter):
     @secondary_field.setter
     def secondary_field(self, value: bytes | None) -> None:
         """Sets the Secondary Field parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes) or value is None:
             pass
         else:
@@ -2029,7 +2007,6 @@ class UserIdentityNegotiation(ServiceParameter):
     @server_response.setter
     def server_response(self, value: bytes | None) -> None:
         """Sets the Server Response parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             pass
         elif value is None:
@@ -2081,7 +2058,6 @@ class UserIdentityNegotiation(ServiceParameter):
     @user_identity_type.setter
     def user_identity_type(self, value: int | None) -> None:
         """Sets the User Identity Type parameter."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, int):
             if value not in [1, 2, 3, 4, 5]:
                 LOGGER.error(
