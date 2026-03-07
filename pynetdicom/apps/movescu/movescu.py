@@ -22,7 +22,6 @@ from pynetdicom.sop_class import (
     PatientStudyOnlyQueryRetrieveInformationModelMove,
 )
 
-
 __version__ = "0.4.0"
 
 

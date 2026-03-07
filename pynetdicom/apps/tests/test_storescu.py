@@ -26,7 +26,6 @@ from pynetdicom import (
 )
 from pynetdicom.sop_class import Verification, CTImageStorage, MRImageStorage
 
-
 # debug_logger()
 
 

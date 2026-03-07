@@ -2,7 +2,6 @@
 
 from pydicom.uid import UID
 
-
 # The default Maximum PDU Length (in bytes)
 # Must be 0 or greater than 7.
 # A value of 0 indicates unlimited maximum length

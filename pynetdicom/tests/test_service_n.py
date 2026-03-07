@@ -48,7 +48,6 @@ from pynetdicom.sop_class import (
 
 from .utils import get_port
 
-
 # debug_logger()
 
 
@@ -352,7 +351,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -412,7 +411,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -469,7 +468,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -523,7 +522,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -577,7 +576,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -635,7 +634,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -689,7 +688,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -779,7 +778,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -833,7 +832,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -890,7 +889,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -947,7 +946,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -1008,7 +1007,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         status, ds = rsp
         assert status.Status == 0x0000
@@ -1069,7 +1068,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         status, ds = rsp
         assert status.Status == 0x0110
@@ -1176,7 +1175,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp
@@ -1230,7 +1229,7 @@ class TestNServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate("localhost", get_port())
         assert assoc.is_established
-        (func, args) = send_function[msg_type]
+        func, args = send_function[msg_type]
         rsp = func(assoc, *args)
         if msg_type != "N-DELETE":
             status, ds = rsp

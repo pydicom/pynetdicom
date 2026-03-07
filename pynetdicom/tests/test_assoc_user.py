@@ -25,7 +25,6 @@ from pynetdicom.transport import AddressInformation
 
 from .utils import get_port
 
-
 # debug_logger()
 
 

@@ -32,7 +32,6 @@ from pynetdicom.transport import AssociationServer, RequestHandler
 
 from .utils import get_port
 
-
 if hasattr(PYD_CONFIG, "settings"):
     PYD_CONFIG.settings.reading_validation_mode = 0
 

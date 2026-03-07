@@ -3,7 +3,6 @@
 from importlib.metadata import version
 import re
 
-
 # pynetdicom version
 __version__: str = version("pynetdicom")
 

@@ -5,7 +5,6 @@ import unicodedata
 
 from pydicom.uid import UID
 
-
 LOGGER = logging.getLogger(__name__)
 
 

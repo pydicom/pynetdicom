@@ -36,7 +36,6 @@ from .encoded_pdu_items import p_data_tf_rq, a_associate_rq
 from .hide_modules import hide_modules
 from .utils import wait_for_server_socket, get_port
 
-
 # This is the directory that contains test data
 TEST_ROOT = os.path.abspath(os.path.dirname(__file__))
 CERT_DIR = os.path.join(TEST_ROOT, "cert_files")

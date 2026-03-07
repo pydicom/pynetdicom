@@ -22,7 +22,6 @@ from pynetdicom import (
 from pynetdicom.apps.common import setup_logging, handle_store
 from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
 
-
 __version__ = "0.6.0"
 
 

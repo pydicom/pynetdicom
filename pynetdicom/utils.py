@@ -18,7 +18,6 @@ from pydicom.uid import UID
 
 from pynetdicom import _config
 
-
 LOGGER = logging.getLogger(__name__)
 
 

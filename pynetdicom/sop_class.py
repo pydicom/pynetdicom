@@ -37,7 +37,6 @@ from pynetdicom.service_class_n import (
     UnifiedProcedureStepServiceClass,
 )
 
-
 LOGGER = logging.getLogger(__name__)
 
 

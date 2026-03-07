@@ -20,7 +20,6 @@ from pynetdicom.utils import (
 )
 from .encoded_pdu_items import a_associate_rq
 
-
 # debug_logger()
 
 

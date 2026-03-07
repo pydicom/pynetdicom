@@ -12,7 +12,6 @@ import time
 
 from pynetdicom.transport import AssociationServer
 
-
 LOGGER = logging.getLogger(__name__)
 
 

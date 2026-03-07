@@ -19,7 +19,6 @@ from pydicom.uid import UID
 from pynetdicom._globals import OptionalUIDType
 from pynetdicom.utils import set_ae, decode_bytes, set_uid
 
-
 if TYPE_CHECKING:  # pragma: no cover
     from io import BufferedWriter
     from typing import Protocol  # Python 3.8+

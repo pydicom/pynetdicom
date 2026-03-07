@@ -4,7 +4,6 @@ from typing import Callable, Any
 
 from pynetdicom._validators import validate_ae, validate_ui
 
-
 LOG_HANDLER_LEVEL: str = "standard"
 """Default (non-user) event logging
 

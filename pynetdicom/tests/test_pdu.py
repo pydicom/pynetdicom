@@ -60,7 +60,6 @@ from pynetdicom.utils import pretty_bytes
 
 from .utils import get_port
 
-
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.CRITICAL)
 

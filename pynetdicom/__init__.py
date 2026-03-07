@@ -7,7 +7,6 @@ from pydicom.uid import UID
 
 from ._version import __version__
 
-
 # fmt: off
 # Update pydicom's UID dictionary with any missing transfer syntaxes
 UID_dictionary.update(
@@ -78,7 +77,6 @@ from pynetdicom.presentation import (
     VerificationPresentationContexts,
 )
 from pynetdicom.sop_class import register_uid
-
 
 # Setup default logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
