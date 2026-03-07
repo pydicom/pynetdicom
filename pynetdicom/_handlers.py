@@ -59,13 +59,13 @@ def debug_fsm(event: "Event") -> None:
     """Debugging handler for the FSM."""
     
     LOGGER.debug(
-        "{}: {} + {} -> {} -> {}".format(
+        "{}: {} + {} -> {} -> {}".format(  # noqa: UP032
             event.assoc.mode[0].upper(),
             event.current_state,
             event.fsm_event,
             event.action,
             event.next_state,
-        )  # noqa: UP032
+        )
     )
 
 
