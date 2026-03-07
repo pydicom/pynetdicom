@@ -320,7 +320,7 @@ class ACSE:
         self.requestor.ae_title = assoc_rq.calling_ae_title
 
         # If we reject association -> [result, source, diagnostic]
-        reject_assoc_rsd: tuple[int, ...] = tuple()
+        reject_assoc_rsd: tuple[int, ...] = ()
 
         # Calling AE Title not recognised
         authorised_aet = [s.strip() for s in self.assoc.ae.require_calling_aet]
@@ -465,7 +465,7 @@ class ACSE:
                 if rq_roles:
                     for cx in self.requestor.requested_contexts:
                         try:
-                            (cx.scu_role, cx.scp_role) = rq_roles[
+                            cx.scu_role, cx.scp_role = rq_roles[
                                 cast(UID, cx.abstract_syntax)
                             ]
                             # If no role was specified then use False

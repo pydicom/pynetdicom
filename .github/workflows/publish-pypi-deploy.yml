@@ -28,7 +28,7 @@ jobs:
 
     - name: Upload artifacts
       if: ${{ success() }}
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: wheels
         path: dist/
@@ -45,7 +45,7 @@ jobs:
 
     steps:
     - name: Download the package files
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with:
         path: dist/
         merge-multiple: true

@@ -5,7 +5,6 @@ A generic timer class suitable for use as the DICOM UL's ARTIM timer.
 import logging
 import time
 
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -71,10 +70,7 @@ class Timer:
             return False
 
         # Timer has started
-        if self.remaining < 0:
-            return True
-
-        return False
+        return self.remaining < 0
 
     @property
     def remaining(self) -> float:

@@ -8,7 +8,8 @@ import inspect
 import logging
 from pathlib import Path
 import sys
-from typing import Callable, Any, NamedTuple, TYPE_CHECKING, cast, Iterator, TypeAlias
+from typing import Any, NamedTuple, TYPE_CHECKING, cast, TypeAlias
+from collections.abc import Callable, Iterator
 
 from pydicom.dataset import Dataset, FileMetaDataset
 from pynetdicom.dimse_primitives import C_STORE

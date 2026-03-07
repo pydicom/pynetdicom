@@ -8,13 +8,11 @@ import traceback
 from types import TracebackType
 from typing import (
     TYPE_CHECKING,
-    Type,
     cast,
     Any,
     TypeVar,
-    Iterator,
-    Sequence,
 )
+from collections.abc import Iterator, Sequence
 
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
@@ -71,7 +69,7 @@ DatasetType = Dataset | None
 UserReturnType = tuple[StatusType, DatasetType]
 _T = TypeVar("_T", bound=DIMSEPrimitive)
 _ExcInfoType = (
-    tuple[None, None, None] | tuple[Type[BaseException], BaseException, TracebackType]
+    tuple[None, None, None] | tuple[type[BaseException], BaseException, TracebackType]
 )
 DestinationType = tuple[str, int] | tuple[str, int, dict[str, Any]]
 
@@ -112,7 +110,7 @@ class attempt:
 
     def __exit__(
         self,
-        exc_type: Type[BaseException] | None,
+        exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
     ) -> bool | None:
@@ -313,7 +311,7 @@ class ServiceClass:
                 rsp_status = 0xC311
                 dataset = None
             else:
-                (rsp_status, dataset) = cast(UserReturnType, result)
+                rsp_status, dataset = cast(UserReturnType, result)
 
             # Event handler has aborted or released
             if not self.assoc.is_established:
@@ -422,7 +420,7 @@ class ServiceClass:
             ``True`` if a C-CANCEL message has been received with a *Message ID
             Being Responded To* corresponding to `msg_id`, ``False`` otherwise.
         """
-        if msg_id in self.dimse.cancel_req.keys():
+        if msg_id in self.dimse.cancel_req:
             del self.dimse.cancel_req[msg_id]
             return True
 
@@ -441,10 +439,7 @@ class ServiceClass:
         bool
             ``True`` if the status is valid, ``False`` otherwise.
         """
-        if status in self.statuses:
-            return True
-
-        return False
+        return status in self.statuses
 
     def _n_action_scp(self, req: N_ACTION, context: "PresentationContext") -> None:
         """Implementation of the DIMSE N-ACTION service.
@@ -1782,7 +1777,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp_status = 0xC411
                 dataset = None
             else:
-                (rsp_status, dataset) = cast(UserReturnType, result)
+                rsp_status, dataset = cast(UserReturnType, result)
 
             # Event handler has aborted or released - after any yields
             if not self.assoc.is_established:
@@ -2209,7 +2204,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp_status = 0xC511
                 dataset = None
             else:
-                (rsp_status, dataset) = cast(UserReturnType, result)
+                rsp_status, dataset = cast(UserReturnType, result)
 
             # Event handler has aborted or released - during any status yields
             if not self.assoc.is_established:
@@ -2574,7 +2569,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                 },
             )
             responses = cast(Iterator[UserReturnType], responses)
-            (rsp_status, rsp_identifier) = next(responses)
+            rsp_status, rsp_identifier = next(responses)
         except (StopIteration, TypeError):
             setattr(self.assoc, "abort", self.assoc._abort_blocking)
             # Event handler has aborted or released - before any yields

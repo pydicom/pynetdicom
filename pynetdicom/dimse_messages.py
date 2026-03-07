@@ -5,7 +5,8 @@ import logging
 from math import ceil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Iterator, TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast
+from collections.abc import Iterator
 
 from pydicom.dataset import Dataset
 from pydicom.filewriter import write_file_meta_info

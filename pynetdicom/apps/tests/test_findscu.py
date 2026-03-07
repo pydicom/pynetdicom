@@ -34,7 +34,6 @@ from pynetdicom.sop_class import (
     UnifiedProcedureStepPull,
 )
 
-
 # debug_logger()
 
 

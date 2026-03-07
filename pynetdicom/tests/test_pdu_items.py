@@ -85,7 +85,6 @@ from .encoded_pdu_items import (
     implementation_version_name_empty,
 )
 
-
 if hasattr(PYD_CONFIG, "settings"):
     PYD_CONFIG.settings.reading_validation_mode = 0
 

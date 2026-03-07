@@ -5,7 +5,8 @@ from contextvars import copy_context
 from io import BytesIO
 import logging
 import sys
-from typing import Iterator, cast, Callable, Sequence
+from typing import cast
+from collections.abc import Iterator, Callable, Sequence
 
 try:
     import ctypes
@@ -17,7 +18,6 @@ except ImportError:
 from pydicom.uid import UID
 
 from pynetdicom import _config
-
 
 LOGGER = logging.getLogger(__name__)
 

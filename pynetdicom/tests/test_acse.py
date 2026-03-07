@@ -58,7 +58,6 @@ from .encoded_pdu_items import (
 from .parrot import ThreadedParrot, ParrotRequest
 from .utils import get_port
 
-
 # debug_logger()
 
 

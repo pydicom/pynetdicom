@@ -43,7 +43,6 @@ from .encoded_dimse_msg import (
     c_move_rsp_ds,
 )
 
-
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.CRITICAL)
 

@@ -14,7 +14,6 @@ from pydicom.valuerep import DA, DSfloat, DSdecimal, DT, IS, TM
 from pynetdicom import debug_logger
 from pynetdicom.dsutils import decode, encode, pretty_dataset, pretty_element
 
-
 # debug_logger()
 
 
