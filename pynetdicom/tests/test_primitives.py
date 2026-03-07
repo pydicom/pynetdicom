@@ -944,14 +944,14 @@ class TestPrimitive_A_ASSOCIATE:
         with pytest.raises(ValueError):
             assoc.diagnostic = 8
 
-        # calling_presentation_addresss
+        # calling_presentation_address
         with pytest.raises(TypeError):
             assoc.calling_presentation_address = ["10.40.94.43", 105]
 
         with pytest.raises(TypeError):
             assoc.calling_presentation_address = (105, "10.40.94.43")
 
-        # called_presentation_addresss
+        # called_presentation_address
         with pytest.raises(TypeError):
             assoc.called_presentation_address = ["10.40.94.43", 105]
 

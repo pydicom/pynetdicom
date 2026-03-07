@@ -316,7 +316,7 @@ class TestPrimitive_N_EVENT:
         primitive.AffectedSOPInstanceUID = "1.2.1"
         assert primitive.is_valid_request
 
-    def test_is_valid_resposne(self):
+    def test_is_valid_response(self):
         """Test N_EVENT_REPORT.is_valid_response."""
         primitive = N_EVENT_REPORT()
         assert not primitive.is_valid_response
@@ -618,7 +618,7 @@ class TestPrimitive_N_GET:
         primitive.RequestedSOPInstanceUID = "1.2.1"
         assert primitive.is_valid_request
 
-    def test_is_valid_resposne(self):
+    def test_is_valid_response(self):
         """Test N_GET.is_valid_response."""
         primitive = N_GET()
         assert not primitive.is_valid_response
@@ -918,7 +918,7 @@ class TestPrimitive_N_SET:
         primitive.ModificationList = BytesIO(encode(ds, True, True))
         assert primitive.is_valid_request
 
-    def test_is_valid_resposne(self):
+    def test_is_valid_response(self):
         """Test N_SET.is_valid_response."""
         primitive = N_SET()
         assert not primitive.is_valid_response
@@ -1224,7 +1224,7 @@ class TestPrimitive_N_ACTION:
         primitive.ActionTypeID = 4
         assert primitive.is_valid_request
 
-    def test_is_valid_resposne(self):
+    def test_is_valid_response(self):
         """Test N_ACTION.is_valid_response."""
         primitive = N_ACTION()
         assert not primitive.is_valid_response
@@ -1679,7 +1679,7 @@ class TestPrimitive_N_DELETE:
         primitive.RequestedSOPInstanceUID = "1.2.1"
         assert primitive.is_valid_request
 
-    def test_is_valid_resposne(self):
+    def test_is_valid_response(self):
         """Test N_DELETE.is_valid_response."""
         primitive = N_DELETE()
         assert not primitive.is_valid_response

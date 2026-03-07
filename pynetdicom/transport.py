@@ -455,7 +455,7 @@ class AssociationSocket:
 
         - :attr:`socket.SO_REUSEADDR` is 1
         - :meth:`socket.settimeout` sets the Association's
-          :attr:`~pynetdicom.association.Associaton.network_timeout` value.
+          :attr:`~pynetdicom.association.Association.network_timeout` value.
 
         Parameters
         ----------

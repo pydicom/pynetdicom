@@ -273,7 +273,7 @@ _COMMAND_SET_KEYWORDS = {
 }
 
 # Used with DIMSEMessage.message_to_primitive
-_MSG_TO_PRIMITVE = {
+_MSG_TO_PRIMITIVE = {
     "C_ECHO": C_ECHO,
     "C_STORE": C_STORE,
     "C_FIND": C_FIND,
@@ -702,7 +702,7 @@ class DIMSEMessage:
         cls_type_name = self.__class__.__name__
         final_underscore = cls_type_name.rfind("_R")
         primitive = cast(
-            DimsePrimitiveType, _MSG_TO_PRIMITVE[cls_type_name[:final_underscore]]()
+            DimsePrimitiveType, _MSG_TO_PRIMITIVE[cls_type_name[:final_underscore]]()
         )
 
         # Command Set
