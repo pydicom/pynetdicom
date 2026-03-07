@@ -8,7 +8,6 @@ import sys
 
 import pynetdicom
 
-
 REVISION_CMD = "git rev-parse --short HEAD"
 
 
@@ -44,15 +43,15 @@ def _linkcode_resolve(domain, info, package, url_fmt, revision):
     if not info.get("module") or not info.get("fullname"):
         return
 
-    modname = info['module']
-    fullname = info['fullname']
+    modname = info["module"]
+    fullname = info["fullname"]
 
     submod = sys.modules.get(modname)
     if submod is None:
         return None
 
     obj = submod
-    for part in fullname.split('.'):
+    for part in fullname.split("."):
         try:
             obj = getattr(obj, part)
         except AttributeError:
@@ -66,7 +65,7 @@ def _linkcode_resolve(domain, info, package, url_fmt, revision):
     except TypeError as exc:
         fn = None
 
-    if not fn or fn.endswith('__init__.py'):
+    if not fn or fn.endswith("__init__.py"):
         # The UID gets resolved to the venv pydicom install otherwise
         if fullname == "PYNETDICOM_IMPLEMENTATION_UID":
             fn = Path(pynetdicom.__file__)
