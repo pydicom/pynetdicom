@@ -5,7 +5,6 @@ A generic timer class suitable for use as the DICOM UL's ARTIM timer.
 import logging
 import time
 
-
 LOGGER = logging.getLogger(__name__)
 
 

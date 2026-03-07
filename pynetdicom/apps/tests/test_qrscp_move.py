@@ -30,7 +30,6 @@ from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelMove,
 )
 
-
 # debug_logger()
 
 

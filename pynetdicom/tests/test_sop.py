@@ -101,7 +101,6 @@ from pynetdicom.service_class_n import (
     UnifiedProcedureStepServiceClass,
 )
 
-
 PYDICOM_VERSION = __version__.split(".")[:2]
 
 

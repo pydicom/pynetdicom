@@ -37,7 +37,6 @@ from pynetdicom._globals import (
     DEFAULT_TRANSFER_SYNTAXES,
 )
 
-
 LOGGER = logging.getLogger(__name__)
 
 

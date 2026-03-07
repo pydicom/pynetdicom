@@ -313,7 +313,7 @@ class ServiceClass:
                 rsp_status = 0xC311
                 dataset = None
             else:
-                (rsp_status, dataset) = cast(UserReturnType, result)
+                rsp_status, dataset = cast(UserReturnType, result)
 
             # Event handler has aborted or released
             if not self.assoc.is_established:
@@ -1782,7 +1782,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp_status = 0xC411
                 dataset = None
             else:
-                (rsp_status, dataset) = cast(UserReturnType, result)
+                rsp_status, dataset = cast(UserReturnType, result)
 
             # Event handler has aborted or released - after any yields
             if not self.assoc.is_established:
@@ -2209,7 +2209,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp_status = 0xC511
                 dataset = None
             else:
-                (rsp_status, dataset) = cast(UserReturnType, result)
+                rsp_status, dataset = cast(UserReturnType, result)
 
             # Event handler has aborted or released - during any status yields
             if not self.assoc.is_established:
@@ -2574,7 +2574,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                 },
             )
             responses = cast(Iterator[UserReturnType], responses)
-            (rsp_status, rsp_identifier) = next(responses)
+            rsp_status, rsp_identifier = next(responses)
         except (StopIteration, TypeError):
             setattr(self.assoc, "abort", self.assoc._abort_blocking)
             # Event handler has aborted or released - before any yields

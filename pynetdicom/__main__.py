@@ -5,7 +5,6 @@ import sys
 
 from pynetdicom import __version__
 
-
 _APPS = {
     "echoscp": "pynetdicom.apps.echoscp.echoscp",
     "echoscu": "pynetdicom.apps.echoscu.echoscu",

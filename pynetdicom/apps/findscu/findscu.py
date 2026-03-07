@@ -31,7 +31,6 @@ from pynetdicom.sop_class import (
     PatientStudyOnlyQueryRetrieveInformationModelFind,
 )
 
-
 __version__ = "0.2.0"
 
 

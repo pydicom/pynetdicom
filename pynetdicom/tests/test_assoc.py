@@ -74,7 +74,6 @@ from pynetdicom.utils import set_timer_resolution
 from .hide_modules import hide_modules
 from .utils import get_port
 
-
 # debug_logger()
 
 
@@ -2297,10 +2296,10 @@ class TestAssociationSendCFind:
         result = assoc.send_c_find(
             self.ds, PatientRootQueryRetrieveInformationModelFind
         )
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert "PatientName" in ds
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0x0000
         assert ds is None
         assoc.release()
@@ -2985,13 +2984,13 @@ class TestAssociationSendCGet:
         assert assoc.is_established
 
         result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xA702
         assert ds.FailedSOPInstanceUIDList == ["1.1.1", "1.1.1"]
         assoc.release()
@@ -3150,13 +3149,13 @@ class TestAssociationSendCGet:
         assert assoc.is_established
 
         result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0x0000
         assert ds is None
         assoc.release()
@@ -3205,13 +3204,13 @@ class TestAssociationSendCGet:
         assert assoc.is_established
 
         result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0x0000
         assert ds is None
         assoc.release()
@@ -3261,13 +3260,13 @@ class TestAssociationSendCGet:
 
         result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
         # We have 2 status, ds and 1 success
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xB000
         assert "FailedSOPInstanceUIDList" in ds
         with pytest.raises(StopIteration):
@@ -3317,13 +3316,13 @@ class TestAssociationSendCGet:
 
         result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
         # We have 2 status, ds and 1 success
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xB000
         assert "FailedSOPInstanceUIDList" in ds
         with pytest.raises(StopIteration):
@@ -3417,13 +3416,13 @@ class TestAssociationSendCGet:
         assert assoc.is_established
 
         result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xB000
         assert "FailedSOPInstanceUIDList" in ds
         with pytest.raises(StopIteration):
@@ -3776,16 +3775,16 @@ class TestAssociationSendCGet:
         assert assoc.is_established
 
         result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0x0000
         assert ds is None
 
@@ -3846,16 +3845,16 @@ class TestAssociationSendCGet:
         assert assoc.is_established
 
         result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xB000
         assert ds.FailedSOPInstanceUIDList == ["1.1.1", "1.1.1"]
 
@@ -3906,13 +3905,13 @@ class TestAssociationSendCGet:
             result = assoc.send_c_get(
                 self.ds, PatientRootQueryRetrieveInformationModelGet
             )
-            (status, ds) = next(result)
+            status, ds = next(result)
             assert status.Status == 0xFF00
             assert ds is None
-            (status, ds) = next(result)
+            status, ds = next(result)
             assert status.Status == 0xFF00
             assert ds is None
-            (status, ds) = next(result)
+            status, ds = next(result)
             assert status.Status == 0x0000
             assert ds is None
 
@@ -4146,11 +4145,11 @@ class TestAssociationSendCMove:
         result = assoc.send_c_move(
             self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
         )
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xA702
         with pytest.raises(StopIteration):
             next(result)
@@ -4199,11 +4198,11 @@ class TestAssociationSendCMove:
         result = assoc.send_c_move(
             self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
         )
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xB000
 
         assoc.release()
@@ -4249,7 +4248,7 @@ class TestAssociationSendCMove:
         result = assoc.send_c_move(
             self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
         )
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xC000
         assert "FailedSOPInstanceUIDList" in ds
         with pytest.raises(StopIteration):
@@ -4299,13 +4298,13 @@ class TestAssociationSendCMove:
         result = assoc.send_c_move(
             self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
         )
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xB000
         assert "FailedSOPInstanceUIDList" in ds
         with pytest.raises(StopIteration):
@@ -4354,7 +4353,7 @@ class TestAssociationSendCMove:
         result = assoc.send_c_move(
             self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
         )
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFE00
 
         assoc.release()
@@ -4409,10 +4408,10 @@ class TestAssociationSendCMove:
         result = assoc.send_c_move(
             self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
         )
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0x0000
         assert ds is None
         with pytest.raises(StopIteration):
@@ -4516,11 +4515,11 @@ class TestAssociationSendCMove:
             result = assoc.send_c_move(
                 self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
             )
-            (status, ds) = next(result)
+            status, ds = next(result)
             assert status.Status == 0xFF00
-            (status, ds) = next(result)
+            status, ds = next(result)
             assert status.Status == 0xFF00
-            (status, ds) = next(result)
+            status, ds = next(result)
             assert status.Status == 0x0000
             with pytest.raises(StopIteration):
                 next(result)
@@ -4747,10 +4746,10 @@ class TestAssociationSendCMove:
         result = assoc.send_c_move(
             self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
         )
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0xFF00
         assert ds is None
-        (status, ds) = next(result)
+        status, ds = next(result)
         assert status.Status == 0x0000
         assert ds is None
         with pytest.raises(StopIteration):
@@ -4859,10 +4858,10 @@ class TestAssociationSendCMove:
             result = assoc.send_c_move(
                 self.ds, "TESTMOVE", PatientRootQueryRetrieveInformationModelMove
             )
-            (status, ds) = next(result)
+            status, ds = next(result)
             assert status.Status == 0xFF00
             assert ds is None
-            (status, ds) = next(result)
+            status, ds = next(result)
             assert status.Status == 0x0000
             assert ds is None
             with pytest.raises(StopIteration):

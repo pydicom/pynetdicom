@@ -25,7 +25,6 @@ from pynetdicom.sop_class import (
     SecondaryCaptureImageStorage,
 )
 
-
 # debug_logger()
 
 

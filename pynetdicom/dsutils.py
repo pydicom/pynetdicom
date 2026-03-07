@@ -17,7 +17,6 @@ from pydicom.uid import UID
 from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID, PYNETDICOM_IMPLEMENTATION_VERSION
 from pynetdicom.utils import pretty_bytes
 
-
 LOGGER = logging.getLogger(__name__)
 
 

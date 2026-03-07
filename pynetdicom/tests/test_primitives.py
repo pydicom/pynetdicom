@@ -28,7 +28,6 @@ from pynetdicom.presentation import PresentationContext
 from pynetdicom.transport import AddressInformation
 from pynetdicom.utils import pretty_bytes
 
-
 if hasattr(PYD_CONFIG, "settings"):
     PYD_CONFIG.settings.reading_validation_mode = 0
 

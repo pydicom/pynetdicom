@@ -474,7 +474,7 @@ class ACSE:
                 if rq_roles:
                     for cx in self.requestor.requested_contexts:
                         try:
-                            (cx.scu_role, cx.scp_role) = rq_roles[
+                            cx.scu_role, cx.scp_role = rq_roles[
                                 cast(UID, cx.abstract_syntax)
                             ]
                             # If no role was specified then use False

@@ -25,7 +25,6 @@ from .encoded_pdu_items import a_associate_ac, a_release_rq
 from .parrot import start_server, ThreadedParrot, ParrotRequest
 from .utils import sleep, get_port
 
-
 # debug_logger()
 
 

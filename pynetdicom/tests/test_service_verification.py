@@ -14,7 +14,6 @@ from pynetdicom.sop_class import Verification
 
 from .utils import get_port
 
-
 # debug_logger()
 
 
