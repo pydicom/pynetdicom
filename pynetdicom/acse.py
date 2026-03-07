@@ -78,7 +78,7 @@ class ACSE:
             default values for the number of operations invoked/performed
             (1, 1).
         """
-        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)   # noqa: B010
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)  # noqa: B010
 
         try:
             # Response is always ignored as async ops is not supported
@@ -112,7 +112,7 @@ class ACSE:
             The {SOP Class UID : SOPClassCommonExtendedNegotiation} items for
             the accepted SOP Class Common Extended negotiation items.
         """
-        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)   # noqa: B010
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)  # noqa: B010
 
         try:
             rsp = evt.trigger(
@@ -153,7 +153,7 @@ class ACSE:
         list of pdu_primitives.SOPClassExtendedNegotiation
             The SOP Class Extended Negotiation items to be sent in response
         """
-        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)   # noqa: B010
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)  # noqa: B010
 
         try:
             user_response = evt.trigger(

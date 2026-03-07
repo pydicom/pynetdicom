@@ -71,7 +71,9 @@ class StateMachine:
         """
         # Check (event + state) is valid
         if (event, self.current_state) not in TRANSITION_TABLE:
-            msg = f"Invalid event '{event}' for the current state '{self.current_state}'"
+            msg = (
+                f"Invalid event '{event}' for the current state '{self.current_state}'"
+            )
             LOGGER.error(msg)
             raise InvalidEventError(msg)
 

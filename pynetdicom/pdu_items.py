@@ -2896,7 +2896,10 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             f"{self.related_general_sop_class_identification_length} bytes",
             "  Related general SOP class ID(s):",
         ]
-        s.extend(f"    ={uid} ({uid.name})" for uid in self.related_general_sop_class_identification)
+        s.extend(
+            f"    ={uid} ({uid.name})"
+            for uid in self.related_general_sop_class_identification
+        )
 
         s.append("")
 
@@ -3163,9 +3166,7 @@ class UserIdentitySubItemRQ(PDUItem):
             f"  Primary field: {self.primary_field!r}",
         ]
         if self.user_identity_type == 0x02:
-            s.append(
-                f"  Secondary field length: {self.secondary_field_length} bytes"
-            )
+            s.append(f"  Secondary field length: {self.secondary_field_length} bytes")
             s.append(f"  Secondary field: {self.secondary_field!r}\n")
         else:
             s.append("  Secondary field length: (not used)")
@@ -3442,7 +3443,7 @@ class PresentationDataValueItem(PDUItem):
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
-        pdv_samples = ' '.join(
+        pdv_samples = " ".join(
             f"0x{b:02X}" for b in self.presentation_data_value[:10]  # type: ignore
         )
         s = [

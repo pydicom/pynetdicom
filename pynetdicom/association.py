@@ -3814,7 +3814,9 @@ class ServiceUser:
 
             return items
 
-        items.extend(item for item in self.user_information if type(item) in self._ext_neg)
+        items.extend(
+            item for item in self.user_information if type(item) in self._ext_neg
+        )
 
         return items
 
