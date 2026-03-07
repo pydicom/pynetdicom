@@ -42,7 +42,8 @@
 
 import logging
 from struct import Struct
-from typing import Any, TYPE_CHECKING, Iterator, cast, Callable, TypeAlias
+from typing import Any, TYPE_CHECKING, cast, TypeAlias
+from collections.abc import Iterator, Callable
 
 from pydicom.uid import UID
 
@@ -157,7 +158,7 @@ class PDUItem:
         """Return an iterable of tuples that contain field encoders."""
         raise NotImplementedError
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Return True if `self` equals `other`."""
         if other is self:
             return True
@@ -255,7 +256,7 @@ class PDUItem:
         """Return the total length of the encoded item as :class:`int`."""
         return 4 + self.item_length
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         """Return True if `self` does not equal `other`."""
         return not self == other
 
@@ -908,7 +909,7 @@ class PresentationContextItemAC(PDUItem):
         }
         if self.result_reason not in _result:
             LOGGER.error(
-                "Invalid Presentation Context Item 'Result' " f"{self.result_reason}"
+                f"Invalid Presentation Context Item 'Result' {self.result_reason}"
             )
             return "(no value available)"
 
@@ -1341,10 +1342,12 @@ class AbstractSyntaxSubItem(PDUItem):
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
-        s = ["Abstract Syntax Sub-item"]
-        s.append(f"  Item type: 0x{self.item_type:02X}")
-        s.append(f"  Item length: {self.item_length} bytes")
-        s.append(f"  Syntax name: ={self.abstract_syntax.name}")  # type: ignore
+        s = [
+            "Abstract Syntax Sub-item",
+            f"  Item type: 0x{self.item_type:02X}",
+            f"  Item length: {self.item_length} bytes",
+            f"  Syntax name: ={self.abstract_syntax.name}",  # type: ignore
+        ]
 
         return "\n".join(s)
 
@@ -1465,9 +1468,11 @@ class TransferSyntaxSubItem(PDUItem):
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
-        s = ["Transfer syntax sub item"]
-        s.append(f"  Item type: 0x{self.item_type:02X}")
-        s.append(f"  Item length: {self.item_length} bytes")
+        s = [
+            "Transfer syntax sub item",
+            f"  Item type: 0x{self.item_type:02X}",
+            f"  Item length: {self.item_length} bytes",
+        ]
         if self.transfer_syntax_name:
             s.append(f"  Transfer syntax name: ={self.transfer_syntax_name.name}")
 
@@ -2888,14 +2893,13 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             f"  Item length: {self.item_length} bytes",
             f"  SOP class UID length: {self.sop_class_uid_length} bytes",
             f"  SOP class: ={self.sop_class_uid.name}",  # type: ignore
-            f"  Service class UID length: " f"{self.service_class_uid_length} bytes",
-            "  Service class UID: =" f"{self.service_class_uid.name}",  # type: ignore
+            f"  Service class UID length: {self.service_class_uid_length} bytes",
+            f"  Service class UID: ={self.service_class_uid.name}",  # type: ignore
             f"  Related general SOP class ID length: "
             f"{self.related_general_sop_class_identification_length} bytes",
             "  Related general SOP class ID(s):",
         ]
-        for uid in self.related_general_sop_class_identification:
-            s.append(f"    ={uid} ({uid.name})")
+        s.extend(f"    ={uid} ({uid.name})" for uid in self.related_general_sop_class_identification)
 
         s.append("")
 
@@ -2903,7 +2907,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     def _wrap_generate_items(self, b: bytes) -> list[UID]:  # type: ignore
         """Return a list of UID items generated from `bytestream`."""
-        return [uid for uid in self._generate_items(b)]
+        return list(self._generate_items(b))
 
     def _wrap_list(self, uid_list: list[UID]) -> bytes:
         """Return `uid_list` encoded as bytes.
@@ -3157,13 +3161,13 @@ class UserIdentitySubItemRQ(PDUItem):
             f"  Item type: 0x{self.item_type:02X}",
             f"  Item length: {self.item_length} bytes",
             f"  User identity type: {self.user_identity_type}",
-            f"  Positive response requested: " f"{self.positive_response_requested}",
+            f"  Positive response requested: {self.positive_response_requested}",
             f"  Primary field length: {self.primary_field_length} bytes",
             f"  Primary field: {self.primary_field!r}",
         ]
         if self.user_identity_type == 0x02:
             s.append(
-                f"  Secondary field length: " f"{self.secondary_field_length} bytes"
+                f"  Secondary field length: {self.secondary_field_length} bytes"
             )
             s.append(f"  Secondary field: {self.secondary_field!r}\n")
         else:
@@ -3441,14 +3445,15 @@ class PresentationDataValueItem(PDUItem):
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
-        s = ["Presentation Value Data Item"]
-        s.append(f"  Item length: {self.item_length} bytes")
-        s.append(f"  Context ID: {self.presentation_context_id}")
-
-        pdv_sample = [
+        pdv_samples = ' '.join(
             f"0x{b:02X}" for b in self.presentation_data_value[:10]  # type: ignore
+        )
+        s = [
+            "Presentation Value Data Item",
+            f"  Item length: {self.item_length} bytes",
+            f"  Context ID: {self.presentation_context_id}",
+            f"  Data value: {pdv_samples} ...",
         ]
-        s.append(f"  Data value: {' '.join(pdv_sample)} ...")
 
         return "\n".join(s)
 

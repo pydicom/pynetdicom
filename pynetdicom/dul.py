@@ -7,7 +7,7 @@ import queue
 import struct
 from threading import Thread
 import time
-from typing import TYPE_CHECKING, cast, Type
+from typing import TYPE_CHECKING, cast
 
 from pynetdicom import evt
 from pynetdicom.fsm import StateMachine
@@ -507,7 +507,7 @@ class DULServiceProvider(Thread):
         return False
 
 
-_PDU_TYPES: dict[bytes, tuple[Type[_PDUType], str]] = {
+_PDU_TYPES: dict[bytes, tuple[type[_PDUType], str]] = {
     b"\x01": (A_ASSOCIATE_RQ, "Evt6"),
     b"\x02": (A_ASSOCIATE_AC, "Evt3"),
     b"\x03": (A_ASSOCIATE_RJ, "Evt4"),

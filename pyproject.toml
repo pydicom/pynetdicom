@@ -131,6 +131,28 @@ exclude = [
     "build_tools/*",
     "docs/*",
 ]
+extend-select = [
+    "B",
+    "C4",
+    "ISC",
+    "PIE",
+    "PYI",
+    "FLY",
+    "UP",
+]
+ignore = [
+    "B007",
+    "B010",
+    "B028",
+    "B904",
+    "PIE790",
+    "PYI034",
+    "PYI041",
+    "PYI047",
+    "UP018",
+    "UP037",
+]
+
 
 [tool.pytest.ini_options]
 markers = [

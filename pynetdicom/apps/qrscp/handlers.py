@@ -248,7 +248,7 @@ def handle_move(event, destinations, db_path, cli_config, logger):
     # We should be able to reduce the number of contexts by using the
     # implicit context conversion between:
     #   implicit VR <-> explicit VR <-> deflated transfer syntaxes
-    contexts = list(set([ii.context for ii in matches]))
+    contexts = list({ii.context for ii in matches})
     yield addr, port, {"contexts": contexts[:128]}
 
     # Yield number of sub-operations

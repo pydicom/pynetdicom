@@ -21,7 +21,8 @@ There are seven different PDUs:
 
 import logging
 from struct import Struct
-from typing import Iterator, Any, Callable, TYPE_CHECKING, cast, TypeAlias
+from typing import Any, TYPE_CHECKING, cast, TypeAlias
+from collections.abc import Iterator, Callable
 
 from pydicom.uid import UID
 
@@ -129,7 +130,7 @@ class PDU:
         """Return an iterable of tuples that contain field encoders."""
         raise NotImplementedError
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Return ``True`` if `self` equals `other`."""
         if other is self:
             return True
@@ -217,7 +218,7 @@ class PDU:
         """Return the total length of the encoded PDU as :class:`int`."""
         return 6 + self.pdu_length
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         """Return ``True`` if `self` does not equal `other`."""
         return not self == other
 
@@ -690,15 +691,13 @@ class A_ASSOCIATE_RQ(PDU):
         for cx in self.presentation_context:
             item_str_list = str(cx).split("\n")
             s.append(f"    - {item_str_list[0]}")
-            for jj in item_str_list[1:-1]:
-                s.append(f"      {jj}")
+            s.extend(f"      {jj}" for jj in item_str_list[1:-1])
 
         s.append("  * User Information Item(s):")
         for item in cast(UserInformationItem, self.user_information).user_data:
             item_str_list = str(item).split("\n")
             s.append(f"    - {item_str_list[0]}")
-            for jj in item_str_list[1:-1]:
-                s.append(f"      {jj}")
+            s.extend(f"      {jj}" for jj in item_str_list[1:-1])
 
         return "\n".join(s)
 
@@ -1094,33 +1093,32 @@ class A_ASSOCIATE_AC(PDU):
 
     def __str__(self) -> str:
         """Return a string representation of the PDU."""
-        s = ["A-ASSOCIATE-AC PDU"]
-        s.append("==================")
-        s.append(f"  PDU type: 0x{self.pdu_type:02X}")
-        s.append(f"  PDU length: {self.pdu_length} bytes")
-        s.append(f"  Protocol version: {self.protocol_version}")
-        s.append(f"  Reserved (Called AET):  {self._reserved_aet}")
-        s.append(f"  Reserved (Calling AET): {self._reserved_aec}")
-        s.append("")
+        s = [
+            "A-ASSOCIATE-AC PDU",
+            "==================",
+            f"  PDU type: 0x{self.pdu_type:02X}",
+            f"  PDU length: {self.pdu_length} bytes",
+            f"  Protocol version: {self.protocol_version}",
+            f"  Reserved (Called AET):  {self._reserved_aet}",
+            f"  Reserved (Calling AET): {self._reserved_aec}",
+            "",
+            "  Variable Items:",
+            "  ---------------",
+            "  * Application Context Item",
+            f"    -  Context name: ={self.application_context_name}",
+        ]
 
-        s.append("  Variable Items:")
-        s.append("  ---------------")
-        s.append("  * Application Context Item")
-        s.append(f"    -  Context name: ={self.application_context_name}")
         s.append("  * Presentation Context Item(s):")
-
         for cx in self.presentation_context:
             item_str_list = str(cx).split("\n")
             s.append(f"    -  {item_str_list[0]}")
-            for jj in item_str_list[1:-1]:
-                s.append(f"       {jj}")
+            s.extend(f"       {jj}" for jj in item_str_list[1:-1])
 
         s.append("  * User Information Item(s):")
         for item in cast(UserInformationItem, self.user_information).user_data:
             item_str_list = str(item).split("\n")
             s.append(f"    -  {item_str_list[0]}")
-            for jj in item_str_list[1:-1]:
-                s.append(f"       {jj}")
+            s.extend(f"       {jj}" for jj in item_str_list[1:-1])
 
         return "\n".join(s)
 
