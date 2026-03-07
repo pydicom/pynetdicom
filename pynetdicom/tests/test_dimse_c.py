@@ -338,7 +338,7 @@ class TestPrimitive_C_STORE:
         primitive.DataSet = BytesIO()
         assert primitive.is_valid_request
 
-    def test_is_valid_resposne(self):
+    def test_is_valid_response(self):
         """Test C_STORE.is_valid_response."""
         primitive = C_STORE()
         assert not primitive.is_valid_response
@@ -596,7 +596,7 @@ class TestPrimitive_C_FIND:
         primitive.Identifier = BytesIO()
         assert primitive.is_valid_request
 
-    def test_is_valid_resposne(self):
+    def test_is_valid_response(self):
         """Test C_FIND.is_valid_response."""
         primitive = C_FIND()
         assert not primitive.is_valid_response
@@ -852,7 +852,7 @@ class TestPrimitive_C_GET:
         primitive.Identifier = BytesIO()
         assert primitive.is_valid_request
 
-    def test_is_valid_resposne(self):
+    def test_is_valid_response(self):
         """Test C_GET.is_valid_response."""
         primitive = C_GET()
         assert not primitive.is_valid_response
@@ -1118,7 +1118,7 @@ class TestPrimitive_C_MOVE:
         primitive.Identifier = BytesIO()
         assert primitive.is_valid_request
 
-    def test_is_valid_resposne(self):
+    def test_is_valid_response(self):
         """Test C_MOVE.is_valid_response."""
         primitive = C_MOVE()
         assert not primitive.is_valid_response
@@ -1310,7 +1310,7 @@ class TestPrimitive_C_ECHO:
         primitive.AffectedSOPClassUID = "1.2"
         assert primitive.is_valid_request
 
-    def test_is_valid_resposne(self):
+    def test_is_valid_response(self):
         """Test C_ECHO.is_valid_response."""
         primitive = C_ECHO()
         assert not primitive.is_valid_response

@@ -872,7 +872,7 @@ class TestAbstractSyntax:
 
         assert ab_syntax.encode() == abstract_syntax
 
-    def test_properies(self):
+    def test_properties(self):
         """Check property setters and getters"""
         item = AbstractSyntaxSubItem()
         item.abstract_syntax_name = "1.2.840.10008.1.1"
@@ -1014,7 +1014,7 @@ class TestTransferSyntax:
 
         assert tran_syntax.encode() == transfer_syntax
 
-    def test_properies(self):
+    def test_properties(self):
         """Check property setters and getters"""
         tran_syntax = TransferSyntaxSubItem()
         tran_syntax.transfer_syntax_name = "1.2.840.10008.1.2"
@@ -1156,7 +1156,7 @@ class TestPresentationDataValue:
 
         assert pdvs[0].encode() == presentation_data_value
 
-    def test_properies(self):
+    def test_properties(self):
         """Check property setters and getters"""
         pdu = P_DATA_TF()
         pdu.decode(p_data_tf)
@@ -1509,7 +1509,7 @@ class TestUserInformation_ImplementationUID:
 
         assert orig_uid == new_uid
 
-    def test_properies(self):
+    def test_properties(self):
         """Check property setters and getters"""
         uid = ImplementationClassUIDSubItem()
         uid.implementation_class_uid = "1.2.826.0.1.3680043.9.3811.0.9.1"
@@ -1724,7 +1724,7 @@ class TestUserInformation_ImplementationVersion:
 
         assert orig_version == new_version
 
-    def test_properies(self):
+    def test_properties(self):
         """Check property setters and getters"""
         item = ImplementationVersionNameSubItem()
 
@@ -1831,7 +1831,7 @@ class TestUserInformation_Asynchronous:
 
         assert item == new
 
-    def test_properies(self):
+    def test_properties(self):
         """Check property setters and getters"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_async)
@@ -2175,7 +2175,7 @@ class TestUserIdentityRQ_UserNoPass:
 
         assert orig == new
 
-    def test_properies(self, caplog):
+    def test_properties(self, caplog):
         """Check property setters and getters"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_async)
@@ -2357,7 +2357,7 @@ class TestUserIdentityAC_UserResponse:
 
         assert orig == new
 
-    def test_properies(self):
+    def test_properties(self):
         """Check property setters and getters"""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac_user)

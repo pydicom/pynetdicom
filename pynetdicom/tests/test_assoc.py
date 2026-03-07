@@ -98,7 +98,7 @@ def enable_unrestricted():
 
 
 @pytest.fixture
-def disable_identifer_logging():
+def disable_identifier_logging():
     original = _config.LOG_REQUEST_IDENTIFIERS
     _config.LOG_REQUEST_IDENTIFIERS = False
     yield
@@ -2764,7 +2764,7 @@ class TestAssociationSendCFind:
         )
         assert msg in caplog.text
 
-    def test_identifier_logging(self, caplog, disable_identifer_logging):
+    def test_identifier_logging(self, caplog, disable_identifier_logging):
         """Test identifiers not logged if config option set"""
 
         def handle(event):
@@ -3865,7 +3865,7 @@ class TestAssociationSendCGet:
 
         scp.shutdown()
 
-    def test_identifier_logging(self, caplog, disable_identifer_logging):
+    def test_identifier_logging(self, caplog, disable_identifier_logging):
         """Test identifiers not logged if config option set"""
 
         def handle_get(event):
@@ -4811,7 +4811,7 @@ class TestAssociationSendCMove:
             )
             assert msg in caplog.text
 
-    def test_identifier_logging(self, caplog, disable_identifer_logging):
+    def test_identifier_logging(self, caplog, disable_identifier_logging):
         """Test identifiers not logged if config option set"""
 
         def handle_store(event):

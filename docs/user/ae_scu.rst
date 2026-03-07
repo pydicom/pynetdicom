@@ -74,7 +74,7 @@ Combining the all-at-once and one-by-one approaches:
 As the association *Requestor* you're limited to a total of 128 requested
 presentation contexts, so attempting to add more than 128 contexts will raise
 a :class:`ValueError` exception.  :attr:`~pynetdicom.presentation.StoragePresentationContexts` consists of 120 of most commonly used Storage
-Service Classes, therefore you are able to add 8 additional presentation contexts without rasing a :class:`ValueError` exception.
+Service Classes, therefore you are able to add 8 additional presentation contexts without raising a :class:`ValueError` exception.
 
 When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:

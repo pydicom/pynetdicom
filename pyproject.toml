@@ -91,7 +91,7 @@ force-exclude = ".venv*|env*|/_.*_dict.py$"
 
 
 [tool.codespell]
-ignore-words-list = "ddress,pres,requestor,requestors"
+ignore-words-list = "ddress,halp,ot,pres,requestor,requestors"
 skip = "test*.py,docs*,build*,env*"
 
 

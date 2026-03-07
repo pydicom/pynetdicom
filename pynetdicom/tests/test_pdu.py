@@ -982,7 +982,7 @@ class TestASSOC_RJ:
         assert "Rejected (Permanent)" in pdu.__str__()
         assert "DUL service-user" in pdu.__str__()
 
-    def test_decod(self):
+    def test_decode(self):
         """Check decoding produces the correct objects"""
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
