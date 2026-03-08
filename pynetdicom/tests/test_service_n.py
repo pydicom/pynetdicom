@@ -9,7 +9,7 @@ import pytest
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
-from pynetdicom import AE, evt, debug_logger
+from pynetdicom import AE, evt
 from pynetdicom.dimse_primitives import (
     N_ACTION,
     N_CREATE,
@@ -1267,7 +1267,7 @@ class TestUPSFindServiceClass:
                 ds = event.identifier
                 for elem in ds.iterall():
                     pass
-            except:
+            except Exception:
                 yield 0xC310, None
                 return
 
@@ -2004,7 +2004,6 @@ class TestUPSFindServiceClass:
             attrs["request"] = event.request
             attrs["identifier"] = event.identifier
 
-            ds = event.identifier
             yield 0xFF00, self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]
@@ -2348,8 +2347,6 @@ class TestNCreate:
     def test_rq_instance_uid(self, caplog):
         """Test the -RQ sending an Affected SOP Instance UID."""
 
-        events = []
-
         def handle_create(event):
             ds = Dataset()
             ds.PatientName = "Test3"
@@ -2387,8 +2384,6 @@ class TestNCreate:
 
     def test_rq_no_instance_uid_success_error(self, caplog):
         """Test the -RQ not sending an Affected SOP Instance UID."""
-
-        events = []
 
         def handle_create(event):
             ds = Dataset()
@@ -2428,8 +2423,6 @@ class TestNCreate:
     def test_rq_no_instance_uid_success_no_ds_error(self, caplog):
         """Test the -RQ not sending an Affected SOP Instance UID."""
 
-        events = []
-
         def handle_create(event):
             return 0x0000, None
 
@@ -2463,8 +2456,6 @@ class TestNCreate:
 
     def test_rq_no_instance_uid_success_ds_value(self, caplog):
         """Test the -RQ not sending an Affected SOP Instance UID."""
-
-        events = []
 
         def handle_create(event):
             ds = Dataset()
@@ -2505,8 +2496,6 @@ class TestNCreate:
 
     def test_rq_no_instance_uid_failure(self, caplog):
         """Test the -RQ not sending an Affected SOP Instance UID."""
-
-        events = []
 
         def handle_create(event):
             ds = Dataset()

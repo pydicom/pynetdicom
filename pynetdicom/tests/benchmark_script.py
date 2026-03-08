@@ -24,7 +24,7 @@ from pydicom import dcmread
 from pydicom.filewriter import write_file_meta_info
 from pydicom.uid import ImplicitVRLittleEndian
 
-from pynetdicom import AE, evt, debug_logger
+from pynetdicom import AE, evt
 
 
 # debug_logger()
@@ -37,7 +37,7 @@ def init_yappi():
     """Initialise the profiler."""
     timestamp = datetime.now()
     timestamp = timestamp.strftime("%Y%m%d%H%M%S")
-    OUT_FILE = "{}.profile".format(timestamp)
+    OUT_FILE = f"{timestamp}.profile"
 
     import atexit
     import yappi
@@ -56,20 +56,20 @@ def init_yappi():
 
         # 'ystat' is Yappi internal format
         for stat_type in ["pstat", "callgrind"]:
-            print("writing {}.{}".format(OUT_FILE, stat_type))
-            stats.save("{}.{}".format(OUT_FILE, stat_type), type=stat_type)
+            print(f"writing {OUT_FILE}.{stat_type}")
+            stats.save(f"{OUT_FILE}.{stat_type}", type=stat_type)
 
         print("\n[YAPPI FUNC_STATS]")
 
-        print("writing {}.func_stats".format(OUT_FILE))
-        with open("{}.func_stats".format(OUT_FILE), "w") as fh:
+        print(f"writing {OUT_FILE}.func_stats")
+        with open(f"{OUT_FILE}.func_stats", "w") as fh:
             stats.print_all(out=fh)
 
         print("\n[YAPPI THREAD_STATS]")
 
-        print("writing {}.thread_stats".format(OUT_FILE))
+        print(f"writing {OUT_FILE}.thread_stats")
         tstats = yappi.get_thread_stats()
-        with open("{}.thread_stats".format(OUT_FILE), "w") as fh:
+        with open(f"{OUT_FILE}.thread_stats", "w") as fh:
             tstats.print_all(out=fh)
 
         print("[YAPPI DONE]")
@@ -343,7 +343,7 @@ def receive_store_simultaneous(test_ds, nr_assoc, ds_per_assoc, use_yappi=False)
     while None in [pp.poll() for pp in processes]:
         pass
 
-    returncodes = list(set([pp.returncode for pp in processes]))
+    returncodes = list({pp.returncode for pp in processes})
     if len(returncodes) != 1 or returncodes[0] != 0:
         is_successful = False
 
@@ -462,7 +462,7 @@ if __name__ == "__main__":
 
     test_ds = dcmread(os.path.join(TEST_DS_DIR, ds_name))
 
-    print(f"Which benchmarks do you wish to run? (list, range, or all)")
+    print("Which benchmarks do you wish to run? (list, range, or all)")
     print(f"  1. Storage SCU, {nr_ds} {ds_name} datasets over 1 association")
     print(
         f"  2. Storage SCU, 1 {ds_name} dataset per association over {nr_ds} associations"

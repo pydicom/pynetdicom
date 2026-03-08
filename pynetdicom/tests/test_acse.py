@@ -2,12 +2,9 @@
 
 from datetime import datetime
 import logging
-import os
 import queue
-import select
 import socket
-from struct import pack, unpack
-import sys
+from struct import pack
 import time
 import threading
 
@@ -15,17 +12,14 @@ import pytest
 
 from pynetdicom import (
     AE,
-    VerificationPresentationContexts,
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION,
     build_context,
     evt,
     _config,
-    debug_logger,
 )
 from pynetdicom.acse import ACSE
 from pynetdicom.association import Association, ServiceUser
-from pynetdicom.dimse_messages import DIMSEMessage, C_ECHO_RQ, C_ECHO_RSP
 from pynetdicom.events import Event
 from pynetdicom.pdu_primitives import (
     A_ASSOCIATE,
@@ -41,7 +35,6 @@ from pynetdicom.pdu_primitives import (
     AsynchronousOperationsWindowNegotiation,
     SCP_SCU_RoleSelectionNegotiation,
 )
-from pynetdicom.pdu import P_DATA_TF
 from pynetdicom.sop_class import Verification, CTImageStorage
 from pynetdicom.transport import AssociationSocket, AddressInformation
 from .encoded_pdu_items import (
@@ -49,7 +42,6 @@ from .encoded_pdu_items import (
     a_associate_ac,
     a_release_rq,
     a_release_rp,
-    p_data_tf,
     p_data_tf_rq,
     p_data_tf_n_event_report,
     a_abort,
@@ -1107,8 +1099,6 @@ class TestSOPClassExtendedNegotiation:
 
         assert assoc.is_established
 
-        req = {}
-
         scp_assoc = scp.ae.active_associations[0]
         rsp = scp_assoc.acse._check_sop_class_extended()
 
@@ -1534,8 +1524,6 @@ class TestSOPClassCommonExtendedNegotiation:
         assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
-
-        req = {}
 
         scp_assoc = scp.active_associations[0]
         rsp = scp_assoc.acse._check_sop_class_common_extended()
@@ -2367,7 +2355,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_ACSE_SENT, handle)]
+        _handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
@@ -2789,7 +2777,7 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_ACSE_SENT, handle)]
+        _handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 

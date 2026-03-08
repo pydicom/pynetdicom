@@ -3,7 +3,6 @@
 import logging
 import os
 import signal
-import socket
 import sys
 import threading
 import time
@@ -11,14 +10,10 @@ import time
 import pytest
 
 from pydicom import dcmread, config as PYD_CONFIG
-from pydicom.dataset import Dataset
-from pydicom.uid import UID, ImplicitVRLittleEndian
+from pydicom.uid import UID
 
 from pynetdicom import (
     AE,
-    build_context,
-    _config,
-    debug_logger,
     DEFAULT_TRANSFER_SYNTAXES,
     evt,
     PYNETDICOM_IMPLEMENTATION_UID,
@@ -318,7 +313,7 @@ class TestAEPresentationSCU:
         """Test that AE.associate raises exception if no requested contexts"""
         self.ae = ae = AE()
         with pytest.raises(RuntimeError):
-            assoc = ae.associate("localhost", get_port())
+            _assoc = ae.associate("localhost", get_port())
 
 
 class TestAEGoodTimeoutSetters:
@@ -576,7 +571,7 @@ class TestAEGoodAssociation:
 
         assoc = scu_ae.associate("localhost", get_port())
         assert assoc.is_established
-        status = assoc.send_c_echo()
+        _status = assoc.send_c_echo()
         time.sleep(1.5)
         assert assoc.is_aborted
         assert len(scp.active_associations) == 0
@@ -1010,15 +1005,13 @@ class TestAEGoodMiscSetters:
         assert isinstance(ae.implementation_class_uid, UID)
         assert ae.implementation_class_uid == UID("12.3.4")
 
-        msg = (
-            r"'implementation_class_uid' must be str, bytes or UID, not " r"'NoneType'"
-        )
+        msg = r"'implementation_class_uid' must be str, bytes or UID, not 'NoneType'"
         with pytest.raises(TypeError, match=msg):
             ae.implementation_class_uid = None
 
         assert ae.implementation_class_uid == UID("12.3.4")
 
-        msg = r"Invalid 'implementation_class_uid' value - must not be an " r"empty str"
+        msg = r"Invalid 'implementation_class_uid' value - must not be an empty str"
         with pytest.raises(ValueError, match=msg):
             ae.implementation_class_uid = ""
 

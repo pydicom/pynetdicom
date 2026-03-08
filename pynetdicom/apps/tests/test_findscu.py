@@ -1,6 +1,5 @@
 """Unit tests for findscu.py"""
 
-import logging
 import os
 import subprocess
 import sys
@@ -9,17 +8,10 @@ import time
 import pytest
 
 from pydicom import dcmread
-from pydicom.uid import (
-    ExplicitVRLittleEndian,
-    ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-)
 
 from pynetdicom import (
     AE,
     evt,
-    debug_logger,
     DEFAULT_TRANSFER_SYNTAXES,
     QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts,
@@ -111,7 +103,7 @@ class FindSCUBase:
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
         assert {} == requestor.sop_class_extended
-        assert requestor.user_identity == None
+        assert requestor.user_identity is None
         cxs = requestor.primitive.presentation_context_definition_list
         assert len(cxs) == 19
         cxs = {cx.abstract_syntax: cx for cx in cxs}

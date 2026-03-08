@@ -26,7 +26,6 @@ from pynetdicom import (
     StoragePresentationContexts,
     evt,
     build_role,
-    debug_logger,
     sop_class,
     register_uid,
 )
@@ -38,7 +37,6 @@ from pynetdicom.service_class import (
 )
 from pynetdicom.sop_class import (
     CTImageStorage,
-    ModalityWorklistInformationFind,
     PatientRootQueryRetrieveInformationModelFind,
     PatientRootQueryRetrieveInformationModelGet,
     PatientRootQueryRetrieveInformationModelMove,
@@ -105,7 +103,7 @@ class TestQRFindServiceClass:
                 ds = event.identifier
                 for elem in ds.iterall():
                     pass
-            except:
+            except Exception:
                 yield 0xC310, None
                 return
 
@@ -1316,7 +1314,7 @@ class TestQRFindServiceClass:
         assert identifier == self.query
         status, identifier = next(result)
         assert status.Status == 0xB001
-        assert identifier == None
+        assert identifier is None
         status, identifier = next(result)
         assert status.Status == 0x0000
         assert identifier is None
@@ -1375,7 +1373,7 @@ class TestQRGetServiceClass:
                 ds = event.identifier
                 for elem in ds.iterall():
                     pass
-            except:
+            except Exception:
                 yield 0xC410, None
                 return
 
@@ -4003,7 +4001,7 @@ class TestQRMoveServiceClass:
                 ds = event.identifier
                 for elem in ds.iterall():
                     pass
-            except:
+            except Exception:
                 yield 0xC410, None
                 return
 

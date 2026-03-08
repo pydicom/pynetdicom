@@ -4,13 +4,12 @@ from codecs import BOM_UTF32_LE
 from io import BytesIO
 from threading import Thread
 import logging
-import sys
 
 import pytest
 
 from pydicom.uid import UID
 
-from pynetdicom import _config, debug_logger
+from pynetdicom import _config
 from pynetdicom.utils import (
     pretty_bytes,
     validate_uid,

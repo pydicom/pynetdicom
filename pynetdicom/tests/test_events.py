@@ -3,10 +3,6 @@
 from collections import namedtuple
 from datetime import datetime
 from io import BytesIO
-import logging
-import os
-import sys
-import time
 
 import pytest
 
@@ -16,18 +12,14 @@ from pydicom.uid import ImplicitVRLittleEndian
 from pydicom.filewriter import write_file_meta_info
 
 from pynetdicom import (
-    AE,
     evt,
     _config,
-    Association,
-    debug_logger,
     build_context,
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION,
 )
 from pynetdicom.events import (
     Event,
-    trigger,
     _async_ops_handler,
     _sop_common_handler,
     _sop_extended_handler,
@@ -50,10 +42,8 @@ from pynetdicom.dimse_messages import (
     N_EVENT_REPORT,
     N_SET,
     N_GET,
-    N_DELETE,
     C_STORE,
 )
-from pynetdicom.sop_class import Verification
 
 
 # debug_logger()
@@ -147,7 +137,7 @@ class TestEvent:
             r"request and has no 'Data Set' parameter"
         )
         with pytest.raises(AttributeError, match=msg):
-            event.dataset
+            event.dataset  # noqa: B018
 
         msg = (
             r"The corresponding event is not a C-STORE request "
@@ -161,77 +151,77 @@ class TestEvent:
             r"and has no 'Identifier' parameter"
         )
         with pytest.raises(AttributeError, match=msg):
-            event.identifier
+            event.identifier  # noqa: B018
 
         msg = (
             r"The corresponding event is not a C-MOVE request "
             r"and has no 'Move Destination' parameter"
         )
         with pytest.raises(AttributeError, match=msg):
-            event.move_destination
+            event.move_destination  # noqa: B018
 
         msg = (
             r"The corresponding event is not an N-ACTION request and has no "
             r"'Action Information' parameter"
         )
         with pytest.raises(AttributeError, match=msg):
-            event.action_information
+            event.action_information  # noqa: B018
 
         msg = (
             r"The corresponding event is not an N-CREATE request and has no "
             r"'Attribute List' parameter"
         )
         with pytest.raises(AttributeError, match=msg):
-            event.attribute_list
+            event.attribute_list  # noqa: B018
 
         msg = (
             r"The corresponding event is not an N-EVENT-REPORT request and "
             r"has no 'Event Information' parameter"
         )
         with pytest.raises(AttributeError, match=msg):
-            event.event_information
+            event.event_information  # noqa: B018
 
         msg = (
             r"The corresponding event is not an N-SET request and has no "
             r"'Modification List' parameter"
         )
         with pytest.raises(AttributeError, match=msg):
-            event.modification_list
+            event.modification_list  # noqa: B018
 
         msg = (
             r"The corresponding event is not an N-GET request and has no "
             r"'Attribute Identifier List' parameter"
         )
         with pytest.raises(AttributeError, match=msg):
-            event.attribute_identifiers
+            event.attribute_identifiers  # noqa: B018
 
         msg = (
             r"The corresponding event is not an N-ACTION request and has no "
             r"'Action Type ID' parameter"
         )
         with pytest.raises(AttributeError, match=msg):
-            event.action_type
+            event.action_type  # noqa: B018
 
         msg = (
             r"The corresponding event is not an N-EVENT-REPORT request and "
             r"has no 'Event Type ID' parameter"
         )
         with pytest.raises(AttributeError, match=msg):
-            event.event_type
+            event.event_type  # noqa: B018
 
         msg = (
             r"The corresponding event is not a DIMSE service request and "
             r"has no 'Message ID' parameter"
         )
         with pytest.raises(AttributeError, match=msg):
-            event.message_id
+            event.message_id  # noqa: B018
 
         msg = (
             r"The corresponding event is either not a C-STORE request or "
             r"'STORE_RECV_CHUNKED_DATASET' is not True."
         )
         with pytest.raises(AttributeError, match=msg):
-            event.dataset_path
+            event.dataset_path  # noqa: B018
 
     def test_is_cancelled_non(self):
         """Test Event.is_cancelled with wrong event type."""
@@ -275,7 +265,7 @@ class TestEvent:
         """Test adding an attribute that already exists."""
         msg = r"'Event' object already has an attribute 'assoc'"
         with pytest.raises(AttributeError, match=msg):
-            event = evt.Event(None, evt.EVT_C_STORE, {"assoc": None})
+            _event = evt.Event(None, evt.EVT_C_STORE, {"assoc": None})
 
     def test_action_information(self):
         """Test Event.action_information."""
@@ -532,7 +522,6 @@ class TestEvent:
         )
         bs = event.encoded_dataset()
 
-        from pynetdicom.utils import pretty_bytes
 
         assert bs[:128] == b"\x00" * 128
         assert bs[128:132] == b"DICM"

@@ -1,9 +1,5 @@
 """Test DIMSE-N operations."""
 
-try:
-    from collections.abc import MutableSequence
-except ImportError:
-    from collections import MutableSequence
 from io import BytesIO
 import logging
 
@@ -38,7 +34,6 @@ from pynetdicom.dimse_primitives import (
     N_CREATE,
     N_DELETE,
 )
-from pynetdicom.utils import pretty_bytes
 from pynetdicom.dsutils import decode, encode
 from .encoded_dimse_n_msg import (
     n_er_rq_cmd,

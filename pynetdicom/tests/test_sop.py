@@ -41,8 +41,6 @@ from pynetdicom.sop_class import (
     ModalityPerformedProcedureStep,
     _PROTOCOL_APPROVAL_CLASSES,
     ProtocolApprovalInformationModelFind,
-    ProtocolApprovalInformationModelMove,
-    ProtocolApprovalInformationModelGet,
     _QR_CLASSES,
     StudyRootQueryRetrieveInformationModelFind,
     _RELEVANT_PATIENT_QUERY_CLASSES,
@@ -414,7 +412,7 @@ class TestSOPClass:
             == InstanceAvailabilityNotificationServiceClass
         )
 
-    def test_instance_sop(self):
+    def test_inventory_sop(self):
         assert InventoryFind == "1.2.840.10008.5.1.4.1.1.201.2"
         assert InventoryFind.service_class == InventoryQueryRetrieveServiceClass
 

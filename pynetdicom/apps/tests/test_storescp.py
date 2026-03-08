@@ -1,6 +1,5 @@
 """Unit tests for storescp.py"""
 
-import logging
 import os
 from pathlib import Path
 import shutil
@@ -18,7 +17,7 @@ from pydicom.uid import (
     ExplicitVRBigEndian,
 )
 
-from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
+from pynetdicom import AE
 from pynetdicom.sop_class import (
     Verification,
     CTImageStorage,
@@ -321,7 +320,7 @@ class StoreSCPBase:
 
         assert not TEST_DIR.exists()
 
-        self.p = p = self.func(["-od", os.fspath(TEST_DIR)])
+        self.p = _p = self.func(["-od", os.fspath(TEST_DIR)])
         time.sleep(0.5)
 
         ds = dcmread(DATASET_FILE)
@@ -345,7 +344,7 @@ class StoreSCPBase:
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
-        self.p = p = self.func(["--ignore"])
+        self.p = _p = self.func(["--ignore"])
         time.sleep(0.5)
 
         ds = dcmread(DATASET_FILE)

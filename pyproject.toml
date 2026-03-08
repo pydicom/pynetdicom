@@ -126,13 +126,6 @@ disallow_incomplete_defs = true
 include = ["pynetdicom/*.py"]
 
 [tool.ruff.lint]
-exclude = [
-    "pynetdicom/apps/tests/*",
-    "pynetdicom/tests/*",
-    "pynetdicom/benchmarks/*",
-    "build_tools/*",
-    "docs/*",
-]
 extend-select = [
     "B",
     "C4",
@@ -148,12 +141,17 @@ ignore = [
     "B028",
     "B904",
     "PIE790",
+    "PYI024",
     "PYI034",
     "PYI041",
     "PYI047",
     "UP018",
     "UP037",
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"pynetdicom/tests/test_pdu_items.py" = ["E712"]
+"pynetdicom/tests/test_presentation.py" = ["E712"]
 
 
 [tool.pytest.ini_options]

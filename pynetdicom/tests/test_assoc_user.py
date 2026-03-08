@@ -6,7 +6,6 @@ from pynetdicom import (
     AE,
     PYNETDICOM_IMPLEMENTATION_UID,
     build_context,
-    debug_logger,
 )
 from pynetdicom.association import ServiceUser, Association
 from pynetdicom.pdu_primitives import (
@@ -95,10 +94,10 @@ class TestServiceUserAcceptor:
         assert user.primitive is None
         assert user.ae_title == ""
         with pytest.raises(ValueError, match="No address info"):
-            user.port
+            user.port  # noqa: B018
 
         with pytest.raises(ValueError, match="No address info"):
-            user.address
+            user.address  # noqa: B018
 
         assert user.address_info is None
         assert user._contexts == []
@@ -150,10 +149,10 @@ class TestServiceUserAcceptor:
         assert user.primitive is None
         assert user.ae_title == ""
         with pytest.raises(ValueError, match="No address info"):
-            user.port
+            user.port  # noqa: B018
 
         with pytest.raises(ValueError, match="No address info"):
-            user.address
+            user.address  # noqa: B018
 
         assert user.address_info is None
         assert user._contexts == []
@@ -298,9 +297,7 @@ class TestServiceUserAcceptor:
         with pytest.raises(RuntimeError, match=msg):
             user.maximum_length = 16382
 
-        msg = (
-            r"Can't set the Implementation Class UID after negotiation " r"has started"
-        )
+        msg = r"Can't set the Implementation Class UID after negotiation has started"
         with pytest.raises(RuntimeError, match=msg):
             user.implementation_class_uid = "1.2.3"
 
@@ -536,7 +533,7 @@ class TestServiceUserAcceptor:
         assert user.assoc.is_acceptor
         assert user.writeable is True
 
-        user.get_contexts("supported") == []
+        assert user.get_contexts("supported") == []
 
     def test_acc_get_contexts_pre_raises(self):
         """Test get_contexts prior to association raises if bad type."""
@@ -760,9 +757,9 @@ class TestServiceUserAcceptor:
             r"acceptor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.requested_contexts
+            user.requested_contexts  # noqa: B018
 
-        msg = r"'requested_contexts' can only be set for the association " r"requestor"
+        msg = r"'requested_contexts' can only be set for the association requestor"
         with pytest.raises(AttributeError, match=msg):
             user.requested_contexts = [build_context("1.2.3")]
 
@@ -779,7 +776,7 @@ class TestServiceUserAcceptor:
             r"acceptor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.requested_contexts
+            user.requested_contexts  # noqa: B018
 
         msg = r"Can't set the requested presentation contexts after"
         with pytest.raises(RuntimeError, match=msg):
@@ -798,9 +795,9 @@ class TestServiceUserAcceptor:
             r"acceptor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.requested_contexts
+            user.requested_contexts  # noqa: B018
 
-        msg = r"'requested_contexts' can only be set for the association " r"requestor"
+        msg = r"'requested_contexts' can only be set for the association requestor"
         with pytest.raises(AttributeError, match=msg):
             user.requested_contexts = [build_context("1.2.3")]
 
@@ -818,7 +815,7 @@ class TestServiceUserAcceptor:
             r"acceptor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.requested_contexts
+            user.requested_contexts  # noqa: B018
 
         msg = r"Can't set the requested presentation contexts after"
         with pytest.raises(RuntimeError, match=msg):
@@ -1150,7 +1147,7 @@ class TestServiceUserAcceptor:
             r"acceptor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.supported_contexts
+            user.supported_contexts  # noqa: B018
 
     def test_req_supported_cx_post(self):
         """Test supported_contexts after association."""
@@ -1454,10 +1451,10 @@ class TestServiceUserRequestor:
         assert user.primitive is None
         assert user.ae_title == ""
         with pytest.raises(ValueError, match="No address info"):
-            user.port
+            user.port  # noqa: B018
 
         with pytest.raises(ValueError, match="No address info"):
-            user.address
+            user.address  # noqa: B018
 
         assert user.address_info is None
         assert user._contexts == []
@@ -1475,10 +1472,10 @@ class TestServiceUserRequestor:
         assert user.primitive is None
         assert user.ae_title == ""
         with pytest.raises(ValueError, match="No address info"):
-            user.port
+            user.port  # noqa: B018
 
         with pytest.raises(ValueError, match="No address info"):
-            user.address
+            user.address  # noqa: B018
 
         assert user.address_info is None
         assert user._contexts == []
@@ -1614,9 +1611,7 @@ class TestServiceUserRequestor:
         with pytest.raises(RuntimeError, match=msg):
             user.maximum_length = 16382
 
-        msg = (
-            r"Can't set the Implementation Class UID after negotiation " r"has started"
-        )
+        msg = r"Can't set the Implementation Class UID after negotiation has started"
         with pytest.raises(RuntimeError, match=msg):
             user.implementation_class_uid = "1.2.3"
 
@@ -1649,7 +1644,7 @@ class TestServiceUserRequestor:
         """Test trying to get the accepted common ext items raises."""
         user = ServiceUser(self.assoc, mode="requestor")
 
-        msg = r"'accepted_common_extended' is only available for the " r"'acceptor'"
+        msg = r"'accepted_common_extended' is only available for the 'acceptor'"
         with pytest.raises(RuntimeError, match=msg):
             user.accepted_common_extended()
 
@@ -2135,7 +2130,7 @@ class TestServiceUserRequestor:
             r"requestor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.requested_contexts
+            user.requested_contexts  # noqa: B018
 
     def test_acc_requested_cx_post(self):
         """Test requested_contexts after association."""
@@ -2496,9 +2491,9 @@ class TestServiceUserRequestor:
             r"requestor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.supported_contexts
+            user.supported_contexts  # noqa: B018
 
-        msg = r"'supported_contexts' can only be set for the association " r"acceptor"
+        msg = r"'supported_contexts' can only be set for the association acceptor"
         with pytest.raises(AttributeError, match=msg):
             user.supported_contexts = "bluh"
 
@@ -2516,7 +2511,7 @@ class TestServiceUserRequestor:
             r"requestor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.supported_contexts
+            user.supported_contexts  # noqa: B018
 
     def test_acc_supported_cx_pre(self):
         """Test supported_contexts prior to association."""
@@ -2531,9 +2526,9 @@ class TestServiceUserRequestor:
             r"requestor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.supported_contexts
+            user.supported_contexts  # noqa: B018
 
-        msg = r"'supported_contexts' can only be set for the association " r"acceptor"
+        msg = r"'supported_contexts' can only be set for the association acceptor"
         with pytest.raises(AttributeError, match=msg):
             user.supported_contexts = "bluh"
 
@@ -2552,7 +2547,7 @@ class TestServiceUserRequestor:
             r"requestor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.supported_contexts
+            user.supported_contexts  # noqa: B018
 
     def test_user_id_pre(self):
         """Test user_identity prior to association."""

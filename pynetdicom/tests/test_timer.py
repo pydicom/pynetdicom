@@ -3,7 +3,6 @@
 import logging
 import time
 
-import pytest
 
 from pynetdicom.timer import Timer
 from .utils import sleep
@@ -66,7 +65,6 @@ class TestTimer:
         timer = Timer(0.2)
         timer.start()
         # time.sleep() may be longer than the called amount - whoof
-        timeout = 0
         sleep(0.1)
         assert timer.expired is False
         timer.restart()

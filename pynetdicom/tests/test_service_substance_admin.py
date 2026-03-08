@@ -1,14 +1,11 @@
 """Tests for the SubstanceAdministrationQueryServiceClass."""
 
-from io import BytesIO
-import time
-
 import pytest
 
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian
 
-from pynetdicom import AE, evt, debug_logger, register_uid, sop_class
+from pynetdicom import AE, evt, register_uid, sop_class
 from pynetdicom.dimse_primitives import C_FIND
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.service_class import (
