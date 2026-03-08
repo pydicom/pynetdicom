@@ -462,7 +462,7 @@ if __name__ == "__main__":
 
     test_ds = dcmread(os.path.join(TEST_DS_DIR, ds_name))
 
-    print(f"Which benchmarks do you wish to run? (list, range, or all)")
+    print("Which benchmarks do you wish to run? (list, range, or all)")
     print(f"  1. Storage SCU, {nr_ds} {ds_name} datasets over 1 association")
     print(
         f"  2. Storage SCU, 1 {ds_name} dataset per association over {nr_ds} associations"

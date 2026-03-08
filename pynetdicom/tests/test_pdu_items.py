@@ -347,7 +347,7 @@ class TestApplicationContext:
             item.application_context_name = "abc" * 22
 
         _config.ENFORCE_UID_CONFORMANCE = True
-        msg = f"Invalid 'Application Context Name' value 'abc' - UID is non-conformant"
+        msg = "Invalid 'Application Context Name' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.application_context_name = "abc"
 

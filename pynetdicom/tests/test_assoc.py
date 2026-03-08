@@ -2755,7 +2755,7 @@ class TestAssociationSendCFind:
         scp.shutdown()
 
         msg = (
-            f"Find SCP Response: 1 - 0xB001 (Warning - Matching reached "
+            "Find SCP Response: 1 - 0xB001 (Warning - Matching reached "
             "response limit, subsequent request may return additional matches)"
         )
         assert msg in caplog.text
