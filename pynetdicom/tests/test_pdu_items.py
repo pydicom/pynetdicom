@@ -2,14 +2,13 @@
 
 import codecs
 import logging
-import sys
 
 import pytest
 
 from pydicom import config as PYD_CONFIG
 from pydicom.uid import UID
 
-from pynetdicom import _config, debug_logger
+from pynetdicom import _config
 from pynetdicom.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, P_DATA_TF
 from pynetdicom.pdu_items import (
     MaximumLengthSubItem,
@@ -57,11 +56,6 @@ from .encoded_pdu_items import (
     a_associate_ac_user,
     a_associate_rq_com_ext_neg,
     user_identity_rq_user_pass,
-    a_associate_rj,
-    a_release_rq,
-    a_release_rp,
-    a_abort,
-    a_p_abort,
     application_context,
     presentation_context_rq,
     presentation_context_ac,
@@ -75,8 +69,6 @@ from .encoded_pdu_items import (
     role_selection,
     role_selection_odd,
     user_information,
-    extended_negotiation,
-    common_extended_negotiation,
     p_data_tf,
     a_associate_ac_zero_ts,
     presentation_context_rq_utf8,

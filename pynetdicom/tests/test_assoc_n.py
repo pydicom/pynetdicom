@@ -1,8 +1,6 @@
 """Association testing for DIMSE-N services"""
 
-import os
 import queue
-import socket
 import time
 
 import pytest
@@ -11,7 +9,7 @@ from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 from pydicom.uid import ExplicitVRLittleEndian
 
-from pynetdicom import AE, debug_logger, evt
+from pynetdicom import AE, evt
 from pynetdicom.sop_class import (
     DisplaySystem,
     Verification,

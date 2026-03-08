@@ -2,45 +2,17 @@
 
 from datetime import datetime
 import queue
-from io import BytesIO
 import logging
-import os
-import socket
-import sys
-import threading
 import time
 
-import pytest
 
-from pydicom.dataset import Dataset
 
-from pynetdicom import evt, AE, Association, _config, debug_logger
+from pynetdicom import evt, AE, Association, _config
 from pynetdicom.association import ServiceUser
 from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_messages import (
-    C_STORE_RQ,
-    C_STORE_RSP,
-    C_FIND_RQ,
-    C_FIND_RSP,
-    C_GET_RQ,
-    C_GET_RSP,
-    C_MOVE_RQ,
-    C_MOVE_RSP,
     C_ECHO_RQ,
     C_ECHO_RSP,
-    C_CANCEL_RQ,
-    N_EVENT_REPORT_RQ,
-    N_EVENT_REPORT_RSP,
-    N_GET_RQ,
-    N_GET_RSP,
-    N_SET_RQ,
-    N_SET_RSP,
-    N_ACTION_RQ,
-    N_ACTION_RSP,
-    N_CREATE_RQ,
-    N_CREATE_RSP,
-    N_DELETE_RQ,
-    N_DELETE_RSP,
 )
 from pynetdicom.dimse_primitives import (
     C_STORE,
@@ -56,28 +28,11 @@ from pynetdicom.dimse_primitives import (
     N_DELETE,
     C_CANCEL,
 )
-from pynetdicom.dsutils import encode
 from pynetdicom.events import Event
-from pynetdicom.pdu_primitives import P_DATA
 from pynetdicom.pdu import P_DATA_TF
-from .encoded_dimse_msg import c_store_ds
-from .encoded_dimse_n_msg import (
-    n_er_rq_ds,
-    n_er_rsp_ds,
-    n_get_rsp_ds,
-    n_set_rq_ds,
-    n_set_rsp_ds,
-    n_action_rq_ds,
-    n_action_rsp_ds,
-    n_create_rq_ds,
-    n_create_rsp_ds,
-)
 from pynetdicom.transport import AddressInformation
-from .encoded_pdu_items import p_data_tf
 from pynetdicom.sop_class import (
     Verification,
-    BasicGrayscalePrintManagementMeta,
-    Printer,
 )
 
 from .utils import get_port

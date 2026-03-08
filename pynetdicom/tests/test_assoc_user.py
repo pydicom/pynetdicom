@@ -6,7 +6,6 @@ from pynetdicom import (
     AE,
     PYNETDICOM_IMPLEMENTATION_UID,
     build_context,
-    debug_logger,
 )
 from pynetdicom.association import ServiceUser, Association
 from pynetdicom.pdu_primitives import (

@@ -2,14 +2,13 @@
 
 from io import BytesIO
 import logging
-import sys
 
 import pytest
 
 from pydicom.uid import JPEGBaseline8Bit, generate_uid
 
 from pynetdicom import build_context, evt, AE, build_role, debug_logger
-from pynetdicom.acse import ACSE, APPLICATION_CONTEXT_NAME
+from pynetdicom.acse import APPLICATION_CONTEXT_NAME
 from pynetdicom.dimse_primitives import C_MOVE, N_EVENT_REPORT, N_GET, N_DELETE
 from pynetdicom._handlers import (
     doc_handle_echo,

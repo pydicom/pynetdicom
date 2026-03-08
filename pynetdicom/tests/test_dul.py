@@ -1,29 +1,18 @@
 """DUL service testing"""
 
 import logging
-import os
-import socket
 import threading
 import time
 
 import pytest
 
-from pynetdicom import AE, debug_logger, evt
+from pynetdicom import AE, evt
 from pynetdicom.dul import DULServiceProvider
-from pynetdicom.pdu import (
-    A_ASSOCIATE_RQ,
-    A_ASSOCIATE_AC,
-    A_ASSOCIATE_RJ,
-    A_RELEASE_RQ,
-    A_RELEASE_RP,
-    P_DATA_TF,
-    A_ABORT_RQ,
-)
 from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 from pynetdicom.sop_class import Verification
 from .encoded_pdu_items import a_associate_ac, a_release_rq
-from .parrot import start_server, ThreadedParrot, ParrotRequest
-from .utils import sleep, get_port
+from .parrot import start_server, ThreadedParrot
+from .utils import get_port
 
 # debug_logger()
 

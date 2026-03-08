@@ -1,6 +1,5 @@
 """Unit tests for storescp.py"""
 
-import logging
 import os
 from pathlib import Path
 import shutil
@@ -18,7 +17,7 @@ from pydicom.uid import (
     ExplicitVRBigEndian,
 )
 
-from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
+from pynetdicom import AE
 from pynetdicom.sop_class import (
     Verification,
     CTImageStorage,

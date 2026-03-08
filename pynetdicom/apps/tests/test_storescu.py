@@ -1,6 +1,5 @@
 """Unit tests for storescu.py"""
 
-import logging
 import os
 import subprocess
 import sys
@@ -19,8 +18,6 @@ from pydicom.uid import (
 from pynetdicom import (
     AE,
     evt,
-    debug_logger,
-    DEFAULT_TRANSFER_SYNTAXES,
     AllStoragePresentationContexts,
     ALL_TRANSFER_SYNTAXES,
 )

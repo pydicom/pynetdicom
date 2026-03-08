@@ -7,7 +7,7 @@ import pytest
 from pydicom.dataset import Dataset
 
 from pynetdicom import build_context
-from pynetdicom.dimse_primitives import C_STORE, C_GET, C_MOVE, C_CANCEL
+from pynetdicom.dimse_primitives import C_STORE, C_GET, C_CANCEL
 from pynetdicom.service_class import StorageServiceClass, ServiceClass, attempt
 
 

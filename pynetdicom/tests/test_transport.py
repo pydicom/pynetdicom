@@ -18,7 +18,7 @@ import pytest
 from pydicom import dcmread
 
 import pynetdicom
-from pynetdicom import AE, evt, _config, debug_logger
+from pynetdicom import AE, evt, _config
 from pynetdicom.association import Association
 from pynetdicom.events import Event
 from pynetdicom._globals import MODE_REQUESTOR
@@ -26,7 +26,6 @@ from pynetdicom.pdu_primitives import A_ASSOCIATE
 from pynetdicom import transport
 from pynetdicom.transport import (
     AssociationSocket,
-    AssociationServer,
     ThreadedAssociationServer,
     T_CONNECT,
     AddressInformation,

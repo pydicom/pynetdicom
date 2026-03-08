@@ -9,7 +9,7 @@ import time
 
 import pytest
 
-from pynetdicom import AE, build_context, evt, debug_logger
+from pynetdicom import AE, build_context, evt
 from pynetdicom.association import Association
 from pynetdicom import fsm as FINITE_STATE
 from pynetdicom.fsm import *
@@ -24,7 +24,7 @@ from pynetdicom.pdu_primitives import (
     ImplementationClassUIDNotification,
 )
 from pynetdicom.sop_class import Verification
-from pynetdicom.transport import AssociationSocket, T_CONNECT, AddressInformation
+from pynetdicom.transport import AssociationSocket, AddressInformation
 from .encoded_pdu_items import (
     a_associate_ac,
     a_associate_rq,

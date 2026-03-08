@@ -3,7 +3,6 @@
 import logging
 import os
 import signal
-import socket
 import sys
 import threading
 import time
@@ -11,14 +10,11 @@ import time
 import pytest
 
 from pydicom import dcmread, config as PYD_CONFIG
-from pydicom.dataset import Dataset
-from pydicom.uid import UID, ImplicitVRLittleEndian
+from pydicom.uid import UID
 
 from pynetdicom import (
     AE,
     build_context,
-    _config,
-    debug_logger,
     DEFAULT_TRANSFER_SYNTAXES,
     evt,
     PYNETDICOM_IMPLEMENTATION_UID,

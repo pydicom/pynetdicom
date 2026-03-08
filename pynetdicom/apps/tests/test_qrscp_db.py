@@ -2,13 +2,12 @@
 
 import os
 from pathlib import Path
-import sys
 import tempfile
 
 import pytest
 
 try:
-    from sqlalchemy import create_engine
+    from sqlalchemy import create_engine  # noqa: F401
     from sqlalchemy.schema import MetaData
     from sqlalchemy.exc import IntegrityError, SAWarning
     from sqlalchemy.orm import sessionmaker
@@ -20,7 +19,6 @@ except ImportError:
 from pydicom import dcmread
 import pydicom.config
 from pydicom.dataset import Dataset
-from pydicom.tag import Tag
 
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelFind,

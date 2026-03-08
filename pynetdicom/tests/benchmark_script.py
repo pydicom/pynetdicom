@@ -24,7 +24,7 @@ from pydicom import dcmread
 from pydicom.filewriter import write_file_meta_info
 from pydicom.uid import ImplicitVRLittleEndian
 
-from pynetdicom import AE, evt, debug_logger
+from pynetdicom import AE, evt
 
 
 # debug_logger()

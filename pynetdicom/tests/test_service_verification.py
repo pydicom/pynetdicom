@@ -3,13 +3,11 @@
 import logging
 import time
 
-import pytest
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import AE, evt, debug_logger
+from pynetdicom import AE, evt
 from pynetdicom.dimse_primitives import C_ECHO
-from pynetdicom.service_class import VerificationServiceClass
 from pynetdicom.sop_class import Verification
 
 from .utils import get_port

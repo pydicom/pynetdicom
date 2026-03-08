@@ -12,11 +12,9 @@ from pydicom.uid import UID
 from pynetdicom.dimse_messages import (
     C_STORE_RQ,
     C_STORE_RSP,
-    DIMSEMessage,
     C_ECHO_RQ,
     C_ECHO_RSP,
     C_FIND_RQ,
-    C_FIND_RSP,
     C_MOVE_RQ,
     C_MOVE_RSP,
     C_GET_RQ,

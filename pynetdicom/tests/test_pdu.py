@@ -50,13 +50,11 @@ from .encoded_pdu_items import (
     a_abort,
     a_p_abort,
     p_data_tf,
-    a_associate_rq_user_id_ext_neg,
     a_associate_ac_no_ts,
     a_associate_rq_called,
     a_associate_rq_calling,
 )
 from pynetdicom.sop_class import Verification
-from pynetdicom.utils import pretty_bytes
 
 from .utils import get_port
 

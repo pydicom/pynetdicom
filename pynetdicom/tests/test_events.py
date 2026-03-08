@@ -3,10 +3,6 @@
 from collections import namedtuple
 from datetime import datetime
 from io import BytesIO
-import logging
-import os
-import sys
-import time
 
 import pytest
 
@@ -16,18 +12,14 @@ from pydicom.uid import ImplicitVRLittleEndian
 from pydicom.filewriter import write_file_meta_info
 
 from pynetdicom import (
-    AE,
     evt,
     _config,
-    Association,
-    debug_logger,
     build_context,
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION,
 )
 from pynetdicom.events import (
     Event,
-    trigger,
     _async_ops_handler,
     _sop_common_handler,
     _sop_extended_handler,
@@ -50,10 +42,8 @@ from pynetdicom.dimse_messages import (
     N_EVENT_REPORT,
     N_SET,
     N_GET,
-    N_DELETE,
     C_STORE,
 )
-from pynetdicom.sop_class import Verification
 
 
 # debug_logger()
@@ -532,7 +522,6 @@ class TestEvent:
         )
         bs = event.encoded_dataset()
 
-        from pynetdicom.utils import pretty_bytes
 
         assert bs[:128] == b"\x00" * 128
         assert bs[128:132] == b"DICM"

@@ -3,9 +3,8 @@
 from copy import deepcopy
 
 from pydicom._uid_dict import UID_dictionary
-from pydicom.uid import UID
 
-from pynetdicom import StoragePresentationContexts, build_context
+from pynetdicom import StoragePresentationContexts
 from pynetdicom.presentation import (
     PresentationContext,
     negotiate_as_acceptor,

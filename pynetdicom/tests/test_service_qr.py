@@ -26,7 +26,6 @@ from pynetdicom import (
     StoragePresentationContexts,
     evt,
     build_role,
-    debug_logger,
     sop_class,
     register_uid,
 )
@@ -38,7 +37,6 @@ from pynetdicom.service_class import (
 )
 from pynetdicom.sop_class import (
     CTImageStorage,
-    ModalityWorklistInformationFind,
     PatientRootQueryRetrieveInformationModelFind,
     PatientRootQueryRetrieveInformationModelGet,
     PatientRootQueryRetrieveInformationModelMove,

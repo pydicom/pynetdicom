@@ -1,6 +1,5 @@
 """Unit tests for findscu.py"""
 
-import logging
 import os
 import subprocess
 import sys
@@ -9,17 +8,10 @@ import time
 import pytest
 
 from pydicom import dcmread
-from pydicom.uid import (
-    ExplicitVRLittleEndian,
-    ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-)
 
 from pynetdicom import (
     AE,
     evt,
-    debug_logger,
     DEFAULT_TRANSFER_SYNTAXES,
     QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts,

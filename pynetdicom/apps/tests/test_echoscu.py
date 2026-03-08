@@ -1,7 +1,5 @@
 """Unit tests for echoscu.py"""
 
-import logging
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -16,7 +14,7 @@ from pydicom.uid import (
     ExplicitVRBigEndian,
 )
 
-from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
+from pynetdicom import AE, evt
 from pynetdicom.sop_class import Verification, CTImageStorage
 
 # debug_logger()

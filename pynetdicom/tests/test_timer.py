@@ -3,7 +3,6 @@
 import logging
 import time
 
-import pytest
 
 from pynetdicom.timer import Timer
 from .utils import sleep

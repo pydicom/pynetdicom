@@ -9,7 +9,7 @@ import pytest
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
-from pynetdicom import AE, evt, debug_logger
+from pynetdicom import AE, evt
 from pynetdicom.dimse_primitives import (
     N_ACTION,
     N_CREATE,

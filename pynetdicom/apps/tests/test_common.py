@@ -1,13 +1,11 @@
 """Unit tests for the apps and pynetdicom.apps.common module."""
 
 from collections import namedtuple
-import logging
-import os
 
 import pytest
 
 try:
-    import pyfakefs
+    import pyfakefs  # noqa: F401
 
     HAVE_PYFAKEFS = True
 except ImportError:

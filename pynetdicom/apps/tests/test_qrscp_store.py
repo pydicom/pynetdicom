@@ -1,6 +1,5 @@
 """Unit tests for qrscp.py storage service."""
 
-import logging
 import os
 import subprocess
 import sys
@@ -10,22 +9,13 @@ import time
 import pytest
 
 try:
-    import sqlalchemy
+    import sqlalchemy  # noqa: F401
 
     HAVE_SQLALCHEMY = True
 except ImportError:
     HAVE_SQLALCHEMY = False
 
-from pydicom import dcmread
-from pydicom.uid import (
-    ExplicitVRLittleEndian,
-    ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-)
 
-from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
-from pynetdicom.sop_class import Verification, CTImageStorage
 
 # debug_logger()
 

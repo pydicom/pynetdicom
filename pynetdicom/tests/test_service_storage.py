@@ -12,7 +12,7 @@ from pydicom import dcmread
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian
 
-from pynetdicom import AE, _config, evt, debug_logger, register_uid, sop_class
+from pynetdicom import AE, _config, evt, register_uid, sop_class
 from pynetdicom.dimse_primitives import C_STORE
 from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.sop_class import (
