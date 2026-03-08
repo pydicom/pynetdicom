@@ -41,26 +41,26 @@
 """
 
 import logging
+from collections.abc import Callable, Iterator
 from struct import Struct
-from typing import Any, TYPE_CHECKING, cast, TypeAlias
-from collections.abc import Iterator, Callable
+from typing import TYPE_CHECKING, Any, TypeAlias, cast
 
 from pydicom.uid import UID
 
 from pynetdicom._globals import OptionalUIDType
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.utils import validate_uid, decode_bytes, set_ae, set_uid
+from pynetdicom.utils import decode_bytes, set_ae, set_uid, validate_uid
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import (
-        MaximumLengthNotification,
-        ImplementationVersionNameNotification,
-        ImplementationClassUIDNotification,
-        SOPClassExtendedNegotiation,
-        SOPClassCommonExtendedNegotiation,
-        SCP_SCU_RoleSelectionNegotiation,
-        UserIdentityNegotiation,
         AsynchronousOperationsWindowNegotiation,
+        ImplementationClassUIDNotification,
+        ImplementationVersionNameNotification,
+        MaximumLengthNotification,
+        SCP_SCU_RoleSelectionNegotiation,
+        SOPClassCommonExtendedNegotiation,
+        SOPClassExtendedNegotiation,
+        UserIdentityNegotiation,
         _UserInformationPrimitiveType,
     )
 

@@ -3,25 +3,24 @@ Implementation of the service parameter primitives.
 """
 
 import logging
-from typing import cast, TypeAlias, TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias, cast
 
 from pydicom.uid import UID
 
-from pynetdicom._globals import OptionalUIDType
+from pynetdicom._globals import DEFAULT_MAX_LENGTH, OptionalUIDType
 from pynetdicom.pdu_items import (
-    MaximumLengthSubItem,
+    AsynchronousOperationsWindowSubItem,
     ImplementationClassUIDSubItem,
     ImplementationVersionNameSubItem,
-    AsynchronousOperationsWindowSubItem,
+    MaximumLengthSubItem,
     SCP_SCU_RoleSelectionSubItem,
-    SOPClassExtendedNegotiationSubItem,
     SOPClassCommonExtendedNegotiationSubItem,
-    UserIdentitySubItemRQ,
+    SOPClassExtendedNegotiationSubItem,
     UserIdentitySubItemAC,
+    UserIdentitySubItemRQ,
 )
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.utils import validate_uid, decode_bytes, set_ae, set_uid
-from pynetdicom._globals import DEFAULT_MAX_LENGTH
+from pynetdicom.utils import decode_bytes, set_ae, set_uid, validate_uid
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.transport import AddressInformation

@@ -8,21 +8,21 @@ from typing import TYPE_CHECKING, cast
 
 from pynetdicom import evt
 from pynetdicom.pdu import (
-    A_ASSOCIATE_RQ,
-    A_ASSOCIATE_RJ,
-    A_ASSOCIATE_AC,
-    P_DATA_TF,
-    A_RELEASE_RQ,
-    A_RELEASE_RP,
     A_ABORT_RQ,
+    A_ASSOCIATE_AC,
+    A_ASSOCIATE_RJ,
+    A_ASSOCIATE_RQ,
+    A_RELEASE_RP,
+    A_RELEASE_RQ,
+    P_DATA_TF,
 )
-from pynetdicom.pdu_primitives import A_P_ABORT, A_ABORT
-from pynetdicom.transport import T_CONNECT, AssociationSocket, AddressInformation
+from pynetdicom.pdu_primitives import A_ABORT, A_P_ABORT
+from pynetdicom.transport import T_CONNECT, AddressInformation, AssociationSocket
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.dul import DULServiceProvider
+    from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, P_DATA
     from pynetdicom.transport import AssociationSocket
-    from pynetdicom.pdu_primitives import A_ASSOCIATE, P_DATA, A_RELEASE
 
 
 LOGGER = logging.getLogger(__name__)

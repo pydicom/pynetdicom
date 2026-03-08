@@ -3,11 +3,10 @@
 import os
 
 from pydicom import dcmread
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from pynetdicom.apps.qrscp.db import add_instance, search, InvalidIdentifier, Instance
+from pynetdicom.apps.qrscp.db import Instance, InvalidIdentifier, add_instance, search
 
 
 def handle_echo(event, cli_config, logger):

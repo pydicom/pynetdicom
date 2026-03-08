@@ -5,27 +5,27 @@ Implements the DICOM Upper Layer service provider.
 import logging
 import queue
 import struct
-from threading import Thread
 import time
+from threading import Thread
 from typing import TYPE_CHECKING, cast
 
 from pynetdicom import evt
 from pynetdicom.fsm import StateMachine
 from pynetdicom.pdu import (
-    A_ASSOCIATE_RQ,
+    A_ABORT_RQ,
     A_ASSOCIATE_AC,
     A_ASSOCIATE_RJ,
-    P_DATA_TF,
-    A_RELEASE_RQ,
+    A_ASSOCIATE_RQ,
     A_RELEASE_RP,
-    A_ABORT_RQ,
+    A_RELEASE_RQ,
+    P_DATA_TF,
     _PDUType,
 )
 from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE,
-    A_RELEASE,
     A_ABORT,
+    A_ASSOCIATE,
     A_P_ABORT,
+    A_RELEASE,
     P_DATA,
     _PDUPrimitiveType,
 )
