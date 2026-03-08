@@ -148,4 +148,4 @@ def test_attempt_non_assoc():
     with attempt(None, None, 1) as ctx:
         msg = "No association instance has been set"
         with pytest.raises(ValueError, match=msg):
-            ctx.assoc
+            ctx.assoc  # noqa: B018

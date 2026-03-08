@@ -1083,7 +1083,7 @@ class TestPrimitive_A_ABORT:
             primitive.abort_source = 3
 
         with pytest.raises(ValueError):
-            primitive.abort_source
+            primitive.abort_source  # noqa: B018
 
     def test_conversion(self):
         """Check conversion to a PDU produces the correct output"""
@@ -1121,7 +1121,7 @@ class TestPrimitive_A_P_ABORT:
         with pytest.raises(ValueError):
             primitive.provider_reason = 3
         with pytest.raises(ValueError):
-            primitive.provider_reason
+            primitive.provider_reason  # noqa: B018
 
     def test_conversion(self):
         """Check conversion to a PDU produces the correct output"""

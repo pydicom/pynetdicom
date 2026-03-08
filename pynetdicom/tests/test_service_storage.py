@@ -767,7 +767,7 @@ class TestStorageServiceClass:
 
         def handle(event):
             try:
-                event.file_meta
+                event.file_meta  # noqa: B018
             except Exception as exc:
                 event_exc.append(exc)
 

@@ -1437,7 +1437,7 @@ class TestState03(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        assoc.acse._negotiate_as_acceptor
+        assoc.acse._negotiate_as_acceptor  # noqa: B018
 
         def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
@@ -1468,7 +1468,7 @@ class TestState03(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        assoc.acse._negotiate_as_acceptor
+        assoc.acse._negotiate_as_acceptor  # noqa: B018
 
         def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
@@ -1534,7 +1534,7 @@ class TestState03(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        assoc.acse._negotiate_as_acceptor
+        assoc.acse._negotiate_as_acceptor  # noqa: B018
 
         def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
@@ -1634,7 +1634,7 @@ class TestState03(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        assoc.acse._negotiate_as_acceptor
+        assoc.acse._negotiate_as_acceptor  # noqa: B018
 
         def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
@@ -1666,7 +1666,7 @@ class TestState03(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        assoc.acse._negotiate_as_acceptor
+        assoc.acse._negotiate_as_acceptor  # noqa: B018
 
         def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""

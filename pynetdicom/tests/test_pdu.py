@@ -77,7 +77,7 @@ class TestPDU:
         """Test the PDU._decoders property raises NotImplementedError."""
         pdu = PDU()
         with pytest.raises(NotImplementedError):
-            pdu._decoders
+            pdu._decoders  # noqa: B018
 
     def test_equality(self):
         """Test the equality operator"""
@@ -107,7 +107,7 @@ class TestPDU:
         """Test the PDU._encoders property raises NotImplementedError."""
         pdu = PDU()
         with pytest.raises(NotImplementedError):
-            pdu._encoders
+            pdu._encoders  # noqa: B018
 
     def test_generate_items(self):
         """Test the PDU._generate_items method."""
@@ -161,13 +161,13 @@ class TestPDU:
         """Test PDU.pdu_length raises NotImplementedError."""
         pdu = PDU()
         with pytest.raises(NotImplementedError):
-            pdu.pdu_length
+            pdu.pdu_length  # noqa: B018
 
     def test_pdu_type_raises(self):
         """Test PDU.pdu_type raises ValueError."""
         pdu = PDU()
         with pytest.raises(KeyError):
-            pdu.pdu_type
+            pdu.pdu_type  # noqa: B018
 
     def test_wrap_bytes(self):
         """Test PDU._wrap_bytes()."""
@@ -967,13 +967,13 @@ class TestASSOC_RJ:
         assert len(pdu) == 10
 
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
         with pytest.raises(ValueError):
-            pdu.result_str
+            pdu.result_str  # noqa: B018
 
         with pytest.raises(ValueError):
-            pdu.source_str
+            pdu.source_str  # noqa: B018
 
     def test_string_output(self):
         """Test the string output"""
@@ -1061,7 +1061,7 @@ class TestASSOC_RJ:
 
         pdu.result = 0
         with pytest.raises(ValueError):
-            pdu.result_str
+            pdu.result_str  # noqa: B018
 
         pdu.result = 1
         assert pdu.result_str == "Rejected (Permanent)"
@@ -1071,7 +1071,7 @@ class TestASSOC_RJ:
 
         pdu.result = 3
         with pytest.raises(ValueError):
-            pdu.result_str
+            pdu.result_str  # noqa: B018
 
     def test_source_str(self):
         """Check the source str returns correct values"""
@@ -1080,7 +1080,7 @@ class TestASSOC_RJ:
 
         pdu.source = 0
         with pytest.raises(ValueError):
-            pdu.source_str
+            pdu.source_str  # noqa: B018
 
         pdu.source = 1
         assert pdu.source_str == "DUL service-user"
@@ -1093,7 +1093,7 @@ class TestASSOC_RJ:
 
         pdu.source = 4
         with pytest.raises(ValueError):
-            pdu.source_str
+            pdu.source_str  # noqa: B018
 
     def test_reason_str(self):
         """Check the reason str returns correct values"""
@@ -1102,7 +1102,7 @@ class TestASSOC_RJ:
 
         pdu.source = 0
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
         pdu.source = 1
         for ii in range(1, 11):
@@ -1111,7 +1111,7 @@ class TestASSOC_RJ:
 
         pdu.reason_diagnostic = 11
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
         pdu.source = 2
         for ii in range(1, 3):
@@ -1120,7 +1120,7 @@ class TestASSOC_RJ:
 
         pdu.reason_diagnostic = 3
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
         pdu.source = 3
         for ii in range(1, 8):
@@ -1129,11 +1129,11 @@ class TestASSOC_RJ:
 
         pdu.reason_diagnostic = 8
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
         pdu.source = 4
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
 
 class TestP_DATA_TF:

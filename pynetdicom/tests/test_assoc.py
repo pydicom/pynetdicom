@@ -5387,7 +5387,7 @@ class TestGetValidContext:
         assert cx.as_scu is True
 
         assoc.release()
-        scp.shutdown
+        scp.shutdown()
 
     def test_little_big(self):
         """Test no match from little to big endian."""

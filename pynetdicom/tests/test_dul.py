@@ -85,7 +85,7 @@ class TestDUL:
     def teardown_method(self):
         if self.scp:
             self.scp.commands = [("exit", None)]
-            self.scp.step
+            self.scp.step  # noqa: B018
             self.scp.commands = []
             self.scp.shutdown()
 

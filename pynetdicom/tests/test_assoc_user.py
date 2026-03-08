@@ -95,10 +95,10 @@ class TestServiceUserAcceptor:
         assert user.primitive is None
         assert user.ae_title == ""
         with pytest.raises(ValueError, match="No address info"):
-            user.port
+            user.port  # noqa: B018
 
         with pytest.raises(ValueError, match="No address info"):
-            user.address
+            user.address  # noqa: B018
 
         assert user.address_info is None
         assert user._contexts == []
@@ -150,10 +150,10 @@ class TestServiceUserAcceptor:
         assert user.primitive is None
         assert user.ae_title == ""
         with pytest.raises(ValueError, match="No address info"):
-            user.port
+            user.port  # noqa: B018
 
         with pytest.raises(ValueError, match="No address info"):
-            user.address
+            user.address  # noqa: B018
 
         assert user.address_info is None
         assert user._contexts == []
@@ -760,7 +760,7 @@ class TestServiceUserAcceptor:
             r"acceptor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.requested_contexts
+            user.requested_contexts  # noqa: B018
 
         msg = r"'requested_contexts' can only be set for the association " r"requestor"
         with pytest.raises(AttributeError, match=msg):
@@ -779,7 +779,7 @@ class TestServiceUserAcceptor:
             r"acceptor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.requested_contexts
+            user.requested_contexts  # noqa: B018
 
         msg = r"Can't set the requested presentation contexts after"
         with pytest.raises(RuntimeError, match=msg):
@@ -798,7 +798,7 @@ class TestServiceUserAcceptor:
             r"acceptor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.requested_contexts
+            user.requested_contexts  # noqa: B018
 
         msg = r"'requested_contexts' can only be set for the association " r"requestor"
         with pytest.raises(AttributeError, match=msg):
@@ -818,7 +818,7 @@ class TestServiceUserAcceptor:
             r"acceptor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.requested_contexts
+            user.requested_contexts  # noqa: B018
 
         msg = r"Can't set the requested presentation contexts after"
         with pytest.raises(RuntimeError, match=msg):
@@ -1150,7 +1150,7 @@ class TestServiceUserAcceptor:
             r"acceptor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.supported_contexts
+            user.supported_contexts  # noqa: B018
 
     def test_req_supported_cx_post(self):
         """Test supported_contexts after association."""
@@ -1454,10 +1454,10 @@ class TestServiceUserRequestor:
         assert user.primitive is None
         assert user.ae_title == ""
         with pytest.raises(ValueError, match="No address info"):
-            user.port
+            user.port  # noqa: B018
 
         with pytest.raises(ValueError, match="No address info"):
-            user.address
+            user.address  # noqa: B018
 
         assert user.address_info is None
         assert user._contexts == []
@@ -1475,10 +1475,10 @@ class TestServiceUserRequestor:
         assert user.primitive is None
         assert user.ae_title == ""
         with pytest.raises(ValueError, match="No address info"):
-            user.port
+            user.port  # noqa: B018
 
         with pytest.raises(ValueError, match="No address info"):
-            user.address
+            user.address  # noqa: B018
 
         assert user.address_info is None
         assert user._contexts == []
@@ -2135,7 +2135,7 @@ class TestServiceUserRequestor:
             r"requestor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.requested_contexts
+            user.requested_contexts  # noqa: B018
 
     def test_acc_requested_cx_post(self):
         """Test requested_contexts after association."""
@@ -2496,7 +2496,7 @@ class TestServiceUserRequestor:
             r"requestor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.supported_contexts
+            user.supported_contexts  # noqa: B018
 
         msg = r"'supported_contexts' can only be set for the association " r"acceptor"
         with pytest.raises(AttributeError, match=msg):
@@ -2516,7 +2516,7 @@ class TestServiceUserRequestor:
             r"requestor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.supported_contexts
+            user.supported_contexts  # noqa: B018
 
     def test_acc_supported_cx_pre(self):
         """Test supported_contexts prior to association."""
@@ -2531,7 +2531,7 @@ class TestServiceUserRequestor:
             r"requestor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.supported_contexts
+            user.supported_contexts  # noqa: B018
 
         msg = r"'supported_contexts' can only be set for the association " r"acceptor"
         with pytest.raises(AttributeError, match=msg):
@@ -2552,7 +2552,7 @@ class TestServiceUserRequestor:
             r"requestor service user"
         )
         with pytest.raises(ValueError, match=msg):
-            user.supported_contexts
+            user.supported_contexts  # noqa: B018
 
     def test_user_id_pre(self):
         """Test user_identity prior to association."""

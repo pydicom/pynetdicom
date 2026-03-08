@@ -154,7 +154,7 @@ class TestPDU:
         """Test the PDU._decoders property raises NotImplementedError."""
         item = PDUItem()
         with pytest.raises(NotImplementedError):
-            item._decoders
+            item._decoders  # noqa: B018
 
     def test_equality(self):
         """Test the equality operator"""
@@ -181,7 +181,7 @@ class TestPDU:
         """Test the PDU._encoders property raises NotImplementedError."""
         item = PDUItem()
         with pytest.raises(NotImplementedError):
-            item._encoders
+            item._encoders  # noqa: B018
 
     def test_generate_items(self):
         """Test the PDU._generate_items method."""
@@ -235,13 +235,13 @@ class TestPDU:
         """Test PDU.pdu_length raises NotImplementedError."""
         item = PDUItem()
         with pytest.raises(NotImplementedError):
-            item.item_length
+            item.item_length  # noqa: B018
 
     def test_item_type_raises(self):
         """Test PDUItem.item_type raises ValueError."""
         item = PDUItem()
         with pytest.raises(KeyError):
-            item.item_type
+            item.item_type  # noqa: B018
 
     def test_wrap_bytes(self):
         """Test PDU._wrap_bytes()."""
@@ -590,7 +590,7 @@ class TestPresentationContextRQ:
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_role)
-        pdu.presentation_context
+        pdu.presentation_context  # noqa: B018
         for item in pdu.variable_items:
             if isinstance(item, PresentationContextItemRQ):
                 assert "CT Image Storage" in item.__str__()
@@ -1124,10 +1124,10 @@ class TestPresentationDataValue:
         assert item.presentation_data_value is None
 
         with pytest.raises(ValueError):
-            item.message_control_header_byte
+            item.message_control_header_byte  # noqa: B018
 
         with pytest.raises(NotImplementedError):
-            item.item_type
+            item.item_type  # noqa: B018
 
     def test_string_output(self):
         """Test the string output"""

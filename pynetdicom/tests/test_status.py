@@ -299,7 +299,7 @@ class TestStatusEnum:
     def test_adding(self):
         """Tests for adding a new constant to the Status enum."""
         with pytest.raises(AttributeError, match=r"PENDING_WITH_WARNING"):
-            Status.PENDING_WITH_WARNING
+            Status.PENDING_WITH_WARNING  # noqa: B018
 
         Status.add("PENDING_WITH_WARNING", 0xFF01)
         assert 0xFF01 == Status.PENDING_WITH_WARNING

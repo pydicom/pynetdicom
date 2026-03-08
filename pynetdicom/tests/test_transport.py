@@ -201,7 +201,7 @@ class TestTConnect:
 
         msg = r"A connection attempt has not yet been made"
         with pytest.raises(ValueError, match=msg):
-            conn.result
+            conn.result  # noqa: B018
 
     def test_result_setter(self):
         """Test setting the result value."""

@@ -513,7 +513,7 @@ class TestStandardLogging:
                 assert msg in caplog.text
 
             assoc.release()
-            scp.shutdown
+            scp.shutdown()
 
     def test_send_assoc_rq_role(self, caplog):
         """Test A-ASSOCIATE-RQ with role selection."""
