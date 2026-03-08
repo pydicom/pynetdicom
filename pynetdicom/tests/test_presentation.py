@@ -358,7 +358,7 @@ class TestPresentationContext:
             "Unknown",
         ]
 
-        for status, result in zip(statuses, results):
+        for status, result in zip(statuses, results):  # noqa: B905
             pc.result = status
             assert pc.status == result
 
