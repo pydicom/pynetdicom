@@ -12,7 +12,7 @@ import pytest
 from pynetdicom import AE, build_context, evt
 from pynetdicom.association import Association
 from pynetdicom import fsm as FINITE_STATE
-from pynetdicom.fsm import *
+from pynetdicom.fsm import *  # noqa: F403
 from pynetdicom.dimse_primitives import C_ECHO
 from pynetdicom.pdu_primitives import (
     A_ASSOCIATE,
