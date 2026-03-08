@@ -10,6 +10,7 @@ from typing import (
     TYPE_CHECKING,
     cast,
     Any,
+    TypeAlias,
     TypeVar,
 )
 from collections.abc import Iterator, Sequence
@@ -64,9 +65,9 @@ if TYPE_CHECKING:  # pragma: no cover
     _QR = C_FIND | C_MOVE | C_GET
 
 
-StatusType = int | Dataset
-DatasetType = Dataset | None
-UserReturnType = tuple[StatusType, DatasetType]
+StatusType: TypeAlias = int | Dataset
+DatasetType: TypeAlias = Dataset | None
+UserReturnType: TypeAlias = tuple[StatusType, DatasetType]
 _T = TypeVar("_T", bound=DIMSEPrimitive)
 _ExcInfoType = (
     tuple[None, None, None] | tuple[type[BaseException], BaseException, TracebackType]

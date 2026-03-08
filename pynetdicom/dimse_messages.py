@@ -474,7 +474,7 @@ class DIMSEMessage:
                         sop_class = cast(UID, cs.AffectedSOPClassUID)
                         sop_instance = cast(UID, cs.AffectedSOPInstanceUID)
                         write_file_meta_info(
-                            self._data_set_file,  # type: ignore
+                            self._data_set_file,
                             create_file_meta(
                                 sop_class_uid=sop_class,
                                 sop_instance_uid=sop_instance,

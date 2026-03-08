@@ -155,7 +155,7 @@ def encode(
         fp.close()
         return None
 
-    bytestring: bytes = fp.parent.getvalue()  # type: ignore
+    bytestring: bytes = fp.parent.getvalue()
     fp.close()
 
     if deflated:
@@ -181,7 +181,7 @@ def encode_file_meta(file_meta: FileMetaDataset) -> bytes:
     buffer.is_little_endian = True
     buffer.is_implicit_VR = False
     write_file_meta_info(buffer, file_meta)
-    return buffer.getvalue()
+    return buffer.getvalue()  # type: ignore[no-any-return] # FIXME
 
 
 def pretty_dataset(ds: Dataset, indent: int = 0, indent_char: str = "  ") -> list[str]:
@@ -288,7 +288,7 @@ def split_dataset(path: Path) -> tuple[Dataset, int]:
 
     def _not_group_0002(tag: BaseTag, VR: str | None, length: int) -> bool:
         """Return True if the tag is not in group 0x0002, False otherwise."""
-        return tag.group != 2
+        return tag.group != 2  # type: ignore[no-any-return] # FIXME
 
     with open(path, "rb") as fp:
         read_preamble(fp, False)

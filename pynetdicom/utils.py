@@ -335,6 +335,6 @@ def validate_uid(uid: UID) -> bool:
         ``True`` if the value is considered valid, ``False`` otherwise.
     """
     if _config.ENFORCE_UID_CONFORMANCE:
-        return uid.is_valid
+        return uid.is_valid  # type: ignore[no-any-return]  # FIXME
 
     return 0 < len(uid) < 65
