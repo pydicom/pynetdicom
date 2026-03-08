@@ -69,7 +69,7 @@ from pynetdicom.pdu_primitives import (
     _UITypes,
 )
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.sop_class import (  # type: ignore
+from pynetdicom.sop_class import (  # type: ignore[attr-defined]
     RepositoryQuery,
     uid_to_service_class,
     UnifiedProcedureStepPull,
@@ -435,7 +435,7 @@ class Association(threading.Thread):
         tr_syntax = UID(tr_syntax)
 
         try:
-            possible_contexts = [self._accepted_cx[context_id]]  # type: ignore
+            possible_contexts = [self._accepted_cx[context_id]]  # type: ignore[index]
         except KeyError:
             possible_contexts = self.accepted_contexts
 
@@ -2430,7 +2430,7 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, action_reply
 
-            b: BytesIO = rsp.ActionReply  # type: ignore
+            b: BytesIO = rsp.ActionReply  # type: ignore[assignment, union-attr]
             if b and b.getvalue() != b"":
                 # Attempt to decode the response's dataset
                 try:
@@ -2667,7 +2667,7 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            b: BytesIO = rsp.AttributeList  # type: ignore
+            b: BytesIO = rsp.AttributeList  # type: ignore[assignment, union-attr]
             if b and b.getvalue() != b"":
                 # Attempt to decode the response's dataset
                 try:
@@ -2997,7 +2997,7 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, event_reply
 
-            b: BytesIO = rsp.EventReply  # type: ignore
+            b: BytesIO = rsp.EventReply  # type: ignore[assignment, union-attr]
             if b and b.getvalue() != b"":
                 # Attempt to decode the response"s dataset
                 try:
@@ -3204,7 +3204,7 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            b: BytesIO = rsp.AttributeList  # type: ignore
+            b: BytesIO = rsp.AttributeList  # type: ignore[assignment, union-attr]
             if b and b.getvalue() != b"":
                 # Attempt to decode the response"s dataset
                 try:
@@ -3454,7 +3454,7 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            b: BytesIO = rsp.AttributeList  # type: ignore
+            b: BytesIO = rsp.AttributeList  # type: ignore[assignment, union-attr]
             if b and b.getvalue() != b"":
                 # Attempt to decode the response's dataset
                 try:
@@ -3507,7 +3507,7 @@ class Association(threading.Thread):
             class_uid = cast(UID, msg.AffectedSOPClassUID)
         elif getattr(msg, "RequestedSOPClassUID", None) is not None:
             # N-GET, N-SET, N-ACTION, N-DELETE use RequestedSOPClassUID
-            class_uid = msg.RequestedSOPClassUID  # type: ignore
+            class_uid = msg.RequestedSOPClassUID  # type: ignore[assignment, union-attr]
 
         # SOP Class Common Extended Negotiation
         class_uid = cast(UID, class_uid)

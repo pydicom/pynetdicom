@@ -412,7 +412,7 @@ class ApplicationEntity:
         else:
             context = PresentationContext()
             context.abstract_syntax = abstract_syntax
-            context.transfer_syntax = transfer_syntax  # type: ignore
+            context.transfer_syntax = transfer_syntax  # type: ignore[assignment]
             context.scu_role = None or scu_role
             context.scp_role = None or scp_role
 
@@ -873,7 +873,7 @@ class ApplicationEntity:
 
         server_class = server_class or AssociationServer  # type: ignore[assignment]
 
-        return server_class(  # type: ignore
+        return server_class(  # type: ignore[call-arg, misc]
             self,
             address,
             ae_title,

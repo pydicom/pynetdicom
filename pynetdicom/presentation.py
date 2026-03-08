@@ -929,7 +929,7 @@ def build_context(
 
     context = PresentationContext()
     context.abstract_syntax = abstract_syntax
-    context.transfer_syntax = transfer_syntax  # type: ignore
+    context.transfer_syntax = transfer_syntax  # type: ignore[assignment]
 
     return context
 

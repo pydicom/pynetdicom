@@ -1346,7 +1346,7 @@ class AbstractSyntaxSubItem(PDUItem):
             "Abstract Syntax Sub-item",
             f"  Item type: 0x{self.item_type:02X}",
             f"  Item length: {self.item_length} bytes",
-            f"  Syntax name: ={self.abstract_syntax.name}",  # type: ignore
+            f"  Syntax name: ={self.abstract_syntax.name}",  # type: ignore[union-attr]
         ]
 
         return "\n".join(s)
@@ -2311,7 +2311,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         s += f"  Item type: 0x{self.item_type:02X}\n"
         s += f"  Item length: {self.item_length} bytes\n"
         s += f"  UID length: {self.uid_length} bytes\n"
-        s += f"  SOP Class UID: {self.uid.name}\n"  # type: ignore
+        s += f"  SOP Class UID: {self.uid.name}\n"  # type: ignore[union-attr]
         s += f"  SCU Role: {self.scu}\n"
         s += f"  SCP Role: {self.scp}\n"
 
@@ -2521,7 +2521,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         s += f"  Item type: 0x{self.item_type:02X}\n"
         s += f"  Item length: {self.item_length} bytes\n"
         s += f"  SOP class UID length: {self.sop_class_uid_length} bytes\n"
-        s += f"  SOP class: ={self.sop_class_uid.name}\n"  # type: ignore
+        s += f"  SOP class: ={self.sop_class_uid.name}\n"  # type: ignore[union-attr]
         s += (
             f"  Service class application information: "
             f"{self.service_class_application_information!r}\n"
@@ -2732,7 +2732,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         ]
 
     @staticmethod
-    def _generate_items(bytestream: bytes) -> Iterator[UID]:  # type: ignore
+    def _generate_items(bytestream: bytes) -> Iterator[UID]:  # type: ignore[override]
         """Yield Related General SOP Class UIDs from `bytestream`.
 
          Parameters
@@ -2889,9 +2889,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             f"  Item type: 0x{self.item_type:02X}",
             f"  Item length: {self.item_length} bytes",
             f"  SOP class UID length: {self.sop_class_uid_length} bytes",
-            f"  SOP class: ={self.sop_class_uid.name}",  # type: ignore
+            f"  SOP class: ={self.sop_class_uid.name}",  # type: ignore[union-attr]
             f"  Service class UID length: {self.service_class_uid_length} bytes",
-            f"  Service class UID: ={self.service_class_uid.name}",  # type: ignore
+            f"  Service class UID: ={self.service_class_uid.name}",  # type: ignore[union-attr]
             f"  Related general SOP class ID length: "
             f"{self.related_general_sop_class_identification_length} bytes",
             "  Related general SOP class ID(s):",
@@ -2905,7 +2905,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
         return "\n".join(s)
 
-    def _wrap_generate_items(self, b: bytes) -> list[UID]:  # type: ignore
+    def _wrap_generate_items(self, b: bytes) -> list[UID]:  # type: ignore[override]
         """Return a list of UID items generated from `bytestream`."""
         return list(self._generate_items(b))
 
@@ -3444,7 +3444,7 @@ class PresentationDataValueItem(PDUItem):
     def __str__(self) -> str:
         """Return a string representation of the Item."""
         pdv_samples = " ".join(
-            f"0x{b:02X}" for b in self.presentation_data_value[:10]  # type: ignore
+            f"0x{b:02X}" for b in self.presentation_data_value[:10]  # type: ignore[index]
         )
         s = [
             "Presentation Value Data Item",

@@ -278,7 +278,7 @@ def set_timer_resolution(resolution: float | None) -> Iterator[None]:
     None
     """
     if HAVE_CTYPES and sys.platform == "win32" and resolution is not None:
-        dll = ctypes.WinDLL("NTDLL.DLL")  # type: ignore
+        dll = ctypes.WinDLL("NTDLL.DLL")  # type: ignore[attr-defined]
 
         minimum = ctypes.c_ulong()  # Minimum delay allowed
         maximum = ctypes.c_ulong()  # Maximum delay allowed

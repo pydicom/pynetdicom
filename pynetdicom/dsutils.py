@@ -155,7 +155,7 @@ def encode(
         fp.close()
         return None
 
-    bytestring: bytes = fp.parent.getvalue()  # type: ignore
+    bytestring: bytes = fp.parent.getvalue()  # type: ignore[union-attr]
     fp.close()
 
     if deflated:
