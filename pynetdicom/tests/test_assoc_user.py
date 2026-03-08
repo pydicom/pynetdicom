@@ -536,7 +536,7 @@ class TestServiceUserAcceptor:
         assert user.assoc.is_acceptor
         assert user.writeable is True
 
-        user.get_contexts("supported") == []
+        assert user.get_contexts("supported") == []
 
     def test_acc_get_contexts_pre_raises(self):
         """Test get_contexts prior to association raises if bad type."""
