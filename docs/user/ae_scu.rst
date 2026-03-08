@@ -198,4 +198,4 @@ requesting an association, which takes:
     the socket or address already being in use. This occurs because
     the `previous TCP connection using the bound socket
     <https://hea-www.harvard.edu/~fine/Tech/addrinuse.html>`_ remains in a
-    ``TIME_WAIT`` state which must expire before you are able to re-use the socket.
+    ``TIME_WAIT`` state which must expire before you are able to reuse the socket.
