@@ -252,20 +252,6 @@ class TestAddInstance:
 
     def test_bad_instance_none(self):
         """Test that instances with bad data aren't added."""
-        keywords = [
-            ("PatientID", 64),
-            ("PatientName", 64),
-            ("StudyInstanceUID", 64),
-            ("StudyDate", 8),
-            ("StudyTime", 14),
-            ("AccessionNumber", 16),
-            ("StudyID", 16),
-            ("SeriesInstanceUID", 64),
-            ("Modality", 16),
-            # ('SeriesNumber', None),
-            ("SOPInstanceUID", 64),
-            # ('InstanceNumber', None),
-        ]
         ds = Dataset()
         ds.PatientID = None
         ds.StudyInstanceUID = None

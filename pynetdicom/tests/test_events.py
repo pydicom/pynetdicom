@@ -265,7 +265,7 @@ class TestEvent:
         """Test adding an attribute that already exists."""
         msg = r"'Event' object already has an attribute 'assoc'"
         with pytest.raises(AttributeError, match=msg):
-            event = evt.Event(None, evt.EVT_C_STORE, {"assoc": None})
+            _event = evt.Event(None, evt.EVT_C_STORE, {"assoc": None})
 
     def test_action_information(self):
         """Test Event.action_information."""

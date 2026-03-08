@@ -313,7 +313,7 @@ class TestAEPresentationSCU:
         """Test that AE.associate raises exception if no requested contexts"""
         self.ae = ae = AE()
         with pytest.raises(RuntimeError):
-            assoc = ae.associate("localhost", get_port())
+            _assoc = ae.associate("localhost", get_port())
 
 
 class TestAEGoodTimeoutSetters:
@@ -571,7 +571,7 @@ class TestAEGoodAssociation:
 
         assoc = scu_ae.associate("localhost", get_port())
         assert assoc.is_established
-        status = assoc.send_c_echo()
+        _status = assoc.send_c_echo()
         time.sleep(1.5)
         assert assoc.is_aborted
         assert len(scp.active_associations) == 0

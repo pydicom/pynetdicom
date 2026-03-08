@@ -139,7 +139,7 @@ class TestPrimitive_ImplementationClassUIDNotification:
 
         # No value set
         with pytest.raises(ValueError):
-            item = primitive.from_primitive()
+            _item = primitive.from_primitive()
 
         # Non UID, bytes or str
         with pytest.raises(TypeError):
@@ -195,7 +195,7 @@ class TestPrimitive_ImplementationVersionNameNotification:
 
         # No value set
         with pytest.raises(ValueError):
-            item = primitive.from_primitive()
+            _item = primitive.from_primitive()
 
         # Non UID, bytes or str
         with pytest.raises(TypeError):
@@ -473,16 +473,16 @@ class TestPrimitive_SOPClassExtendedNegotiation:
         # No value set
         primitive = SOPClassExtendedNegotiation()
         with pytest.raises(ValueError):
-            item = primitive.from_primitive()
+            _item = primitive.from_primitive()
 
         primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         with pytest.raises(ValueError):
-            item = primitive.from_primitive()
+            _item = primitive.from_primitive()
 
         primitive = SOPClassExtendedNegotiation()
         primitive.service_class_application_information = b"\x02\x00\x03\x00\x01\x00"
         with pytest.raises(ValueError):
-            item = primitive.from_primitive()
+            _item = primitive.from_primitive()
 
     def test_conversion(self):
         """Check converting to PDU item works correctly"""
@@ -615,16 +615,16 @@ class TestPrimitive_SOPClassCommonExtendedNegotiation:
         # No value set
         primitive = SOPClassCommonExtendedNegotiation()
         with pytest.raises(ValueError):
-            item = primitive.from_primitive()
+            _item = primitive.from_primitive()
 
         primitive.sop_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         with pytest.raises(ValueError):
-            item = primitive.from_primitive()
+            _item = primitive.from_primitive()
 
         primitive = SOPClassCommonExtendedNegotiation()
         primitive.service_class_uid = b"1.2.840.10008.5.1.4.1.1.2"
         with pytest.raises(ValueError):
-            item = primitive.from_primitive()
+            _item = primitive.from_primitive()
 
     def test_conversion(self):
         """Check converting to PDU item works correctly"""
@@ -968,12 +968,12 @@ class TestPrimitive_A_ASSOCIATE:
 
         # implementation_class_uid
         with pytest.raises(ValueError):
-            x = assoc.implementation_class_uid
+            assoc.implementation_class_uid  # noqa: B018
 
         imp_uid = ImplementationClassUIDNotification()
         assoc.user_information.append(imp_uid)
         with pytest.raises(ValueError):
-            x = assoc.implementation_class_uid
+            assoc.implementation_class_uid  # noqa: B018
 
     def test_conversion(self):
         """Check conversion to a PDU produces the correct output"""

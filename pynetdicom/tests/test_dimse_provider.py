@@ -274,7 +274,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_DIMSE_SENT, handle)]
+        _handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
 
@@ -654,7 +654,7 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_DIMSE_SENT, handle)]
+        _handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
 

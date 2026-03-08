@@ -77,7 +77,7 @@ class StoreSCPBase:
 
     def test_basic(self):
         """Test basic operation of the storage service."""
-        self.p = p = self.func(
+        self.p = _p = self.func(
             [
                 "--database-location",
                 self.db_location,

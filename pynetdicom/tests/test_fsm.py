@@ -1849,7 +1849,7 @@ class TestState04(TestStateBase):
             try:
                 assoc.dul.socket.socket.connect(primitive.address_info.as_tuple)
                 assoc.dul.socket._is_connected = True
-            except (OSError, TimeoutError) as exc:
+            except (OSError, TimeoutError):
                 assoc.dul.socket.close()
 
         assoc.dul.socket.connect = connect

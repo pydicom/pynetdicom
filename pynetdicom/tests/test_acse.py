@@ -1099,8 +1099,6 @@ class TestSOPClassExtendedNegotiation:
 
         assert assoc.is_established
 
-        req = {}
-
         scp_assoc = scp.ae.active_associations[0]
         rsp = scp_assoc.acse._check_sop_class_extended()
 
@@ -1526,8 +1524,6 @@ class TestSOPClassCommonExtendedNegotiation:
         assoc = ae.associate("localhost", port)
 
         assert assoc.is_established
-
-        req = {}
 
         scp_assoc = scp.active_associations[0]
         rsp = scp_assoc.acse._check_sop_class_common_extended()
@@ -2359,7 +2355,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_ACSE_SENT, handle)]
+        _handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 
@@ -2781,7 +2777,7 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_ACSE_SENT, handle)]
+        _handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(("localhost", port), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
 

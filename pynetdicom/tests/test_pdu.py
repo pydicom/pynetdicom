@@ -175,7 +175,7 @@ class TestPDU:
     def test_wrap_encode_items(self):
         """Test PDU._wrap_encode_items()."""
         release_a = A_RELEASE_RQ()
-        release_b = A_RELEASE_RQ()
+        _release_b = A_RELEASE_RQ()
         pdu = PDU()
         out = pdu._wrap_encode_items([release_a])
         assert out == b"\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00"
@@ -1198,7 +1198,7 @@ class TestP_DATA_TF:
 
         new_pdu = P_DATA_TF()
         new_pdu.from_primitive(primitive)
-        pdv = new_pdu.presentation_data_value_items[0]
+        _pdv = new_pdu.presentation_data_value_items[0]
 
         assert new_pdu == orig_pdu
 
@@ -1596,7 +1596,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_PDU_SENT, handle)]
+        _handlers = [(evt.EVT_PDU_SENT, handle)]
         scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
@@ -1969,7 +1969,7 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_PDU_SENT, handle)]
+        _handlers = [(evt.EVT_PDU_SENT, handle)]
         scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 

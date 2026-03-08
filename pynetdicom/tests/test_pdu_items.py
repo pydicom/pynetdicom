@@ -1443,7 +1443,7 @@ class TestUserInformation_ImplementationUID:
             b"\x52\x00\x00\x14\x31\x2e\x32\x2e\x31\x32\x34\x2e\x31"
             b"\x31\x33\x35\x33\x32\x2e\x33\x33\x32\x30\x00"
         )
-        primitive = item.to_primitive()
+        _primitive = item.to_primitive()
 
         item.implementation_class_uid = None
         assert item.implementation_class_uid is None
@@ -1616,7 +1616,7 @@ class TestUserInformation_ImplementationUID:
             b"\x31\x2e\x32\x2e\x31\x32\x34\x2e\x31\x31\x33\x35\x33\x32\x2e"
             b"\x33\x33\x32\x30\x00"
         )
-        primitive = item.to_primitive()
+        _primitive = item.to_primitive()
         assert caplog.text == ""
 
         # Invalid UID (with no padding)
@@ -1634,7 +1634,7 @@ class TestUserInformation_ImplementationUID:
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             item._implementation_class_uid = "00.1.2.3"
             with pytest.raises(ValueError, match=msg):
-                primitive = item.to_primitive()
+                _primitive = item.to_primitive()
 
             assert msg in caplog.text
 
