@@ -306,7 +306,7 @@ class ServiceClass:
                 LOGGER.error(
                     "\nTraceback (most recent call last):\n"
                     + "".join(traceback.format_tb(exc[2]))
-                    + f"{exc[0].__name__}: {exc[1]}"  # type: ignore
+                    + f"{exc[0].__name__}: {exc[1]}"  # type: ignore[arg-type]
                 )
                 rsp_status = 0xC311
                 dataset = None
@@ -1772,7 +1772,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 LOGGER.error(
                     "\nTraceback (most recent call last):\n"
                     + "".join(traceback.format_tb(exc[2]))
-                    + f"{exc[0].__name__}: {exc[1]}"  # type: ignore
+                    + f"{exc[0].__name__}: {exc[1]}"  # type: ignore[arg-type]
                 )
                 rsp_status = 0xC411
                 dataset = None
@@ -2157,7 +2157,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 kwargs.update(destination[2])
 
             store_assoc = self.ae.associate(
-                destination[0], destination[1], **kwargs  # type: ignore
+                destination[0], destination[1], **kwargs  # type: ignore[arg-type]
             )
 
         if not ctx.success:
@@ -2199,7 +2199,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 LOGGER.error(
                     "\nTraceback (most recent call last):\n"
                     + "".join(traceback.format_tb(exc[2]))
-                    + f"{exc[0].__name__}: {exc[1]}"  # type: ignore
+                    + f"{exc[0].__name__}: {exc[1]}"  # type: ignore[union-attr]
                 )
                 rsp_status = 0xC511
                 dataset = None

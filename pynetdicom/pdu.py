@@ -1588,7 +1588,7 @@ class P_DATA_TF(PDU):
 
         return s
 
-    def _wrap_generate_items(self, bytestream: bytes) -> _PDVItem:  # type: ignore
+    def _wrap_generate_items(self, bytestream: bytes) -> _PDVItem:  # type: ignore[override]
         """Return a list of PDV Items generated from `bytestream`.
 
         Parameters

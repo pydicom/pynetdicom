@@ -317,7 +317,7 @@ class DIMSEServiceProvider:
             sent under.
         """
         if primitive.MessageIDBeingRespondedTo is None:
-            dimse_msg = _RQ_TO_MESSAGE[primitive.__class__]()  # type: ignore
+            dimse_msg = _RQ_TO_MESSAGE[primitive.__class__]()  # type: ignore[index]
         else:
             dimse_msg = _RSP_TO_MESSAGE[primitive.__class__]()
 
