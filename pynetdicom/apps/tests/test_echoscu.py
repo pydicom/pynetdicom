@@ -89,7 +89,7 @@ class EchoSCUBase:
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
         assert {} == requestor.sop_class_extended
-        assert requestor.user_identity == None
+        assert requestor.user_identity is None
         cxs = requestor.primitive.presentation_context_definition_list
         assert len(cxs) == 1
         assert cxs[0].abstract_syntax == Verification

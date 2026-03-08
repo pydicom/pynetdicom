@@ -288,7 +288,7 @@ class TestAddInstance:
 
         result = self.session.query(db.Instance).all()
         assert 1 == len(result)
-        assert None == result[0].modality
+        assert None is result[0].modality
 
         self.minimal.Modality = "CT"
 

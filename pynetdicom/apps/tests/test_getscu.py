@@ -115,7 +115,7 @@ class GetSCUBase:
         assert {} == requestor.sop_class_common_extended
         assert {} == requestor.sop_class_extended
         assert requestor.role_selection != {}
-        assert requestor.user_identity == None
+        assert requestor.user_identity is None
         cxs = requestor.primitive.presentation_context_definition_list
         assert len(cxs) == 123
         cxs = {cx.abstract_syntax: cx for cx in cxs}

@@ -1316,7 +1316,7 @@ class TestQRFindServiceClass:
         assert identifier == self.query
         status, identifier = next(result)
         assert status.Status == 0xB001
-        assert identifier == None
+        assert identifier is None
         status, identifier = next(result)
         assert status.Status == 0x0000
         assert identifier is None
