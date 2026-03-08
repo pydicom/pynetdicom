@@ -149,6 +149,10 @@ ignore = [
     "UP037",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"pynetdicom/tests/test_pdu_items.py" = ["E712"]
+"pynetdicom/tests/test_presentation.py" = ["E712"]
+
 
 [tool.pytest.ini_options]
 markers = [
