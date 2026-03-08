@@ -343,7 +343,7 @@ def receive_store_simultaneous(test_ds, nr_assoc, ds_per_assoc, use_yappi=False)
     while None in [pp.poll() for pp in processes]:
         pass
 
-    returncodes = list(set([pp.returncode for pp in processes]))
+    returncodes = list({pp.returncode for pp in processes})
     if len(returncodes) != 1 or returncodes[0] != 0:
         is_successful = False
 

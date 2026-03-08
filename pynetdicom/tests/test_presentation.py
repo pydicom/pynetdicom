@@ -982,7 +982,7 @@ class TestNegotiateAsAcceptorWithRoleSelection:
 
         out_00_role = [cx for cx in out_00 if cx.abstract_syntax[0] == "2"]
         # Unique UIDs with role selection
-        out_00_uids = set([cx.abstract_syntax for cx in out_00_role])
+        out_00_uids = {cx.abstract_syntax for cx in out_00_role}
 
         # If acceptor has None as role then no SCP/SCU role response
         if None not in acc:
