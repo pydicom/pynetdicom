@@ -2,7 +2,7 @@
 
 import logging
 from struct import unpack, calcsize
-from typing import TYPE_CHECKING, cast, Any
+from typing import TYPE_CHECKING, cast, Any, TypeAlias
 from collections.abc import Sequence, Iterator
 
 from pydicom.dataset import Dataset
@@ -2493,13 +2493,13 @@ def _recv_n_delete_rsp(event: "Event") -> list[str]:
     return s
 
 
-StatusType = int | Dataset
-DatasetType = Dataset | None
-UserReturnType = tuple[StatusType, DatasetType]
-DestinationType = tuple[str, int] | tuple[str, int, dict[str, Any]]
-CFindType = Iterator[UserReturnType]
-CGetType = Iterator[int | UserReturnType]
-CMoveType = Iterator[DestinationType | int | UserReturnType]
+StatusType: TypeAlias = int | Dataset
+DatasetType: TypeAlias = Dataset | None
+UserReturnType: TypeAlias = tuple[StatusType, DatasetType]
+DestinationType: TypeAlias = tuple[str, int] | tuple[str, int, dict[str, Any]]
+CFindType: TypeAlias = Iterator[UserReturnType]
+CGetType: TypeAlias = Iterator[int | UserReturnType]
+CMoveType: TypeAlias = Iterator[DestinationType | int | UserReturnType]
 
 
 # Example handlers used for the documentation

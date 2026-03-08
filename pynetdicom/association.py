@@ -1845,7 +1845,7 @@ class Association(threading.Thread):
             if not _config.STORE_SEND_CHUNKED_DATASET:
                 dataset = dcmread(os.fspath(fpath))
             else:
-                dataset = None  # type: ignore[assignment]
+                dataset = None
                 allow_conversion = False
                 file_meta, offset = split_dataset(fpath)
                 req._dataset_path = (fpath, offset)

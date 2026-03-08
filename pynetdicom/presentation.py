@@ -250,7 +250,9 @@ class PresentationContext:
         if syntax is None:
             return
 
-        if isinstance(syntax, str):  # includes UID
+        if isinstance(syntax, UID):
+            pass
+        elif isinstance(syntax, str):
             syntax = UID(syntax)
         elif isinstance(syntax, bytes):
             syntax = UID(syntax.decode("ascii"))
@@ -264,15 +266,16 @@ class PresentationContext:
 
         # If the transfer syntax is rejected we may receive an empty str
         if syntax not in self._transfer_syntax and syntax != "":
-            if not syntax.is_valid:
+            if not syntax.is_valid:  # type: ignore[union-attr] # FIXME
                 LOGGER.warning(
-                    f"A non-conformant UID has been added to 'transfer_syntax': '{syntax}'"
+                    "A non-conformant UID has been added to 'transfer_syntax': "
+                    f"'{syntax}'"  # type: ignore[str-bytes-safe] # FIXME
                 )
 
-            if not syntax.is_private and not syntax.is_transfer_syntax:
+            if not syntax.is_private and not syntax.is_transfer_syntax:  # type: ignore[union-attr] # FIXME
                 LOGGER.warning(
                     "A UID has been added to 'transfer_syntax' that is not a known "
-                    f"public transfer syntax: '{syntax}'"
+                    f"public transfer syntax: '{syntax}'"  # type: ignore[str-bytes-safe] # FIXME
                 )
 
             self._transfer_syntax.append(syntax)
@@ -365,7 +368,7 @@ class PresentationContext:
 
     def __repr__(self) -> str:
         """Representation of the Presentation Context."""
-        return cast(UID, self.abstract_syntax).name
+        return cast(UID, self.abstract_syntax).name  # type: ignore[no-any-return] # FIXME
 
     @property
     def scp_role(self) -> None | bool:

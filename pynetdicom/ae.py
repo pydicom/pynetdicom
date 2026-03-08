@@ -10,8 +10,9 @@ from ssl import SSLContext
 import threading
 from typing import (
     cast,
-    TypeVar,
     Any,
+    TypeAlias,
+    TypeVar,
 )
 from collections.abc import Sequence
 import warnings
@@ -40,8 +41,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 _T = TypeVar("_T")
-ListCXType = list[PresentationContext]
-TSyntaxType = None | str | UID | Sequence[str] | Sequence[UID]
+ListCXType: TypeAlias = list[PresentationContext]
+TSyntaxType: TypeAlias = None | str | UID | Sequence[str] | Sequence[UID]
 
 
 class ApplicationEntity:
@@ -412,7 +413,7 @@ class ApplicationEntity:
         else:
             context = PresentationContext()
             context.abstract_syntax = abstract_syntax
-            context.transfer_syntax = transfer_syntax  # type: ignore
+            context.transfer_syntax = transfer_syntax
             context.scu_role = None or scu_role
             context.scp_role = None or scp_role
 

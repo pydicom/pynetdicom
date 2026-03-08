@@ -57,10 +57,10 @@ LOGGER = logging.getLogger(__name__)
 
 
 EventType: TypeAlias = "NotificationEvent | InterventionEvent"
-EventHandlerType = tuple[EventType, Callable] | tuple[EventType, Callable, list[Any]]
-_BasicReturnType = Dataset | int
-_DatasetReturnType = tuple[_BasicReturnType, Dataset | None]
-_IteratorType = Iterator[tuple[_BasicReturnType, Dataset | None]]
+EventHandlerType: TypeAlias = tuple[EventType, Callable] | tuple[EventType, Callable, list[Any]]
+_BasicReturnType: TypeAlias = Dataset | int
+_DatasetReturnType: TypeAlias = tuple[_BasicReturnType, Dataset | None]
+_IteratorType: TypeAlias = Iterator[tuple[_BasicReturnType, Dataset | None]]
 
 
 # Notification events

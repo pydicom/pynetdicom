@@ -2637,7 +2637,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         self.sop_class_uid = primitive.sop_class_uid
         self.service_class_uid = primitive.service_class_uid
         self.related_general_sop_class_identification = (
-            primitive.related_general_sop_class_identification  # type: ignore[assignment]
+            primitive.related_general_sop_class_identification
         )
 
     def to_primitive(self) -> "SOPClassCommonExtendedNegotiation":
@@ -2655,7 +2655,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         primitive.sop_class_uid = self.sop_class_uid
         primitive.service_class_uid = self.service_class_uid
         primitive.related_general_sop_class_identification = (
-            self.related_general_sop_class_identification  # type: ignore[assignment]
+            self.related_general_sop_class_identification
         )
 
         return primitive
@@ -2732,7 +2732,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         ]
 
     @staticmethod
-    def _generate_items(bytestream: bytes) -> Iterator[UID]:  # type: ignore
+    def _generate_items(bytestream: bytes) -> Iterator[UID]:
         """Yield Related General SOP Class UIDs from `bytestream`.
 
          Parameters
@@ -2905,7 +2905,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
         return "\n".join(s)
 
-    def _wrap_generate_items(self, b: bytes) -> list[UID]:  # type: ignore
+    def _wrap_generate_items(self, b: bytes) -> list[UID]:
         """Return a list of UID items generated from `bytestream`."""
         return list(self._generate_items(b))
 
