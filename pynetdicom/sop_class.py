@@ -1,9 +1,9 @@
 """Generates the supported SOP Classes and well-known SOP Instances."""
 
 import inspect
-from keyword import iskeyword
 import logging
 import sys
+from keyword import iskeyword
 from typing import cast
 
 from pydicom.uid import UID

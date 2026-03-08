@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 
 from pydicom.uid import UID
 
-from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
 from pynetdicom import sop_class as SOP_CLASS_MODULE
+from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
 from pynetdicom.sop_class import (
     _APPLICATION_EVENT_CLASSES,
     _BASIC_WORKLIST_CLASSES,
@@ -31,7 +31,7 @@ from pynetdicom.sop_class import (
     _UNIFIED_PROCEDURE_STEP_CLASSES,
     _VERIFICATION_CLASSES,
 )
-from pynetdicom.utils import validate_uid, set_uid
+from pynetdicom.utils import set_uid, validate_uid
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation

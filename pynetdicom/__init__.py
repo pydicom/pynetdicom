@@ -42,15 +42,13 @@ assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 # Convenience imports
 # ruff: noqa: E402,F401
 from pynetdicom import events as evt
-from pynetdicom.ae import ApplicationEntity as AE
-from pynetdicom.association import Association
 from pynetdicom._globals import (
     ALL_TRANSFER_SYNTAXES,
     DEFAULT_TRANSFER_SYNTAXES,
 )
+from pynetdicom.ae import ApplicationEntity as AE
+from pynetdicom.association import Association
 from pynetdicom.presentation import (
-    build_context,
-    build_role,
     AllStoragePresentationContexts,
     ApplicationEventLoggingPresentationContexts,
     BasicWorklistManagementPresentationContexts,
@@ -70,11 +68,13 @@ from pynetdicom.presentation import (
     QueryRetrievePresentationContexts,
     RelevantPatientInformationPresentationContexts,
     RTMachineVerificationPresentationContexts,
-    StoragePresentationContexts,
     StorageCommitmentPresentationContexts,
+    StoragePresentationContexts,
     SubstanceAdministrationPresentationContexts,
     UnifiedProcedurePresentationContexts,
     VerificationPresentationContexts,
+    build_context,
+    build_role,
 )
 from pynetdicom.sop_class import register_uid
 

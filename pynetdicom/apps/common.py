@@ -6,7 +6,7 @@ import re
 from struct import pack
 
 from pydicom import dcmread
-from pydicom.datadict import tag_for_keyword, repeater_has_keyword, get_entry
+from pydicom.datadict import get_entry, repeater_has_keyword, tag_for_keyword
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 from pydicom.uid import DeflatedExplicitVRLittleEndian

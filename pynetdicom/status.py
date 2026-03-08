@@ -5,12 +5,12 @@ from enum import IntEnum
 from pydicom.dataset import Dataset
 
 from pynetdicom._globals import (
-    STATUS_SUCCESS,
-    STATUS_FAILURE,
-    STATUS_WARNING,
     STATUS_CANCEL,
+    STATUS_FAILURE,
     STATUS_PENDING,
+    STATUS_SUCCESS,
     STATUS_UNKNOWN,
+    STATUS_WARNING,
 )
 
 __all__ = [

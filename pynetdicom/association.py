@@ -1,53 +1,34 @@
 """Defines the Association class which handles associating with peers."""
 
-from io import BytesIO
 import logging
 import os
-from pathlib import Path
 import threading
 import time
+import warnings
+from collections.abc import Callable, Iterator
+from io import BytesIO
+from pathlib import Path
 from typing import (
-    Any,
     TYPE_CHECKING,
+    Any,
     cast,
 )
-from collections.abc import Callable, Iterator
-import warnings
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.tag import BaseTag
-from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRBigEndian
+from pydicom.uid import UID, ExplicitVRBigEndian, ImplicitVRLittleEndian
 
-from pynetdicom.acse import ACSE
 from pynetdicom import _config, evt
-from pynetdicom.dimse import DIMSEServiceProvider
-from pynetdicom.dimse_primitives import (
-    C_ECHO,
-    C_MOVE,
-    C_STORE,
-    C_GET,
-    C_FIND,
-    C_CANCEL,
-    N_EVENT_REPORT,
-    N_GET,
-    N_SET,
-    N_CREATE,
-    N_ACTION,
-    N_DELETE,
-    DimseServiceType,
-)
-from pynetdicom.dsutils import decode, encode, pretty_dataset, split_dataset
-from pynetdicom.dul import DULServiceProvider
 from pynetdicom._globals import (
-    MODE_REQUESTOR,
-    MODE_ACCEPTOR,
     DEFAULT_MAX_LENGTH,
-    STATUS_WARNING,
-    STATUS_SUCCESS,
+    MODE_ACCEPTOR,
+    MODE_REQUESTOR,
     STATUS_CANCEL,
-    STATUS_PENDING,
     STATUS_FAILURE,
+    STATUS_PENDING,
+    STATUS_SUCCESS,
+    STATUS_WARNING,
 )
 from pynetdicom._handlers import (
     standard_dimse_recv_handler,
@@ -55,33 +36,52 @@ from pynetdicom._handlers import (
     standard_pdu_recv_handler,
     standard_pdu_sent_handler,
 )
+from pynetdicom.acse import ACSE
+from pynetdicom.dimse import DIMSEServiceProvider
+from pynetdicom.dimse_primitives import (
+    C_CANCEL,
+    C_ECHO,
+    C_FIND,
+    C_GET,
+    C_MOVE,
+    C_STORE,
+    N_ACTION,
+    N_CREATE,
+    N_DELETE,
+    N_EVENT_REPORT,
+    N_GET,
+    N_SET,
+    DimseServiceType,
+)
+from pynetdicom.dsutils import decode, encode, pretty_dataset, split_dataset
+from pynetdicom.dul import DULServiceProvider
 from pynetdicom.pdu_primitives import (
-    UserIdentityNegotiation,
-    MaximumLengthNotification,
+    _UI,
+    A_ASSOCIATE,
+    AsynchronousOperationsWindowNegotiation,
     ImplementationClassUIDNotification,
     ImplementationVersionNameNotification,
-    AsynchronousOperationsWindowNegotiation,
-    SOPClassExtendedNegotiation,
-    SOPClassCommonExtendedNegotiation,
+    MaximumLengthNotification,
     SCP_SCU_RoleSelectionNegotiation,
-    A_ASSOCIATE,
-    _UI,
+    SOPClassCommonExtendedNegotiation,
+    SOPClassExtendedNegotiation,
+    UserIdentityNegotiation,
     _UITypes,
 )
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.sop_class import (  # type: ignore
     RepositoryQuery,
-    uid_to_service_class,
+    UnifiedProcedureStepEvent,
     UnifiedProcedureStepPull,
     UnifiedProcedureStepPush,
-    UnifiedProcedureStepEvent,
     UnifiedProcedureStepQuery,
     UnifiedProcedureStepWatch,
     Verification,
+    uid_to_service_class,
 )
-from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
+from pynetdicom.status import STORAGE_SERVICE_CLASS_STATUS, code_to_category
 from pynetdicom.transport import AddressInformation
-from pynetdicom.utils import make_target, set_timer_resolution, set_ae, decode_bytes
+from pynetdicom.utils import decode_bytes, make_target, set_ae, set_timer_resolution
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.ae import ApplicationEntity

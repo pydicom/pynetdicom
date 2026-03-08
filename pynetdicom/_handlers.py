@@ -1,54 +1,57 @@
 """Standard logging event handlers."""
 
 import logging
-from struct import unpack, calcsize
-from typing import TYPE_CHECKING, cast, Any
-from collections.abc import Sequence, Iterator
+from collections.abc import Iterator, Sequence
+from struct import calcsize, unpack
+from typing import TYPE_CHECKING, Any, cast
 
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
 from pynetdicom.dimse_messages import (
-    C_STORE_RQ,
-    C_STORE_RSP,
+    C_CANCEL_RQ,
+    C_ECHO_RQ,
+    C_ECHO_RSP,
     C_FIND_RQ,
     C_FIND_RSP,
     C_GET_RQ,
     C_GET_RSP,
     C_MOVE_RQ,
     C_MOVE_RSP,
-    C_ECHO_RQ,
-    C_ECHO_RSP,
-    C_CANCEL_RQ,
-    N_EVENT_REPORT_RQ,
-    N_EVENT_REPORT_RSP,
-    N_GET_RQ,
-    N_GET_RSP,
-    N_SET_RQ,
-    N_SET_RSP,
+    C_STORE_RQ,
+    C_STORE_RSP,
     N_ACTION_RQ,
     N_ACTION_RSP,
     N_CREATE_RQ,
     N_CREATE_RSP,
     N_DELETE_RQ,
     N_DELETE_RSP,
+    N_EVENT_REPORT_RQ,
+    N_EVENT_REPORT_RSP,
+    N_GET_RQ,
+    N_GET_RSP,
+    N_SET_RQ,
+    N_SET_RSP,
 )
 from pynetdicom.pdu import (
-    A_ASSOCIATE_RQ,
+    A_ABORT_RQ,
     A_ASSOCIATE_AC,
     A_ASSOCIATE_RJ,
-    A_RELEASE_RQ,
+    A_ASSOCIATE_RQ,
     A_RELEASE_RP,
-    A_ABORT_RQ,
+    A_RELEASE_RQ,
     P_DATA_TF,
 )
 from pynetdicom.sop_class import uid_to_service_class
-from pynetdicom.utils import pretty_bytes, decode_bytes
+from pynetdicom.utils import decode_bytes, pretty_bytes
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.events import Event
-    from pynetdicom.pdu_items import UserInformationItem, UserIdentitySubItemRQ
-    from pynetdicom.pdu_items import SOPClassCommonExtendedNegotiation
+    from pynetdicom.pdu_items import (
+        SOPClassCommonExtendedNegotiation,
+        UserIdentitySubItemRQ,
+        UserInformationItem,
+    )
 
 
 LOGGER = logging.getLogger(__name__)

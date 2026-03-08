@@ -9,15 +9,15 @@ import argparse
 import sys
 
 from pydicom.uid import (
+    DeflatedExplicitVRLittleEndian,
+    ExplicitVRBigEndian,
     ExplicitVRLittleEndian,
     ImplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-    DeflatedExplicitVRLittleEndian,
 )
 
 from pynetdicom import AE
-from pynetdicom.apps.common import setup_logging
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
+from pynetdicom.apps.common import setup_logging
 from pynetdicom.sop_class import Verification
 
 __version__ = "0.7.0"
