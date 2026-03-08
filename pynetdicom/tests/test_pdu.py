@@ -45,7 +45,6 @@ from .encoded_pdu_items import (
     a_associate_ac,
     a_associate_rj,
     a_release_rq,
-    a_release_rq,
     a_release_rp,
     a_abort,
     a_p_abort,

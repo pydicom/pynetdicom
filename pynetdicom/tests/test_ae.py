@@ -14,7 +14,6 @@ from pydicom.uid import UID
 
 from pynetdicom import (
     AE,
-    build_context,
     DEFAULT_TRANSFER_SYNTAXES,
     evt,
     PYNETDICOM_IMPLEMENTATION_UID,
