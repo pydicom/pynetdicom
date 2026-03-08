@@ -741,7 +741,7 @@ class TestASSOC_AC:
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
         aec = (
-            b"\x4c\x57\x50\x41\x43\x53" b"\x00\x00\x00\x00\x00\x00\x0f\x00\x00\x00\x00"
+            b"\x4c\x57\x50\x41\x43\x53\x00\x00\x00\x00\x00\x00\x0f\x00\x00\x00\x00"
         )
         pdu.reserved_aec = aec.decode("ascii")
         pdu.reserved_aet = aec.decode("ascii")

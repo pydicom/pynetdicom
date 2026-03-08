@@ -780,7 +780,7 @@ class TestPresentationContextAC:
         """Regression test for #342 (decoding an empty Transfer Syntax Item."""
         # When result is not accepted, transfer syntax value must not be tested
         item = PresentationContextItemAC()
-        item.decode(b"\x21\x00\x00\x08\x01\x00\x01\x00" b"\x40\x00\x00\x00")
+        item.decode(b"\x21\x00\x00\x08\x01\x00\x01\x00\x40\x00\x00\x00")
 
         assert item.item_type == 0x21
         assert item.item_length == 8
@@ -1633,11 +1633,11 @@ class TestUserInformation_ImplementationUID:
             "non-conformant"
         )
         with pytest.raises(ValueError, match=msg):
-            item.decode(b"\x52\x00\x00\x08" b"\x30\x30\x2e\x31\x2e\x32\x2e\x33")
+            item.decode(b"\x52\x00\x00\x08\x30\x30\x2e\x31\x2e\x32\x2e\x33")
 
         # Invalid UID (with non-conformant padding)
         with pytest.raises(ValueError, match=msg):
-            item.decode(b"\x52\x00\x00\x09" b"\x30\x30\x2e\x31\x2e\x32\x2e\x33\x00")
+            item.decode(b"\x52\x00\x00\x09\x30\x30\x2e\x31\x2e\x32\x2e\x33\x00")
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             item._implementation_class_uid = "00.1.2.3"
@@ -2612,7 +2612,7 @@ class TestUserInformation_CommonExtendedNegotiation:
         with pytest.raises(ValueError, match=msg):
             item.service_class_uid = invalid
 
-        msg = r"Related General SOP Class Identification contains " r"an invalid UID"
+        msg = r"Related General SOP Class Identification contains an invalid UID"
         with pytest.raises(ValueError, match=msg):
             item.related_general_sop_class_identification = [invalid]
 
@@ -2625,7 +2625,7 @@ class TestUserInformation_CommonExtendedNegotiation:
         with pytest.raises(ValueError, match=msg):
             item.service_class_uid = "abc"
 
-        msg = r"Related General SOP Class Identification contains " r"an invalid UID"
+        msg = r"Related General SOP Class Identification contains an invalid UID"
         with pytest.raises(ValueError, match=msg):
             item.related_general_sop_class_identification = ["abc"]
 

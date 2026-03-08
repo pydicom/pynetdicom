@@ -299,7 +299,7 @@ class TestServiceUserAcceptor:
             user.maximum_length = 16382
 
         msg = (
-            r"Can't set the Implementation Class UID after negotiation " r"has started"
+            r"Can't set the Implementation Class UID after negotiation has started"
         )
         with pytest.raises(RuntimeError, match=msg):
             user.implementation_class_uid = "1.2.3"
@@ -762,7 +762,7 @@ class TestServiceUserAcceptor:
         with pytest.raises(ValueError, match=msg):
             user.requested_contexts  # noqa: B018
 
-        msg = r"'requested_contexts' can only be set for the association " r"requestor"
+        msg = r"'requested_contexts' can only be set for the association requestor"
         with pytest.raises(AttributeError, match=msg):
             user.requested_contexts = [build_context("1.2.3")]
 
@@ -800,7 +800,7 @@ class TestServiceUserAcceptor:
         with pytest.raises(ValueError, match=msg):
             user.requested_contexts  # noqa: B018
 
-        msg = r"'requested_contexts' can only be set for the association " r"requestor"
+        msg = r"'requested_contexts' can only be set for the association requestor"
         with pytest.raises(AttributeError, match=msg):
             user.requested_contexts = [build_context("1.2.3")]
 
@@ -1615,7 +1615,7 @@ class TestServiceUserRequestor:
             user.maximum_length = 16382
 
         msg = (
-            r"Can't set the Implementation Class UID after negotiation " r"has started"
+            r"Can't set the Implementation Class UID after negotiation has started"
         )
         with pytest.raises(RuntimeError, match=msg):
             user.implementation_class_uid = "1.2.3"
@@ -1649,7 +1649,7 @@ class TestServiceUserRequestor:
         """Test trying to get the accepted common ext items raises."""
         user = ServiceUser(self.assoc, mode="requestor")
 
-        msg = r"'accepted_common_extended' is only available for the " r"'acceptor'"
+        msg = r"'accepted_common_extended' is only available for the 'acceptor'"
         with pytest.raises(RuntimeError, match=msg):
             user.accepted_common_extended()
 
@@ -2498,7 +2498,7 @@ class TestServiceUserRequestor:
         with pytest.raises(ValueError, match=msg):
             user.supported_contexts  # noqa: B018
 
-        msg = r"'supported_contexts' can only be set for the association " r"acceptor"
+        msg = r"'supported_contexts' can only be set for the association acceptor"
         with pytest.raises(AttributeError, match=msg):
             user.supported_contexts = "bluh"
 
@@ -2533,7 +2533,7 @@ class TestServiceUserRequestor:
         with pytest.raises(ValueError, match=msg):
             user.supported_contexts  # noqa: B018
 
-        msg = r"'supported_contexts' can only be set for the association " r"acceptor"
+        msg = r"'supported_contexts' can only be set for the association acceptor"
         with pytest.raises(AttributeError, match=msg):
             user.supported_contexts = "bluh"
 

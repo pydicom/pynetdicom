@@ -1011,14 +1011,14 @@ class TestAEGoodMiscSetters:
         assert ae.implementation_class_uid == UID("12.3.4")
 
         msg = (
-            r"'implementation_class_uid' must be str, bytes or UID, not " r"'NoneType'"
+            r"'implementation_class_uid' must be str, bytes or UID, not 'NoneType'"
         )
         with pytest.raises(TypeError, match=msg):
             ae.implementation_class_uid = None
 
         assert ae.implementation_class_uid == UID("12.3.4")
 
-        msg = r"Invalid 'implementation_class_uid' value - must not be an " r"empty str"
+        msg = r"Invalid 'implementation_class_uid' value - must not be an empty str"
         with pytest.raises(ValueError, match=msg):
             ae.implementation_class_uid = ""
 

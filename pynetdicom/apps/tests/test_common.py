@@ -405,7 +405,7 @@ class TestElementPath:
         assert elem.tag == Tag(0x0000, 0x0000)
 
         # Repeater
-        msg = r"Repeating group elements must be specified using " r"\(gggg,eeee\)"
+        msg = r"Repeating group elements must be specified using \(gggg,eeee\)"
         with pytest.raises(ValueError, match=msg):
             elem = ElementPath("SourceImageIDs")
 
