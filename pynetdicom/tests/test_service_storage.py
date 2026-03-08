@@ -680,7 +680,7 @@ class TestStorageServiceClass:
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not "ErrorComment" in rsp
+        assert "ErrorComment" not in rsp
         assoc.release()
         assert assoc.is_released
 
@@ -717,7 +717,7 @@ class TestStorageServiceClass:
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not "ErrorComment" in rsp
+        assert "ErrorComment" not in rsp
         assoc.release()
         assert assoc.is_released
 
@@ -749,7 +749,7 @@ class TestStorageServiceClass:
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not "ErrorComment" in rsp
+        assert "ErrorComment" not in rsp
         assoc.release()
         assert assoc.is_released
 

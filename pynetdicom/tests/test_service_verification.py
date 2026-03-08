@@ -153,7 +153,7 @@ class TestVerificationServiceClass:
         assert assoc.is_established
         rsp = assoc.send_c_echo()
         assert rsp.Status == 0x0002
-        assert not "ErrorComment" in rsp
+        assert "ErrorComment" not in rsp
         assoc.release()
         assert assoc.is_released
 
