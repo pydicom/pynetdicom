@@ -150,8 +150,8 @@ class TestStateMachine:
 
         for ii in range(1, 14):
             assert 1 <= ii <= 13
-            fsm.transition("Sta{}".format(ii))
-            assert fsm.current_state == "Sta{}".format(ii)
+            fsm.transition(f"Sta{ii}")
+            assert fsm.current_state == f"Sta{ii}"
 
     @pytest.mark.parametrize("event, states", REFERENCE_BAD_EVENTS)
     def test_invalid_action_raises(self, event, states):
@@ -165,12 +165,10 @@ class TestStateMachine:
         fsm = assoc.dul.state_machine
 
         for state in states:
-            state = "Sta{}".format(state)
+            state = f"Sta{state}"
             fsm.current_state = state
 
-            msg = msg = r"Invalid event '{}' for the current state '{}'".format(
-                event, state
-            )
+            msg = msg = rf"Invalid event '{event}' for the current state '{state}'"
             with pytest.raises(InvalidEventError, match=msg):
                 fsm.do_action(event)
 
@@ -188,7 +186,7 @@ class TestStateMachine:
 
         for state in states:
             fsm.dul.is_killed = False
-            state = "Sta{}".format(state)
+            state = f"Sta{state}"
             fsm.current_state = state
             with pytest.raises(AttributeError):
                 fsm.do_action(event)
@@ -364,7 +362,7 @@ class TestStateBase:
         print("Transitions", fsm._transitions)
         print("Changes")
         for change in fsm._changes:
-            print("\t{}".format(change))
+            print(f"\t{change}")
         print("Events", fsm._events)
 
         if scp and scp.handlers:

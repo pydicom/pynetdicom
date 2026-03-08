@@ -144,7 +144,7 @@ class TestConnect:
     def test_create_new_existing(self):
         """Test connecting to the instance database if it exists."""
         db_file = tempfile.NamedTemporaryFile()
-        db_location = "sqlite:///{}".format(db_file.name)
+        db_location = f"sqlite:///{db_file.name}"
         db.create(db_location)
         # Test creating if already exists
         engine = db.create(db_location)

@@ -615,7 +615,7 @@ class TestElementPath:
             "UT": ("StrainAdditionalInformation", "Wheeeeeeeeee"),
         }
         for vr, (kw, val) in keywords.items():
-            epath = "{}={}".format(kw, val)
+            epath = f"{kw}={val}"
             ds = ElementPath(epath).update(Dataset())
             if vr in ["DS", "IS"]:
                 assert getattr(ds, kw).original_string == val
@@ -651,7 +651,7 @@ class TestElementPath:
             "US": "SourceAcquisitionBeamNumber",
         }
         for vr, kw in keywords.items():
-            ds = ElementPath("{}=".format(kw)).update(Dataset())
+            ds = ElementPath(f"{kw}=").update(Dataset())
             assert getattr(ds, kw) == ""
 
     def test_int_types(self):
@@ -663,7 +663,7 @@ class TestElementPath:
             "US": ("SourceAcquisitionBeamNumber", "15"),
         }
         for vr, (kw, val) in keywords.items():
-            ds = ElementPath("{}={}".format(kw, val)).update(Dataset())
+            ds = ElementPath(f"{kw}={val}").update(Dataset())
             assert getattr(ds, kw) == int(val)
 
     def test_int_types_multi(self):
@@ -675,19 +675,19 @@ class TestElementPath:
             "US": ("SourceAcquisitionBeamNumber", "15\\16\\17"),
         }
         kw, val = keywords["SL"]
-        ds = ElementPath("{}={}".format(kw, val)).update(Dataset())
+        ds = ElementPath(f"{kw}={val}").update(Dataset())
         assert ds.RationalNumeratorValue == [-12, -13, 15]
 
         kw, val = keywords["SS"]
-        ds = ElementPath("{}={}".format(kw, val)).update(Dataset())
+        ds = ElementPath(f"{kw}={val}").update(Dataset())
         assert ds.SelectorSSValue == [-13, -14, 16]
 
         kw, val = keywords["UL"]
-        ds = ElementPath("{}={}".format(kw, val)).update(Dataset())
+        ds = ElementPath(f"{kw}={val}").update(Dataset())
         assert ds.SimpleFrameList == [14, 15, 16]
 
         kw, val = keywords["US"]
-        ds = ElementPath("{}={}".format(kw, val)).update(Dataset())
+        ds = ElementPath(f"{kw}={val}").update(Dataset())
         assert ds.SourceAcquisitionBeamNumber == [15, 16, 17]
 
     def test_float_types_empty(self):
@@ -697,7 +697,7 @@ class TestElementPath:
             "FL": "VectorAccuracy",
         }
         for vr, kw in keywords.items():
-            ds = ElementPath("{}=".format(kw)).update(Dataset())
+            ds = ElementPath(f"{kw}=").update(Dataset())
             assert getattr(ds, kw) == ""
 
     def test_float_types(self):
@@ -707,7 +707,7 @@ class TestElementPath:
             "FL": ("VectorAccuracy", "12.111102"),
         }
         for vr, (kw, val) in keywords.items():
-            ds = ElementPath("{}={}".format(kw, val)).update(Dataset())
+            ds = ElementPath(f"{kw}={val}").update(Dataset())
             assert getattr(ds, kw) == float(val)
 
     def test_float_types_multi(self):
@@ -717,11 +717,11 @@ class TestElementPath:
             "FL": ("VectorAccuracy", "12.111102\\-11129.22"),
         }
         kw, val = keywords["FD"]
-        ds = ElementPath("{}={}".format(kw, val)).update(Dataset())
+        ds = ElementPath(f"{kw}={val}").update(Dataset())
         assert ds.RealWorldValueLUTData == [-1.000005, 91.992]
 
         kw, val = keywords["FL"]
-        ds = ElementPath("{}={}".format(kw, val)).update(Dataset())
+        ds = ElementPath(f"{kw}={val}").update(Dataset())
         assert ds.VectorAccuracy == [12.111102, -11129.22]
 
     def test_byte_types_empty(self):
@@ -736,7 +736,7 @@ class TestElementPath:
             "UN": "SelectorUNValue",
         }
         for vr, kw in keywords.items():
-            ds = ElementPath("{}=".format(kw)).update(Dataset())
+            ds = ElementPath(f"{kw}=").update(Dataset())
             assert getattr(ds, kw) == ""
 
     def test_byte_types(self):
@@ -751,7 +751,7 @@ class TestElementPath:
             "UN": ("SelectorUNValue", "00fff0ec"),
         }
         for vr, (kw, val) in keywords.items():
-            ds = ElementPath("{}={}".format(kw, val)).update(Dataset())
+            ds = ElementPath(f"{kw}={val}").update(Dataset())
             assert getattr(ds, kw) == b"\x00\xff\xf0\xec"
 
 
