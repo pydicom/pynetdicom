@@ -105,7 +105,7 @@ class TestQRFindServiceClass:
                 ds = event.identifier
                 for elem in ds.iterall():
                     pass
-            except:
+            except Exception:
                 yield 0xC310, None
                 return
 
@@ -1375,7 +1375,7 @@ class TestQRGetServiceClass:
                 ds = event.identifier
                 for elem in ds.iterall():
                     pass
-            except:
+            except Exception:
                 yield 0xC410, None
                 return
 
@@ -4003,7 +4003,7 @@ class TestQRMoveServiceClass:
                 ds = event.identifier
                 for elem in ds.iterall():
                     pass
-            except:
+            except Exception:
                 yield 0xC410, None
                 return
 

@@ -46,7 +46,7 @@ class TestRelevantPatientServiceClass:
             try:
                 for elem in event.identifier.iterall():
                     pass
-            except:
+            except Exception:
                 yield 0xC310, None
             yield 0xFF00, self.query
 

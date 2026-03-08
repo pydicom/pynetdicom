@@ -50,7 +50,7 @@ class TestNonPatientObjectStorageServiceClass:
             try:
                 for elem in event.dataset.iterall():
                     pass
-            except:
+            except Exception:
                 status = Dataset()
                 status.Status = 0xC210
                 status.ErrorComment = "Unable to decode the dataset"

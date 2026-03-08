@@ -1267,7 +1267,7 @@ class TestUPSFindServiceClass:
                 ds = event.identifier
                 for elem in ds.iterall():
                     pass
-            except:
+            except Exception:
                 yield 0xC310, None
                 return
 
