@@ -11,16 +11,15 @@ def get_port(src: str = "local") -> int:
     if worker_id in PORTS:
         return PORTS[worker_id][0] if src == "local" else PORTS[worker_id][1]
 
-    # local, peer
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as l:
-        l.bind(("localhost", 0))
-        l.listen(1)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as local:
+        local.bind(("localhost", 0))
+        local.listen(1)
 
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as r:
-            r.bind(("localhost", 0))
-            r.listen(1)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as peer:
+            peer.bind(("localhost", 0))
+            peer.listen(1)
 
-            PORTS[worker_id] = (l.getsockname()[1], r.getsockname()[1])
+            PORTS[worker_id] = (local.getsockname()[1], peer.getsockname()[1])
 
     return get_port(src)
 
