@@ -140,6 +140,7 @@ extend-select = [
     "PIE",
     "PYI",
     "FLY",
+    "I",
     "UP",
 ]
 ignore = [
