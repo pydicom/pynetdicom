@@ -1,4 +1,4 @@
-exclude: (test_files|_static)
+exclude: ^docs/_static/
 
 ci:
   autoupdate_schedule: "monthly"
@@ -28,9 +28,9 @@ repos:
     rev: 26.3.0
     hooks:
       - id: black
-#  - repo: https://github.com/pre-commit/mirrors-mypy
-#    rev: v1.19.1
-#    hooks:
-#      - id: mypy
-#        args: []
-#        additional_dependencies: ["types-requests"]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.1
+    hooks:
+      - id: mypy
+        exclude: (^build_tools/|^docs/|^pynetdicom/(apps/|benchmarks/|tests/))
+        additional_dependencies: ["types-requests"]

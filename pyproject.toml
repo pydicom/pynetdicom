@@ -92,7 +92,7 @@ force-exclude = ".venv*|env*|/_.*_dict.py$"
 
 [tool.codespell]
 ignore-words-list = "ddress,halp,ot,pres,requestor,requestors"
-skip = "test*.py,docs*,build*,env*"
+skip = "test_*.py,env*"
 
 
 [tool.coverage.run]
@@ -107,6 +107,8 @@ omit = [
 [tool.mypy]
 python_version = "3.10"  # use the minimum supported Python version
 exclude = [
+    "build_tools",
+    "docs",
     "pynetdicom/tests",
     "pynetdicom/apps",
     "pynetdicom/benchmarks",
@@ -127,11 +129,11 @@ include = ["pynetdicom/*.py"]
 
 [tool.ruff.lint]
 exclude = [
-    "pynetdicom/apps/tests/*",
-    "pynetdicom/tests/*",
-    "pynetdicom/benchmarks/*",
     "build_tools/*",
     "docs/*",
+    "pynetdicom/apps/tests/*",
+    "pynetdicom/benchmarks/*",
+    "pynetdicom/tests/*",
 ]
 extend-select = [
     "B",
