@@ -8,7 +8,6 @@ import platform
 import socket
 import ssl
 from struct import pack
-import sys
 import threading
 import time
 from unittest import mock
@@ -948,11 +947,7 @@ class TestAssociationServer:
 
         server.shutdown()
 
-        if sys.version_info[0] == 2:
-            with pytest.raises(OSError):
-                server.socket.fileno()
-        else:
-            assert server.socket.fileno() == -1
+        assert server.socket.fileno() == -1
 
     def test_blocking_process_request(self):
         """Test AssociationServer.process_request."""
