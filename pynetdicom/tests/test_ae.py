@@ -1005,9 +1005,7 @@ class TestAEGoodMiscSetters:
         assert isinstance(ae.implementation_class_uid, UID)
         assert ae.implementation_class_uid == UID("12.3.4")
 
-        msg = (
-            r"'implementation_class_uid' must be str, bytes or UID, not 'NoneType'"
-        )
+        msg = r"'implementation_class_uid' must be str, bytes or UID, not 'NoneType'"
         with pytest.raises(TypeError, match=msg):
             ae.implementation_class_uid = None
 

@@ -1,6 +1,5 @@
 """Tests for the SubstanceAdministrationQueryServiceClass."""
 
-
 import pytest
 
 from pydicom.dataset import Dataset

@@ -297,9 +297,7 @@ class TestServiceUserAcceptor:
         with pytest.raises(RuntimeError, match=msg):
             user.maximum_length = 16382
 
-        msg = (
-            r"Can't set the Implementation Class UID after negotiation has started"
-        )
+        msg = r"Can't set the Implementation Class UID after negotiation has started"
         with pytest.raises(RuntimeError, match=msg):
             user.implementation_class_uid = "1.2.3"
 
@@ -1613,9 +1611,7 @@ class TestServiceUserRequestor:
         with pytest.raises(RuntimeError, match=msg):
             user.maximum_length = 16382
 
-        msg = (
-            r"Can't set the Implementation Class UID after negotiation has started"
-        )
+        msg = r"Can't set the Implementation Class UID after negotiation has started"
         with pytest.raises(RuntimeError, match=msg):
             user.implementation_class_uid = "1.2.3"
 

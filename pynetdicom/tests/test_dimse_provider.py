@@ -6,7 +6,6 @@ import logging
 import time
 
 
-
 from pynetdicom import evt, AE, Association, _config
 from pynetdicom.association import ServiceUser
 from pynetdicom.dimse import DIMSEServiceProvider
