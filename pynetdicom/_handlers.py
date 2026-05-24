@@ -2688,7 +2688,7 @@ def doc_handle_find(event: "Event", *args: Sequence[Any]) -> CFindType:
     ------
     status : pydicom.dataset.Dataset or int
         The status returned to the peer AE in the C-FIND response. Must be
-        a valid C-FIND status vuale for the applicable Service Class as
+        a valid C-FIND status value for the applicable Service Class as
         either an :class:`int` or a :class:`~pydicom.dataset.Dataset` object
         containing (at a minimum) a (0000,0900) *Status* element. If returning
         a :class:`~pydicom.dataset.Dataset` object then
