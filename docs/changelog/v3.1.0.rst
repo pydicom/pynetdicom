@@ -3,6 +3,14 @@
 3.1.0
 =====
 
+Enhancements
+------------
+
+* Added :attr:`~pynetdicom._config.VALIDATE_QUERY_IDENTIFIERS` to warn when
+  a C-FIND, C-GET or C-MOVE query sent using a hierarchical Query/Retrieve
+  information model has an *Identifier* with a missing or invalid
+  *Query/Retrieve Level* (:issue:`568`)
+
 Fixes
 -----
 
