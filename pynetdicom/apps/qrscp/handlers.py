@@ -1,6 +1,7 @@
 """Event handlers for qrscp.py"""
 
 import os
+import re
 
 from pydicom import dcmread
 
@@ -316,7 +317,12 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
 
     # Try and add the instance to the database
     #   If we fail then don't even try to store
-    fpath = os.path.join(storage_dir, sop_instance)
+    # The *SOP Instance UID* is used as the filename, so sanitise it by
+    #   replacing all characters that are illegal for the UI VR with
+    #   underscores (see PS3.5 Section 6.2), otherwise a non-conformant value
+    #   may be used to write outside `storage_dir`
+    filename = re.sub(r"[^\d.]", "_", sop_instance)
+    fpath = os.path.join(storage_dir, filename)
 
     if os.path.exists(fpath):
         logger.warning("Instance already exists in storage directory, overwriting")
