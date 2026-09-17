@@ -5,7 +5,16 @@ import pytest
 from pydicom import config as PYD_CONFIG
 
 from pynetdicom import _config
-from pynetdicom._validators import validate_ae, validate_ui
+from pydicom.dataset import Dataset
+from pydicom.uid import UID
+
+from pynetdicom._validators import validate_ae, validate_ui, validate_query
+from pynetdicom.sop_class import (
+    PatientRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelMove,
+    PatientStudyOnlyQueryRetrieveInformationModelGet,
+    ModalityWorklistInformationFind,
+)
 
 if hasattr(PYD_CONFIG, "settings"):
     PYD_CONFIG.settings.reading_validation_mode = 0
@@ -79,3 +88,57 @@ def test_validate_ui_conf(value, conf, nonconf, enforce_uid_conformance):
 def test_validate_ui_nonconf(value, conf, nonconf):
     """Tests for validate_ui() if not enforcing conformance"""
     assert validate_ui(value) == nonconf
+
+
+def _query(level=None, **kwargs):
+    ds = Dataset()
+    if level is not None:
+        ds.QueryRetrieveLevel = level
+    for kw, val in kwargs.items():
+        setattr(ds, kw, val)
+    return ds
+
+
+QUERY_REFERENCE = [
+    # (identifier, query_model, (valid, reason))
+    # Patient Root - PATIENT/STUDY/SERIES/IMAGE all valid
+    (_query("PATIENT"), PatientRootQueryRetrieveInformationModelFind, (True, "")),
+    (_query("IMAGE"), PatientRootQueryRetrieveInformationModelFind, (True, "")),
+    # Study Root - PATIENT is not a valid level
+    (_query("STUDY"), StudyRootQueryRetrieveInformationModelMove, (True, "")),
+    (
+        _query("PATIENT"),
+        StudyRootQueryRetrieveInformationModelMove,
+        (
+            False,
+            "the Identifier's (0008,0052) 'Query/Retrieve Level' value 'PATIENT' "
+            "is not one of ['STUDY', 'SERIES', 'IMAGE'] allowed for the query model",
+        ),
+    ),
+    # Patient/Study Only - only PATIENT/STUDY
+    (_query("STUDY"), PatientStudyOnlyQueryRetrieveInformationModelGet, (True, "")),
+    (
+        _query("SERIES"),
+        PatientStudyOnlyQueryRetrieveInformationModelGet,
+        (
+            False,
+            "the Identifier's (0008,0052) 'Query/Retrieve Level' value 'SERIES' "
+            "is not one of ['PATIENT', 'STUDY'] allowed for the query model",
+        ),
+    ),
+    # Missing Query/Retrieve Level for a hierarchical model
+    (
+        _query(PatientName="*"),
+        PatientRootQueryRetrieveInformationModelFind,
+        (False, "the Identifier is missing (0008,0052) 'Query/Retrieve Level'"),
+    ),
+    # Non-hierarchical model - never validated, so always valid
+    (_query(PatientName="*"), ModalityWorklistInformationFind, (True, "")),
+    (_query("BOGUS"), ModalityWorklistInformationFind, (True, "")),
+]
+
+
+@pytest.mark.parametrize("identifier, query_model, ref", QUERY_REFERENCE)
+def test_validate_query(identifier, query_model, ref):
+    """Tests for validate_query()"""
+    assert validate_query(identifier, UID(query_model)) == ref

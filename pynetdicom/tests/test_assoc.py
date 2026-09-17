@@ -2168,6 +2168,79 @@ class TestAssociationSendCFind:
 
         scp.shutdown()
 
+    def test_invalid_query_warns(self, caplog):
+        """Test a warning is logged for an invalid QR query Identifier."""
+
+        def handle(event):
+            yield 0x0000, None
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_C_FIND, handle)],
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        assoc = ae.associate("localhost", get_port())
+        assert assoc.is_established
+
+        ds = Dataset()
+        ds.PatientName = "*"  # no QueryRetrieveLevel
+
+        with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+            list(assoc.send_c_find(ds, PatientRootQueryRetrieveInformationModelFind))
+
+        assoc.release()
+        scp.shutdown()
+
+        assert (
+            "The C-FIND request's Identifier may be invalid: the Identifier is "
+            "missing (0008,0052) 'Query/Retrieve Level'" in caplog.text
+        )
+
+    def test_invalid_query_no_warn_when_disabled(self, caplog):
+        """Test no warning when VALIDATE_QUERY_IDENTIFIERS is False."""
+
+        def handle(event):
+            yield 0x0000, None
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(
+            ("localhost", get_port()),
+            block=False,
+            evt_handlers=[(evt.EVT_C_FIND, handle)],
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        assoc = ae.associate("localhost", get_port())
+        assert assoc.is_established
+
+        ds = Dataset()
+        ds.PatientName = "*"  # no QueryRetrieveLevel
+
+        _config.VALIDATE_QUERY_IDENTIFIERS = False
+        try:
+            with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+                list(
+                    assoc.send_c_find(ds, PatientRootQueryRetrieveInformationModelFind)
+                )
+        finally:
+            _config.VALIDATE_QUERY_IDENTIFIERS = True
+
+        assoc.release()
+        scp.shutdown()
+
+        assert "may be invalid" not in caplog.text
+
     def test_no_abstract_syntax_match(self):
         """Test when no accepted abstract syntax"""
         self.ae = ae = AE()
