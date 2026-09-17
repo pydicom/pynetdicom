@@ -82,6 +82,7 @@ from pynetdicom.sop_class import (  # type: ignore
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
 from pynetdicom.transport import AddressInformation
 from pynetdicom.utils import make_target, set_timer_resolution, set_ae, decode_bytes
+from pynetdicom._validators import validate_query
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.ae import ApplicationEntity
@@ -1054,6 +1055,30 @@ class Association(threading.Thread):
 
         return status
 
+    def _check_query(self, dataset: Dataset, query_model: UID, service: str) -> None:
+        """Log a warning if `dataset` is an invalid query for `query_model`.
+
+        Only performed if
+        :attr:`~pynetdicom._config.VALIDATE_QUERY_IDENTIFIERS` is ``True``.
+
+        Parameters
+        ----------
+        dataset : pydicom.dataset.Dataset
+            The request's *Identifier* dataset.
+        query_model : pydicom.uid.UID
+            The query model's abstract syntax UID.
+        service : str
+            The name of the service, such as ``"C-FIND"``, used in the warning.
+        """
+        if not _config.VALIDATE_QUERY_IDENTIFIERS:
+            return
+
+        valid, reason = validate_query(dataset, query_model)
+        if not valid:
+            LOGGER.warning(
+                f"The {service} request's Identifier may be invalid: {reason}"
+            )
+
     def send_c_find(
         self,
         dataset: Dataset,
@@ -1234,6 +1259,8 @@ class Association(threading.Thread):
             )
 
         query_model = UID(query_model)
+
+        self._check_query(dataset, query_model, "C-FIND")
 
         # Build C-FIND request primitive
         #   (M) Message ID
@@ -1438,6 +1465,8 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         context = self._get_valid_context(query_model, "", "scu")
+
+        self._check_query(dataset, UID(query_model), "C-GET")
 
         # Build C-GET request primitive
         #   (M) Message ID
@@ -1644,6 +1673,8 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         context = self._get_valid_context(query_model, "", "scu")
+
+        self._check_query(dataset, UID(query_model), "C-MOVE")
 
         # Build C-MOVE request primitive
         #   (M) Message ID
