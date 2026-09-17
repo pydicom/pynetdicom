@@ -323,3 +323,25 @@ part of the storage service.
 >>> from pynetdicom import _config
 >>> _config.UNRESTRICTED_STORAGE_SERVICE = True
 """
+
+
+VALIDATE_QUERY_IDENTIFIERS: bool = True
+"""Warn when a query sent by an SCU appears to be invalid.
+
+.. versionadded:: 3.1
+
+If ``True`` (default) then when sending a C-FIND, C-GET or C-MOVE request using
+one of the hierarchical Query/Retrieve information models (Patient Root, Study
+Root or Patient/Study Only) the *Identifier* will be checked to ensure it
+contains a valid (0008,0052) *Query/Retrieve Level* (see :dcm:`PS3.4 Annex C.6
+<part04/sect_C.6.html>`) and a warning logged if not. The request is still sent
+either way. If ``False`` then no such check is performed.
+
+Default: ``True``
+
+Examples
+--------
+
+>>> from pynetdicom import _config
+>>> _config.VALIDATE_QUERY_IDENTIFIERS = False
+"""
