@@ -1,5 +1,6 @@
 """Implementation of the Transport Service."""
 
+from contextvars import Context, copy_context
 from copy import deepcopy
 from datetime import datetime
 import gc
@@ -849,6 +850,9 @@ class AssociationServer(TCPServer):
         self.allow_reuse_address = True
         self.server_address: tuple[str, int] | tuple[str, int, int, int] = address
         self.socket: socket.socket | None = None  # type: ignore[assignment]
+        # A new thread starts with an empty context, so the creating thread's
+        #   context must be captured here to be passed to the association threads
+        self._ctx: Context | None = copy_context() if _config.PASS_CONTEXTVARS else None
 
         request_handler = request_handler or RequestHandler
 
@@ -1076,6 +1080,13 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
         client_address: tuple[str, int] | str,
     ) -> None:
         """Process a connection request."""
+        # This runs in a new thread, which starts with an empty context, so
+        #   reapply the one captured when the server was created. Setting the
+        #   values directly gives each thread its own context
+        if self._ctx is not None:
+            for var, value in self._ctx.items():
+                var.set(value)
+
         try:
             self.finish_request(request, client_address)
         except Exception:
