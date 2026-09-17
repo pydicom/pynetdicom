@@ -1,5 +1,6 @@
 """Unit tests for the transport module."""
 
+from contextvars import ContextVar
 from datetime import datetime
 import logging
 import queue
@@ -918,6 +919,45 @@ class TestAssociationServer:
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
         scp.shutdown()
+
+    def test_pass_contextvars(self):
+        """Test the context is passed to the association threads."""
+        cvar = ContextVar("cvar")
+        token = cvar.set("foo")
+
+        received = []
+
+        def handle_echo(event):
+            received.append(cvar.get(None))
+            return 0x0000
+
+        def run_echo():
+            self.ae = ae = AE()
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
+            server = ae.start_server(
+                ("localhost", get_port()),
+                block=False,
+                evt_handlers=[(evt.EVT_C_ECHO, handle_echo)],
+            )
+            assoc = ae.associate("localhost", get_port())
+            assert assoc.is_established
+            assert assoc.send_c_echo().Status == 0x0000
+            assoc.release()
+            server.shutdown()
+
+        # The default is for the context not to be passed
+        assert _config.PASS_CONTEXTVARS is False
+        run_echo()
+
+        _config.PASS_CONTEXTVARS = True
+        try:
+            run_echo()
+        finally:
+            _config.PASS_CONTEXTVARS = False
+            cvar.reset(token)
+
+        assert [None, "foo"] == received
 
     def test_shutdown(self):
         """test trying to shutdown a socket that's already closed."""
