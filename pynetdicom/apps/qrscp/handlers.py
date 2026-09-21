@@ -1,6 +1,7 @@
 """Event handlers for qrscp.py"""
 
 import os
+import re
 
 from pydicom import dcmread
 
@@ -302,7 +303,8 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
         ds = event.dataset
         # Remove any Group 0x0002 elements that may have been included
         ds = ds[0x00030000:]
-        sop_instance = ds.SOPInstanceUID
+        # sanitize filename by replacing all illegal characters with underscores
+        sop_instance = re.sub(r"[^\d.]", "_", ds.SOPInstanceUID)
     except Exception as exc:
         logger.error("Unable to decode the dataset")
         logger.exception(exc)

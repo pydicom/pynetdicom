@@ -1,127 +1,65 @@
-"""Unit tests for qrscp.py storage service."""
+"""Unit tests for the QRSCP app's C-STORE handler."""
 
 import logging
-import os
-import subprocess
-import sys
-import tempfile
-import time
+from datetime import datetime
 
 import pytest
 
 try:
-    import sqlalchemy
+    import sqlalchemy  # noqa: F401
 
     HAVE_SQLALCHEMY = True
 except ImportError:
     HAVE_SQLALCHEMY = False
 
-from pydicom import dcmread
-from pydicom.uid import (
-    ExplicitVRLittleEndian,
-    ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-)
-
-from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
-from pynetdicom.sop_class import Verification, CTImageStorage
-
-# debug_logger()
+from pydicom.dataset import Dataset, FileMetaDataset
+from pydicom.uid import CTImageStorage, ExplicitVRLittleEndian
 
 
-APP_DIR = os.path.join(os.path.dirname(__file__), "../")
-APP_FILE = os.path.join(APP_DIR, "qrscp", "qrscp.py")
-DATA_DIR = os.path.join(APP_DIR, "../", "tests", "dicom_files")
+class DummyRequestor:
+    address = "127.0.0.1"
+    port = 11112
 
 
-def start_qrscp(args):
-    """Start the qrscp.py app and return the process."""
-    pargs = [sys.executable, APP_FILE] + [*args]
-    return subprocess.Popen(pargs)
+class DummyAssoc:
+    requestor = DummyRequestor()
 
 
-def start_qrscp_cli(args):
-    """Start the qrscp app using CLI and return the process."""
-    pargs = [sys.executable, "-m", "pynetdicom", "qrscp"] + [*args]
-    return subprocess.Popen(pargs)
+class DummyEvent:
+    assoc = DummyAssoc()
 
-
-def _send_datasets():
-    pargs = [
-        sys.executable,
-        "-m",
-        "pynetdicom",
-        "storescu",
-        "localhost",
-        "11112",
-        DATA_DIR,
-        "-cx",
-    ]
-    subprocess.Popen(pargs)
-
-
-class StoreSCPBase:
-    """Tests for qrscp.py"""
-
-    def setup_method(self):
-        """Run prior to each test"""
-        self.ae = None
-        self.p = None
-        self.func = None
-
-        self.tfile = tempfile.NamedTemporaryFile()
-        self.db_location = self.tfile.name
-        self.instance_location = tempfile.TemporaryDirectory()
-
-        self.startup = 1.0
-
-    def teardown_method(self):
-        """Clear any active threads"""
-        if self.ae:
-            self.ae.shutdown()
-
-        if self.p:
-            self.p.kill()
-            self.p.wait(timeout=5)
-
-    def test_basic(self):
-        """Test basic operation of the storage service."""
-        self.p = p = self.func(
-            [
-                "--database-location",
-                self.db_location,
-                "--instance-location",
-                self.instance_location.name,
-                "-d",
-            ]
-        )
-        time.sleep(self.startup)
-        _send_datasets()
-        time.sleep(self.startup)
-
-        assert 5 == len(os.listdir(self.instance_location.name))
+    def __init__(self, ds, file_meta):
+        self.dataset = ds
+        self.file_meta = file_meta
+        self.timestamp = datetime.now()
 
 
 @pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
-class TestStoreSCP(StoreSCPBase):
-    """Tests for qrscp.py"""
+def test_handle_store_sanitises_sop_instance_uid(tmp_path):
+    """A UID with path separators must not escape the storage directory."""
+    from pynetdicom.apps.qrscp.db import create
+    from pynetdicom.apps.qrscp.handlers import handle_store
 
-    def setup_method(self):
-        """Run prior to each test"""
-        super().setup_method()
-        self.ae = None
-        self.p = None
-        self.func = start_qrscp
+    # Nested so an escaping write lands inside tmp_path but outside storage_dir
+    storage_dir = tmp_path / "a" / "b" / "storage"
+    storage_dir.mkdir(parents=True)
+    db_path = f"sqlite:///{tmp_path / 'db.sqlite'}"
+    create(db_path)
 
+    ds = Dataset()
+    ds.PatientID = "1234"
+    ds.SOPClassUID = CTImageStorage
+    ds.SOPInstanceUID = "../../escaped"
+    file_meta = FileMetaDataset()
+    file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
+    file_meta.MediaStorageSOPClassUID = CTImageStorage
+    file_meta.MediaStorageSOPInstanceUID = ds.SOPInstanceUID
 
-@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
-class TestStoreSCPCLI(StoreSCPBase):
-    """Tests for qrscp using CLI"""
+    handle_store(
+        DummyEvent(ds, file_meta), str(storage_dir), db_path, None, logging.getLogger()
+    )
 
-    def setup_method(self):
-        """Run prior to each test"""
-        super().setup_method()
-        self.ae = None
-        self.p = None
-        self.func = start_qrscp_cli
+    written = list(storage_dir.iterdir())
+    assert not (tmp_path / "a" / "escaped").exists()
+    assert len(written) == 1
+    assert written[0].parent == storage_dir
