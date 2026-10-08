@@ -5,27 +5,27 @@ Implements the DICOM Upper Layer service provider.
 import logging
 import queue
 import struct
-from threading import Thread
 import time
+from threading import Thread
 from typing import TYPE_CHECKING, cast
 
 from pynetdicom import evt
 from pynetdicom.fsm import StateMachine
 from pynetdicom.pdu import (
-    A_ASSOCIATE_RQ,
+    A_ABORT_RQ,
     A_ASSOCIATE_AC,
     A_ASSOCIATE_RJ,
-    P_DATA_TF,
-    A_RELEASE_RQ,
+    A_ASSOCIATE_RQ,
     A_RELEASE_RP,
-    A_ABORT_RQ,
+    A_RELEASE_RQ,
+    P_DATA_TF,
     _PDUType,
 )
 from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE,
-    A_RELEASE,
     A_ABORT,
+    A_ASSOCIATE,
     A_P_ABORT,
+    A_RELEASE,
     P_DATA,
     _PDUPrimitiveType,
 )
@@ -269,10 +269,9 @@ class DULServiceProvider(Thread):
         # Try and read the PDU type and length from the socket
         try:
             bytestream.extend(self.socket.recv(6))
-        except (OSError, TimeoutError) as exc:
+        except (OSError, TimeoutError):
             # READ_PDU_EXC_A
-            LOGGER.error("Connection closed before the entire PDU was received")
-            LOGGER.exception(exc)
+            LOGGER.exception("Connection closed before the entire PDU was received")
             # Evt17: Transport connection closed
             self.event_queue.put("Evt17")
             return
@@ -300,10 +299,9 @@ class DULServiceProvider(Thread):
         # Try and read the rest of the PDU
         try:
             bytestream += self.socket.recv(pdu_length)
-        except (OSError, TimeoutError) as exc:
+        except (OSError, TimeoutError):
             # READ_PDU_EXC_D
-            LOGGER.error("Connection closed before the entire PDU was received")
-            LOGGER.exception(exc)
+            LOGGER.exception("Connection closed before the entire PDU was received")
             # Evt17: Transport connection closed
             self.event_queue.put("Evt17")
             return
@@ -323,10 +321,9 @@ class DULServiceProvider(Thread):
             # Decode the PDU data, get corresponding FSM event
             pdu, event = self._decode_pdu(bytestream)
             self.event_queue.put(event)
-        except Exception as exc:
+        except Exception:
             # READ_PDU_EXC_F
-            LOGGER.error("Unable to decode the received PDU data")
-            LOGGER.exception(exc)
+            LOGGER.exception("Unable to decode the received PDU data")
             # Evt19: Unrecognised or invalid PDU received
             self.event_queue.put("Evt19")
             return
@@ -418,9 +415,8 @@ class DULServiceProvider(Thread):
                     pass
                 elif self._is_transport_event():  # receive and decode PDU
                     self._idle_timer.restart()
-            except Exception as exc:
-                LOGGER.error("Exception in DUL.run(), aborting association")
-                LOGGER.exception(exc)
+            except Exception:
+                LOGGER.exception("Exception in DUL.run(), aborting association")
                 # Bypass the state machine and send an A-ABORT
                 #   we do it this way because an exception here will mess up
                 #   the state machine and we can't guarantee it'll get sent

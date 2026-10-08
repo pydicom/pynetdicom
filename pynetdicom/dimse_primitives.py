@@ -6,18 +6,18 @@ Notes:
     in order for the DIMSE messages/primitives to be created correctly.
 """
 
+import logging
+import warnings
 from collections.abc import Sequence
 from io import BytesIO
-import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, TypeAlias
-import warnings
 
-from pydicom.tag import Tag, BaseTag
+from pydicom.tag import BaseTag, Tag
 from pydicom.uid import UID
 
 from pynetdicom._globals import OptionalUIDType
-from pynetdicom.utils import set_ae, decode_bytes, set_uid
+from pynetdicom.utils import decode_bytes, set_ae, set_uid
 
 if TYPE_CHECKING:  # pragma: no cover
     from io import BufferedWriter
@@ -152,9 +152,7 @@ class DIMSEPrimitive:
             The (dataset, variant name) to set, where dataset is either None
             or BytesIO and variant name is str.
         """
-        if value[0] is None:
-            self._dataset = value[0]
-        elif isinstance(value[0], BytesIO):
+        if value[0] is None or isinstance(value[0], BytesIO):
             self._dataset = value[0]
         else:
             raise TypeError(f"'{value[1]}' parameter must be a BytesIO object")

@@ -8,19 +8,19 @@ import argparse
 import sys
 
 from pydicom.uid import (
+    ExplicitVRBigEndian,
     ExplicitVRLittleEndian,
     ImplicitVRLittleEndian,
-    ExplicitVRBigEndian,
 )
 
 from pynetdicom import (
     AE,
-    evt,
     AllStoragePresentationContexts,
     VerificationPresentationContexts,
+    evt,
 )
-from pynetdicom.apps.common import setup_logging, handle_store
 from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
+from pynetdicom.apps.common import handle_store, setup_logging
 
 __version__ = "0.6.0"
 

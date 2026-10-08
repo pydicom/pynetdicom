@@ -1,13 +1,13 @@
 """DICOM dataset utility functions."""
 
-from io import BytesIO
 import logging
-from pathlib import Path
 import zlib
+from io import BytesIO
+from pathlib import Path
 
 from pydicom import Dataset
-from pydicom.dataset import FileMetaDataset
 from pydicom.dataelem import DataElement
+from pydicom.dataset import FileMetaDataset
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset, read_preamble
 from pydicom.filewriter import write_dataset, write_file_meta_info
@@ -149,9 +149,8 @@ def encode(
     fp.is_little_endian = is_little_endian
     try:
         write_dataset(fp, ds)
-    except Exception as exc:
-        LOGGER.error("pydicom.write_dataset() failed:")
-        LOGGER.exception(exc)
+    except Exception:
+        LOGGER.exception("pydicom.write_dataset() failed:")
         fp.close()
         return None
 

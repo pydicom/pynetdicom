@@ -3,25 +3,24 @@ Implementation of the service parameter primitives.
 """
 
 import logging
-from typing import cast, TypeAlias, TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias, cast
 
 from pydicom.uid import UID
 
-from pynetdicom._globals import OptionalUIDType
+from pynetdicom._globals import DEFAULT_MAX_LENGTH, OptionalUIDType
 from pynetdicom.pdu_items import (
-    MaximumLengthSubItem,
+    AsynchronousOperationsWindowSubItem,
     ImplementationClassUIDSubItem,
     ImplementationVersionNameSubItem,
-    AsynchronousOperationsWindowSubItem,
+    MaximumLengthSubItem,
     SCP_SCU_RoleSelectionSubItem,
-    SOPClassExtendedNegotiationSubItem,
     SOPClassCommonExtendedNegotiationSubItem,
-    UserIdentitySubItemRQ,
+    SOPClassExtendedNegotiationSubItem,
     UserIdentitySubItemAC,
+    UserIdentitySubItemRQ,
 )
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.utils import validate_uid, decode_bytes, set_ae, set_uid
-from pynetdicom._globals import DEFAULT_MAX_LENGTH
+from pynetdicom.utils import decode_bytes, set_ae, set_uid, validate_uid
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.transport import AddressInformation
@@ -1935,9 +1934,7 @@ class UserIdentityNegotiation(ServiceParameter):
     @primary_field.setter
     def primary_field(self, value: bytes | None) -> None:
         """Sets the Primary Field parameter."""
-        if isinstance(value, bytes):
-            pass
-        elif value is None:
+        if isinstance(value, bytes) or value is None:
             pass
         else:
             LOGGER.error(
@@ -2007,9 +2004,7 @@ class UserIdentityNegotiation(ServiceParameter):
     @server_response.setter
     def server_response(self, value: bytes | None) -> None:
         """Sets the Server Response parameter."""
-        if isinstance(value, bytes):
-            pass
-        elif value is None:
+        if isinstance(value, bytes) or value is None:
             pass
         else:
             LOGGER.error("Server Response must be bytes or None")

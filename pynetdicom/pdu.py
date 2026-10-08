@@ -20,31 +20,31 @@ There are seven different PDUs:
 """
 
 import logging
+from collections.abc import Callable, Iterator
 from struct import Struct
-from typing import Any, TYPE_CHECKING, cast, TypeAlias
-from collections.abc import Iterator, Callable
+from typing import TYPE_CHECKING, Any, TypeAlias, cast
 
 from pydicom.uid import UID
 
 from pynetdicom.pdu_items import (
-    ApplicationContextItem,
-    PresentationContextItemRQ,
-    PresentationContextItemAC,
-    UserInformationItem,
-    PresentationDataValueItem,
     PDU_ITEM_TYPES,
-    _PDUItemType,
+    ApplicationContextItem,
     PDUItem,
+    PresentationContextItemAC,
+    PresentationContextItemRQ,
+    PresentationDataValueItem,
+    UserInformationItem,
+    _PDUItemType,
 )
 from pynetdicom.utils import decode_bytes, set_ae
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import (
-        A_ASSOCIATE,
-        P_DATA,
-        A_RELEASE,
         A_ABORT,
+        A_ASSOCIATE,
         A_P_ABORT,
+        A_RELEASE,
+        P_DATA,
     )
 
 
