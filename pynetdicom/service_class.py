@@ -1,57 +1,58 @@
 """Implements the supported Service Classes."""
 
-from io import BytesIO
 import logging
 import os
 import sys
 import traceback
+from collections.abc import Iterator, Sequence
+from io import BytesIO
 from types import TracebackType
 from typing import (
     TYPE_CHECKING,
-    cast,
     Any,
+    ClassVar,
     TypeVar,
+    cast,
 )
-from collections.abc import Iterator, Sequence
 
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 
-from pynetdicom import evt, _config
-from pynetdicom.dsutils import decode, encode, pretty_dataset
+from pynetdicom import _config, evt
+from pynetdicom._globals import (
+    STATUS_CANCEL,
+    STATUS_FAILURE,
+    STATUS_PENDING,
+    STATUS_SUCCESS,
+    STATUS_WARNING,
+)
 from pynetdicom.dimse_primitives import (
-    C_STORE,
     C_ECHO,
-    C_MOVE,
-    C_GET,
     C_FIND,
+    C_GET,
+    C_MOVE,
+    C_STORE,
     N_ACTION,
     N_CREATE,
     N_DELETE,
     N_EVENT_REPORT,
     N_GET,
     N_SET,
-    DimseServiceType,
     DIMSEPrimitive,
+    DimseServiceType,
 )
-from pynetdicom._globals import (
-    STATUS_FAILURE,
-    STATUS_SUCCESS,
-    STATUS_WARNING,
-    STATUS_PENDING,
-    STATUS_CANCEL,
-)
+from pynetdicom.dsutils import decode, encode, pretty_dataset
 from pynetdicom.status import (
-    StatusDictType,
     GENERAL_STATUS,
+    NON_PATIENT_SERVICE_CLASS_STATUS,
     QR_FIND_SERVICE_CLASS_STATUS,
     QR_GET_SERVICE_CLASS_STATUS,
     QR_MOVE_SERVICE_CLASS_STATUS,
-    NON_PATIENT_SERVICE_CLASS_STATUS,
     RELEVANT_PATIENT_SERVICE_CLASS_STATUS,
-    SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS,
     STORAGE_SERVICE_CLASS_STATUS,
+    SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS,
     VERIFICATION_SERVICE_CLASS_STATUS,
+    StatusDictType,
 )
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -122,8 +123,7 @@ class attempt:
             return None
 
         # Exception raised within the context
-        LOGGER.error(self.error_msg)
-        LOGGER.exception(exc_val)
+        LOGGER.exception(self.error_msg, exc_info=exc_val)
         self._rsp.Status = self.error_status
         self._dimse.send_msg(self._rsp, self._cx_id)
         self._success = False
@@ -1491,13 +1491,12 @@ class VerificationServiceClass(ServiceClass):
                     "'evt.EVT_C_ECHO'"
                 )
 
-        except Exception as ex:
-            LOGGER.error(
+        except Exception:
+            LOGGER.exception(
                 "Exception in the handler bound to 'evt.EVT_C_ECHO', "
                 "responding with a default 'Status' value of 0x0000 "
                 "(Success)"
             )
-            LOGGER.exception(ex)
             rsp.Status = 0x0000
 
         setattr(self.assoc, "abort", self.assoc._abort_blocking)
@@ -1573,7 +1572,7 @@ class QueryRetrieveServiceClass(ServiceClass):
     statuses: StatusDictType
     # Used with Composite Instance Retrieve Without Bulk Data
     # CurveData, AudioSampleData and OverlayData are repeating group elements
-    _BULK_DATA_KEYWORDS = [
+    _BULK_DATA_KEYWORDS: ClassVar = [
         "PixelData",
         "FloatPixelData",
         "DoubleFloatPixelData",
@@ -1581,7 +1580,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         "SpectroscopyData",
         "EncapsulatedDocument",
     ]
-    _SUPPORTED_UIDS = {
+    _SUPPORTED_UIDS: ClassVar = {
         "C-FIND": [
             "1.2.840.10008.5.1.4.1.2.1.1",
             "1.2.840.10008.5.1.4.1.2.2.1",
@@ -2442,7 +2441,7 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Basic Worklist Management Service Class."""
 
     statuses = QR_FIND_SERVICE_CLASS_STATUS
-    _SUPPORTED_UIDS = {
+    _SUPPORTED_UIDS: ClassVar = {
         "C-FIND": ["1.2.840.10008.5.1.4.31"],
     }
 
@@ -2582,10 +2581,9 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             LOGGER.info("Find SCP Response: 0x0000 (Success)")
             self.dimse.send_msg(rsp, cx_id)
             return
-        except Exception as ex:
+        except Exception:
             setattr(self.assoc, "abort", self.assoc._abort_blocking)
-            LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
-            LOGGER.exception(ex)
+            LOGGER.exception("Exception in handler bound to 'evt.EVT_C_FIND'")
             rsp.Status = 0xC311
             self.dimse.send_msg(rsp, cx_id)
             return
@@ -2665,7 +2663,7 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Substance Administration Query Service"""
 
     statuses = SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS
-    _SUPPORTED_UIDS = {
+    _SUPPORTED_UIDS: ClassVar = {
         "C-FIND": ["1.2.840.10008.5.1.4.41", "1.2.840.10008.5.1.4.42"],
     }
 

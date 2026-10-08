@@ -2,22 +2,22 @@
 the state machine events.
 """
 
-from datetime import datetime
-from io import BytesIO
 import inspect
 import logging
-from pathlib import Path
 import sys
-from typing import Any, NamedTuple, TYPE_CHECKING, cast, TypeAlias
 from collections.abc import Callable, Iterator
+from datetime import datetime, timezone
+from io import BytesIO
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias, cast
 
 from pydicom.dataset import Dataset, FileMetaDataset
-from pynetdicom.dimse_primitives import C_STORE
 from pydicom.filereader import dcmread
 from pydicom.tag import BaseTag
 from pydicom.uid import UID
 
-from pynetdicom.dsutils import decode, create_file_meta, encode_file_meta
+from pynetdicom.dimse_primitives import C_STORE
+from pynetdicom.dsutils import create_file_meta, decode, encode_file_meta
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association
@@ -100,32 +100,32 @@ class NotificationEvent(NamedTuple):
 
 
 EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
-EVT_ACCEPTED = NotificationEvent("EVT_ACCEPTED", "Association request accepted")  # noqa
+EVT_ACCEPTED = NotificationEvent("EVT_ACCEPTED", "Association request accepted")
 EVT_ACSE_RECV = NotificationEvent(
     "EVT_ACSE_RECV", "ACSE primitive received from DUL"
-)  # noqa
-EVT_ACSE_SENT = NotificationEvent("EVT_ACSE_SENT", "ACSE primitive sent to DUL")  # noqa
+)
+EVT_ACSE_SENT = NotificationEvent("EVT_ACSE_SENT", "ACSE primitive sent to DUL")
 EVT_CONN_CLOSE = NotificationEvent("EVT_CONN_CLOSE", "Connection closed")
 EVT_CONN_OPEN = NotificationEvent("EVT_CONN_OPEN", "Connection opened")
 EVT_DATA_RECV = NotificationEvent(
     "EVT_DATA_RECV", "PDU data received from remote"
-)  # noqa
+)
 EVT_DATA_SENT = NotificationEvent("EVT_DATA_SENT", "PDU data sent to remote")
 EVT_DIMSE_RECV = NotificationEvent(
     "EVT_DIMSE_RECV", "Complete DIMSE message received and decoded"
-)  # noqa
+)
 EVT_DIMSE_SENT = NotificationEvent(
     "EVT_DIMSE_SENT", "DIMSE message encoded and P-DATA primitives sent to DUL"
-)  # noqa
+)
 EVT_ESTABLISHED = NotificationEvent(
     "EVT_ESTABLISHED", "Association established"
-)  # noqa
+)
 EVT_FSM_TRANSITION = NotificationEvent(
     "EVT_FSM_TRANSITION", "State machine about to transition"
-)  # noqa
+)
 EVT_PDU_RECV = NotificationEvent("EVT_PDU_RECV", "PDU received and decoded")
 EVT_PDU_SENT = NotificationEvent("EVT_PDU_SENT", "PDU encoded and sent")
-EVT_REJECTED = NotificationEvent("EVT_REJECTED", "Association request rejected")  # noqa
+EVT_REJECTED = NotificationEvent("EVT_REJECTED", "Association request rejected")
 EVT_RELEASED = NotificationEvent("EVT_RELEASED", "Association released")
 EVT_REQUESTED = NotificationEvent("EVT_REQUESTED", "Association requested")
 
@@ -166,16 +166,16 @@ class InterventionEvent(NamedTuple):
 
 EVT_ASYNC_OPS = InterventionEvent(
     "EVT_ASYNC_OPS", "Asynchronous operations negotiation requested"
-)  # noqa
+)
 EVT_SOP_COMMON = InterventionEvent(
     "EVT_SOP_COMMON", "SOP class common extended negotiation requested"
-)  # noqa
+)
 EVT_SOP_EXTENDED = InterventionEvent(
     "EVT_SOP_EXTENDED", "SOP class extended negotiation requested"
-)  # noqa
+)
 EVT_USER_ID = InterventionEvent(
     "EVT_USER_ID", "User identity negotiation requested"
-)  # noqa
+)
 EVT_C_ECHO = InterventionEvent("EVT_C_ECHO", "C-ECHO request received")
 EVT_C_FIND = InterventionEvent("EVT_C_FIND", "C-FIND request received")
 EVT_C_GET = InterventionEvent("EVT_C_GET", "C-GET request received")
@@ -186,7 +186,7 @@ EVT_N_CREATE = InterventionEvent("EVT_N_CREATE", "N-CREATE request received")
 EVT_N_DELETE = InterventionEvent("EVT_N_DELETE", "N-DELETE request received")
 EVT_N_EVENT_REPORT = InterventionEvent(
     "EVT_N_EVENT_REPORT", "N-EVENT-REPORT request received"
-)  # noqa
+)
 EVT_N_GET = InterventionEvent("EVT_N_GET", "N-GET request received")
 EVT_N_SET = InterventionEvent("EVT_N_SET", "N-SET request received")
 
@@ -370,7 +370,7 @@ def trigger(
                 func(evt, *args)
             else:
                 func(evt)
-    except Exception as exc:
+    except Exception:
         setattr(assoc, "abort", assoc._abort_blocking)
 
         # Intervention exceptions get raised
@@ -378,11 +378,10 @@ def trigger(
             raise
 
         # Capture exceptions for notification events
-        LOGGER.error(
+        LOGGER.exception(
             f"Exception raised in user's 'evt.{event.name}' "
             f"event handler '{func.__name__}'"
         )
-        LOGGER.exception(exc)
 
     setattr(assoc, "abort", assoc._abort_blocking)
 
@@ -430,7 +429,7 @@ class Event:
         """
         self.assoc = assoc
         self._event = event
-        self.timestamp = datetime.now()
+        self.timestamp = datetime.now(tz=timezone.utc)
 
         # Only decode a dataset when necessary
         self._hash: int | None = None

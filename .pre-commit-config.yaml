@@ -24,8 +24,12 @@ repos:
     rev: v0.16.10
     hooks:
       - id: ruff-check
-        files: src
-        args: ["--fix", "--show-fixes"]
+        files: pynetdicom
+        # ignore some warnings:
+        # - raw Exception catch and exception pass without logging
+        #   (used for generic outer scope exception handling)
+        # - type check w/o type error (fixing would change the API)
+        args: ["--fix", "--show-fixes", "--ignore=BLE001,TRY004,S110"]
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 26.10.0
     hooks:

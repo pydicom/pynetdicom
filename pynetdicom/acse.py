@@ -5,21 +5,21 @@ from typing import TYPE_CHECKING, cast
 
 from pydicom.uid import UID
 
-from pynetdicom import evt, _config
+from pynetdicom import _config, evt
 from pynetdicom._globals import APPLICATION_CONTEXT_NAME
 from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE,
-    A_RELEASE,
     A_ABORT,
+    A_ASSOCIATE,
     A_P_ABORT,
+    A_RELEASE,
     AsynchronousOperationsWindowNegotiation,
     SOPClassCommonExtendedNegotiation,
     SOPClassExtendedNegotiation,
     UserIdentityNegotiation,
 )
 from pynetdicom.presentation import (
-    negotiate_as_requestor,
     negotiate_as_acceptor,
+    negotiate_as_requestor,
     negotiate_unrestricted,
 )
 
@@ -78,7 +78,7 @@ class ACSE:
             default values for the number of operations invoked/performed
             (1, 1).
         """
-        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)  # noqa: B010
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
 
         try:
             # Response is always ignored as async ops is not supported
@@ -89,9 +89,8 @@ class ACSE:
         except NotImplementedError:
             setattr(self.assoc, "abort", self.assoc._abort_blocking)
             return None
-        except Exception as exc:
-            LOGGER.error("Exception raised in handler bound to 'evt.EVT_ASYNC_OPS'")
-            LOGGER.exception(exc)
+        except Exception:
+            LOGGER.exception("Exception raised in handler bound to 'evt.EVT_ASYNC_OPS'")
 
         setattr(self.assoc, "abort", self.assoc._abort_blocking)
 
@@ -112,7 +111,7 @@ class ACSE:
             The {SOP Class UID : SOPClassCommonExtendedNegotiation} items for
             the accepted SOP Class Common Extended negotiation items.
         """
-        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)  # noqa: B010
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
 
         try:
             rsp = evt.trigger(
@@ -120,11 +119,12 @@ class ACSE:
                 evt.EVT_SOP_COMMON,
                 {"items": self.requestor.sop_class_common_extended},
             )
-        except Exception as exc:
+        except Exception:
             setattr(self.assoc, "abort", self.assoc._abort_blocking)
 
-            LOGGER.error("Exception raised in handler bound to 'evt.EVT_SOP_COMMON'")
-            LOGGER.exception(exc)
+            LOGGER.exception(
+                "Exception raised in handler bound to 'evt.EVT_SOP_COMMON'"
+            )
             return {}
 
         setattr(self.assoc, "abort", self.assoc._abort_blocking)
@@ -136,11 +136,10 @@ class ACSE:
                 for uid, ii in rsp.items()
                 if isinstance(ii, SOPClassCommonExtendedNegotiation)
             }
-        except Exception as exc:
-            LOGGER.error(
+        except Exception:
+            LOGGER.exception(
                 "Invalid type returned by handler bound to 'evt.EVT_SOP_COMMON'"
             )
-            LOGGER.exception(exc)
             return {}
 
         return rsp
@@ -153,7 +152,7 @@ class ACSE:
         list of pdu_primitives.SOPClassExtendedNegotiation
             The SOP Class Extended Negotiation items to be sent in response
         """
-        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)  # noqa: B010
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
 
         try:
             user_response = evt.trigger(
@@ -161,10 +160,11 @@ class ACSE:
                 evt.EVT_SOP_EXTENDED,
                 {"app_info": self.requestor.sop_class_extended},
             )
-        except Exception as exc:
+        except Exception:
             user_response = {}
-            LOGGER.error("Exception raised in handler bound to 'evt.EVT_SOP_EXTENDED'")
-            LOGGER.exception(exc)
+            LOGGER.exception(
+                "Exception raised in handler bound to 'evt.EVT_SOP_EXTENDED'"
+            )
 
         setattr(self.assoc, "abort", self.assoc._abort_blocking)
 
@@ -184,12 +184,11 @@ class ACSE:
                 item.sop_class_uid = sop_class
                 item.service_class_application_information = app_info
                 items.append(item)
-            except Exception as exc:
-                LOGGER.error(
+            except Exception:
+                LOGGER.exception(
                     f"Unable to set the SOP Class Extended Negotiation "
                     f"response values for the SOP Class UID {sop_class}"
                 )
-                LOGGER.exception(exc)
 
         return items
 
@@ -204,7 +203,7 @@ class ACSE:
             The negotiation response, if a positive response is requested,
             otherwise None.
         """
-        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)  # noqa: B010
+        setattr(self.assoc, "abort", self.assoc._abort_nonblocking)
 
         # The UserIdentityNegotiation (request) item
         req = self.requestor.user_identity
@@ -226,12 +225,11 @@ class ACSE:
             # If the user hasn't implemented identity negotiation then
             #   default to accepting the association
             return True, None
-        except Exception as exc:
+        except Exception:
             setattr(self.assoc, "abort", self.assoc._abort_blocking)
             # If the user has implemented identity negotiation but an exception
             #   occurred then reject the association
-            LOGGER.error("Exception in handler bound to 'evt.EVT_USER_ID'")
-            LOGGER.exception(exc)
+            LOGGER.exception("Exception in handler bound to 'evt.EVT_USER_ID'")
             return False, None
 
         setattr(self.assoc, "abort", self.assoc._abort_blocking)
@@ -241,22 +239,23 @@ class ACSE:
             # Reject association as the user isn't authorised
             return False, None
 
-        if req.user_identity_type in [3, 4, 5]:
-            if req.positive_response_requested and response is not None:
-                try:
-                    rsp = UserIdentityNegotiation()
-                    rsp.server_response = response
-                    return True, rsp
-                except Exception as exc:
-                    # > If the acceptor doesn't support user identification it
-                    # > will accept the association without making a positive
-                    # > response
-                    LOGGER.error(
-                        "Unable to set the User Identity Negotiation's "
-                        "'server_response'"
-                    )
-                    LOGGER.exception(exc)
-                    return True, None
+        if (
+            req.user_identity_type in [3, 4, 5]
+            and req.positive_response_requested
+            and response is not None
+        ):
+            try:
+                rsp = UserIdentityNegotiation()
+                rsp.server_response = response
+                return True, rsp
+            except Exception:
+                # > If the acceptor doesn't support user identification it
+                # > will accept the association without making a positive
+                # > response
+                LOGGER.exception(
+                    "Unable to set the User Identity Negotiation's 'server_response'"
+                )
+                return True, None
 
         return True, None
 

@@ -1,13 +1,13 @@
 """Implementation of the Transport Service."""
 
-from copy import deepcopy
-from datetime import datetime
 import gc
 import logging
 import queue
 import select
 import socket
-from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
+from copy import deepcopy
+from datetime import datetime, timezone
+from socketserver import BaseRequestHandler, TCPServer, ThreadingMixIn
 
 try:
     import ssl
@@ -18,11 +18,11 @@ except ImportError:
     #   and must use "ssl.SSLContext" in type hints
     _HAS_SSL = False
 import threading
-from typing import TYPE_CHECKING, Any, cast
-from collections.abc import Callable
 import warnings
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, cast
 
-from pynetdicom import evt, _config
+from pynetdicom import _config, evt
 from pynetdicom._globals import MODE_ACCEPTOR
 from pynetdicom._handlers import (
     standard_dimse_recv_handler,
@@ -120,7 +120,7 @@ class AddressInformation:
         ipv4_entries = [addr for addr in entries if addr[0] == socket.AF_INET]
         ipv6_entries = [addr for addr in entries if addr[0] == socket.AF_INET6]
         if ipv4_entries:
-            self._addr = cast(str, ipv4_entries[0][4][0])
+            self._addr = ipv4_entries[0][4][0]
         elif ipv6_entries:
             self._addr = cast(str, ipv6_entries[0][4][0])
         else:
@@ -435,7 +435,7 @@ class AssociationSocket:
             LOGGER.error(f"TCP Initialisation Error: {exc}")
             # Log exception if TLS issue to help with troubleshooting
             if _HAS_SSL and isinstance(exc, ssl.SSLError):
-                LOGGER.exception(exc)
+                LOGGER.exception("")
 
             # Don't be tempted to replace this with a self.close() call -
             #   it doesn't work because `_is_connected` is False
@@ -591,8 +591,7 @@ class AssociationSocket:
             # Python docs recommend reading a relatively small power of 2
             #   such as 4096
             bufsize = 4096
-            if (nr_bytes - nr_read) < bufsize:
-                bufsize = nr_bytes - nr_read
+            bufsize = min(bufsize, nr_bytes - nr_read)
 
             bytes_read = self.socket.recv(bufsize)
 
@@ -745,7 +744,7 @@ class RequestHandler(BaseRequestHandler):
         assoc._server = self.server
 
         # Set the thread name
-        timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
+        timestamp = datetime.strftime(datetime.now(tz=timezone.utc), "%Y%m%d%H%M%S")
         assoc.name = f"AcceptorThread@{timestamp}"
 
         sock = AssociationSocket(assoc, client_socket=self.request)

@@ -13,22 +13,22 @@ from pydicom.uid import generate_uid
 
 from pynetdicom import (
     AE,
-    BasicWorklistManagementPresentationContexts,
-    QueryRetrievePresentationContexts,
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION,
     PYNETDICOM_UID_PREFIX,
+    BasicWorklistManagementPresentationContexts,
+    QueryRetrievePresentationContexts,
     UnifiedProcedurePresentationContexts,
 )
-from pynetdicom.apps.common import create_dataset, setup_logging
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
+from pynetdicom.apps.common import create_dataset, setup_logging
 from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.sop_class import (
     ModalityWorklistInformationFind,
-    UnifiedProcedureStepPull,
     PatientRootQueryRetrieveInformationModelFind,
-    StudyRootQueryRetrieveInformationModelFind,
     PatientStudyOnlyQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelFind,
+    UnifiedProcedureStepPull,
 )
 
 __version__ = "0.2.0"
@@ -293,8 +293,8 @@ def main(args=None):
         #     identifier.QueryRetrieveLevel = 'PATIENT'
         #     identifier.PatientName = ''
         identifier = create_dataset(args, APP_LOGGER)
-    except Exception as exc:
-        APP_LOGGER.exception(exc)
+    except Exception:
+        APP_LOGGER.exception("")
         sys.exit(1)
 
     # Create application entity
@@ -369,10 +369,9 @@ def main(args=None):
         for status, rsp_identifier in responses:
             # If `status.Status` is one of the 'Pending' statuses then
             #   `rsp_identifier` is the C-FIND response's Identifier dataset
-            if status and status.Status in [0xFF00, 0xFF01]:
-                if args.write:
-                    rsp_identifier.file_meta = get_file_meta(assoc, query_model)
-                    rsp_identifier.save_as(next(fname), write_like_original=False)
+            if status and status.Status in [0xFF00, 0xFF01] and args.write:
+                rsp_identifier.file_meta = get_file_meta(assoc, query_model)
+                rsp_identifier.save_as(next(fname), write_like_original=False)
 
         # Release the association
         assoc.release()

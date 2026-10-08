@@ -40,17 +40,15 @@ assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 
 
 # Convenience imports
-# ruff: noqa: E402,F401
+# ruff: noqa: F401
 from pynetdicom import events as evt
-from pynetdicom.ae import ApplicationEntity as AE
-from pynetdicom.association import Association
 from pynetdicom._globals import (
     ALL_TRANSFER_SYNTAXES,
     DEFAULT_TRANSFER_SYNTAXES,
 )
+from pynetdicom.ae import ApplicationEntity as AE
+from pynetdicom.association import Association
 from pynetdicom.presentation import (
-    build_context,
-    build_role,
     AllStoragePresentationContexts,
     ApplicationEventLoggingPresentationContexts,
     BasicWorklistManagementPresentationContexts,
@@ -70,11 +68,13 @@ from pynetdicom.presentation import (
     QueryRetrievePresentationContexts,
     RelevantPatientInformationPresentationContexts,
     RTMachineVerificationPresentationContexts,
-    StoragePresentationContexts,
     StorageCommitmentPresentationContexts,
+    StoragePresentationContexts,
     SubstanceAdministrationPresentationContexts,
     UnifiedProcedurePresentationContexts,
     VerificationPresentationContexts,
+    build_context,
+    build_role,
 )
 from pynetdicom.sop_class import register_uid
 
@@ -95,16 +95,12 @@ def debug_logger() -> None:
 
 
 __all__ = [
-    "__version__",
-    "PYNETDICOM_UID_PREFIX",
-    "PYNETDICOM_IMPLEMENTATION_VERSION",
-    "PYNETDICOM_IMPLEMENTATION_UID",
-    "evt",
     "AE",
     "ALL_TRANSFER_SYNTAXES",
     "DEFAULT_TRANSFER_SYNTAXES",
-    "build_context",
-    "build_role",
+    "PYNETDICOM_IMPLEMENTATION_UID",
+    "PYNETDICOM_IMPLEMENTATION_VERSION",
+    "PYNETDICOM_UID_PREFIX",
     "AllStoragePresentationContexts",
     "ApplicationEventLoggingPresentationContexts",
     "BasicWorklistManagementPresentationContexts",
@@ -122,13 +118,17 @@ __all__ = [
     "ProcedureStepPresentationContexts",
     "ProtocolApprovalPresentationContexts",
     "QueryRetrievePresentationContexts",
-    "RelevantPatientInformationPresentationContexts",
     "RTMachineVerificationPresentationContexts",
-    "StoragePresentationContexts",
+    "RelevantPatientInformationPresentationContexts",
     "StorageCommitmentPresentationContexts",
+    "StoragePresentationContexts",
     "SubstanceAdministrationPresentationContexts",
     "UnifiedProcedurePresentationContexts",
     "VerificationPresentationContexts",
-    "register_uid",
+    "__version__",
+    "build_context",
+    "build_role",
     "debug_logger",
+    "evt",
+    "register_uid",
 ]

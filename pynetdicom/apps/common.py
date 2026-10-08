@@ -6,7 +6,7 @@ import re
 from struct import pack
 
 from pydicom import dcmread
-from pydicom.datadict import tag_for_keyword, repeater_has_keyword, get_entry
+from pydicom.datadict import get_entry, repeater_has_keyword, tag_for_keyword
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 from pydicom.uid import DeflatedExplicitVRLittleEndian
@@ -39,31 +39,31 @@ def create_dataset(args, logger=None):
         try:
             with open(args.file, "rb") as fp:
                 ds = dcmread(fp, force=True)
-        except Exception as exc:
+        except Exception:
             if logger:
                 logger.error(f"Cannot read input file {args.file}")
-            raise exc
+            raise
 
         try:
             # Only way to check for a bad decode is to iterate the dataset
             ds.iterall()
-        except Exception as exc:
+        except Exception:
             if logger:
                 logger.error(
                     "Exception raised decoding the file, the file may be "
                     "corrupt, non-conformant or may not be DICOM"
                 )
-            raise exc
+            raise
 
     if args.keyword:
         try:
             elements = [ElementPath(path) for path in args.keyword]
             for elem in elements:
                 ds = elem.update(ds)
-        except Exception as exc:
+        except Exception:
             if logger:
                 logger.error("Exception raised trying to parse the supplied keywords")
-            raise exc
+            raise
 
     return ds
 
@@ -570,9 +570,8 @@ def handle_store(event, args, app_logger):
         ds = event.dataset
         # Remove any Group 0x0002 elements that may have been included
         ds = ds[0x00030000:]
-    except Exception as exc:
-        app_logger.error("Unable to decode the dataset")
-        app_logger.exception(exc)
+    except Exception:
+        app_logger.exception("Unable to decode the dataset")
         # Unable to decode dataset
         return 0x210
 
@@ -585,12 +584,11 @@ def handle_store(event, args, app_logger):
         sop_class = ds.SOPClassUID
         # sanitize filename by replacing all illegal characters with underscores
         sop_instance = re.sub(r"[^\d.]", "_", ds.SOPInstanceUID)
-    except Exception as exc:
-        app_logger.error(
+    except Exception:
+        app_logger.exception(
             "Unable to decode the received dataset or missing 'SOP Class "
             "UID' and/or 'SOP Instance UID' elements"
         )
-        app_logger.exception(exc)
         # Unable to decode dataset
         return 0xC210
 
@@ -611,10 +609,10 @@ def handle_store(event, args, app_logger):
         filename = os.path.join(args.output_directory, filename)
         try:
             os.makedirs(args.output_directory, exist_ok=True)
-        except Exception as exc:
-            app_logger.error("Unable to create the output directory:")
-            app_logger.error(f"    {args.output_directory}")
-            app_logger.exception(exc)
+        except Exception:
+            app_logger.exception(
+                f"Unable to create the output directory:    {args.output_directory}"
+            )
             # Failed - Out of Resources - OSError
             status_ds.Status = 0xA700
             return status_ds
@@ -633,16 +631,16 @@ def handle_store(event, args, app_logger):
             ds.save_as(filename, write_like_original=False)
 
         status_ds.Status = 0x0000  # Success
-    except OSError as exc:
-        app_logger.error("Could not write file to specified directory:")
-        app_logger.error(f"    {os.path.dirname(filename)}")
-        app_logger.exception(exc)
+    except OSError:
+        app_logger.exception(
+            f"Could not write file to specified directory:\n    {os.path.dirname(filename)}"
+        )
         # Failed - Out of Resources - OSError
         status_ds.Status = 0xA700
-    except Exception as exc:
-        app_logger.error("Could not write file to specified directory:")
-        app_logger.error(f"    {os.path.dirname(filename)}")
-        app_logger.exception(exc)
+    except Exception:
+        app_logger.exception(
+            f"Could not write file to specified directory:\n    {os.path.dirname(filename)}"
+        )
         # Failed - Out of Resources - Miscellaneous error
         status_ds.Status = 0xA701
 
