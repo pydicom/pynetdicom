@@ -1,13 +1,13 @@
 """DICOM dataset utility functions."""
 
-from io import BytesIO
 import logging
-from pathlib import Path
 import zlib
+from io import BytesIO
+from pathlib import Path
 
 from pydicom import Dataset
-from pydicom.dataset import FileMetaDataset
 from pydicom.dataelem import DataElement
+from pydicom.dataset import FileMetaDataset
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset, read_preamble
 from pydicom.filewriter import write_dataset, write_file_meta_info

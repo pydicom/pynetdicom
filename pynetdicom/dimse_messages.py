@@ -1,12 +1,12 @@
 """Define the DIMSE Message classes."""
 
-from io import BytesIO
 import logging
+from collections.abc import Iterator
+from io import BytesIO
 from math import ceil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, cast
-from collections.abc import Iterator
 
 from pydicom.dataset import Dataset
 from pydicom.filewriter import write_file_meta_info
@@ -15,21 +15,21 @@ from pydicom.uid import UID
 
 from pynetdicom import _config
 from pynetdicom.dimse_primitives import (
-    C_STORE,
+    C_CANCEL,
+    C_ECHO,
     C_FIND,
     C_GET,
     C_MOVE,
-    C_ECHO,
-    C_CANCEL,
-    N_EVENT_REPORT,
-    N_GET,
-    N_SET,
+    C_STORE,
     N_ACTION,
     N_CREATE,
     N_DELETE,
+    N_EVENT_REPORT,
+    N_GET,
+    N_SET,
     DimsePrimitiveType,
 )
-from pynetdicom.dsutils import encode, decode, create_file_meta
+from pynetdicom.dsutils import create_file_meta, decode, encode
 from pynetdicom.pdu_primitives import P_DATA
 
 if TYPE_CHECKING:  # pragma: no cover

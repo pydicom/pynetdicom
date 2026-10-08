@@ -2,22 +2,22 @@
 the state machine events.
 """
 
-from datetime import datetime
-from io import BytesIO
 import inspect
 import logging
-from pathlib import Path
 import sys
-from typing import Any, NamedTuple, TYPE_CHECKING, cast, TypeAlias
 from collections.abc import Callable, Iterator
+from datetime import datetime
+from io import BytesIO
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias, cast
 
 from pydicom.dataset import Dataset, FileMetaDataset
-from pynetdicom.dimse_primitives import C_STORE
 from pydicom.filereader import dcmread
 from pydicom.tag import BaseTag
 from pydicom.uid import UID
 
-from pynetdicom.dsutils import decode, create_file_meta, encode_file_meta
+from pynetdicom.dimse_primitives import C_STORE
+from pynetdicom.dsutils import create_file_meta, decode, encode_file_meta
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association

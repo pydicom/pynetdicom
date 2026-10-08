@@ -1,13 +1,13 @@
 """Implementation of the Transport Service."""
 
-from copy import deepcopy
-from datetime import datetime
 import gc
 import logging
 import queue
 import select
 import socket
-from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
+from copy import deepcopy
+from datetime import datetime
+from socketserver import BaseRequestHandler, TCPServer, ThreadingMixIn
 
 try:
     import ssl
@@ -18,11 +18,11 @@ except ImportError:
     #   and must use "ssl.SSLContext" in type hints
     _HAS_SSL = False
 import threading
-from typing import TYPE_CHECKING, Any, cast
-from collections.abc import Callable
 import warnings
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, cast
 
-from pynetdicom import evt, _config
+from pynetdicom import _config, evt
 from pynetdicom._globals import MODE_ACCEPTOR
 from pynetdicom._handlers import (
     standard_dimse_recv_handler,

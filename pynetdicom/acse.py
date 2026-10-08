@@ -5,21 +5,21 @@ from typing import TYPE_CHECKING, cast
 
 from pydicom.uid import UID
 
-from pynetdicom import evt, _config
+from pynetdicom import _config, evt
 from pynetdicom._globals import APPLICATION_CONTEXT_NAME
 from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE,
-    A_RELEASE,
     A_ABORT,
+    A_ASSOCIATE,
     A_P_ABORT,
+    A_RELEASE,
     AsynchronousOperationsWindowNegotiation,
     SOPClassCommonExtendedNegotiation,
     SOPClassExtendedNegotiation,
     UserIdentityNegotiation,
 )
 from pynetdicom.presentation import (
-    negotiate_as_requestor,
     negotiate_as_acceptor,
+    negotiate_as_requestor,
     negotiate_unrestricted,
 )
 

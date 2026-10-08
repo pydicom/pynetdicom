@@ -2,9 +2,9 @@
 """A Verification, Storage and Query/Retrieve SCP application."""
 
 import argparse
-from configparser import ConfigParser
 import os
 import sys
+from configparser import ConfigParser
 
 import pydicom.config
 from sqlalchemy import create_engine
@@ -12,26 +12,15 @@ from sqlalchemy.orm import sessionmaker
 
 from pynetdicom import (
     AE,
-    _config,
-    evt,
-    _handlers,
-    AllStoragePresentationContexts,
     ALL_TRANSFER_SYNTAXES,
+    AllStoragePresentationContexts,
     UnifiedProcedurePresentationContexts,
+    _config,
+    _handlers,
+    evt,
 )
 from pynetdicom.apps.common import setup_logging
-from pynetdicom.sop_class import (
-    Verification,
-    ModalityWorklistInformationFind,
-    PatientRootQueryRetrieveInformationModelFind,
-    PatientRootQueryRetrieveInformationModelMove,
-    PatientRootQueryRetrieveInformationModelGet,
-    StudyRootQueryRetrieveInformationModelFind,
-    StudyRootQueryRetrieveInformationModelMove,
-    StudyRootQueryRetrieveInformationModelGet,
-)
-from pynetdicom.utils import set_ae
-
+from pynetdicom.apps.qrscp import db
 from pynetdicom.apps.qrscp.handlers import (
     handle_echo,
     handle_find,
@@ -39,7 +28,17 @@ from pynetdicom.apps.qrscp.handlers import (
     handle_move,
     handle_store,
 )
-from pynetdicom.apps.qrscp import db
+from pynetdicom.sop_class import (
+    ModalityWorklistInformationFind,
+    PatientRootQueryRetrieveInformationModelFind,
+    PatientRootQueryRetrieveInformationModelGet,
+    PatientRootQueryRetrieveInformationModelMove,
+    StudyRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelMove,
+    Verification,
+)
+from pynetdicom.utils import set_ae
 
 # Use `None` for empty values
 pydicom.config.use_none_as_empty_text_VR_value = True
