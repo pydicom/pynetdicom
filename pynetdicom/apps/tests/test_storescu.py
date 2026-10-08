@@ -1,6 +1,5 @@
 """Unit tests for storescu.py"""
 
-import logging
 import os
 import subprocess
 import sys
@@ -19,8 +18,6 @@ from pydicom.uid import (
 from pynetdicom import (
     AE,
     evt,
-    debug_logger,
-    DEFAULT_TRANSFER_SYNTAXES,
     AllStoragePresentationContexts,
     ALL_TRANSFER_SYNTAXES,
 )
@@ -101,7 +98,7 @@ class StoreSCUBase:
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
         assert {} == requestor.sop_class_extended
-        assert requestor.user_identity == None
+        assert requestor.user_identity is None
         cxs = requestor.primitive.presentation_context_definition_list
         assert len(cxs) == 120
         cxs = {cx.abstract_syntax: cx for cx in cxs}

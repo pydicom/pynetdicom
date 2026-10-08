@@ -1,7 +1,5 @@
 """Unit tests for echoscu.py"""
 
-import logging
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -16,7 +14,7 @@ from pydicom.uid import (
     ExplicitVRBigEndian,
 )
 
-from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
+from pynetdicom import AE, evt
 from pynetdicom.sop_class import Verification, CTImageStorage
 
 # debug_logger()
@@ -89,7 +87,7 @@ class EchoSCUBase:
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
         assert {} == requestor.sop_class_extended
-        assert requestor.user_identity == None
+        assert requestor.user_identity is None
         cxs = requestor.primitive.presentation_context_definition_list
         assert len(cxs) == 1
         assert cxs[0].abstract_syntax == Verification

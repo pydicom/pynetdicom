@@ -3,9 +3,8 @@
 from copy import deepcopy
 
 from pydicom._uid_dict import UID_dictionary
-from pydicom.uid import UID
 
-from pynetdicom import StoragePresentationContexts, build_context
+from pynetdicom import StoragePresentationContexts
 from pynetdicom.presentation import (
     PresentationContext,
     negotiate_as_acceptor,
@@ -96,7 +95,7 @@ class TimePresentationAcceptorRoleNegotiation:
             ]
             self.acceptor_contexts.append(cx)
 
-        self.ac_roles = {uid: (True, False) for uid in UID_dictionary}
+        self.ac_roles = dict.fromkeys(UID_dictionary, (True, False))
 
     def time_ps_ac_role(self):
         """Time a presentation service with SCP/SCU role negotiation."""

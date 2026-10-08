@@ -5,7 +5,7 @@ import sys
 
 import pytest
 
-from pynetdicom._version import __version__, is_canonical
+from pynetdicom._version import is_canonical
 
 
 def get_envar(envar):

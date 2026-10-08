@@ -2,13 +2,12 @@
 
 import os
 from pathlib import Path
-import sys
 import tempfile
 
 import pytest
 
 try:
-    from sqlalchemy import create_engine
+    from sqlalchemy import create_engine  # noqa: F401
     from sqlalchemy.schema import MetaData
     from sqlalchemy.exc import IntegrityError, SAWarning
     from sqlalchemy.orm import sessionmaker
@@ -20,7 +19,6 @@ except ImportError:
 from pydicom import dcmread
 import pydicom.config
 from pydicom.dataset import Dataset
-from pydicom.tag import Tag
 
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelFind,
@@ -146,7 +144,7 @@ class TestConnect:
     def test_create_new_existing(self):
         """Test connecting to the instance database if it exists."""
         db_file = tempfile.NamedTemporaryFile()
-        db_location = "sqlite:///{}".format(db_file.name)
+        db_location = f"sqlite:///{db_file.name}"
         db.create(db_location)
         # Test creating if already exists
         engine = db.create(db_location)
@@ -254,20 +252,6 @@ class TestAddInstance:
 
     def test_bad_instance_none(self):
         """Test that instances with bad data aren't added."""
-        keywords = [
-            ("PatientID", 64),
-            ("PatientName", 64),
-            ("StudyInstanceUID", 64),
-            ("StudyDate", 8),
-            ("StudyTime", 14),
-            ("AccessionNumber", 16),
-            ("StudyID", 16),
-            ("SeriesInstanceUID", 64),
-            ("Modality", 16),
-            # ('SeriesNumber', None),
-            ("SOPInstanceUID", 64),
-            # ('InstanceNumber', None),
-        ]
         ds = Dataset()
         ds.PatientID = None
         ds.StudyInstanceUID = None
@@ -288,7 +272,7 @@ class TestAddInstance:
 
         result = self.session.query(db.Instance).all()
         assert 1 == len(result)
-        assert None == result[0].modality
+        assert None is result[0].modality
 
         self.minimal.Modality = "CT"
 

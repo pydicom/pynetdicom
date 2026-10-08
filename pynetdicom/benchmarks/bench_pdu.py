@@ -1,11 +1,8 @@
 """Performance tests for the pdu module."""
 
-from io import BytesIO
 
-from pynetdicom.pdu import PDU, PDU_TYPES
+from pynetdicom.pdu import PDU_TYPES
 from pynetdicom.tests.encoded_pdu_items import (
-    presentation_context_rq,
-    a_associate_rq,
     a_associate_rq_user_id_ext_neg,
     a_associate_ac,
     a_associate_rj,

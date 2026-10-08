@@ -2,8 +2,6 @@
 
 from io import BytesIO
 import os
-import threading
-import time
 
 from pydicom import dcmread
 

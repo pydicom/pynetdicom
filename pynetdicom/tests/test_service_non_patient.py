@@ -9,7 +9,7 @@ from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian
 
-from pynetdicom import AE, evt, debug_logger
+from pynetdicom import AE, evt
 from pynetdicom.dimse_primitives import C_STORE
 from pynetdicom.sop_class import (
     HangingProtocolStorage,
@@ -50,7 +50,7 @@ class TestNonPatientObjectStorageServiceClass:
             try:
                 for elem in event.dataset.iterall():
                     pass
-            except:
+            except Exception:
                 status = Dataset()
                 status.Status = 0xC210
                 status.ErrorComment = "Unable to decode the dataset"

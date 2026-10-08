@@ -2,14 +2,13 @@
 
 import codecs
 import logging
-import sys
 
 import pytest
 
 from pydicom import config as PYD_CONFIG
 from pydicom.uid import UID
 
-from pynetdicom import _config, debug_logger
+from pynetdicom import _config
 from pynetdicom.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, P_DATA_TF
 from pynetdicom.pdu_items import (
     MaximumLengthSubItem,
@@ -57,11 +56,6 @@ from .encoded_pdu_items import (
     a_associate_ac_user,
     a_associate_rq_com_ext_neg,
     user_identity_rq_user_pass,
-    a_associate_rj,
-    a_release_rq,
-    a_release_rp,
-    a_abort,
-    a_p_abort,
     application_context,
     presentation_context_rq,
     presentation_context_ac,
@@ -75,8 +69,6 @@ from .encoded_pdu_items import (
     role_selection,
     role_selection_odd,
     user_information,
-    extended_negotiation,
-    common_extended_negotiation,
     p_data_tf,
     a_associate_ac_zero_ts,
     presentation_context_rq_utf8,
@@ -154,7 +146,7 @@ class TestPDU:
         """Test the PDU._decoders property raises NotImplementedError."""
         item = PDUItem()
         with pytest.raises(NotImplementedError):
-            item._decoders
+            item._decoders  # noqa: B018
 
     def test_equality(self):
         """Test the equality operator"""
@@ -181,7 +173,7 @@ class TestPDU:
         """Test the PDU._encoders property raises NotImplementedError."""
         item = PDUItem()
         with pytest.raises(NotImplementedError):
-            item._encoders
+            item._encoders  # noqa: B018
 
     def test_generate_items(self):
         """Test the PDU._generate_items method."""
@@ -235,13 +227,13 @@ class TestPDU:
         """Test PDU.pdu_length raises NotImplementedError."""
         item = PDUItem()
         with pytest.raises(NotImplementedError):
-            item.item_length
+            item.item_length  # noqa: B018
 
     def test_item_type_raises(self):
         """Test PDUItem.item_type raises ValueError."""
         item = PDUItem()
         with pytest.raises(KeyError):
-            item.item_type
+            item.item_type  # noqa: B018
 
     def test_wrap_bytes(self):
         """Test PDU._wrap_bytes()."""
@@ -257,14 +249,14 @@ class TestPDU:
         out = item._wrap_encode_items([context_a])
         assert out == (
             b"\x10\x00\x00\x15\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31"
-            + b"\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e\x31\x2e\x31"
+            b"\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e\x31\x2e\x31"
         )
 
         out = item._wrap_encode_items([context_a, context_b])
         assert out == (
             (
                 b"\x10\x00\x00\x15\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31"
-                + b"\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e\x31\x2e\x31"
+                b"\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e\x31\x2e\x31"
             )
             * 2
         )
@@ -355,7 +347,7 @@ class TestApplicationContext:
             item.application_context_name = "abc" * 22
 
         _config.ENFORCE_UID_CONFORMANCE = True
-        msg = f"Invalid 'Application Context Name' value 'abc' - UID is non-conformant"
+        msg = "Invalid 'Application Context Name' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.application_context_name = "abc"
 
@@ -590,7 +582,7 @@ class TestPresentationContextRQ:
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_role)
-        pdu.presentation_context
+        pdu.presentation_context  # noqa: B018
         for item in pdu.variable_items:
             if isinstance(item, PresentationContextItemRQ):
                 assert "CT Image Storage" in item.__str__()
@@ -780,7 +772,7 @@ class TestPresentationContextAC:
         """Regression test for #342 (decoding an empty Transfer Syntax Item."""
         # When result is not accepted, transfer syntax value must not be tested
         item = PresentationContextItemAC()
-        item.decode(b"\x21\x00\x00\x08\x01\x00\x01\x00" b"\x40\x00\x00\x00")
+        item.decode(b"\x21\x00\x00\x08\x01\x00\x01\x00\x40\x00\x00\x00")
 
         assert item.item_type == 0x21
         assert item.item_length == 8
@@ -1124,10 +1116,10 @@ class TestPresentationDataValue:
         assert item.presentation_data_value is None
 
         with pytest.raises(ValueError):
-            item.message_control_header_byte
+            item.message_control_header_byte  # noqa: B018
 
         with pytest.raises(NotImplementedError):
-            item.item_type
+            item.item_type  # noqa: B018
 
     def test_string_output(self):
         """Test the string output"""
@@ -1451,7 +1443,7 @@ class TestUserInformation_ImplementationUID:
             b"\x52\x00\x00\x14\x31\x2e\x32\x2e\x31\x32\x34\x2e\x31"
             b"\x31\x33\x35\x33\x32\x2e\x33\x33\x32\x30\x00"
         )
-        primitive = item.to_primitive()
+        _primitive = item.to_primitive()
 
         item.implementation_class_uid = None
         assert item.implementation_class_uid is None
@@ -1624,7 +1616,7 @@ class TestUserInformation_ImplementationUID:
             b"\x31\x2e\x32\x2e\x31\x32\x34\x2e\x31\x31\x33\x35\x33\x32\x2e"
             b"\x33\x33\x32\x30\x00"
         )
-        primitive = item.to_primitive()
+        _primitive = item.to_primitive()
         assert caplog.text == ""
 
         # Invalid UID (with no padding)
@@ -1633,16 +1625,16 @@ class TestUserInformation_ImplementationUID:
             "non-conformant"
         )
         with pytest.raises(ValueError, match=msg):
-            item.decode(b"\x52\x00\x00\x08" b"\x30\x30\x2e\x31\x2e\x32\x2e\x33")
+            item.decode(b"\x52\x00\x00\x08\x30\x30\x2e\x31\x2e\x32\x2e\x33")
 
         # Invalid UID (with non-conformant padding)
         with pytest.raises(ValueError, match=msg):
-            item.decode(b"\x52\x00\x00\x09" b"\x30\x30\x2e\x31\x2e\x32\x2e\x33\x00")
+            item.decode(b"\x52\x00\x00\x09\x30\x30\x2e\x31\x2e\x32\x2e\x33\x00")
 
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
             item._implementation_class_uid = "00.1.2.3"
             with pytest.raises(ValueError, match=msg):
-                primitive = item.to_primitive()
+                _primitive = item.to_primitive()
 
             assert msg in caplog.text
 
@@ -2612,7 +2604,7 @@ class TestUserInformation_CommonExtendedNegotiation:
         with pytest.raises(ValueError, match=msg):
             item.service_class_uid = invalid
 
-        msg = r"Related General SOP Class Identification contains " r"an invalid UID"
+        msg = r"Related General SOP Class Identification contains an invalid UID"
         with pytest.raises(ValueError, match=msg):
             item.related_general_sop_class_identification = [invalid]
 
@@ -2625,7 +2617,7 @@ class TestUserInformation_CommonExtendedNegotiation:
         with pytest.raises(ValueError, match=msg):
             item.service_class_uid = "abc"
 
-        msg = r"Related General SOP Class Identification contains " r"an invalid UID"
+        msg = r"Related General SOP Class Identification contains an invalid UID"
         with pytest.raises(ValueError, match=msg):
             item.related_general_sop_class_identification = ["abc"]
 

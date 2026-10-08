@@ -1,7 +1,5 @@
 """Unit tests for echoscp.py"""
 
-import logging
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -9,16 +7,14 @@ import time
 
 import pytest
 
-from pydicom import dcmread
 from pydicom.uid import (
     ExplicitVRLittleEndian,
     ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian,
     ExplicitVRBigEndian,
 )
 
-from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
-from pynetdicom.sop_class import Verification, CTImageStorage
+from pynetdicom import AE
+from pynetdicom.sop_class import Verification
 
 # debug_logger()
 

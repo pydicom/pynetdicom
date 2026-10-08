@@ -3,13 +3,11 @@
 import logging
 import time
 
-import pytest
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import AE, evt, debug_logger
+from pynetdicom import AE, evt
 from pynetdicom.dimse_primitives import C_ECHO
-from pynetdicom.service_class import VerificationServiceClass
 from pynetdicom.sop_class import Verification
 
 from .utils import get_port
@@ -153,7 +151,7 @@ class TestVerificationServiceClass:
         assert assoc.is_established
         rsp = assoc.send_c_echo()
         assert rsp.Status == 0x0002
-        assert not "ErrorComment" in rsp
+        assert "ErrorComment" not in rsp
         assoc.release()
         assert assoc.is_released
 

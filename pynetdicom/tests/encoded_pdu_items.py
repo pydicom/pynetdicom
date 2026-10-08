@@ -622,7 +622,7 @@ implementation_class_uid_empty = b"\x52\x00\x00\x00"
 ##################### Implementation Version Name Sub Item ###################
 # Implementation Version Name: PYNETDICOM_090
 implementation_version_name = (
-    b"\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49\x43\x4f\x4d\x5f" b"\x30\x39\x30"
+    b"\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49\x43\x4f\x4d\x5f\x30\x39\x30"
 )
 implementation_version_name_empty = b"\x55\x00\x00\x00"
 

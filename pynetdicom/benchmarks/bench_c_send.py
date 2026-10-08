@@ -11,10 +11,7 @@ from pynetdicom.sop_class import CTImageStorage, Verification
 from pynetdicom.tests.dummy_c_scp import (
     DummyVerificationSCP,
     DummyStorageSCP,
-    DummyFindSCP,
     DummyBaseSCP,
-    DummyGetSCP,
-    DummyMoveSCP,
 )
 
 

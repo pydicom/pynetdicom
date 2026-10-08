@@ -1143,7 +1143,7 @@ class TestPrimitive_C_MOVE:
         _config.USE_SHORT_DIMSE_AET = True
 
         primitive.MoveDestination = "A"
-        aet = primitive.MoveDestination
+        _aet = primitive.MoveDestination
         assert "A" == primitive.MoveDestination
 
         primitive.MoveDestination = "  ABCD FG  "
