@@ -3,11 +3,10 @@
 import os
 
 from pydicom import dcmread
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from pynetdicom.apps.qrscp.db import add_instance, search, InvalidIdentifier, Instance
+from pynetdicom.apps.qrscp.db import Instance, InvalidIdentifier, add_instance, search
 
 
 def handle_echo(event, cli_config, logger):
@@ -82,10 +81,9 @@ def handle_find(event, db_path, cli_config, logger):
                 logger.error(str(exc))
                 yield 0xA900, None
                 return
-            except Exception as exc:
+            except Exception:
                 session.rollback()
-                logger.error("Exception occurred while querying database")
-                logger.exception(exc)
+                logger.exception("Exception occurred while querying database")
                 yield 0xC320, None
                 return
             finally:
@@ -100,9 +98,8 @@ def handle_find(event, db_path, cli_config, logger):
             try:
                 response = match.as_identifier(event.identifier, model)
                 response.RetrieveAETitle = event.assoc.ae.ae_title
-            except Exception as exc:
-                logger.error("Error creating response Identifier")
-                logger.exception(exc)
+            except Exception:
+                logger.exception("Error creating response Identifier")
                 yield 0xC322, None
 
             yield 0xFF00, response
@@ -150,10 +147,9 @@ def handle_get(event, db_path, cli_config, logger):
             logger.error(str(exc))
             yield 0xA900, None
             return
-        except Exception as exc:
+        except Exception:
             session.rollback()
-            logger.error("Exception occurred while querying database")
-            logger.exception(exc)
+            logger.exception("Exception occurred while querying database")
             yield 0xC420, None
             return
         finally:
@@ -170,9 +166,8 @@ def handle_get(event, db_path, cli_config, logger):
 
         try:
             ds = dcmread(match.filename)
-        except Exception as exc:
-            logger.error(f"Error reading file: {match.filename}")
-            logger.exception(exc)
+        except Exception:
+            logger.exception(f"Error reading file: {match.filename}")
             yield 0xC421, None
 
         yield 0xFF00, ds
@@ -235,10 +230,9 @@ def handle_move(event, destinations, db_path, cli_config, logger):
             logger.error(str(exc))
             yield 0xA900, None
             return
-        except Exception as exc:
+        except Exception:
             session.rollback()
-            logger.error("Exception occurred while querying database")
-            logger.exception(exc)
+            logger.exception("Exception occurred while querying database")
             yield 0xC520, None
             return
         finally:
@@ -262,9 +256,8 @@ def handle_move(event, destinations, db_path, cli_config, logger):
 
         try:
             ds = dcmread(match.filename)
-        except Exception as exc:
-            logger.error(f"Error reading file: {match.filename}")
-            logger.exception(exc)
+        except Exception:
+            logger.exception(f"Error reading file: {match.filename}")
             yield 0xC521, None
 
         yield 0xFF00, ds
@@ -303,9 +296,8 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
         # Remove any Group 0x0002 elements that may have been included
         ds = ds[0x00030000:]
         sop_instance = ds.SOPInstanceUID
-    except Exception as exc:
-        logger.error("Unable to decode the dataset")
-        logger.exception(exc)
+    except Exception:
+        logger.exception("Unable to decode the dataset")
         # Unable to decode dataset
         return 0xC210
 
@@ -323,9 +315,8 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
 
     try:
         ds.save_as(fpath, write_like_original=False)
-    except Exception as exc:
-        logger.error("Failed writing instance to storage directory")
-        logger.exception(exc)
+    except Exception:
+        logger.exception("Failed writing instance to storage directory")
         # Failed - Out of Resources
         return 0xA700
 
@@ -349,10 +340,9 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
                 logger.info("Instance added to database")
             else:
                 logger.info("Database entry for instance updated")
-        except Exception as exc:
+        except Exception:
             session.rollback()
-            logger.error("Unable to add instance to the database")
-            logger.exception(exc)
+            logger.exception("Unable to add instance to the database")
         finally:
             session.close()
 

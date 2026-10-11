@@ -1,53 +1,34 @@
 """Defines the Association class which handles associating with peers."""
 
-from io import BytesIO
 import logging
 import os
-from pathlib import Path
 import threading
 import time
+import warnings
+from collections.abc import Callable, Iterator
+from io import BytesIO
+from pathlib import Path
 from typing import (
-    Any,
     TYPE_CHECKING,
+    Any,
     cast,
 )
-from collections.abc import Callable, Iterator
-import warnings
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.tag import BaseTag
-from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRBigEndian
+from pydicom.uid import UID, ExplicitVRBigEndian, ImplicitVRLittleEndian
 
-from pynetdicom.acse import ACSE
 from pynetdicom import _config, evt
-from pynetdicom.dimse import DIMSEServiceProvider
-from pynetdicom.dimse_primitives import (
-    C_ECHO,
-    C_MOVE,
-    C_STORE,
-    C_GET,
-    C_FIND,
-    C_CANCEL,
-    N_EVENT_REPORT,
-    N_GET,
-    N_SET,
-    N_CREATE,
-    N_ACTION,
-    N_DELETE,
-    DimseServiceType,
-)
-from pynetdicom.dsutils import decode, encode, pretty_dataset, split_dataset
-from pynetdicom.dul import DULServiceProvider
 from pynetdicom._globals import (
-    MODE_REQUESTOR,
-    MODE_ACCEPTOR,
     DEFAULT_MAX_LENGTH,
-    STATUS_WARNING,
-    STATUS_SUCCESS,
+    MODE_ACCEPTOR,
+    MODE_REQUESTOR,
     STATUS_CANCEL,
-    STATUS_PENDING,
     STATUS_FAILURE,
+    STATUS_PENDING,
+    STATUS_SUCCESS,
+    STATUS_WARNING,
 )
 from pynetdicom._handlers import (
     standard_dimse_recv_handler,
@@ -55,33 +36,52 @@ from pynetdicom._handlers import (
     standard_pdu_recv_handler,
     standard_pdu_sent_handler,
 )
+from pynetdicom.acse import ACSE
+from pynetdicom.dimse import DIMSEServiceProvider
+from pynetdicom.dimse_primitives import (
+    C_CANCEL,
+    C_ECHO,
+    C_FIND,
+    C_GET,
+    C_MOVE,
+    C_STORE,
+    N_ACTION,
+    N_CREATE,
+    N_DELETE,
+    N_EVENT_REPORT,
+    N_GET,
+    N_SET,
+    DimseServiceType,
+)
+from pynetdicom.dsutils import decode, encode, pretty_dataset, split_dataset
+from pynetdicom.dul import DULServiceProvider
 from pynetdicom.pdu_primitives import (
-    UserIdentityNegotiation,
-    MaximumLengthNotification,
+    _UI,
+    A_ASSOCIATE,
+    AsynchronousOperationsWindowNegotiation,
     ImplementationClassUIDNotification,
     ImplementationVersionNameNotification,
-    AsynchronousOperationsWindowNegotiation,
-    SOPClassExtendedNegotiation,
-    SOPClassCommonExtendedNegotiation,
+    MaximumLengthNotification,
     SCP_SCU_RoleSelectionNegotiation,
-    A_ASSOCIATE,
-    _UI,
+    SOPClassCommonExtendedNegotiation,
+    SOPClassExtendedNegotiation,
+    UserIdentityNegotiation,
     _UITypes,
 )
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.sop_class import (  # type: ignore
     RepositoryQuery,
-    uid_to_service_class,
+    UnifiedProcedureStepEvent,
     UnifiedProcedureStepPull,
     UnifiedProcedureStepPush,
-    UnifiedProcedureStepEvent,
     UnifiedProcedureStepQuery,
     UnifiedProcedureStepWatch,
     Verification,
+    uid_to_service_class,
 )
-from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
+from pynetdicom.status import STORAGE_SERVICE_CLASS_STATUS, code_to_category
 from pynetdicom.transport import AddressInformation
-from pynetdicom.utils import make_target, set_timer_resolution, set_ae, decode_bytes
+from pynetdicom.utils import decode_bytes, make_target, set_ae, set_timer_resolution
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.ae import ApplicationEntity
@@ -249,7 +249,7 @@ class Association(threading.Thread):
 
         # Ensure socket is shutdown and closed
         try:
-            cast(AssociationSocket, self.dul.socket)._shutdown_socket()
+            cast("AssociationSocket", self.dul.socket)._shutdown_socket()
         except Exception:
             pass
 
@@ -859,9 +859,8 @@ class Association(threading.Thread):
             status = evt.trigger(
                 self, evt.EVT_C_STORE, {"request": req, "context": context.as_tuple}
             )
-        except Exception as ex:
-            LOGGER.error("Exception in the handler bound to 'evt.EVT_C_STORE'")
-            LOGGER.exception(ex)
+        except Exception:
+            LOGGER.exception("Exception in the handler bound to 'evt.EVT_C_STORE'")
             rsp.Status = 0xC211
             self.dimse.send_msg(rsp, cast(int, context.context_id))
             return
@@ -1039,7 +1038,7 @@ class Association(threading.Thread):
             time.sleep(0.0001)
 
         self.dimse.send_msg(primitive, cast(int, context.context_id))
-        cx_id, rsp = self.dimse.get_msg(block=True)
+        _cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
         self._reactor_checkpoint.set()
@@ -1957,7 +1956,7 @@ class Association(threading.Thread):
 
         # Send C-STORE request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, cast(int, context.context_id))
-        cx_id, rsp = self.dimse.get_msg(block=True)
+        _cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
         self._reactor_checkpoint.set()
@@ -2001,7 +2000,7 @@ class Association(threading.Thread):
         operation_no = 1
         while True:
             # Wait for DIMSE message
-            cx_id, rsp = self.dimse.get_msg(block=True)
+            _cx_id, rsp = self.dimse.get_msg(block=True)
 
             # If `rsp` is None then the DIMSE timeout expired
             #   so abort if the association hasn't already been aborted
@@ -2081,9 +2080,10 @@ class Association(threading.Thread):
                             for line in pretty_dataset(identifier):
                                 LOGGER.info(line)
                             LOGGER.info("")
-                    except Exception as exc:
-                        LOGGER.error("Failed to decode the received Identifier dataset")
-                        LOGGER.exception(exc)
+                    except Exception:
+                        LOGGER.exception(
+                            "Failed to decode the received Identifier dataset"
+                        )
                         yield status, None
 
                 yield status, identifier
@@ -2122,7 +2122,7 @@ class Association(threading.Thread):
         while True:
             # Wait for DIMSE message, should be either a C-GET or
             #   C-MOVE response or a C-STORE request
-            cx_id, rsp = self.dimse.get_msg(block=True)
+            _cx_id, rsp = self.dimse.get_msg(block=True)
             # Used to describe the response in the log output
             rsp_type = rsp.__class__.__name__.replace("_", "-")
             rsp_name = {"C-GET": "Get", "C-MOVE": "Move"}
@@ -2223,9 +2223,10 @@ class Association(threading.Thread):
                             for elem in identifier:
                                 LOGGER.info(elem)
                             LOGGER.info("")
-                    except Exception as exc:
-                        LOGGER.error("Failed to decode the received Identifier dataset")
-                        LOGGER.exception(exc)
+                    except Exception:
+                        LOGGER.exception(
+                            "Failed to decode the received Identifier dataset"
+                        )
                         identifier = None
 
             # Only reach this point if status is Success, Warning, Failure
@@ -2409,7 +2410,7 @@ class Association(threading.Thread):
             time.sleep(0.0001)
 
         self.dimse.send_msg(req, cast(int, context.context_id))
-        cx_id, rsp = self.dimse.get_msg(block=True)
+        _cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
         self._reactor_checkpoint.set()
@@ -2440,9 +2441,10 @@ class Association(threading.Thread):
                         transfer_syntax.is_little_endian,
                         transfer_syntax.is_deflated,
                     )
-                except Exception as ex:
-                    LOGGER.error("Unable to decode the received 'Action Reply' dataset")
-                    LOGGER.exception(ex)
+                except Exception:
+                    LOGGER.exception(
+                        "Unable to decode the received 'Action Reply' dataset"
+                    )
                     # Failure: Processing failure
                     status.Status = 0x0110
             else:
@@ -2646,7 +2648,7 @@ class Association(threading.Thread):
             time.sleep(0.0001)
 
         self.dimse.send_msg(req, cast(int, context.context_id))
-        cx_id, rsp = self.dimse.get_msg(block=True)
+        _cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
         self._reactor_checkpoint.set()
@@ -2677,11 +2679,10 @@ class Association(threading.Thread):
                         transfer_syntax.is_little_endian,
                         transfer_syntax.is_deflated,
                     )
-                except Exception as ex:
-                    LOGGER.error(
+                except Exception:
+                    LOGGER.exception(
                         "Unable to decode the received 'Attribute List' dataset"
                     )
-                    LOGGER.exception(ex)
                     # Failure: Processing failure
                     status.Status = 0x0110
 
@@ -2795,7 +2796,7 @@ class Association(threading.Thread):
             time.sleep(0.0001)
 
         self.dimse.send_msg(req, cast(int, context.context_id))
-        cx_id, rsp = self.dimse.get_msg(block=True)
+        _cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
         self._reactor_checkpoint.set()
@@ -2976,7 +2977,7 @@ class Association(threading.Thread):
             time.sleep(0.0001)
 
         self.dimse.send_msg(req, cast(int, context.context_id))
-        cx_id, rsp = self.dimse.get_msg(block=True)
+        _cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
         self._reactor_checkpoint.set()
@@ -3007,9 +3008,10 @@ class Association(threading.Thread):
                         transfer_syntax.is_little_endian,
                         transfer_syntax.is_deflated,
                     )
-                except Exception as ex:
-                    LOGGER.error("Unable to decode the received 'Event Reply' dataset")
-                    LOGGER.exception(ex)
+                except Exception:
+                    LOGGER.exception(
+                        "Unable to decode the received 'Event Reply' dataset"
+                    )
                     # Failure: Processing failure
                     status.Status = 0x0110
 
@@ -3183,7 +3185,7 @@ class Association(threading.Thread):
             time.sleep(0.0001)
 
         self.dimse.send_msg(req, cast(int, context.context_id))
-        cx_id, rsp = self.dimse.get_msg(block=True)
+        _cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
         self._reactor_checkpoint.set()
@@ -3214,11 +3216,10 @@ class Association(threading.Thread):
                         transfer_syntax.is_little_endian,
                         transfer_syntax.is_deflated,
                     )
-                except Exception as ex:
-                    LOGGER.error(
+                except Exception:
+                    LOGGER.exception(
                         "Unable to decode the received 'Attribute List' dataset"
                     )
-                    LOGGER.exception(ex)
                     # Failure: Processing failure
                     status.Status = 0x0110
 
@@ -3433,7 +3434,7 @@ class Association(threading.Thread):
             time.sleep(0.0001)
 
         self.dimse.send_msg(req, cast(int, context.context_id))
-        cx_id, rsp = self.dimse.get_msg(block=True)
+        _cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
         self._reactor_checkpoint.set()
@@ -3464,11 +3465,10 @@ class Association(threading.Thread):
                         transfer_syntax.is_little_endian,
                         transfer_syntax.is_deflated,
                     )
-                except Exception as ex:
-                    LOGGER.error(
+                except Exception:
+                    LOGGER.exception(
                         "Unable to decode the received 'Attribute List' dataset"
                     )
-                    LOGGER.exception(ex)
                     # Failure: Processing failure
                     status.Status = 0x0110
 
@@ -3554,8 +3554,8 @@ class Association(threading.Thread):
             )
             self.abort()
             return
-        except Exception as exc:
-            LOGGER.exception(exc)
+        except Exception:
+            LOGGER.exception("")
             self.abort()
             return
 
@@ -3716,7 +3716,6 @@ class ServiceUser:
                 "Can't add extended negotiation items after negotiation has started"
             )
 
-        #
         try:
             self._ext_neg[type(item)].append(item)
         except KeyError:

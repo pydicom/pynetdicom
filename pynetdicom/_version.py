@@ -1,7 +1,7 @@
 """Version information for pynetdicom based on PEP396 and 440"""
 
-from importlib.metadata import version
 import re
+from importlib.metadata import version
 
 # pynetdicom version
 __version__: str = version("pynetdicom")

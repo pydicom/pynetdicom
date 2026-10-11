@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 
 from pydicom.uid import UID
 
-from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
 from pynetdicom import sop_class as SOP_CLASS_MODULE
+from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
 from pynetdicom.sop_class import (
     _APPLICATION_EVENT_CLASSES,
     _BASIC_WORKLIST_CLASSES,
@@ -31,7 +31,7 @@ from pynetdicom.sop_class import (
     _UNIFIED_PROCEDURE_STEP_CLASSES,
     _VERIFICATION_CLASSES,
 )
-from pynetdicom.utils import validate_uid, set_uid
+from pynetdicom.utils import set_uid, validate_uid
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
@@ -580,8 +580,8 @@ def negotiate_unrestricted(
             cx._as_scp = outcome[3]
 
             # Can't return 0x01 if proposed 0x00
-            role.scu_role = False if not rq_roles[0] else True
-            role.scp_role = False if not rq_roles[1] else True
+            role.scu_role = bool(rq_roles[0])
+            role.scp_role = bool(rq_roles[1])
 
             reply_roles[cast(UID, cx.abstract_syntax)] = role
 

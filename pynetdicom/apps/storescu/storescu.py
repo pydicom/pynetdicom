@@ -6,21 +6,21 @@ Used for transferring DICOM SOP Instances to a Storage SCP.
 
 import argparse
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from pydicom import dcmread
 from pydicom.errors import InvalidDicomError
 from pydicom.uid import (
+    DeflatedExplicitVRLittleEndian,
+    ExplicitVRBigEndian,
     ExplicitVRLittleEndian,
     ImplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-    DeflatedExplicitVRLittleEndian,
 )
 
 from pynetdicom import AE, StoragePresentationContexts
-from pynetdicom.apps.common import setup_logging, get_files
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
+from pynetdicom.apps.common import get_files, setup_logging
 
 __version__ = "0.3.0"
 
@@ -308,9 +308,8 @@ def main(args=None):
                 ii += 1
             except InvalidDicomError:
                 APP_LOGGER.error(f"Bad DICOM file: {fpath}")
-            except Exception as exc:
-                APP_LOGGER.error(f"Store failed: {fpath}")
-                APP_LOGGER.exception(exc)
+            except Exception:
+                APP_LOGGER.exception(f"Store failed: {fpath}")
 
         assoc.release()
     else:

@@ -17,26 +17,25 @@ Required Keys
 * Required keys shall not be in a C-GET or C-MOVE request's Identifier
 """
 
-from collections import OrderedDict
 import sys
+from collections import OrderedDict
 
 try:
-    from sqlalchemy import create_engine, Column, ForeignKey, Integer, String
+    from sqlalchemy import Column, ForeignKey, Integer, String, create_engine
 except ImportError:
     sys.exit("qrscp requires the sqlalchemy package")
 
-from sqlalchemy.orm import declarative_base
-
 from pydicom.dataset import Dataset
+from sqlalchemy.orm import declarative_base
 
 from pynetdicom import build_context
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelFind,
-    PatientRootQueryRetrieveInformationModelMove,
     PatientRootQueryRetrieveInformationModelGet,
+    PatientRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelFind,
-    StudyRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelMove,
 )
 
 
@@ -262,9 +261,12 @@ def build_query(identifier, session, query=None):
 
         # Part 4, C.2.2.2.1 Single Value Matching
         if vr != "SQ" and val is not None:
-            if vr in _text_vr and ("*" in val or "?" in val):
-                pass
-            elif vr in ["DA", "TM", "DT"] and "-" in val:
+            if (
+                vr in _text_vr
+                and ("*" in val or "?" in val)
+                or vr in ["DA", "TM", "DT"]
+                and "-" in val
+            ):
                 pass
             else:
                 # print('Performing single value matching...')
