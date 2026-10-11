@@ -63,7 +63,7 @@ jobs:
           coverage xml
       - name: Send coverage results
         if: success()
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -97,7 +97,7 @@ jobs:
         pytest --cov pynetdicom --ignore=pynetdicom/apps -n auto
     - name: Send coverage results
       if: success()
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -129,6 +129,6 @@ jobs:
         pytest --cov pynetdicom --ignore=pynetdicom/apps -n auto
     - name: Send coverage results
       if: success()
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
