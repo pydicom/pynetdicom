@@ -12,7 +12,7 @@ from pydicom import dcmread
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian
 
-from pynetdicom import AE, _config, evt, debug_logger, register_uid, sop_class
+from pynetdicom import AE, _config, evt, register_uid, sop_class
 from pynetdicom.dimse_primitives import C_STORE
 from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.sop_class import (
@@ -89,7 +89,7 @@ class TestStorageServiceClass:
             try:
                 for elem in event.dataset.iterall():
                     pass
-            except:
+            except Exception:
                 status = Dataset()
                 status.Status = Status.UNABLE_TO_DECODE
                 status.ErrorComment = "Unable to decode the dataset"
@@ -141,7 +141,7 @@ class TestStorageServiceClass:
             try:
                 for elem in event.dataset.iterall():
                     pass
-            except:
+            except Exception:
                 status = Dataset()
                 status.Status = 0xC210
                 status.ErrorComment = "Unable to decode the dataset"
@@ -680,7 +680,7 @@ class TestStorageServiceClass:
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not "ErrorComment" in rsp
+        assert "ErrorComment" not in rsp
         assoc.release()
         assert assoc.is_released
 
@@ -717,7 +717,7 @@ class TestStorageServiceClass:
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not "ErrorComment" in rsp
+        assert "ErrorComment" not in rsp
         assoc.release()
         assert assoc.is_released
 
@@ -749,7 +749,7 @@ class TestStorageServiceClass:
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not "ErrorComment" in rsp
+        assert "ErrorComment" not in rsp
         assoc.release()
         assert assoc.is_released
 
@@ -767,7 +767,7 @@ class TestStorageServiceClass:
 
         def handle(event):
             try:
-                event.file_meta
+                event.file_meta  # noqa: B018
             except Exception as exc:
                 event_exc.append(exc)
 

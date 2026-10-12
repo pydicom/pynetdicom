@@ -12,11 +12,9 @@ from pydicom.uid import UID
 from pynetdicom.dimse_messages import (
     C_STORE_RQ,
     C_STORE_RSP,
-    DIMSEMessage,
     C_ECHO_RQ,
     C_ECHO_RSP,
     C_FIND_RQ,
-    C_FIND_RSP,
     C_MOVE_RQ,
     C_MOVE_RSP,
     C_GET_RQ,
@@ -296,7 +294,7 @@ class TestDIMSEMessage:
         msg = C_STORE_RQ()
         msg.primitive_to_message(primitive)
         # Test unused command set elements are deleted
-        assert not "MoveOriginatorApplicationEntityTitle" in msg.command_set
+        assert "MoveOriginatorApplicationEntityTitle" not in msg.command_set
 
         # Test raise error for unknown DIMSE message type
         msg.__class__.__name__ = "TestClass"

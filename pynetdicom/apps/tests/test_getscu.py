@@ -1,6 +1,5 @@
 """Unit tests for getscu.py"""
 
-import logging
 import os
 import shutil
 import subprocess
@@ -9,19 +8,14 @@ import time
 
 import pytest
 
-from pydicom import dcmread
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import (
-    ExplicitVRLittleEndian,
     ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian,
-    ExplicitVRBigEndian,
 )
 
 from pynetdicom import (
     AE,
     evt,
-    debug_logger,
     DEFAULT_TRANSFER_SYNTAXES,
     QueryRetrievePresentationContexts,
 )
@@ -115,7 +109,7 @@ class GetSCUBase:
         assert {} == requestor.sop_class_common_extended
         assert {} == requestor.sop_class_extended
         assert requestor.role_selection != {}
-        assert requestor.user_identity == None
+        assert requestor.user_identity is None
         cxs = requestor.primitive.presentation_context_definition_list
         assert len(cxs) == 123
         cxs = {cx.abstract_syntax: cx for cx in cxs}

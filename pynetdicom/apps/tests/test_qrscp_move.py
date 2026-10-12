@@ -1,6 +1,5 @@
 """Unit tests for qrscp.py QR move service."""
 
-import logging
 import os
 import subprocess
 import sys
@@ -10,21 +9,15 @@ import time
 import pytest
 
 try:
-    import sqlalchemy
+    import sqlalchemy  # noqa: F401
 
     HAVE_SQLALCHEMY = True
 except ImportError:
     HAVE_SQLALCHEMY = False
 
-from pydicom import dcmread, Dataset
-from pydicom.uid import (
-    ExplicitVRLittleEndian,
-    ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-)
+from pydicom import Dataset
 
-from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES, build_role
+from pynetdicom import AE, evt
 from pynetdicom.sop_class import (
     CTImageStorage,
     PatientRootQueryRetrieveInformationModelMove,

@@ -2,14 +2,13 @@
 
 from io import BytesIO
 import logging
-import sys
 
 import pytest
 
 from pydicom.uid import JPEGBaseline8Bit, generate_uid
 
 from pynetdicom import build_context, evt, AE, build_role, debug_logger
-from pynetdicom.acse import ACSE, APPLICATION_CONTEXT_NAME
+from pynetdicom.acse import APPLICATION_CONTEXT_NAME
 from pynetdicom.dimse_primitives import C_MOVE, N_EVENT_REPORT, N_GET, N_DELETE
 from pynetdicom._handlers import (
     doc_handle_echo,
@@ -180,13 +179,13 @@ def test_debug_logger():
 
     debug_logger()
 
-    handlers = logger.handlers
+    _handlers = logger.handlers
     assert len(logger.handlers) == 1
     assert isinstance(logger.handlers[0], logging.StreamHandler)
 
     debug_logger()
 
-    handlers = logger.handlers
+    _handlers = logger.handlers
     assert len(logger.handlers) == 1
     assert isinstance(logger.handlers[0], logging.StreamHandler)
 
@@ -513,7 +512,7 @@ class TestStandardLogging:
                 assert msg in caplog.text
 
             assoc.release()
-            scp.shutdown
+            scp.shutdown()
 
     def test_send_assoc_rq_role(self, caplog):
         """Test A-ASSOCIATE-RQ with role selection."""

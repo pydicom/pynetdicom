@@ -8,7 +8,6 @@ import platform
 import socket
 import ssl
 from struct import pack
-import sys
 import threading
 import time
 from unittest import mock
@@ -18,7 +17,7 @@ import pytest
 from pydicom import dcmread
 
 import pynetdicom
-from pynetdicom import AE, evt, _config, debug_logger
+from pynetdicom import AE, evt, _config
 from pynetdicom.association import Association
 from pynetdicom.events import Event
 from pynetdicom._globals import MODE_REQUESTOR
@@ -26,7 +25,6 @@ from pynetdicom.pdu_primitives import A_ASSOCIATE
 from pynetdicom import transport
 from pynetdicom.transport import (
     AssociationSocket,
-    AssociationServer,
     ThreadedAssociationServer,
     T_CONNECT,
     AddressInformation,
@@ -201,7 +199,7 @@ class TestTConnect:
 
         msg = r"A connection attempt has not yet been made"
         with pytest.raises(ValueError, match=msg):
-            conn.result
+            conn.result  # noqa: B018
 
     def test_result_setter(self):
         """Test setting the result value."""
@@ -949,11 +947,7 @@ class TestAssociationServer:
 
         server.shutdown()
 
-        if sys.version_info[0] == 2:
-            with pytest.raises(OSError):
-                server.socket.fileno()
-        else:
-            assert server.socket.fileno() == -1
+        assert server.socket.fileno() == -1
 
     def test_blocking_process_request(self):
         """Test AssociationServer.process_request."""

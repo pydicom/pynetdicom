@@ -13,7 +13,6 @@ import logging
 import os
 from pathlib import Path
 import queue
-import socket
 import sys
 import time
 
@@ -22,7 +21,6 @@ import pytest
 from pydicom import dcmread
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import (
-    generate_uid,
     ImplicitVRLittleEndian,
     ExplicitVRLittleEndian,
     JPEGBaseline8Bit,
@@ -38,12 +36,11 @@ from pynetdicom import (
     build_context,
     evt,
     _config,
-    debug_logger,
     build_role,
 )
 from pynetdicom.association import Association
 from pynetdicom.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
-from pynetdicom.dsutils import encode, decode
+from pynetdicom.dsutils import encode
 from pynetdicom.events import Event
 from pynetdicom._globals import MODE_REQUESTOR
 from pynetdicom.pdu import A_RELEASE_RQ
@@ -52,7 +49,6 @@ from pynetdicom.pdu_primitives import (
     SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation,
     SCP_SCU_RoleSelectionNegotiation,
-    A_ASSOCIATE,
 )
 from pynetdicom.sop_class import (
     Verification,
@@ -2759,7 +2755,7 @@ class TestAssociationSendCFind:
         scp.shutdown()
 
         msg = (
-            f"Find SCP Response: 1 - 0xB001 (Warning - Matching reached "
+            "Find SCP Response: 1 - 0xB001 (Warning - Matching reached "
             "response limit, subsequent request may return additional matches)"
         )
         assert msg in caplog.text
@@ -5387,7 +5383,7 @@ class TestGetValidContext:
         assert cx.as_scu is True
 
         assoc.release()
-        scp.shutdown
+        scp.shutdown()
 
     def test_little_big(self):
         """Test no match from little to big endian."""
@@ -6272,7 +6268,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_RELEASED, handle)]
+        _handlers = [(evt.EVT_RELEASED, handle)]
         scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_RELEASED) == []
 

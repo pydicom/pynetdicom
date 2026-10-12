@@ -1,7 +1,6 @@
 """Tests for the presentation module."""
 
 import logging
-import sys
 
 import pytest
 
@@ -358,7 +357,7 @@ class TestPresentationContext:
             "Unknown",
         ]
 
-        for status, result in zip(statuses, results):
+        for status, result in zip(statuses, results):  # noqa: B905
             pc.result = status
             assert pc.status == result
 
@@ -438,10 +437,10 @@ class TestPresentationContext:
         """Test that all transfer syntaxes are known to pydicom"""
         caplog.set_level(logging.WARNING, logger="pynetdicom.presentation")
         for ts in ALL_TRANSFER_SYNTAXES:
-            cx = build_context("1.2.3", ts)
+            _cx = build_context("1.2.3", ts)
 
         for ts in DEFAULT_TRANSFER_SYNTAXES:
-            cx = build_context("1.2.3", ts)
+            _cx = build_context("1.2.3", ts)
 
         assert caplog.text == ""
 
@@ -982,7 +981,7 @@ class TestNegotiateAsAcceptorWithRoleSelection:
 
         out_00_role = [cx for cx in out_00 if cx.abstract_syntax[0] == "2"]
         # Unique UIDs with role selection
-        out_00_uids = set([cx.abstract_syntax for cx in out_00_role])
+        out_00_uids = {cx.abstract_syntax for cx in out_00_role}
 
         # If acceptor has None as role then no SCP/SCU role response
         if None not in acc:
@@ -1355,7 +1354,7 @@ class TestNegotiateAsRequestor:
     def test_no_req_no_acc_raise(self):
         """Test negotiation with no contexts."""
         with pytest.raises(ValueError):
-            result = self.test_func([], [])
+            _result = self.test_func([], [])
 
     def test_one_req_no_acc(self):
         """Test negotiation with one requestor, no acceptor contexts."""
@@ -1380,7 +1379,7 @@ class TestNegotiateAsRequestor:
         context.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
         context.transfer_syntax = ["1.2.840.10008.1.2"]
         with pytest.raises(ValueError):
-            result = self.test_func([], [context])
+            _result = self.test_func([], [context])
 
     def test_dupe_abs_req_no_acc(self):
         """Test negotiation with duplicate requestor, no acceptor contexts."""

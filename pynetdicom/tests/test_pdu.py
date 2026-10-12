@@ -45,18 +45,15 @@ from .encoded_pdu_items import (
     a_associate_ac,
     a_associate_rj,
     a_release_rq,
-    a_release_rq,
     a_release_rp,
     a_abort,
     a_p_abort,
     p_data_tf,
-    a_associate_rq_user_id_ext_neg,
     a_associate_ac_no_ts,
     a_associate_rq_called,
     a_associate_rq_calling,
 )
 from pynetdicom.sop_class import Verification
-from pynetdicom.utils import pretty_bytes
 
 from .utils import get_port
 
@@ -77,7 +74,7 @@ class TestPDU:
         """Test the PDU._decoders property raises NotImplementedError."""
         pdu = PDU()
         with pytest.raises(NotImplementedError):
-            pdu._decoders
+            pdu._decoders  # noqa: B018
 
     def test_equality(self):
         """Test the equality operator"""
@@ -107,7 +104,7 @@ class TestPDU:
         """Test the PDU._encoders property raises NotImplementedError."""
         pdu = PDU()
         with pytest.raises(NotImplementedError):
-            pdu._encoders
+            pdu._encoders  # noqa: B018
 
     def test_generate_items(self):
         """Test the PDU._generate_items method."""
@@ -161,13 +158,13 @@ class TestPDU:
         """Test PDU.pdu_length raises NotImplementedError."""
         pdu = PDU()
         with pytest.raises(NotImplementedError):
-            pdu.pdu_length
+            pdu.pdu_length  # noqa: B018
 
     def test_pdu_type_raises(self):
         """Test PDU.pdu_type raises ValueError."""
         pdu = PDU()
         with pytest.raises(KeyError):
-            pdu.pdu_type
+            pdu.pdu_type  # noqa: B018
 
     def test_wrap_bytes(self):
         """Test PDU._wrap_bytes()."""
@@ -178,7 +175,7 @@ class TestPDU:
     def test_wrap_encode_items(self):
         """Test PDU._wrap_encode_items()."""
         release_a = A_RELEASE_RQ()
-        release_b = A_RELEASE_RQ()
+        _release_b = A_RELEASE_RQ()
         pdu = PDU()
         out = pdu._wrap_encode_items([release_a])
         assert out == b"\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00"
@@ -740,9 +737,7 @@ class TestASSOC_AC:
         """Test conversion with a non-conformant reserved ae title."""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
-        aec = (
-            b"\x4c\x57\x50\x41\x43\x53" b"\x00\x00\x00\x00\x00\x00\x0f\x00\x00\x00\x00"
-        )
+        aec = b"\x4c\x57\x50\x41\x43\x53\x00\x00\x00\x00\x00\x00\x0f\x00\x00\x00\x00"
         pdu.reserved_aec = aec.decode("ascii")
         pdu.reserved_aet = aec.decode("ascii")
 
@@ -967,13 +962,13 @@ class TestASSOC_RJ:
         assert len(pdu) == 10
 
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
         with pytest.raises(ValueError):
-            pdu.result_str
+            pdu.result_str  # noqa: B018
 
         with pytest.raises(ValueError):
-            pdu.source_str
+            pdu.source_str  # noqa: B018
 
     def test_string_output(self):
         """Test the string output"""
@@ -1061,7 +1056,7 @@ class TestASSOC_RJ:
 
         pdu.result = 0
         with pytest.raises(ValueError):
-            pdu.result_str
+            pdu.result_str  # noqa: B018
 
         pdu.result = 1
         assert pdu.result_str == "Rejected (Permanent)"
@@ -1071,7 +1066,7 @@ class TestASSOC_RJ:
 
         pdu.result = 3
         with pytest.raises(ValueError):
-            pdu.result_str
+            pdu.result_str  # noqa: B018
 
     def test_source_str(self):
         """Check the source str returns correct values"""
@@ -1080,7 +1075,7 @@ class TestASSOC_RJ:
 
         pdu.source = 0
         with pytest.raises(ValueError):
-            pdu.source_str
+            pdu.source_str  # noqa: B018
 
         pdu.source = 1
         assert pdu.source_str == "DUL service-user"
@@ -1093,7 +1088,7 @@ class TestASSOC_RJ:
 
         pdu.source = 4
         with pytest.raises(ValueError):
-            pdu.source_str
+            pdu.source_str  # noqa: B018
 
     def test_reason_str(self):
         """Check the reason str returns correct values"""
@@ -1102,7 +1097,7 @@ class TestASSOC_RJ:
 
         pdu.source = 0
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
         pdu.source = 1
         for ii in range(1, 11):
@@ -1111,7 +1106,7 @@ class TestASSOC_RJ:
 
         pdu.reason_diagnostic = 11
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
         pdu.source = 2
         for ii in range(1, 3):
@@ -1120,7 +1115,7 @@ class TestASSOC_RJ:
 
         pdu.reason_diagnostic = 3
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
         pdu.source = 3
         for ii in range(1, 8):
@@ -1129,11 +1124,11 @@ class TestASSOC_RJ:
 
         pdu.reason_diagnostic = 8
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
         pdu.source = 4
         with pytest.raises(ValueError):
-            pdu.reason_str
+            pdu.reason_str  # noqa: B018
 
 
 class TestP_DATA_TF:
@@ -1201,7 +1196,7 @@ class TestP_DATA_TF:
 
         new_pdu = P_DATA_TF()
         new_pdu.from_primitive(primitive)
-        pdv = new_pdu.presentation_data_value_items[0]
+        _pdv = new_pdu.presentation_data_value_items[0]
 
         assert new_pdu == orig_pdu
 
@@ -1599,7 +1594,7 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_PDU_SENT, handle)]
+        _handlers = [(evt.EVT_PDU_SENT, handle)]
         scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
@@ -1972,7 +1967,7 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_PDU_SENT, handle)]
+        _handlers = [(evt.EVT_PDU_SENT, handle)]
         scp = ae.start_server(("localhost", get_port()), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
