@@ -82,7 +82,7 @@ REFERENCE_USER_ID = [
         [
             "Authentication Mode: 2 - Username/Password",
             "Username: [username]",
-            "Password: [pass]",
+            "Password: [redacted]",
             "Positive Response Requested: No",
         ],
     ),
@@ -91,7 +91,7 @@ REFERENCE_USER_ID = [
         [
             "Authentication Mode: 2 - Username/Password",
             "Username: [username]",
-            "Password: [pass]",
+            "Password: [redacted]",
             "Positive Response Requested: Yes",
         ],
     ),

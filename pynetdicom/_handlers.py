@@ -605,9 +605,8 @@ def _receive_associate_rq(event: "Event") -> list[str]:
         if usid.id_type == 1:
             s.append(f"  Username: [{primary.decode('utf-8')}]")
         elif usid.id_type == 2:
-            secondary = cast(bytes, usid.secondary)
             s.append(f"  Username: [{primary.decode('utf-8')}]")
-            s.append(f"  Password: [{secondary.decode('utf-8')}]")
+            s.append("  Password: [redacted]")
         elif usid.id_type == 3:
             s.append(f"  Kerberos Service Ticket (not dumped) length: {p_len}")
         elif usid.id_type == 4:
@@ -873,9 +872,8 @@ def _send_associate_rq(event: "Event") -> list[str]:
         if usid.id_type == 1:
             s.append(f"  Username: [{primary.decode('utf-8')}]")
         elif usid.id_type == 2:
-            secondary = cast(bytes, usid.secondary)
             s.append(f"  Username: [{primary.decode('utf-8')}]")
-            s.append(f"  Password: [{secondary.decode('utf-8')}]")
+            s.append("  Password: [redacted]")
         elif usid.id_type == 3:
             s.append(f"  Kerberos Service Ticket (not dumped) length: {p_len}")
         elif usid.id_type == 4:
