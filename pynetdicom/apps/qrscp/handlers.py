@@ -317,7 +317,7 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
 
     # Try and add the instance to the database
     #   If we fail then don't even try to store
-    # The *SOP Instance UID* is used as the filename, so sanitise it by
+    # The *SOP Instance UID* is used as the filename, so sanitize it by
     #   replacing all characters that are illegal for the UI VR with
     #   underscores (see PS3.5 Section 6.2), otherwise a non-conformant value
     #   may be used to write outside `storage_dir`

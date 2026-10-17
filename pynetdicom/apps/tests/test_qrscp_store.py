@@ -104,7 +104,7 @@ class StoreSCPBase:
         assert 5 == len(os.listdir(self.instance_location.name))
 
     def test_non_conformant_sop_instance_uid(self):
-        """Test a non-conformant *SOP Instance UID* is sanitised."""
+        """Test a non-conformant *SOP Instance UID* is sanitized."""
         # The *SOP Instance UID* is used as the filename, so a value
         #   containing path separators must not be able to write outside
         #   the configured storage directory
