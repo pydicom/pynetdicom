@@ -601,6 +601,13 @@ def negotiate_as_acceptor(
 ) -> CXNegotiationReturn:
     """Process the Presentation Contexts as an Association *Acceptor*.
 
+    For each context proposed by the *Requestor* whose abstract syntax is
+    supported, the accepted transfer syntax is the first entry in the
+    *Acceptor's* ``transfer_syntax`` that the *Requestor* also proposed. The
+    *Requestor's* ordering is not used: :dcm:`PS3.7 Section D.3.2
+    <part07/sect_D.3.2.html>` requires only that exactly one of the proposed
+    transfer syntaxes be accepted, and leaves the choice to the *Acceptor*.
+
     Parameters
     ----------
     rq_contexts : list of PresentationContext

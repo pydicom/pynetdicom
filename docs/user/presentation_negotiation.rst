@@ -81,3 +81,23 @@ While the *acceptor* supports:
         =Explicit VR Big Endian
 
 Then the accepted transfer syntax will be *Explicit VR Little Endian*.
+
+Note that this is the *acceptor's* order of preference, not the *requestor's*.
+:dcm:`PS3.7 Section D.3.2<part07/sect_D.3.2.html>` requires only that exactly
+one of the proposed transfer syntaxes be accepted and leaves the choice to the
+*acceptor*, so a *requestor* that lists a compressed syntax first has no way to
+insist on it. If you are acting as the *acceptor* and want a particular syntax
+to win whenever a *requestor* offers it -- keeping compressed data in its
+original encoding, for example -- then list it first:
+
+  .. code-block:: python
+
+      from pynetdicom import AE
+      from pynetdicom.sop_class import DigitalMammographyXRayImageStorageForPresentation
+
+      ae = AE()
+      # JPEG-LS Lossless is accepted whenever the requestor proposes it
+      ae.add_supported_context(
+          DigitalMammographyXRayImageStorageForPresentation,
+          ["1.2.840.10008.1.2.4.80", "1.2.840.10008.1.2"],
+      )
