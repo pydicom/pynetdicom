@@ -634,12 +634,17 @@ class AssociationSocket:
 
     def _shutdown_socket(self) -> None:
         """Try to shutdown and close the socket."""
-        sock = cast(socket.socket, self.socket)
+        sock = self.socket
+        if sock is None:
+            return
+
         try:
             sock.shutdown(socket.SHUT_RDWR)
-            sock.close()
-        except Exception:
+        except OSError:
+            # e.g. ENOTCONN after a refused or reset connection
             pass
+        finally:
+            sock.close()
 
     def __str__(self) -> str:
         """Return the string output for ``socket``."""
