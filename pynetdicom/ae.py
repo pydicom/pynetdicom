@@ -286,13 +286,20 @@ class ApplicationEntity:
         a supported context or one or more of its transfer syntaxes see the
         :meth:`remove_supported_context` method.
 
+        The order of `transfer_syntax` matters. When acting as the association
+        *acceptor* the first supported transfer syntax that the *requestor*
+        also proposed is the one that gets accepted, so the syntaxes should be
+        listed in order of preference. The *requestor's* own ordering is not
+        taken into account. See :doc:`presentation context negotiation
+        </user/presentation_negotiation>` for a worked example.
+
         Parameters
         ----------
         abstract_syntax : str, pydicom.uid.UID
             The abstract syntax of the presentation context to be supported.
         transfer_syntax :  str/pydicom.uid.UID or list of str/pydicom.uid.UID
-            The transfer syntax(es) to support (default:
-            :attr:`~pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES`).
+            The transfer syntax(es) to support, in order of preference
+            (default: :attr:`~pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES`).
         scu_role : bool or None, optional
             If the association requestor includes an
             :doc:`SCP/SCU Role Selection Negotiation</user/presentation_role_selection>`
