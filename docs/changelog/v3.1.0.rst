@@ -9,3 +9,4 @@ Fixes
 * Fixed the default logging handlers for N-ACTION treating *Action Type ID* as mandatory (:issue:`1027`)
 * Fixed being unable to resolve IPv4 address when using the hostname (:issue:`1033`, :pr:`1034`)
 * Fixed the socket not being closed when shutting it down fails (:issue:`1102`)
+* Fixed a rejected association sometimes being reported as aborted (:issue:`1104`)
