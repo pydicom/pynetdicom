@@ -20,6 +20,7 @@ repos:
     rev: v2.4.3
     hooks:
       - id: codespell
+        args: ["--ignore-words-list=ddress,halp,ot,pres,requestor,requestors"]
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.17.3
     hooks:

@@ -199,19 +199,6 @@ class DULServiceProvider(Thread):
         except (queue.Empty, IndexError):
             return None
 
-    @property
-    def _max_length_received(self) -> int | None:
-        """Return the Maximum Length Received announced by the local AE.
-
-        This is the limit the peer must respect when sending P-DATA-TF PDUs to
-        us, as opposed to :attr:`DIMSEServiceProvider.maximum_pdu_size`, which
-        is the limit we must respect when sending to the peer.
-        """
-        if self.assoc.is_acceptor:
-            return self.assoc.acceptor.maximum_length
-
-        return self.assoc.requestor.maximum_length
-
     def _process_recv_primitive(self) -> bool:
         """Check to see if the local user has sent any primitives to the DUL"""
         # Check the queue and see if there are any primitives
@@ -315,7 +302,10 @@ class DULServiceProvider(Thread):
         #   6 byte header so a peer can't make us read an arbitrarily large PDU
         #   body, a value of 0 means no maximum was specified
         if pdu_type == 0x04:
-            max_length = self._max_length_received
+            max_length = self.assoc.acceptor.maximum_length
+            if self.assoc.is_requestor:
+                max_length = self.assoc.requestor.maximum_length
+
             if max_length and pdu_length > max_length:
                 # READ_PDU_EXC_G
                 LOGGER.error(
