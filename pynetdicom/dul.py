@@ -296,6 +296,26 @@ class DULServiceProvider(Thread):
             self.event_queue.put("Evt19")
             return
 
+        # PS3.8 Annex D.1: the maximum length "shall never be exceeded by the PDU
+        #   length values used in the PDU-length field of the P-DATA-TF PDUs
+        #   received", otherwise it is a protocol error. The check uses only the
+        #   6 byte header so a peer can't make us read an arbitrarily large PDU
+        #   body, a value of 0 means no maximum was specified
+        if pdu_type == 0x04:
+            max_length = self.assoc.acceptor.maximum_length
+            if self.assoc.is_requestor:
+                max_length = self.assoc.requestor.maximum_length
+
+            if max_length and pdu_length > max_length:
+                # READ_PDU_EXC_G
+                LOGGER.error(
+                    f"The received P-DATA-TF PDU length ({pdu_length}) exceeds "
+                    f"the negotiated Maximum Length Received ({max_length})"
+                )
+                # Evt19: Unrecognised or invalid PDU received
+                self.event_queue.put("Evt19")
+                return
+
         # Try and read the rest of the PDU
         try:
             bytestream += self.socket.recv(pdu_length)

@@ -3,6 +3,7 @@
 import logging
 import os
 import socket
+import struct
 import threading
 import time
 
@@ -21,7 +22,7 @@ from pynetdicom.pdu import (
 )
 from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 from pynetdicom.sop_class import Verification
-from .encoded_pdu_items import a_associate_ac, a_release_rq
+from .encoded_pdu_items import a_associate_ac, a_associate_rq, a_release_rq
 from .parrot import start_server, ThreadedParrot, ParrotRequest
 from .utils import sleep, get_port
 
@@ -329,6 +330,155 @@ class TestDUL:
         scp.shutdown()
 
         assert assoc.is_aborted
+
+    @staticmethod
+    def _p_data_tf(length):
+        """Return a well-formed, non-final P-DATA-TF PDU with a PDU-length field
+        of `length` bytes (a single PDV item carrying zero-filled fragment data).
+        """
+        pdv_length = length - 4
+        # The PDV length counts the context ID and message control header bytes
+        pdv = struct.pack(">LBB", pdv_length, 1, 0x00) + bytes(pdv_length - 2)
+        return struct.pack(">BBL", 0x04, 0x00, length) + pdv
+
+    def test_recv_pdu_exceeding_max_length_aborts(self, caplog):
+        """Test a P-DATA-TF longer than our Maximum Length Received aborts.
+
+        PS3.8 Annex D.1: the maximum length "shall never be exceeded by the PDU
+        length values used in the PDU-length field of the P-DATA-TF PDUs
+        received", otherwise it is a protocol error. Only the 6 byte header is
+        sent, so the test also shows the body is never waited for.
+        """
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            commands = [
+                ("recv", None),  # recv a-associate-rq
+                ("send", a_associate_ac),
+                ("send", struct.pack(">BBL", 0x04, 0x00, 16383)),  # 1 over the limit
+                ("recv", None),  # recv a-abort
+                ("exit", None),
+            ]
+            self.scp = scp = start_server(commands, port=get_port())
+
+            def handle(event):
+                scp.step()
+                scp.step()
+
+            hh = [(evt.EVT_REQUESTED, handle)]
+
+            ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            ae.add_requested_context("1.2.840.10008.1.1")
+            assoc = ae.associate("localhost", get_port(), evt_handlers=hh)
+            assert assoc.is_established
+
+            scp.step()  # send the oversized PDU header
+
+            while assoc.dul.is_alive():
+                time.sleep(0.001)
+
+            scp.step()  # receive abort
+            scp.step()
+            scp.shutdown()
+
+            assert assoc.is_aborted
+            assert (
+                "The received P-DATA-TF PDU length (16383) exceeds the negotiated "
+                "Maximum Length Received (16382)"
+            ) in caplog.text
+
+    def test_recv_pdu_at_max_length_accepted(self, caplog):
+        """Test a P-DATA-TF of exactly the Maximum Length Received is conformant."""
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            commands = [
+                ("recv", None),  # recv a-associate-rq
+                ("send", a_associate_ac),
+                ("send", self._p_data_tf(16382)),
+                ("recv", None),  # recv a-abort
+                ("exit", None),
+            ]
+            self.scp = scp = start_server(commands, port=get_port())
+
+            def handle(event):
+                scp.step()
+                scp.step()
+
+            hh = [(evt.EVT_REQUESTED, handle)]
+
+            ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            ae.add_requested_context("1.2.840.10008.1.1")
+            assoc = ae.associate("localhost", get_port(), evt_handlers=hh)
+            assert assoc.is_established
+
+            scp.step()  # send the PDU
+            time.sleep(0.2)
+            assert assoc.is_established
+            assert "exceeds the negotiated" not in caplog.text
+
+            assoc.abort()
+            scp.step()  # receive abort
+            scp.step()
+            scp.shutdown()
+
+    def test_recv_pdu_unlimited_max_length(self, caplog):
+        """Test a Maximum Length Received of 0 (no limit) is not enforced."""
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            commands = [
+                ("recv", None),  # recv a-associate-rq
+                ("send", a_associate_ac),
+                ("send", self._p_data_tf(40000)),
+                ("recv", None),  # recv a-abort
+                ("exit", None),
+            ]
+            self.scp = scp = start_server(commands, port=get_port())
+
+            def handle(event):
+                scp.step()
+                scp.step()
+
+            hh = [(evt.EVT_REQUESTED, handle)]
+
+            ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            ae.add_requested_context("1.2.840.10008.1.1")
+            assoc = ae.associate("localhost", get_port(), max_pdu=0, evt_handlers=hh)
+            assert assoc.is_established
+
+            scp.step()  # send the PDU
+            time.sleep(0.2)
+            assert assoc.is_established
+            assert "exceeds the negotiated" not in caplog.text
+
+            assoc.abort()
+            scp.step()  # receive abort
+            scp.step()
+            scp.shutdown()
+
+    def test_acceptor_aborts_on_pdu_exceeding_max_length(self):
+        """Test an SCP aborts when the requestor exceeds the SCP's maximum."""
+        self.ae = ae = AE()
+        ae.maximum_pdu_size = 16382
+        ae.network_timeout = 5
+        ae.add_supported_context(Verification)
+        port = get_port()
+        ae.start_server(("localhost", port), block=False)
+
+        with socket.create_connection(("localhost", port), timeout=5) as sock:
+            sock.sendall(a_associate_rq)
+            assert sock.recv(4096)[0] == 0x02  # A-ASSOCIATE-AC
+
+            # Declare a PDU close to 4 GiB but send none of it: the SCP must
+            # refuse it from the header alone rather than wait for the body
+            sock.sendall(struct.pack(">BBL", 0x04, 0x00, 0xFFFFFFF0))
+            reply = sock.recv(4096)
+
+        assert reply[0] == 0x07  # A-ABORT
 
     def test_exception_in_reactor(self):
         """Test that an exception being raised in the DUL reactor kills the
