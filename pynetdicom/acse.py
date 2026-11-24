@@ -441,16 +441,8 @@ class ACSE:
         socket = cast("AssociationSocket", self.socket)
         socket._ready.wait()
 
-        # AE-4 closes the socket straight after queueing an A-ASSOCIATE-RJ, so
-        #   a closed socket doesn't always mean we failed to connect
-        if not socket._is_connected and not isinstance(
-            self.dul.peek_next_pdu(), A_ASSOCIATE
-        ):
-            # Failed to connect
-            self.assoc.abort()
-            return
-
-        # Wait for response
+        # Wait for response, don't bother testing the connection as a failure
+        #   will end up causing an abort anyway
         rsp = self.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
 
         # Association accepted or rejected
