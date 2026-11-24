@@ -10,3 +10,4 @@ Fixes
 * Fixed being unable to resolve IPv4 address when using the hostname (:issue:`1033`, :pr:`1034`)
 * Fixed the socket not being closed when shutting it down fails (:issue:`1102`)
 * Fixed the *Maximum Length Received* not being enforced for received P-DATA-TF PDUs. A PDU whose length exceeds the value announced by the local AE (other than ``0``, meaning unlimited) is now treated as a protocol error and the association is aborted, before the PDU body is read (:issue:`1106`)
+* Fixed a rejected association sometimes being reported as aborted (:issue:`1104`)

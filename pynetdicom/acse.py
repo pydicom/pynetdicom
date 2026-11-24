@@ -441,12 +441,8 @@ class ACSE:
         socket = cast("AssociationSocket", self.socket)
         socket._ready.wait()
 
-        if not socket._is_connected:
-            # Failed to connect
-            self.assoc.abort()
-            return
-
-        # Wait for response
+        # Wait for response, don't bother testing the connection as a failure
+        #   will end up causing an abort anyway
         rsp = self.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
 
         # Association accepted or rejected

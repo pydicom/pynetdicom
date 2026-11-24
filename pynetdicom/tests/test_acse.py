@@ -321,6 +321,32 @@ class TestNegotiationRequestor:
         with pytest.raises(queue.Empty):
             self.assoc.dul.queue.get(block=False)
 
+    def test_receive_reject_socket_closed(self):
+        """Test rejection reported if the socket closed after A-ASSOCIATE-RJ."""
+        primitive = A_ASSOCIATE()
+        primitive._result = 0x01
+        primitive._result_source = 0x02
+        primitive._diagnostic = 0x01
+
+        # AE-4 queues the rejection then closes the socket
+        self.assoc.dul.queue.put(primitive)
+        self.assoc.dul.socket._is_connected = False
+
+        acse = ACSE(self.assoc)
+        acse._negotiate_as_requestor()
+        assert self.assoc.is_aborted is False
+        assert self.assoc.is_rejected is True
+        assert self.assoc.dul.is_killed is True
+
+    def test_not_connected(self):
+        """Test abort if the connection failed and nothing was received."""
+        self.assoc.dul.socket._is_connected = False
+
+        acse = ACSE(self.assoc)
+        acse._negotiate_as_requestor()
+        assert self.assoc.is_aborted is True
+        assert self.assoc.is_rejected is False
+
     def test_receive_accept(self):
         """Test establishment if A-ASSOCIATE result is acceptance."""
         port = get_port()
