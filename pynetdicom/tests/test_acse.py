@@ -627,7 +627,7 @@ class TestUserIdentityNegotiation:
             self.ae.shutdown()
 
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
-    def test_check_usrid_not_implemented(self, req, rsp):
+    def test_check_userid_not_implemented(self, req, rsp):
         """Check _check_user_identity if user hasn't implemented."""
         self.ae = ae = AE()
         ae.add_requested_context(Verification)
@@ -649,7 +649,7 @@ class TestUserIdentityNegotiation:
         assert response is None
 
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
-    def test_check_usrid_not_authorised(self, req, rsp):
+    def test_check_userid_not_authorised(self, req, rsp):
         """Check _check_user_identity if requestor not authorised"""
         port = get_port()
 
@@ -687,7 +687,7 @@ class TestUserIdentityNegotiation:
         scp.shutdown()
 
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
-    def test_check_usrid_authorised(self, req, rsp):
+    def test_check_userid_authorised(self, req, rsp):
         """Check _check_user_identity if requestor authorised"""
         port = get_port()
 
@@ -728,7 +728,7 @@ class TestUserIdentityNegotiation:
 
         scp.shutdown()
 
-    def test_check_usrid_callback_exception(self):
+    def test_check_userid_callback_exception(self):
         """Check _check_user_identity if exception in callback"""
         port = get_port()
 
@@ -766,7 +766,7 @@ class TestUserIdentityNegotiation:
 
         scp.shutdown()
 
-    def test_check_usrid_none(self):
+    def test_check_userid_none(self):
         """Check _check_user_identity if exception in callback"""
         port = get_port()
 
@@ -797,7 +797,7 @@ class TestUserIdentityNegotiation:
 
         scp.shutdown()
 
-    def test_check_usrid_server_response_exception(self):
+    def test_check_userid_server_response_exception(self):
         """Check _check_user_identity exception in setting server response"""
         port = get_port()
 
