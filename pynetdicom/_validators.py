@@ -1,8 +1,8 @@
 """Validation functions used by pynetdicom"""
 
 import logging
-from typing import TYPE_CHECKING
 import unicodedata
+from typing import TYPE_CHECKING
 
 from pydicom.uid import UID
 
