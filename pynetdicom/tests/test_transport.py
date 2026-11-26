@@ -318,6 +318,18 @@ class TestAssociationSocket:
         assert sock.event_queue.get() == "Evt17"
         assert sock.socket is None
 
+    def test_shutdown_socket_closes_unconnected(self):
+        """Test the socket is closed even if shutdown() raises (#1102)."""
+        sock = AssociationSocket(self.assoc, address=AddressInformation("", 0))
+        with pytest.raises(OSError):
+            sock.socket.shutdown(socket.SHUT_RDWR)
+
+        sock._shutdown_socket()
+        assert sock.socket.fileno() == -1
+
+        sock.socket = None
+        sock._shutdown_socket()
+
     def test_ready_error(self):
         """Test AssociationSocket.ready."""
         sock = AssociationSocket(self.assoc, address=AddressInformation("localhost", 0))

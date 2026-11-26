@@ -8,21 +8,21 @@ from typing import TYPE_CHECKING, cast
 
 from pynetdicom import evt
 from pynetdicom.pdu import (
-    A_ASSOCIATE_RQ,
-    A_ASSOCIATE_RJ,
-    A_ASSOCIATE_AC,
-    P_DATA_TF,
-    A_RELEASE_RQ,
-    A_RELEASE_RP,
     A_ABORT_RQ,
+    A_ASSOCIATE_AC,
+    A_ASSOCIATE_RJ,
+    A_ASSOCIATE_RQ,
+    A_RELEASE_RP,
+    A_RELEASE_RQ,
+    P_DATA_TF,
 )
-from pynetdicom.pdu_primitives import A_P_ABORT, A_ABORT
-from pynetdicom.transport import T_CONNECT, AssociationSocket, AddressInformation
+from pynetdicom.pdu_primitives import A_ABORT, A_P_ABORT
+from pynetdicom.transport import T_CONNECT, AddressInformation
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.dul import DULServiceProvider
+    from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, P_DATA
     from pynetdicom.transport import AssociationSocket
-    from pynetdicom.pdu_primitives import A_ASSOCIATE, P_DATA, A_RELEASE
 
 
 LOGGER = logging.getLogger(__name__)
@@ -113,14 +113,13 @@ class StateMachine:
             # Move the state machine to the next state
             self.transition(next_state)
 
-        except Exception as exc:
-            LOGGER.error(
+        except Exception:
+            LOGGER.exception(
                 "State Machine received an exception attempting "
                 "to perform the action '%s' while in state '%s'",
                 action_name,
                 self.current_state,
             )
-            LOGGER.exception(exc)
             self.dul.kill_dul()
             raise
 
@@ -592,7 +591,7 @@ def AR_5(dul: "DULServiceProvider") -> str:
     """
     # Ensure socket is closed
     try:
-        cast(AssociationSocket, dul.socket)._shutdown_socket()
+        cast("AssociationSocket", dul.socket)._shutdown_socket()
     except Exception:
         pass
 
@@ -885,7 +884,7 @@ def AA_4(dul: "DULServiceProvider") -> str:
     """
     # Ensure socket is closed
     try:
-        cast(AssociationSocket, dul.socket)._shutdown_socket()
+        cast("AssociationSocket", dul.socket)._shutdown_socket()
     except Exception:
         pass
 
@@ -925,7 +924,7 @@ def AA_5(dul: "DULServiceProvider") -> str:
     """
     # Ensure socket is closed
     try:
-        cast(AssociationSocket, dul.socket)._shutdown_socket()
+        cast("AssociationSocket", dul.socket)._shutdown_socket()
     except Exception:
         pass
 
@@ -1067,8 +1066,10 @@ ACTIONS = {
     "AE-2": ("Send A-ASSOCIATE-RQ-PDU", AE_2, "Sta5"),
     "AE-3": ("Issue A-ASSOCIATE confirmation (accept) primitive", AE_3, "Sta6"),
     "AE-4": (
-        "Issue A-ASSOCIATE confirmation (reject) primitive and close "
-        "transport connection",
+        (
+            "Issue A-ASSOCIATE confirmation (reject) primitive and close "
+            "transport connection"
+        ),
         AE_4,
         "Sta1",
     ),
@@ -1078,9 +1079,11 @@ ACTIONS = {
         "Sta2",
     ),
     "AE-6": (
-        "Stop ARTIM timer and if A-ASSOCIATE-RQ acceptable by "
-        "service-dul: issue A-ASSOCIATE indication primitive "
-        "otherwise issue A-ASSOCIATE-RJ-PDU and start ARTIM timer",
+        (
+            "Stop ARTIM timer and if A-ASSOCIATE-RQ acceptable by "
+            "service-dul: issue A-ASSOCIATE indication primitive "
+            "otherwise issue A-ASSOCIATE-RJ-PDU and start ARTIM timer"
+        ),
         AE_6,
         ("Sta3", "Sta13"),
     ),
@@ -1102,9 +1105,11 @@ ACTIONS = {
     "AR-6": ("Issue P-DATA indication", AR_6, "Sta7"),
     "AR-7": ("Issue P-DATA-TF PDU", AR_7, "Sta8"),
     "AR-8": (
-        "Issue A-RELEASE indication (release collision): if "
-        "association-requestor, next state is Sta9, if not next "
-        "state is Sta10",
+        (
+            "Issue A-RELEASE indication (release collision): if "
+            "association-requestor, next state is Sta9, if not next "
+            "state is Sta10"
+        ),
         AR_8,
         ("Sta9", "Sta10"),
     ),
@@ -1112,17 +1117,21 @@ ACTIONS = {
     "AR-10": ("Issue A-RELEASE confirmation primitive", AR_10, "Sta12"),
     # Association abort related actions
     "AA-1": (
-        "Send A-ABORT PDU (service-user source) and start (or "
-        "restart if already started) ARTIM timer",
+        (
+            "Send A-ABORT PDU (service-user source) and start (or "
+            "restart if already started) ARTIM timer"
+        ),
         AA_1,
         "Sta13",
     ),
     "AA-2": ("Stop ARTIM timer if running. Close transport connection", AA_2, "Sta1"),
     "AA-3": (
-        "If (service-user initiated abort): issue A-ABORT "
-        "indication and close transport connection, otherwise "
-        "(service-dul initiated abort): issue A-P-ABORT indication "
-        "and close transport connection",
+        (
+            "If (service-user initiated abort): issue A-ABORT "
+            "indication and close transport connection, otherwise "
+            "(service-dul initiated abort): issue A-P-ABORT indication "
+            "and close transport connection"
+        ),
         AA_3,
         "Sta1",
     ),
@@ -1131,8 +1140,10 @@ ACTIONS = {
     "AA-6": ("Ignore PDU", AA_6, "Sta13"),
     "AA-7": ("Send A-ABORT PDU", AA_7, "Sta13"),
     "AA-8": (
-        "Send A-ABORT PDU (service-dul source), issue an A-P-ABORT "
-        "indication and start ARTIM timer",
+        (
+            "Send A-ABORT PDU (service-dul source), issue an A-P-ABORT "
+            "indication and start ARTIM timer"
+        ),
         AA_8,
         "Sta13",
     ),
