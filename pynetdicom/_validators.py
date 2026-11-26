@@ -128,10 +128,10 @@ def validate_query(identifier: "Dataset", query_model: UID) -> tuple[bool, str]:
 
     level = identifier.QueryRetrieveLevel
     if level not in levels:
-        return (
-            False,
-            f"the Identifier's (0008,0052) 'Query/Retrieve Level' value "
-            f"'{level}' is not one of {levels} allowed for the query model",
+        reason = (
+            "the Identifier's (0008,0052) 'Query/Retrieve Level' value "
+            f"'{level}' is not one of {levels} allowed for the query model"
         )
+        return False, reason
 
     return True, ""
