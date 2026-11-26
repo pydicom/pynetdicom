@@ -2,39 +2,39 @@
 The main user class, represents a DICOM Application Entity
 """
 
-from copy import deepcopy
-from datetime import datetime
 import logging
 import socket
-from ssl import SSLContext
 import threading
-from typing import (
-    cast,
-    TypeVar,
-    Any,
-)
-from collections.abc import Sequence
 import warnings
+from collections.abc import Sequence
+from copy import deepcopy
+from datetime import datetime, timezone
+from ssl import SSLContext
+from typing import (
+    Any,
+    TypeVar,
+    cast,
+)
 
 from pydicom.uid import UID
 
 from pynetdicom import _config
-from pynetdicom.association import Association
-from pynetdicom.events import EventHandlerType
-from pynetdicom.presentation import PresentationContext
-from pynetdicom.pdu_primitives import _UI
-from pynetdicom.transport import (
-    AssociationSocket,
-    AssociationServer,
-    ThreadedAssociationServer,
-    AddressInformation,
-)
-from pynetdicom.utils import make_target, set_ae, decode_bytes, set_uid
 from pynetdicom._globals import (
-    MODE_REQUESTOR,
     DEFAULT_MAX_LENGTH,
     DEFAULT_TRANSFER_SYNTAXES,
+    MODE_REQUESTOR,
 )
+from pynetdicom.association import Association
+from pynetdicom.events import EventHandlerType
+from pynetdicom.pdu_primitives import _UI
+from pynetdicom.presentation import PresentationContext
+from pynetdicom.transport import (
+    AddressInformation,
+    AssociationServer,
+    AssociationSocket,
+    ThreadedAssociationServer,
+)
+from pynetdicom.utils import decode_bytes, make_target, set_ae, set_uid
 
 LOGGER = logging.getLogger(__name__)
 
@@ -612,7 +612,7 @@ class ApplicationEntity:
         assoc = Association(self, MODE_REQUESTOR)
 
         # Set the thread name
-        timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
+        timestamp = datetime.strftime(datetime.now(tz=timezone.utc), "%Y%m%d%H%M%S")
         assoc.name = f"RequestorThread@{timestamp}"
 
         # Setup the association's communication socket
@@ -1443,7 +1443,7 @@ class ApplicationEntity:
             return None
 
         # Non-blocking server
-        timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
+        timestamp = datetime.strftime(datetime.now(tz=timezone.utc), "%Y%m%d%H%M%S")
         server = self.make_server(
             address,
             ae_title=ae_title,

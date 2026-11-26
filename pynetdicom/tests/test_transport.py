@@ -319,6 +319,18 @@ class TestAssociationSocket:
         assert sock.event_queue.get() == "Evt17"
         assert sock.socket is None
 
+    def test_shutdown_socket_closes_unconnected(self):
+        """Test the socket is closed even if shutdown() raises (#1102)."""
+        sock = AssociationSocket(self.assoc, address=AddressInformation("", 0))
+        with pytest.raises(OSError):
+            sock.socket.shutdown(socket.SHUT_RDWR)
+
+        sock._shutdown_socket()
+        assert sock.socket.fileno() == -1
+
+        sock.socket = None
+        sock._shutdown_socket()
+
     def test_ready_error(self):
         """Test AssociationSocket.ready."""
         sock = AssociationSocket(self.assoc, address=AddressInformation("localhost", 0))
@@ -923,7 +935,6 @@ class TestAssociationServer:
     def test_pass_contextvars(self):
         """Test the context is passed to the association threads."""
         cvar = ContextVar("cvar")
-        token = cvar.set("foo")
 
         received = []
 
@@ -948,10 +959,10 @@ class TestAssociationServer:
 
         # The default is for the context not to be passed
         assert _config.PASS_CONTEXTVARS is False
-        run_echo()
-
-        _config.PASS_CONTEXTVARS = True
+        token = cvar.set("foo")
         try:
+            run_echo()
+            _config.PASS_CONTEXTVARS = True
             run_echo()
         finally:
             _config.PASS_CONTEXTVARS = False

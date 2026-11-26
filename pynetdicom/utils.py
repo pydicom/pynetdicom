@@ -1,12 +1,12 @@
 """Various utility functions."""
 
+import logging
+import sys
+from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
 from contextvars import copy_context
 from io import BytesIO
-import logging
-import sys
 from typing import cast
-from collections.abc import Iterator, Callable, Sequence
 
 try:
     import ctypes
@@ -40,8 +40,8 @@ def decode_bytes(encoded_value: bytes) -> str:
     # Always try ASCII first
     try:
         return encoded_value.decode("ascii", errors="strict")
-    except UnicodeDecodeError as exc:
-        LOGGER.exception(exc)
+    except UnicodeDecodeError:
+        LOGGER.exception("Failed to decode encoded value")
 
     codecs: Sequence[str] = _config.CODECS
     codecs = [c for c in codecs if c not in ("ascii", "646", "us-ascii")]
@@ -52,8 +52,8 @@ def decode_bytes(encoded_value: bytes) -> str:
             value = encoded_value.decode(codec, errors="strict")
             encoded_value = value.encode("ascii", errors="ignore")
             return decode_bytes(encoded_value)
-        except UnicodeError as exc:
-            LOGGER.exception(exc)
+        except UnicodeError:
+            LOGGER.exception("Failed to decode encoded value")
 
     codecs.insert(0, "ascii")
     as_hex = " ".join([f"{b:02X}" for b in encoded_value])

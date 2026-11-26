@@ -5,41 +5,41 @@ from enum import IntEnum
 from pydicom.dataset import Dataset
 
 from pynetdicom._globals import (
-    STATUS_SUCCESS,
-    STATUS_FAILURE,
-    STATUS_WARNING,
     STATUS_CANCEL,
+    STATUS_FAILURE,
     STATUS_PENDING,
+    STATUS_SUCCESS,
     STATUS_UNKNOWN,
+    STATUS_WARNING,
 )
 
 __all__ = [
-    "STATUS_SUCCESS",
-    "STATUS_FAILURE",
-    "STATUS_WARNING",
-    "STATUS_CANCEL",
-    "STATUS_PENDING",
-    "STATUS_UNKNOWN",
-    "GENERAL_STATUS",
-    "VERIFICATION_SERVICE_CLASS_STATUS",
-    "STORAGE_SERVICE_CLASS_STATUS",
-    "QR_FIND_SERVICE_CLASS_STATUS",
-    "QR_MOVE_SERVICE_CLASS_STATUS",
-    "QR_GET_SERVICE_CLASS_STATUS",
-    "MODALITY_WORKLIST_SERVICE_CLASS_STATUS",
-    "RELEVANT_PATIENT_SERVICE_CLASS_STATUS",
-    "SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS",
-    "NON_PATIENT_SERVICE_CLASS_STATUS",
-    "PROCEDURE_STEP_STATUS",
-    "PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS",
-    "STORAGE_COMMITMENT_SERVICE_CLASS_STATUS",
     "APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS",
+    "GENERAL_STATUS",
     "MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS",
-    "UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS",
+    "MODALITY_WORKLIST_SERVICE_CLASS_STATUS",
+    "NON_PATIENT_SERVICE_CLASS_STATUS",
+    "PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS",
+    "PROCEDURE_STEP_STATUS",
+    "QR_FIND_SERVICE_CLASS_STATUS",
+    "QR_GET_SERVICE_CLASS_STATUS",
+    "QR_MOVE_SERVICE_CLASS_STATUS",
+    "RELEVANT_PATIENT_SERVICE_CLASS_STATUS",
     "RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS",
-    "code_to_status",
-    "code_to_category",
+    "STATUS_CANCEL",
+    "STATUS_FAILURE",
+    "STATUS_PENDING",
+    "STATUS_SUCCESS",
+    "STATUS_UNKNOWN",
+    "STATUS_WARNING",
+    "STORAGE_COMMITMENT_SERVICE_CLASS_STATUS",
+    "STORAGE_SERVICE_CLASS_STATUS",
+    "SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS",
+    "UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS",
+    "VERIFICATION_SERVICE_CLASS_STATUS",
     "Status",
+    "code_to_category",
+    "code_to_status",
 ]
 
 
@@ -229,14 +229,18 @@ MODALITY_WORKLIST_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA900: (STATUS_FAILURE, "Identifier does not match SOP class"),
     0xFF00: (
         STATUS_PENDING,
-        "Matches are continuing - current match is supplied and any "
-        "Optional Keys were supported in the same manner as Required "
-        "Keys",
+        (
+            "Matches are continuing - current match is supplied and any "
+            "Optional Keys were supported in the same manner as Required "
+            "Keys"
+        ),
     ),
     0xFF01: (
         STATUS_PENDING,
-        "Matches are continuing - warning that one or more Optional "
-        "Keys were not supported for existence for this Identifier",
+        (
+            "Matches are continuing - warning that one or more Optional "
+            "Keys were not supported for existence for this Identifier"
+        ),
     ),
 }
 
@@ -271,14 +275,18 @@ SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA900: (STATUS_FAILURE, "Data set doesn't match SOP Class"),
     0xFF00: (
         STATUS_PENDING,
-        "Matches are continuing, current match is supplied and any "
-        "Optional Keys were supported in the same manner as Required "
-        "Keys",
+        (
+            "Matches are continuing, current match is supplied and any "
+            "Optional Keys were supported in the same manner as Required "
+            "Keys"
+        ),
     ),
     0xFF01: (
         STATUS_PENDING,
-        "Matches are continuing, warning that one or more Optional "
-        "Keys were not supported for existence for this Identifier",
+        (
+            "Matches are continuing, warning that one or more Optional "
+            "Keys were not supported for existence for this Identifier"
+        ),
     ),
 }
 
@@ -319,13 +327,17 @@ PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS: StatusDictType = {
     0xB601: (STATUS_WARNING, "Film session printing (collation) is not supported"),
     0xB602: (
         STATUS_WARNING,
-        "Film Session SOP Instance hierarchy does not contain Image "
-        "Box SOP Instances (empty page)",
+        (
+            "Film Session SOP Instance hierarchy does not contain Image "
+            "Box SOP Instances (empty page)"
+        ),
     ),
     0xB603: (
         STATUS_WARNING,
-        "Film Box SOP Instance hierarchy does not contain Image Box "
-        "SOP Instances (empty page)",
+        (
+            "Film Box SOP Instance hierarchy does not contain Image Box "
+            "SOP Instances (empty page)"
+        ),
     ),
     0xB604: (
         STATUS_WARNING,
@@ -333,25 +345,33 @@ PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS: StatusDictType = {
     ),
     0xB605: (
         STATUS_WARNING,
-        "Requested minimum density or maximum density outside of "
-        "printer's operating range. The print will use its respective "
-        "minimum or maximum density value instead",
+        (
+            "Requested minimum density or maximum density outside of "
+            "printer's operating range. The print will use its respective "
+            "minimum or maximum density value instead"
+        ),
     ),
     0xB609: (
         STATUS_WARNING,
-        "Image size is larger than the image box size, the image has "
-        "been cropped to fit",
+        (
+            "Image size is larger than the image box size, the image has "
+            "been cropped to fit"
+        ),
     ),
     0xB60A: (
         STATUS_WARNING,
-        "Image size or Combined Print Image size is larger than the "
-        "image box size, image or combined print image has been "
-        "decimated to fit",
+        (
+            "Image size or Combined Print Image size is larger than the "
+            "image box size, image or combined print image has been "
+            "decimated to fit"
+        ),
     ),
     0xC600: (
         STATUS_FAILURE,
-        "Film Session SOP Instance hierarchy does not contain Film Box "
-        "SOP Instances",
+        (
+            "Film Session SOP Instance hierarchy does not contain Film Box "
+            "SOP Instances"
+        ),
     ),
     0xC601: (
         STATUS_FAILURE,
@@ -369,10 +389,12 @@ PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS: StatusDictType = {
     ),
     0xC616: (
         STATUS_FAILURE,
-        "There is an existing film box that has not been printed and "
-        "N-ACTION at the film session level is not supported. A new "
-        "film box will not be created when a previous film box has not "
-        "been printed",
+        (
+            "There is an existing film box that has not been printed and "
+            "N-ACTION at the film session level is not supported. A new "
+            "film box will not be created when a previous film box has not "
+            "been printed"
+        ),
     ),
 }
 PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
@@ -399,13 +421,17 @@ STORAGE_MANAGEMENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS: StatusDictType = {
     0xB101: (
         STATUS_WARNING,
-        "Specified Synchronisation Frame of Reference UID doesn't "
-        "match SCP Synchronization Frame of Reference",
+        (
+            "Specified Synchronisation Frame of Reference UID doesn't "
+            "match SCP Synchronization Frame of Reference"
+        ),
     ),
     0xB102: (
         STATUS_WARNING,
-        "Study Instance UID coercion; event logged under a different "
-        "Study Instance UID",
+        (
+            "Study Instance UID coercion; event logged under a different "
+            "Study Instance UID"
+        ),
     ),
     0xB104: (
         STATUS_WARNING,
@@ -427,8 +453,10 @@ APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS: StatusDictType = {
     ),
     0xC110: (
         STATUS_FAILURE,
-        "Patient cannot be identified from Patient ID (0010,0020) or "
-        "Admission ID (0038,0010)",
+        (
+            "Patient cannot be identified from Patient ID (0010,0020) or "
+            "Admission ID (0038,0010)"
+        ),
     ),
     0xC111: (STATUS_FAILURE, "Update of Medication Administration Record failed"),
 }
@@ -440,8 +468,10 @@ MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS: StatusDictType = {
     0x0001: (STATUS_WARNING, "Requested optional Attributes are not supported"),
     0xA510: (
         STATUS_FAILURE,
-        "An Initiate Media Creation action has already been received "
-        "for this SOP Instance",
+        (
+            "An Initiate Media Creation action has already been received "
+            "for this SOP Instance"
+        ),
     ),
     0xC201: (STATUS_FAILURE, "Media creation request already completed"),
     0xC202: (
@@ -487,13 +517,17 @@ UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS.update(
         ),
         0xC304: (
             STATUS_FAILURE,
-            "The UPS has not met final state requirements for the "
-            "requested state change",
+            (
+                "The UPS has not met final state requirements for the "
+                "requested state change"
+            ),
         ),
         0xC307: (
             STATUS_FAILURE,
-            "Specified SOP Instance UID does not exist or is not a UPS "
-            "Instance managed by this SCP",
+            (
+                "Specified SOP Instance UID does not exist or is not a UPS "
+                "Instance managed by this SCP"
+            ),
         ),
         0xC308: (STATUS_FAILURE, "Receiving AE-TITLE is unknown to this SCP"),
         0xC309: (STATUS_FAILURE, "The provided value of UPS State was not SCHEDULED"),
@@ -508,15 +542,19 @@ UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS.update(
         0xC315: (STATUS_FAILURE, "SCP does not support Event Reports"),
         0xFF00: (
             STATUS_PENDING,
-            "Matches are continuing - current match is supplied an any "
-            "Optional Keys were supported in the same manner as Required "
-            "Keys",
+            (
+                "Matches are continuing - current match is supplied an any "
+                "Optional Keys were supported in the same manner as Required "
+                "Keys"
+            ),
         ),
         0xFF01: (
             STATUS_PENDING,
-            "Matches are continuing - current match is supplied an any "
-            "Optional Keys were not supported for existence for this "
-            "Identifier",
+            (
+                "Matches are continuing - current match is supplied an any "
+                "Optional Keys were not supported for existence for this "
+                "Identifier"
+            ),
         ),
     }
 )
@@ -527,8 +565,10 @@ UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS: StatusDictType = {
     0xC112: (
         STATUS_FAILURE,
-        "No such object instance - applicable Machine Verification "
-        "instance not found",
+        (
+            "No such object instance - applicable Machine Verification "
+            "instance not found"
+        ),
     ),
     0xC221: (
         STATUS_FAILURE,

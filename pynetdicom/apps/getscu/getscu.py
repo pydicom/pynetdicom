@@ -9,17 +9,17 @@ import sys
 
 from pynetdicom import (
     AE,
+    StoragePresentationContexts,
     build_role,
     evt,
-    StoragePresentationContexts,
 )
-from pynetdicom.apps.common import setup_logging, create_dataset, handle_store
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
+from pynetdicom.apps.common import create_dataset, handle_store, setup_logging
 from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelGet,
-    StudyRootQueryRetrieveInformationModelGet,
     PatientStudyOnlyQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelGet,
 )
 
 __version__ = "0.4.0"
@@ -240,8 +240,8 @@ def main(args=None):
         #     identifier.QueryRetrieveLevel = 'PATIENT'
         #     identifier.PatientName = '*'
         identifier = create_dataset(args, APP_LOGGER)
-    except Exception as exc:
-        APP_LOGGER.exception(exc)
+    except Exception:
+        APP_LOGGER.exception("")
         sys.exit(1)
 
     # Create application entity
