@@ -5646,6 +5646,53 @@ class TestQRMoveServiceClass:
 
         scp.shutdown()
 
+    def test_scp_originator_aet(self):
+        """Test C-STORE sub-operation uses the C-MOVE originator's AE title."""
+        attrs = {}
+
+        def handle(event):
+            yield self.destination
+            yield 1
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            attrs["originator_msg_id"] = event.request.MoveOriginatorMessageID
+            attrs["originator_aet"] = event.request.MoveOriginatorApplicationEntityTitle
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = move_scp = AE(ae_title="MOVE_SCP")
+        move_scp.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        move_scp.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        move_scp.add_requested_context(CTImageStorage)
+        scp = move_scp.start_server(
+            ("localhost", get_port()), block=False, evt_handlers=handlers
+        )
+
+        scu_ae = AE(ae_title="ORIGINATOR_SCU")
+        scu_ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        scu_ae.acse_timeout = 5
+        scu_ae.dimse_timeout = 5
+        assoc = scu_ae.associate("localhost", get_port())
+        assert assoc.is_established
+        responses = list(
+            assoc.send_c_move(
+                self.query,
+                "TESTMOVE",
+                PatientRootQueryRetrieveInformationModelMove,
+                msg_id=1234,
+            )
+        )
+        assert [status.Status for status, _ in responses] == [0xFF00, 0x0000]
+        assoc.release()
+        assert assoc.is_released
+
+        assert attrs["originator_msg_id"] == 1234
+        assert attrs["originator_aet"] == "ORIGINATOR_SCU"
+
+        scp.shutdown()
+
     def test_scp_handler_identifier(self):
         """Test handler event's context attribute"""
         attrs = {}
