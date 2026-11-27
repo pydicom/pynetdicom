@@ -2353,7 +2353,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     status_ds = store_assoc.send_c_store(
                         dataset,
                         msg_id=msg_id,
-                        originator_aet=self.ae.ae_title,
+                        originator_aet=self.assoc.remote["ae_title"],
                         originator_id=req.MessageID,
                     )
 
